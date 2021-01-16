@@ -19,3 +19,12 @@ class OckovaciMisto(db.Model):
     operation_id= Column(Integer)
     place_id= Column(Integer)
     mesto= Column(Unicode)
+
+class VolnaMistaQuery(db.Model):
+    query = Column(Unicode, primary_key=True)
+
+class OckovaciKapacity(db.Model):
+    misto_id = Column(Integer, primary_key=True)
+    mesto = Column(Unicode)
+    datum = Column(DateTime)
+    kapacita= Column(Integer)

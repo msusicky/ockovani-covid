@@ -62,7 +62,7 @@ CREATE TABLE public.kapacita
     datum_ziskani timestamp without time zone,
     import_id bigint NOT NULL,
     CONSTRAINT kapacita_pkey PRIMARY KEY (misto_id, import_id, datum)
-) PARTITION BY LIST (import_id);
+);
 
 ALTER TABLE public.kapacita
     OWNER to ockovani;
