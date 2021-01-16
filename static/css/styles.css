@@ -1,0 +1,8 @@
+table {
+    border: 1px solid black;
+    margin-bottom: 2em;
+}
+
+td {
+    border: 1px dotted black;
+}

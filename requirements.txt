@@ -1,0 +1,8 @@
+Flask>=1.1.2
+Flask-Restless>=0.16.0
+Flask-SQLAlchemy>=2.0
+SQLAlchemy>=1.0.2
+Werkzeug>=0.16.1
+psycopg2==2.7.7
+markupsafe
+requests

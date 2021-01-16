@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Očkování
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <h1>Aplikace s přehledem volných míst na COVID-19 očkování</h1>
+
+    {% if login %}
+        <h3>Logged as: {{ login }} </h3>
+    {% endif %}
+	Povídání o aplikaci a co umí.
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        {# We store this variable so that we know what URL to use in AJAX calls #}
+        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
+    </script>
+{% endblock %}
+
+
+{#
+Note: you can also put css/js in 'base.html' if you want it to apply to all templates
+which extend base.html (like this one)
+#}
