@@ -13,9 +13,11 @@ Session = sessionmaker(bind=some_engine)
 app.session = Session()
 app.logger.info('Connection set up')
 
+
 @app.before_request
 def before_request():
     g.user = None
+
 
 def create_app(config):
     """Construct the core application."""
@@ -24,7 +26,7 @@ def create_app(config):
     with app.app_context():
         a = 0
     app.logger.info(app.config['SQLALCHEMY_DATABASE_URI'])
-    app.session=db.session
+    app.session = db.session
     return app
 
 
@@ -38,12 +40,12 @@ if __name__ == '__main__':
     handler.setLevel(logging.DEBUG)
 
     # Logging of SQL queries
-    #logging.basicConfig()
-    #logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+    # logging.basicConfig()
+    # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
     handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     app.logger.addHandler(handler)
-    #app.logger.setLevel(logging.DEBUG)
+    # app.logger.setLevel(logging.DEBUG)
     register_blueprints(app)
 
     app.run(debug=True, threaded=True, port=5678, host='127.0.0.1')
