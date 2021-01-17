@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 db = SQLAlchemy()
 
+
 class MyModel(db.Model):
     id = Column(Integer, primary_key=True)
     some_string = Column(Unicode)
@@ -16,12 +17,14 @@ class OckovaciMisto(db.Model):
     misto_id = Column(Integer, primary_key=True)
     nazev = Column(Unicode)
     service_id = Column(Integer)
-    operation_id= Column(Integer)
-    place_id= Column(Integer)
-    mesto= Column(Unicode)
+    operation_id = Column(Integer)
+    place_id = Column(Integer)
+    mesto = Column(Unicode)
+
 
 class VolnaMistaQuery(db.Model):
     query = Column(Unicode, primary_key=True)
+
 
 class OckovaciKapacity(db.Model):
     mesto = Column(Unicode)
@@ -32,3 +35,16 @@ class OckovaciKapacity(db.Model):
 
     def __repr__(self):
         return f"{self.mesto} - {self.nazev}:{self.misto_id} - {self.datum}: {self.pocet_mist}"
+
+
+class Kapacita(db.Model):
+    misto_id = Column(Integer, primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    raw_data = Column(Unicode)
+    pocet_mist = Column(Integer)
+    datum_ziskani = Column(DateTime, primary_key=True)
+    import_id = Column(Integer)
+
+class Dny(db.Model):
+    den_id=Column(Integer, primary_key=True)
+    datum=Column(DateTime)
