@@ -6,3 +6,19 @@ table {
 td {
     border: 1px dotted black;
 }
+
+.margin-under-navbar {
+    margin-top: 3rem;
+}
+
+.jumbotron {
+    background-color: rgba(0,0,0, 0.05);
+}
+
+.navbar-link {
+    color: ivory;
+}
+
+.footer {
+    background-color: rgba(0,0,0, 0.07);
+}

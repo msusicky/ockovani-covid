@@ -43,13 +43,14 @@ def info():
     ockovani_info=app.session.query(OckovaciMisto).from_statement(text("select * from public.ockovaci_misto")).all()
 
     #my small test of API
-    url = 'https://reservatic.com/public_services/411747/public_operations/5971/hours?date=2021-4-09'
-    data = ''
-    response = requests.get(url, data=data, headers={"Content-Type": "application/json"})
+    # url = 'https://reservatic.com/public_services/411747/public_operations/5971/hours?date=2021-4-09'
+    # data = ''
+    # response = requests.get(url, data=data, headers={"Content-Type": "application/json"})
     #v response mam volne terminy :)
-    print(response)
+    # print(response)
 
     #ockovani_queries = app.session.query(VolnaMistaQuery).from_statement(text("select \'https://reservatic.com/public_services/\' | | service_id | | \'/public_operations/\' | | operation_id | | \'/hours?date=\' | | d.datum from ockovaci_misto om cross join dny d")).all()
     #print(ockovani_queries)
 
-    return render_template('ockovani_info.html', ockovaci_mista=ockovani_info, volne_terminy=response.text)
+    # return render_template('ockovani_info.html', ockovaci_mista=ockovani_info, volne_terminy=response.text)
+    return render_template('ockovani_info.html', ockovaci_mista=ockovani_info)

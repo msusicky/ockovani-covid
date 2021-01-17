@@ -9,12 +9,16 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Aplikace s přehledem volných míst na COVID-19 očkování</h1>
+    <div class="container">
+        <div class="jumbotron margin-under-navbar">
+            <h2>Aplikace s přehledem volných míst na COVID-19 očkování</h2>
 
-    {% if login %}
-        <h3>Logged as: {{ login }} </h3>
-    {% endif %}
-	Povídání o aplikaci a co umí.
+            {% if login %}
+                <h3>Logged as: {{ login }} </h3>
+            {% endif %}
+            <p>Povídání o aplikaci a co umí.</p>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
