@@ -18,12 +18,24 @@ def index():
 
 @my_view.route("/mesto/<mesto>")
 def info_mesto(mesto):
-    nactene_informace = app.session.query(OckovaciKapacity).from_statement(text("SELECT m.mesto, m.nazev, k.* FROM ockovaci_misto m JOIN kapacita k ON (m.misto_id=k.misto_id) where m.mesto=:mesto_param")).params(mesto_param=mesto).all()
+    nactene_informace = app.session.query(OckovaciKapacity).from_statement(
+        text(
+            "SELECT m.mesto, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
+            "JOIN kapacita k ON (m.misto_id=k.misto_id) "
+            "WHERE m.mesto=:mesto_param"
+        )
+    ).params(mesto_param=mesto).all()
     return render_template('mesto.html', data=nactene_informace, mesto=mesto)
 
 @my_view.route("/misto/<misto>")
 def info_misto(misto):
-    nactene_informace = app.session.query(OckovaciKapacity).from_statement(text("SELECT m.mesto, m.nazev, k.* FROM ockovaci_misto m JOIN kapacita k ON (m.misto_id=k.misto_id) where m.nazev=:misto_param")).params(misto_param=misto).all()
+    nactene_informace = app.session.query(OckovaciKapacity).from_statement(
+        text(
+            "SELECT m.mesto, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
+            "JOIN kapacita k ON (m.misto_id=k.misto_id) "
+            "WHERE m.nazev=:misto_param"
+        )
+    ).params(misto_param=misto).all()
     return render_template('misto.html', data=nactene_informace, misto=misto)
 
 @my_view.route("/info")

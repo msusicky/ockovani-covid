@@ -24,7 +24,11 @@ class VolnaMistaQuery(db.Model):
     query = Column(Unicode, primary_key=True)
 
 class OckovaciKapacity(db.Model):
-    misto_id = Column(Integer, primary_key=True)
     mesto = Column(Unicode)
-    datum = Column(DateTime)
-    kapacita= Column(Integer)
+    nazev = Column(Unicode)
+    datum = Column(DateTime, primary_key=True)
+    pocet_mist = Column(Integer)
+    misto_id = Column(Integer, primary_key=True)
+
+    def __repr__(self):
+        return f"{self.mesto} - {self.nazev}:{self.misto_id} - {self.datum}: {self.pocet_mist}"
