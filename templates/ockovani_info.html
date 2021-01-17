@@ -9,36 +9,32 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="jumbotron margin-under-navbar">
-            <h3>Informace o volných kapacitách</h3>
+    <h3>Informace o volných kapacitách</h3>
 
 <!--            {% if volne_terminy %}-->
 <!--                {{ volne_terminy }}-->
 <!--            {% endif %}-->
 
-            {% if ockovaci_mista %}
-                <table class="table table-striped">
-                    <thead  class="thead-dark">
-                    <tr>
-                        <th scope="col">Název</th>
-                        <th scope="col">Město</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in ockovaci_mista %}
-                        <tr>
-                            <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
-                            <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                No Data!
-            {% endif %}
-        </div>
-    </div>
+    {% if ockovaci_mista %}
+        <table class="table table-striped">
+            <thead  class="thead-dark">
+            <tr>
+                <th scope="col">Název</th>
+                <th scope="col">Město</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in ockovaci_mista %}
+                <tr>
+                    <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
+                    <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No Data!
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

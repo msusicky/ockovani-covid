@@ -9,36 +9,32 @@
 {% endblock %}
 
 {% block body %}
-<div class="container margin-under-navbar">
-    <div class="jumbotron">
-        <h3>Informace o volných kapacitách místa {{ mesto }} </h3>
+    <h3>Informace o volných kapacitách místa {{ mesto }} </h3>
 
-        {% if data %}
-            <table class="table table-striped">
-                <thead  class="thead-dark">
+    {% if data %}
+        <table class="table table-striped">
+            <thead  class="thead-dark">
+            <tr>
+                <th scope="col">Název</th>
+                <th scope="col">Město</th>
+                <th scope="col">Datum</th>
+                <th scope="col">Kapacita</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in data %}
                 <tr>
-                    <th scope="col">Název</th>
-                    <th scope="col">Město</th>
-                    <th scope="col">Datum</th>
-                    <th scope="col">Kapacita</th>
+                    <td><a href="../misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
+                    <td><a href="../mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                    <td>{{ item.datum }}</td>
+                    <td>{{ item.pocet_mist }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for item in data %}
-                    <tr>
-                        <td><a href="../misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
-                        <td><a href="../mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
-                        <td>{{ item.datum }}</td>
-                        <td>{{ item.pocet_mist }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            Žádná data!
-        {% endif %}
-    </div>
-</div>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        Žádná data!
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

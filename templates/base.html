@@ -48,7 +48,11 @@
 </nav>
 {% endblock %}
 
-{% block body %}{% endblock %}
+<div class="container margin-under-navbar">
+    <div class="jumbotron">
+        {% block body %}{% endblock %}
+    </div>
+</div>
 
 
 {% block scripts %}
