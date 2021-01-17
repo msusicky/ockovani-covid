@@ -9,34 +9,32 @@
 {% endblock %}
 
 {% block body %}
-<h1>Informace o volných kapacitách</h1>
+    <h3>Informace o volných kapacitách</h3>
 
-    {% if volne_terminy %}
-        {{ volne_terminy }}
-    {% endif %}
+<!--            {% if volne_terminy %}-->
+<!--                {{ volne_terminy }}-->
+<!--            {% endif %}-->
 
     {% if ockovaci_mista %}
-    <div class="container-fluid p-5">
-    <table class="table table-striped table-hover table-sm">
-        <thead  class="thead-dark">
-        <tr>
-            <th>Název</th>
-            <th>Město</th>
-        </tr>
-        </thead>
-        {% for item in ockovaci_mista %}
+        <table class="table table-striped">
+            <thead  class="thead-dark">
             <tr>
-                <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
-                <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                <th scope="col">Název</th>
+                <th scope="col">Město</th>
             </tr>
-        {% endfor %}
-    </table>
-    </div>
+            </thead>
+            <tbody>
+            {% for item in ockovaci_mista %}
+                <tr>
+                    <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
+                    <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         No Data!
-
     {% endif %}
-
 {% endblock %}
 
 {% block scripts %}
