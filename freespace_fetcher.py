@@ -38,7 +38,7 @@ class FreespaceFetcher:
 
         return response_api
 
-    def fetch_misto(self, misto_id, vacc_date):
+    def fetch_misto(self, misto_id, vacc_date, service_id=None, operation_id=None):
         """
         It fetches necessary info from misto_id -> table ockovaci_misto and executes fetch for it.
         Result will be stored in DB
@@ -46,16 +46,30 @@ class FreespaceFetcher:
         @return:
         """
 
-        misto_parameters = self.session.query(OckovaciMisto).from_statement(
-            text(
-                "SELECT * FROM ockovaci_misto WHERE misto_id=:misto_param"
-            )
-        ).params(misto_param=misto_id).all()
+        if service_id is None:
+            misto_parameters = self.session.query(OckovaciMisto).from_statement(
+                text(
+                    "SELECT * FROM ockovaci_misto WHERE misto_id=:misto_param"
+                )
+            ).params(misto_param=misto_id).all()
+            service_id = misto_parameters[0].service_id
+            operation_id = misto_parameters[0].operation_id
 
-        api_response = self.fetch(misto_parameters[0].service_id, misto_parameters[0].operation_id, vacc_date)
-        item_dict = json.loads(api_response.text)
-        pocet = len(item_dict)
-        new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=api_response.text, pocet_mist=pocet,
+        try:
+            api_response = self.fetch(service_id, operation_id, vacc_date)
+            if api_response.status_code == 200:
+                item_dict = json.loads(api_response.text)
+                pocet = len(item_dict)
+                raw_data_response = api_response.text
+            else:
+                pocet = None
+                raw_data_response=None
+        except:
+            print('Connection Error')
+            pocet = None
+            raw_data_response = None
+
+        new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
                            datum_ziskani=date.today().strftime('%Y-%m-%d'), import_id=-1)
         # TODO import_id should be filled correctly
         print(self.session.add(new_row))
@@ -84,8 +98,8 @@ class FreespaceFetcher:
         print(places_all)
         for i in dny_all:
             for j in places_all:
-                self.fetch_misto(j.misto_id, i.datum)
-        #TODO It is necessary to write this run to the run_log, probably the fact that it is running as well
+                self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
+        # TODO It is necessary to write this run to the run_log, probably the fact that it is running as well
 
 
 if __name__ == '__main__':
