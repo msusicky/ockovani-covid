@@ -24,7 +24,8 @@ def info_mesto(mesto):
         text(
             "SELECT m.mesto, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.mesto=:mesto_param"
+            "WHERE m.mesto=:mesto_param "
+            "ORDER BY k.datum, m.nazev"
         )
     ).params(mesto_param=mesto).all()
     return render_template('mesto.html', data=nactene_informace, mesto=mesto)
@@ -36,7 +37,8 @@ def info_misto(misto):
         text(
             "SELECT m.mesto, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.nazev=:misto_param"
+            "WHERE m.nazev=:misto_param "
+            "ORDER BY k.datum"
         )
     ).params(misto_param=misto).all()
     return render_template('misto.html', data=nactene_informace, misto=misto)
@@ -44,6 +46,6 @@ def info_misto(misto):
 
 @my_view.route("/info")
 def info():
-    ockovani_info = app.session.query(OckovaciMisto).from_statement(text("select * from public.ockovaci_misto")).all()
+    ockovani_info = app.session.query(OckovaciMisto).from_statement(text("select * from public.ockovaci_misto order by mesto, nazev")).all()
 
     return render_template('ockovani_info.html', ockovaci_mista=ockovani_info)
