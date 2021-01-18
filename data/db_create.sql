@@ -39,7 +39,7 @@ COMMENT ON TABLE public.dny
 
 CREATE TABLE public.import_log
 (
-    import_id bigint NOT NULL DEFAULT nextval('import_log_import_id_seq'::regclass),
+    import_id bigserial NOT NULL ,
     spusteni timestamp without time zone NOT NULL,
     CONSTRAINT import_log_pkey PRIMARY KEY (import_id)
 )
