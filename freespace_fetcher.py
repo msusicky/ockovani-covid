@@ -5,7 +5,7 @@ from urllib import response
 from flask import Flask, g
 from sqlalchemy import insert, create_engine, text
 from sqlalchemy.orm import sessionmaker
-from models import db, Kapacita, OckovaciMisto, Dny
+from models import db, Kapacita, OckovaciMisto, Dny, ImportLog
 from datetime import date
 import requests
 
@@ -16,6 +16,7 @@ class FreespaceFetcher:
     API point: https://reservatic.com/public_services/411747/public_operations/5971/hours?date=2021-4-09
     """
     session = ''
+    import_id_last = -1
 
     def __init__(self):
         some_engine = create_engine('postgresql://ockovani:ockovani2021@localhost:5432/ockovani')
@@ -64,14 +65,14 @@ class FreespaceFetcher:
                 raw_data_response = api_response.text
             else:
                 pocet = None
-                raw_data_response=None
+                raw_data_response = None
         except:
             print('Connection Error')
             pocet = None
             raw_data_response = None
 
         new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
-                           datum_ziskani=date.today().strftime('%Y-%m-%d'), import_id=-1)
+                           datum_ziskani=date.today().strftime('%Y-%m-%d'), import_id=self.import_id_last + 1)
         # TODO import_id should be filled correctly
         print(self.session.add(new_row))
         self.session.commit()
@@ -90,18 +91,31 @@ class FreespaceFetcher:
                 "SELECT den_id, datum FROM dny"
             )
         ).all()
-        print(dny_all)
+        # print(dny_all)
         places_all = self.session.query(OckovaciMisto).from_statement(
             text(
                 "SELECT misto_id, service_id, operation_id FROM ockovaci_misto"
             )
         ).all()
-        print(places_all)
+        # print(places_all)
+
+        self.init_last_import_id()
+
         for i in dny_all:
             for j in places_all:
                 self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
                 time.sleep(1)
         # TODO It is necessary to write this run to the run_log, probably the fact that it is running as well
+        new_row = ImportLog(import_id=self.import_id_last + 1, spusteni=date.now())
+        print(self.session.add(new_row))
+        self.session.commit()
+
+    def init_last_import_id(self):
+        try:
+            self.import_id_last = self.session.query(ImportLog).from_statement(text(
+                "SELECT max(spusteni) FROM import_log")).first()
+        except:
+            self.import_id_last = '-1'
 
 
 if __name__ == '__main__':

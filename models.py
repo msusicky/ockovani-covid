@@ -6,13 +6,6 @@ from sqlalchemy.orm import sessionmaker
 db = SQLAlchemy()
 
 
-class MyModel(db.Model):
-    id = Column(Integer, primary_key=True)
-    some_string = Column(Unicode)
-    some_integer = Column(Integer)
-    some_time = Column(DateTime, default=datetime.now)
-
-
 class OckovaciMisto(db.Model):
     misto_id = Column(Integer, primary_key=True)
     nazev = Column(Unicode)
@@ -43,9 +36,15 @@ class Kapacita(db.Model):
     datum = Column(DateTime, primary_key=True)
     raw_data = Column(Unicode)
     pocet_mist = Column(Integer)
-    datum_ziskani = Column(DateTime, primary_key=True)
+    datum_ziskani = Column(DateTime, primary_key=True, default=datetime.now)
     import_id = Column(Integer)
 
+
 class Dny(db.Model):
-    den_id=Column(Integer, primary_key=True)
-    datum=Column(DateTime)
+    den_id = Column(Integer, primary_key=True)
+    datum = Column(DateTime)
+
+
+class ImportLog(db.Model):
+    import_id = Column(Integer, primary_key=True)
+    spusteni = Column(DateTime)
