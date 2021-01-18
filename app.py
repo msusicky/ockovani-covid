@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
-some_engine = create_engine('postgresql://ockovani:ockovani2021@localhost:5432/ockovani')
+some_engine = create_engine('postgresql://ockovani:ockovani2021@db:5432/ockovani')
 Session = sessionmaker(bind=some_engine)
 app.session = Session()
 app.logger.info('Connection set up')
@@ -48,4 +48,4 @@ if __name__ == '__main__':
     # app.logger.setLevel(logging.DEBUG)
     register_blueprints(app)
 
-    app.run(debug=True, threaded=True, port=5678, host='127.0.0.1')
+    app.run(debug=True, threaded=True, port=6678, host='0.0.0.0')

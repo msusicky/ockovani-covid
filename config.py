@@ -10,4 +10,4 @@ class TestConfig(Config):
 class myConfig:
     FLASK_APP = 'app.py'
     FLASK_DEBUG = 1
-    SQLALCHEMY_DATABASE_URI = 'postgresql://ockovani:foaeiwfjewfoij@localhost:5432/ockovani'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://ockovani:ockovani2021@db:5432/ockovani'

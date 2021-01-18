@@ -1,0 +1,16 @@
+version: "3.1"
+
+services:
+  db:
+    image: ockovani_db_image
+    environment:
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+    volumes:
+      - /var/opt/docker/ockovani/postgres_data:/var/lib/postgresql/data
+
+  app:
+    image: ockovani_app_image
+    ports:
+      - 6678:6678
