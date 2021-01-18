@@ -20,6 +20,7 @@ class OckovaciMisto(db.Model):
     operation_id = Column(Integer)
     place_id = Column(Integer)
     mesto = Column(Unicode)
+    pocet_mist = Column(Integer)
 
 
 class VolnaMistaQuery(db.Model):

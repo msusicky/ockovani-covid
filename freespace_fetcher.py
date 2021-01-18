@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 from urllib import response
 from flask import Flask, g
@@ -99,6 +100,7 @@ class FreespaceFetcher:
         for i in dny_all:
             for j in places_all:
                 self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
+                time.sleep(1)
         # TODO It is necessary to write this run to the run_log, probably the fact that it is running as well
 
 

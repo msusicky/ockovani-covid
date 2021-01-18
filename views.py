@@ -46,6 +46,10 @@ def info_misto(misto):
 
 @my_view.route("/info")
 def info():
-    ockovani_info = app.session.query(OckovaciMisto).from_statement(text("select * from public.ockovaci_misto order by mesto, nazev")).all()
+    ockovani_info = app.session.query(OckovaciMisto).from_statement(text(
+        "SELECT om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto, sum(pocet_mist) pocet_mist "
+        "FROM public.ockovaci_misto om left join kapacita k on (om.misto_id=k.misto_id) "
+        "GROUP BY om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto "
+        "ORDER BY mesto, nazev")).all()
 
     return render_template('ockovani_info.html', ockovaci_mista=ockovani_info)
