@@ -11,16 +11,13 @@
 {% block body %}
     <h3>Informace o volných kapacitách</h3>
 
-<!--            {% if volne_terminy %}-->
-<!--                {{ volne_terminy }}-->
-<!--            {% endif %}-->
-
     {% if ockovaci_mista %}
         <table class="table table-striped">
             <thead  class="thead-dark">
             <tr>
                 <th scope="col">Název</th>
                 <th scope="col">Město</th>
+                <th scope="col">Volná kapacita</th>
             </tr>
             </thead>
             <tbody>
@@ -28,6 +25,7 @@
                 <tr>
                     <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
                     <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                    <td>{{ item.pocet_mist }}</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -14,11 +14,6 @@ app.session = Session()
 app.logger.info('Connection set up')
 
 
-@app.before_request
-def before_request():
-    g.user = None
-
-
 def create_app(config):
     """Construct the core application."""
     app.config.from_object(config)
