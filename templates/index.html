@@ -1,27 +1,31 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Očkování
+Očkování
 {% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
 {% endblock %}
 
 {% block body %}
-    <h2>Aplikace s přehledem volných míst na COVID-19 očkování</h2>
+<h2>Aplikace s přehledem volných míst na COVID-19 očkování</h2>
 
-    {% if login %}
-        <h3>Logged as: {{ login }} </h3>
-    {% endif %}
-    <p>Povídání o aplikaci a co umí.</p>
+<p>Cílem této aplikace je nabídnout rychlý přehled o volných kapacitách v očkovacích centrech. Aktuální aplikace, které
+    existují, tuto funkcionalitu rychlého přehledu nemají a proto jsme tu my. Aktualizace jsou momentálně manuální,
+    nicméně toto se v blízké době změní.</p>
+<p>Navštivte repozitář <a
+        href="https://github.com/msusicky/ockovani-covid">https://github.com/msusicky/ockovani-covid</a> a napište
+    náměty pro rozšíření, nebo se přidejte k vývoji.</p>
 {% endblock %}
 
 {% block scripts %}
-    <script>
+<script>
         {# We store this variable so that we know what URL to use in AJAX calls #}
         $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    </script>
+
+
+</script>
 {% endblock %}
 
 
