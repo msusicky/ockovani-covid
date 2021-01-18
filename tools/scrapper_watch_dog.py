@@ -34,11 +34,6 @@ def _parse(session, file, start: int, stop: int):
 
 
 def _open_url(session, url: str):
-    # workaround login
-    session = requests.session()
-    session.cookies.set('_reservatic_session2020_a', '<session value>')
-    # workaround login
-
     response = session.get(url)
     soup = BeautifulSoup(response.text)
     time.sleep(1)
@@ -50,7 +45,13 @@ def _write(file, firma, service_id):
 
 
 if __name__ == "__main__":
-    session = _login('<email>', '<password>') # not needed to fill, login doesn't work - use session from your web browser
+    # login doesn't work, use workaround and session from your web browser
+    # session = _login('<email>', '<password>')
+
+    # workaround instead of login
+    session = requests.session()
+    session.cookies.set('_reservatic_session2020_a', '<session-value>')
+
     file = open("out.csv", "a", encoding="utf-8")
-    _parse(session, file, 411400, 412100)
+    _parse(session, file, 411400, 412200)
     file.close()
