@@ -118,11 +118,11 @@ class FreespaceFetcher:
             self.session.commit()
 
     def init_last_import_id(self):
-        try:
-            res = self.session.query(func.max(ImportLog.import_id)).first()
-            self.import_id_last = res[0]
-        except:
+        res = self.session.query(func.max(ImportLog.import_id)).first()[0]
+        if res is None:
             self.import_id_last = '-1'
+        else:
+            self.import_id_last = res[0]
 
 
 if __name__ == '__main__':
