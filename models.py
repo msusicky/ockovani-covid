@@ -1,12 +1,20 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, Unicode, DateTime, PrimaryKeyConstraint
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, Unicode, DateTime
 
 db = SQLAlchemy()
 
 
 class OckovaciMisto(db.Model):
+    misto_id = Column(Integer, primary_key=True)
+    nazev = Column(Unicode)
+    service_id = Column(Integer)
+    operation_id = Column(Integer)
+    place_id = Column(Integer)
+    mesto = Column(Unicode)
+
+
+class OckovaciMistoKapacita(db.Model):
     misto_id = Column(Integer, primary_key=True)
     nazev = Column(Unicode)
     service_id = Column(Integer)
@@ -48,3 +56,4 @@ class Dny(db.Model):
 class ImportLog(db.Model):
     import_id = Column(Integer, primary_key=True)
     spusteni = Column(DateTime)
+

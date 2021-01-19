@@ -1,4 +1,7 @@
-from flask import Flask, g
+from flask import Flask
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from models import db
 from views import *
 import logging

@@ -1,9 +1,6 @@
 import json
 import time
-import logging
-from urllib import response
-from flask import Flask, g
-from sqlalchemy import insert, create_engine, text
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from models import db, Kapacita, OckovaciMisto, Dny, ImportLog
 from datetime import date

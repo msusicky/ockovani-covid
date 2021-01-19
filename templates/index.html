@@ -1,35 +1,26 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Očkování
-{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
-{% endblock %}
-
 {% block body %}
-<h2>Aplikace s přehledem volných míst na COVID-19 očkování</h2>
+<div class="row">
+    <div class="jumbotron">
+        <h2>Aplikace s přehledem volných míst na COVID-19 očkování</h2>
+        <p>
+            Cílem této aplikace je nabídnout rychlý přehled o volných kapacitách v očkovacích centrech. Aktuální aplikace,
+            které existují, tuto funkcionalitu rychlého přehledu nemají a proto jsme tu my. Aktualizace jsou momentálně
+            manuální, nicméně toto se v blízké době změní.
+        </p>
+        <p>
+            Navštivte repozitář <a href="https://github.com/msusicky/ockovani-covid">https://github.com/msusicky/ockovani-covid</a>
+            a napište náměty pro rozšíření, nebo se přidejte k vývoji.
+        </p>
+    </div>
+</div>
 
-<p>Cílem této aplikace je nabídnout rychlý přehled o volných kapacitách v očkovacích centrech. Aktuální aplikace, které
-    existují, tuto funkcionalitu rychlého přehledu nemají a proto jsme tu my. Aktualizace jsou momentálně manuální,
-    nicméně toto se v blízké době změní.</p>
-<p>Navštivte repozitář <a
-        href="https://github.com/msusicky/ockovani-covid">https://github.com/msusicky/ockovani-covid</a> a napište
-    náměty pro rozšíření, nebo se přidejte k vývoji.</p>
 {% endblock %}
 
 {% block scripts %}
 <script>
-        {# We store this variable so that we know what URL to use in AJAX calls #}
-        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-
-
+    {# We store this variable so that we know what URL to use in AJAX calls #}
+    $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
 </script>
 {% endblock %}
-
-
-{#
-Note: you can also put css/js in 'base.html' if you want it to apply to all templates
-which extend base.html (like this one)
-#}

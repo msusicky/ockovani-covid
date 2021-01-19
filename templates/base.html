@@ -14,7 +14,7 @@
     <![endif]-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}COVID Očkování</title>
 
     {# All templates which inherit this one will have jQuery #}
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -24,12 +24,15 @@
     <style>.cip-genpw-icon.cip-icon-key-small {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_16x16.png); }
         .cip-genpw-icon.cip-icon-key-big {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_24x24.png); }
     </style>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+
     {% block head %}{% endblock %}
 </head>
 <body>
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="/">Úvodní strana</a>
+  <a class="navbar-brand" href="/">COVID očkování</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -37,28 +40,26 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item col-lg-auto ml-auto">
-        <a class="nav-link" href="/info">Očkovací místa</a>
+        <a class="nav-link {{ 'active' if request.path == '/info' else '' }}" href="/info">Přehled očkovacích míst</a>
       </li>
-      <li class="nav-item">
-        <!-- <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
-      </li>
+<!--      <li class="nav-item">-->
+<!--         <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
+<!--      </li>-->
     </ul>
   </div>
 
 </nav>
 {% endblock %}
 
-<div class="container margin-under-navbar">
-    <div class="jumbotron">
-        {% block body %}{% endblock %}
-    </div>
+<div class="container mt-4">
+    {% block body %}{% endblock %}
 </div>
 
 
 {% block scripts %}
 {% endblock %}
-<div class="text-center p-3 footer">
-    Vznik 16.1.2021, poslední aktualizace {{ last_update }}
+<div class="footer fixed-bottom text-center p-3">
+    Vznik 16. 01. 2021, poslední aktualizace {{ last_update }}
 </div>
 </body>
 </html>
