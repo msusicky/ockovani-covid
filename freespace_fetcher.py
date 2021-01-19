@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import datetime, date
 
 import requests
 from sqlalchemy import create_engine, text, func
@@ -105,10 +105,11 @@ class FreespaceFetcher:
         self.session.commit()
 
         try:
-            for i in dny_all:
-                for j in places_all:
-                    self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
-                    time.sleep(1)
+            for day in dny_all:
+                for place in places_all:
+                    if day.datum >= date.today():
+                        self.fetch_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
+                        time.sleep(1)
             # TODO It is necessary to finish this run -> nehance DB
         except:
             new_row.status = 'FAILED'
@@ -122,7 +123,7 @@ class FreespaceFetcher:
         if res is None:
             self.import_id_last = '-1'
         else:
-            self.import_id_last = res[0]
+            self.import_id_last = res
 
 
 if __name__ == '__main__':
