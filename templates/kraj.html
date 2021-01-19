@@ -36,7 +36,9 @@
             </tbody>
         </table>
     {% else %}
-        Žádná data!
+        <div class="alert alert-warning w-100" role="alert">
+            Pro tento kraj zatím nemáme žádná data. <a href="javascript:history.back()">Zpět</a>.
+        </div>
     {% endif %}
     </div>
 {% endblock %}
