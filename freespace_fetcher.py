@@ -88,7 +88,8 @@ class FreespaceFetcher:
         """
         dny_all = self.session.query(Dny).from_statement(
             text(
-                "SELECT den_id, datum FROM dny"
+                "SELECT den_id, datum FROM dny ",
+                "WHERE datum BETWEEN NOW() AND NOW() + INTERVAL '30 days'"
             )
         ).all()
         # print(dny_all)
