@@ -5,6 +5,8 @@ from sqlalchemy import text
 from app import app
 from models import OckovaciMisto, OckovaciKapacity, ImportLog, Kapacita
 
+STATUS_FINISHED = 'FINISHED'
+
 my_view = Blueprint('my_view', __name__, template_folder="templates")
 
 
@@ -21,10 +23,10 @@ def info_mesto(mesto):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.mesto=:mesto_param and k.import_id=(SELECT max(import_id) FROM import_log)"
+            "WHERE m.mesto=:mesto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum, m.nazev"
         )
-    ).params(mesto_param=mesto).all()
+    ).params(mesto_param=mesto, status_param=STATUS_FINISHED).all()
     # TODO casem zmenit to max_import_id
 
     return render_template('mesto.html', data=nactene_informace, mesto=mesto, last_update=last_update())
@@ -36,10 +38,10 @@ def info_kraj(kraj):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.kraj=:kraj_param and k.import_id=(SELECT max(import_id) FROM import_log)"
+            "WHERE m.kraj=:kraj_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum, m.mesto, m.nazev"
         )
-    ).params(kraj_param=kraj).all()
+    ).params(kraj_param=kraj, status_param=STATUS_FINISHED).all()
 
     return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
 
@@ -50,10 +52,10 @@ def info_misto(misto):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.misto_id=:misto_param and k.import_id=(SELECT max(import_id) FROM import_log)"
+            "WHERE m.misto_id=:misto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum"
         )
-    ).params(misto_param=misto).all()
+    ).params(misto_param=misto, status_param=STATUS_FINISHED).all()
 
     ockovani_info = app.session.query(OckovaciMisto).from_statement(text(
         "SELECT m.misto_id, m.nazev, m.service_id, m.operation_id, m.place_id, m.mesto, m.kraj "
@@ -80,7 +82,7 @@ def info():
 
 
 def last_update():
-    last_run = app.session.query(func.max(ImportLog.spusteni)).first()[0]
+    last_run = app.session.query(func.max(ImportLog.spusteni)).filter(ImportLog.status == STATUS_FINISHED).first()[0]
     if last_run is None:
         last_run_formatted = 'nikdy'
     else:
@@ -94,7 +96,7 @@ def last_update_import_id():
     For better filtering.
     @return:
     """
-    last_run = app.session.query(func.max(ImportLog.import_id)).first()[0]
+    last_run = app.session.query(func.max(ImportLog.import_id)).filter(ImportLog.status == STATUS_FINISHED).first()[0]
     if last_run is None:
         max_import_id = 0
     else:
