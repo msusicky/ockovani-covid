@@ -1,27 +1,33 @@
 {% extends 'base.html' %}
 
+{% block title %}
+{{ kraj }} kraj |
+{% endblock %}
+
 {% block body %}
     <div class="row">
-        <h3>Očkovací místa</h3>
+        <h3>Očkovací místa v kraji: {{ kraj }} </h3>
     </div>
 
     <div class="row">
-    {% if ockovaci_mista %}
+    {% if data %}
         <table class="table table-striped table-sm">
             <thead  class="thead-dark">
             <tr>
                 <th scope="col" class="text-center">Název</th>
                 <th scope="col" class="text-center">Město</th>
                 <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Volná místa (příštích 30 dní)</th>
+                <th scope="col" class="text-center">Datum</th>
+                <th scope="col" class="text-center">Volná místa</th>
             </tr>
             </thead>
             <tbody>
-            {% for item in ockovaci_mista %}
+            {% for item in data %}
                 <tr>
-                    <td><a href="./misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
-                    <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
-                    <td><a href="./kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
+                    <td><a href="../misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
+                    <td><a href="../mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                    <td>{{ item.kraj }}</td>
+                    <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
                     <td class="text-right">
                         <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
                     </td>
@@ -30,7 +36,7 @@
             </tbody>
         </table>
     {% else %}
-        No Data!
+        Žádná data!
     {% endif %}
     </div>
 {% endblock %}
@@ -42,10 +48,4 @@
         $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
     </script>
 {% endblock %}
-
-
-{#
-Note: you can also put css/js in 'base.html' if you want it to apply to all templates
-which extend base.html (like this one)
-#}
 

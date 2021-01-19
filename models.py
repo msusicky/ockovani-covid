@@ -13,6 +13,7 @@ class OckovaciMisto(db.Model):
     operation_id = Column(Integer)
     place_id = Column(Integer)
     mesto = Column(Unicode)
+    kraj = Column(Unicode)
     #table1 = relationship(Kapacita, backref="kapacita_ref")
 
 
@@ -22,6 +23,7 @@ class VolnaMistaQuery(db.Model):
 
 class OckovaciKapacity(db.Model):
     mesto = Column(Unicode)
+    kraj = Column(Unicode)
     nazev = Column(Unicode)
     datum = Column(DateTime, primary_key=True)
     pocet_mist = Column(Integer)
