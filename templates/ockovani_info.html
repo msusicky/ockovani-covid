@@ -1,31 +1,28 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Očkování Flask App
-{% endblock %}
-
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
-{% endblock %}
-
 {% block body %}
-    <h3>Informace o volných kapacitách</h3>
+    <div class="row">
+        <h3>Očkovací místa</h3>
+    </div>
 
+    <div class="row">
     {% if ockovaci_mista %}
-        <table class="table table-striped">
+        <table class="table table-striped table-sm">
             <thead  class="thead-dark">
             <tr>
-                <th scope="col">Název</th>
-                <th scope="col">Město</th>
-                <th scope="col">Volná kapacita 30 dní</th>
+                <th scope="col" class="text-center">Název</th>
+                <th scope="col" class="text-center">Město</th>
+                <th scope="col" class="text-center">Volná místa (příštích 30 dní)</th>
             </tr>
             </thead>
             <tbody>
             {% for item in ockovaci_mista %}
                 <tr>
-                    <td><a href="./misto/{{ item.nazev }}">{{ item.nazev }}</a></td>
+                    <td><a href="./misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
                     <td><a href="./mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
-                    <td>{{ item.pocet_mist }}</td>
+                    <td class="text-right">
+                        <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -33,6 +30,7 @@
     {% else %}
         No Data!
     {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}

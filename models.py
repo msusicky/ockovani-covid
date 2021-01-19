@@ -1,7 +1,7 @@
 from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, Unicode, DateTime, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, Integer, Unicode, DateTime
 
 db = SQLAlchemy()
 

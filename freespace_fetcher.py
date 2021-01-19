@@ -1,13 +1,12 @@
 import json
 import time
-import logging
-from urllib import response
-from flask import Flask, g
-from sqlalchemy import insert, create_engine, text, func, update
-from sqlalchemy.orm import sessionmaker
-from models import db, Kapacita, OckovaciMisto, Dny, ImportLog
-from datetime import datetime
+from datetime import datetime, date
+
 import requests
+from sqlalchemy import create_engine, text, func
+from sqlalchemy.orm import sessionmaker
+
+from models import Kapacita, OckovaciMisto, Dny, ImportLog
 
 
 class FreespaceFetcher:
@@ -106,10 +105,11 @@ class FreespaceFetcher:
         self.session.commit()
 
         try:
-            for i in dny_all:
-                for j in places_all:
-                    self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
-                    time.sleep(1)
+            for day in dny_all:
+                for place in places_all:
+                    if day.datum >= date.today():
+                        self.fetch_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
+                        time.sleep(1)
             # TODO It is necessary to finish this run -> nehance DB
         except:
             new_row.status = 'FAILED'
@@ -119,11 +119,11 @@ class FreespaceFetcher:
             self.session.commit()
 
     def init_last_import_id(self):
-        try:
-            res = self.session.query(func.max(ImportLog.import_id)).first()
-            self.import_id_last = res[0]
-        except:
+        res = self.session.query(func.max(ImportLog.import_id)).first()[0]
+        if res is None:
             self.import_id_last = '-1'
+        else:
+            self.import_id_last = res
 
 
 if __name__ == '__main__':

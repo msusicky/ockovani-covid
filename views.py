@@ -1,12 +1,9 @@
-from flask import Blueprint, render_template, g, session, redirect, url_for, request
+from flask import Blueprint, render_template
 from sqlalchemy import *
 from sqlalchemy import text
-from sqlalchemy.orm import sessionmaker, query
-from markupsafe import escape
-import requests
 
 from app import app
-from models import OckovaciMisto, VolnaMistaQuery, OckovaciKapacity, ImportLog, Kapacita
+from models import OckovaciMisto, OckovaciKapacity, ImportLog, Kapacita
 
 my_view = Blueprint('my_view', __name__, template_folder="templates")
 
@@ -28,6 +25,7 @@ def info_mesto(mesto):
             "ORDER BY k.datum, m.nazev"
         )
     ).params(mesto_param=mesto).all()
+
     return render_template('mesto.html', data=nactene_informace, mesto=mesto, last_update=last_update())
 
 
@@ -37,11 +35,18 @@ def info_misto(misto):
         text(
             "SELECT m.mesto, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.nazev=:misto_param "
+            "WHERE m.misto_id=:misto_param "
             "ORDER BY k.datum"
         )
     ).params(misto_param=misto).all()
-    return render_template('misto.html', data=nactene_informace, misto=misto, last_update=last_update())
+
+    ockovani_info = app.session.query(OckovaciMisto).from_statement(text(
+        "SELECT m.misto_id, m.nazev, m.service_id, m.operation_id, m.place_id, m.mesto "
+        "FROM public.ockovaci_misto m "
+        "WHERE m.misto_id=:misto_param"
+    )).params(misto_param=misto).first()
+
+    return render_template('misto.html', data=nactene_informace, misto=ockovani_info, last_update=last_update())
 
 
 @my_view.route("/info")
@@ -56,8 +61,10 @@ def info():
 
 
 def last_update():
-    try:
-        last_run = app.session.query(func.max(ImportLog.spusteni)).first()[0]
-    except:
-        last_run = 'nikdy'
-    return last_run
+    last_run = app.session.query(func.max(ImportLog.spusteni)).first()[0]
+    if last_run is None:
+        last_run_formatted = 'nikdy'
+    else:
+        last_run_formatted = last_run.strftime('%d. %m. %Y %H:%M')
+
+    return last_run_formatted
