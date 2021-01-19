@@ -82,7 +82,7 @@ INSERT INTO public.ockovaci_misto_tmp (nazev, service_id, operation_id, place_id
 
 ALTER TABLE public.ockovaci_misto ADD COLUMN kraj character varying COLLATE pg_catalog."default";
 
-UPDATE public.ockovaci_misto m SET m.kraj = t.kraj FROM public.ockovaci_misto_tmp t WHERE m.nazev = t.nazev;
+UPDATE public.ockovaci_misto m SET kraj = t.kraj FROM public.ockovaci_misto_tmp t WHERE m.nazev = t.nazev;
 
 DROP TABLE public.ockovaci_misto_tmp;
 
