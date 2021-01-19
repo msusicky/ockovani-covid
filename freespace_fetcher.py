@@ -1,9 +1,12 @@
 import json
 import time
-from sqlalchemy import create_engine, text
+import logging
+from urllib import response
+from flask import Flask, g
+from sqlalchemy import insert, create_engine, text, func, update
 from sqlalchemy.orm import sessionmaker
 from models import db, Kapacita, OckovaciMisto, Dny, ImportLog
-from datetime import date
+from datetime import datetime
 import requests
 
 
@@ -19,6 +22,7 @@ class FreespaceFetcher:
         some_engine = create_engine('postgresql://ockovani:ockovani2021@localhost:5432/ockovani')
         Session = sessionmaker(bind=some_engine)
         self.session = Session()
+        self.init_last_import_id()
 
     def fetch(self, service_id, operation_id, vacc_date):
         """
@@ -48,7 +52,7 @@ class FreespaceFetcher:
         if service_id is None:
             misto_parameters = self.session.query(OckovaciMisto).from_statement(
                 text(
-                    "SELECT * FROM ockovaci_misto WHERE misto_id=:misto_param"
+                    "SELECT om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto FROM ockovaci_misto om WHERE misto_id=:misto_param"
                 )
             ).params(misto_param=misto_id).all()
             service_id = misto_parameters[0].service_id
@@ -69,7 +73,7 @@ class FreespaceFetcher:
             raw_data_response = None
 
         new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
-                           datum_ziskani=date.today().strftime('%Y-%m-%d'), import_id=self.import_id_last + 1)
+                           datum_ziskani=datetime.now(), import_id=int(self.import_id_last) + 1)
         # TODO import_id should be filled correctly
         print(self.session.add(new_row))
         self.session.commit()
@@ -96,21 +100,28 @@ class FreespaceFetcher:
         ).all()
         # print(places_all)
 
-        self.init_last_import_id()
-
-        for i in dny_all:
-            for j in places_all:
-                self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
-                time.sleep(1)
-        # TODO It is necessary to write this run to the run_log, probably the fact that it is running as well
-        new_row = ImportLog(import_id=self.import_id_last + 1, spusteni=date.now())
+        # Writing this attempt
+        new_row = ImportLog(import_id=int(self.import_id_last) + 1, spusteni=datetime.now(), status='RUNNING')
         print(self.session.add(new_row))
         self.session.commit()
 
+        try:
+            for i in dny_all:
+                for j in places_all:
+                    self.fetch_misto(j.misto_id, i.datum, j.service_id, j.operation_id)
+                    time.sleep(1)
+            # TODO It is necessary to finish this run -> nehance DB
+        except:
+            new_row.status = 'FAILED'
+        else:
+            new_row.status = 'FINISHED'
+        finally:
+            self.session.commit()
+
     def init_last_import_id(self):
         try:
-            self.import_id_last = self.session.query(ImportLog).from_statement(text(
-                "SELECT max(spusteni) FROM import_log")).first()
+            res = self.session.query(func.max(ImportLog.import_id)).first()
+            self.import_id_last = res[0]
         except:
             self.import_id_last = '-1'
 

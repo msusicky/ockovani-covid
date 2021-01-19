@@ -1,7 +1,12 @@
-from flask import Blueprint, render_template
-from sqlalchemy import text, func
+from flask import Blueprint, render_template, g, session, redirect, url_for, request
+from sqlalchemy import *
+from sqlalchemy import text
+from sqlalchemy.orm import sessionmaker, query
+from markupsafe import escape
+import requests
+
 from app import app
-from models import OckovaciMisto,  OckovaciKapacity, ImportLog, OckovaciMistoKapacita
+from models import OckovaciMisto, VolnaMistaQuery, OckovaciKapacity, ImportLog, Kapacita
 
 my_view = Blueprint('my_view', __name__, template_folder="templates")
 
@@ -49,13 +54,12 @@ def info_misto(misto):
 
 @my_view.route("/info")
 def info():
-    ockovani_info = app.session.query(OckovaciMistoKapacita).from_statement(text(
-        "SELECT om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto, sum(pocet_mist) pocet_mist "
-        "FROM public.ockovaci_misto om left join kapacita k on (om.misto_id=k.misto_id) "
-        "GROUP BY om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto "
-        "ORDER BY mesto, nazev")
-    ).all()
-
+    ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
+                                      OckovaciMisto.operation_id,
+                                      OckovaciMisto.place_id, OckovaciMisto.mesto,
+                                      func.max(Kapacita.pocet_mist).label("pocet_mist")).outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id).group_by(
+        OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
+        OckovaciMisto.place_id, OckovaciMisto.mesto).all()
     return render_template('ockovani_info.html', ockovaci_mista=ockovani_info, last_update=last_update())
 
 
