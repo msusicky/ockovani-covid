@@ -66,11 +66,13 @@ def info_misto(misto):
 @my_view.route("/info")
 def info():
     ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
-                                      OckovaciMisto.operation_id,
-                                      OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj,
-                                      func.max(Kapacita.pocet_mist).label("pocet_mist")).outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id).group_by(
-        OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
-        OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj).all()
+                                      OckovaciMisto.operation_id, OckovaciMisto.place_id, OckovaciMisto.mesto,
+                                      OckovaciMisto.kraj, func.max(Kapacita.pocet_mist).label("pocet_mist"))\
+        .outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id)\
+        .group_by(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
+                  OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj)\
+        .order_by(OckovaciMisto.kraj, OckovaciMisto.mesto, OckovaciMisto.nazev)\
+        .all()
     return render_template('ockovani_info.html', ockovaci_mista=ockovani_info, last_update=last_update())
 
 
