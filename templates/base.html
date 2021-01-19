@@ -2,15 +2,16 @@
 <html>
 <head lang="en">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     {# Add a banner if using old IE8 #}
     <!--[if IE]>
-        <div style='clear: both; height: 112px; padding:0; position: relative;'>
-            <a href="http://www.theie8countdown.com/ie-users-info">
-                <img src="http://www.theie8countdown.com/assets/badge_iecountdown.png"
-                     border="0" height="112" width="348" alt="" />
-            </a>
-        </div>
+    <div style='clear: both; height: 112px; padding:0; position: relative;'>
+        <a href="http://www.theie8countdown.com/ie-users-info">
+            <img src="http://www.theie8countdown.com/assets/badge_iecountdown.png"
+                 border="0" height="112" width="348" alt=""/>
+        </a>
+    </div>
     <![endif]-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -18,11 +19,23 @@
 
     {# All templates which inherit this one will have jQuery #}
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
     <style>.cip-genpw-icon.cip-icon-key-small {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_16x16.png); }
         .cip-genpw-icon.cip-icon-key-big {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_24x24.png); }
+
+
+
+
+
+
     </style>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
@@ -32,21 +45,23 @@
 <body>
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="/">COVID očkování</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+    <a class="navbar-brand" href="/">COVID očkování</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item col-lg-auto ml-auto">
-        <a class="nav-link {{ 'active' if request.path == '/info' else '' }}" href="/info">Přehled očkovacích míst</a>
-      </li>
-<!--      <li class="nav-item">-->
-<!--         <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
-<!--      </li>-->
-    </ul>
-  </div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item col-lg-auto ml-auto">
+                <a class="nav-link {{ 'active' if request.path == '/info' else '' }}" href="/info">Přehled očkovacích
+                    míst</a>
+            </li>
+            <!--      <li class="nav-item">-->
+            <!--         <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
+            <!--      </li>-->
+        </ul>
+    </div>
 
 </nav>
 {% endblock %}
@@ -59,7 +74,15 @@
 {% block scripts %}
 {% endblock %}
 <div class="footer text-center p-3 mt-4">
-    Vznik 16. 01. 2021, poslední aktualizace {{ last_update }}
+    Vznik 16. 01. 2021, poslední aktualizace {{ last_update }}. <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/">Zdroj mapy www.mylog.cz.</a>
+    <br/>
+    <i>Data na tomto webu jsou pouze orientační, bez
+        jakékoliv záruky a nelze je považovat za spolehlivé. Provozovatel se zříká zodpovědnosti za veškeré škody a
+        újmy,
+        které by použitím těchto dat mohly vzniknout. Web slouží pouze k testování schopností programovacího jazyka
+        Python a
+        podobnost s reálnými skutečnostmi je čistě náhodná. Pro informace o očkování COVID-19 navštivte web <a
+                href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/">https://koronavirus.mzcr.cz/ockovani-proti-covid-19/</a></i>
 </div>
 </body>
 </html>

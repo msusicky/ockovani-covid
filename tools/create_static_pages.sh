@@ -1,0 +1,15 @@
+wget http://127.0.0.1:5000
+wget http://127.0.0.1:5000/info
+wget http://127.0.0.1:5000/kraj/Libereck%C3%BD
+wget http://127.0.0.1:5000/kraj/Jiho%C4%8Desk%C3%BD
+wget http://127.0.0.1:5000/kraj/Jihomoravsk%C3%BD
+wget http://127.0.0.1:5000/kraj/Karlovarsk%C3%BD
+wget http://127.0.0.1:5000/kraj/Kr%C3%A1lov%C3%A9hradeck%C3%BD
+wget http://127.0.0.1:5000/kraj/Moravskoslezsk%C3%BD
+wget http://127.0.0.1:5000/kraj/Olomouck%C3%BD
+wget http://127.0.0.1:5000/kraj/Plze%C5%88sk%C3%BD
+wget http://127.0.0.1:5000/kraj/Praha
+wget http://127.0.0.1:5000/kraj/St%C5%99edo%C4%8Desk%C3%BD
+wget http://127.0.0.1:5000/kraj/%C3%9Asteck%C3%BD
+wget http://127.0.0.1:5000/kraj/Vyso%C4%8Dina
+wget http://127.0.0.1:5000/kraj/Zl%C3%ADnsk%C3%BD

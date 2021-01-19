@@ -1,0 +1,1 @@
+nohup python3 -u ./freespace_fetcher.py >> fetcher.log &
