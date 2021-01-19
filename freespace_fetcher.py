@@ -1,13 +1,12 @@
 import json
 import time
-import logging
-from urllib import response
-from flask import Flask, g
-from sqlalchemy import insert, create_engine, text, func, update
-from sqlalchemy.orm import sessionmaker
-from models import db, Kapacita, OckovaciMisto, Dny, ImportLog
 from datetime import datetime
+
 import requests
+from sqlalchemy import create_engine, text, func
+from sqlalchemy.orm import sessionmaker
+
+from models import Kapacita, OckovaciMisto, Dny, ImportLog
 
 
 class FreespaceFetcher:

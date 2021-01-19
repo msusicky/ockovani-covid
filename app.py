@@ -1,11 +1,11 @@
+import logging
+from logging.handlers import RotatingFileHandler
+
 from flask import Flask
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from models import db
 from views import *
-import logging
-from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -1,12 +1,9 @@
-from flask import Blueprint, render_template, g, session, redirect, url_for, request
+from flask import Blueprint, render_template
 from sqlalchemy import *
 from sqlalchemy import text
-from sqlalchemy.orm import sessionmaker, query
-from markupsafe import escape
-import requests
 
 from app import app
-from models import OckovaciMisto, VolnaMistaQuery, OckovaciKapacity, ImportLog, Kapacita
+from models import OckovaciMisto, OckovaciKapacity, ImportLog, Kapacita
 
 my_view = Blueprint('my_view', __name__, template_folder="templates")
 
