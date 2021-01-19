@@ -29,7 +29,7 @@ def create_app(config):
 
 
 def register_blueprints(app):
-    app.register_blueprint(my_view)
+    app.register_blueprint(my_view, url_prefix='/ockovani-covid')
 
 
 if __name__ == '__main__':
