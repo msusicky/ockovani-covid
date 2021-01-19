@@ -80,7 +80,7 @@ def info():
 
 
 def last_update():
-    last_run = app.session.query(func.max(ImportLog.spusteni)).first()[0]
+    last_run = app.session.query(func.max(ImportLog.spusteni)).filter(ImportLog.status == 'FINISHED').first()[0]
     if last_run is None:
         last_run_formatted = 'nikdy'
     else:
@@ -94,7 +94,7 @@ def last_update_import_id():
     For better filtering.
     @return:
     """
-    last_run = app.session.query(func.max(ImportLog.import_id)).first()[0]
+    last_run = app.session.query(func.max(ImportLog.import_id)).filter(ImportLog.status == 'FINISHED').first()[0]
     if last_run is None:
         max_import_id = 0
     else:
