@@ -41,6 +41,7 @@ CREATE TABLE public.import_log
 (
     import_id bigserial NOT NULL ,
     spusteni timestamp without time zone NOT NULL,
+	status character varying COLLATE pg_catalog."default" NOT NULL DEFAULT 'N/A',
     CONSTRAINT import_log_pkey PRIMARY KEY (import_id)
 )
 
@@ -59,7 +60,7 @@ CREATE TABLE public.kapacita
     datum date NOT NULL,
     raw_data json,
     pocet_mist integer,
-    datum_ziskani timestamp without time zone,
+    datum_ziskani timestamp without time zone DEFAULT NOW(),
     import_id bigint NOT NULL,
     CONSTRAINT kapacita_pkey PRIMARY KEY (misto_id, import_id, datum)
 );
