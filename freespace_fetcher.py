@@ -89,7 +89,7 @@ class FreespaceFetcher:
         dny_all = self.session.query(Dny).from_statement(
             text(
                 "SELECT den_id, datum FROM dny ",
-                "WHERE datum BETWEEN NOW() AND NOW() + INTERVAL '30 days'"
+                "WHERE datum BETWEEN NOW()::date AND (NOW() + INTERVAL '29 days')::date"
             )
         ).all()
         # print(dny_all)
@@ -108,9 +108,8 @@ class FreespaceFetcher:
         try:
             for day in dny_all:
                 for place in places_all:
-                    if day.datum >= date.today():
-                        self.fetch_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
-                        time.sleep(1)
+                    self.fetch_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
+                    time.sleep(1)
             # TODO It is necessary to finish this run -> nehance DB
         except:
             new_row.status = 'FAILED'
