@@ -21,10 +21,11 @@ def info_mesto(mesto):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.mesto=:mesto_param "
+            "WHERE m.mesto=:mesto_param and k.import_id=(SELECT max(import_id) FROM import_log)"
             "ORDER BY k.datum, m.nazev"
         )
     ).params(mesto_param=mesto).all()
+    # TODO casem zmenit to max_import_id
 
     return render_template('mesto.html', data=nactene_informace, mesto=mesto, last_update=last_update())
 
@@ -35,7 +36,7 @@ def info_kraj(kraj):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.kraj=:kraj_param "
+            "WHERE m.kraj=:kraj_param and k.import_id=(SELECT max(import_id) FROM import_log)"
             "ORDER BY k.datum, m.mesto, m.nazev"
         )
     ).params(kraj_param=kraj).all()
@@ -49,7 +50,7 @@ def info_misto(misto):
         text(
             "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
             "JOIN kapacita k ON (m.misto_id=k.misto_id) "
-            "WHERE m.misto_id=:misto_param "
+            "WHERE m.misto_id=:misto_param and k.import_id=(SELECT max(import_id) FROM import_log)"
             "ORDER BY k.datum"
         )
     ).params(misto_param=misto).all()
@@ -67,12 +68,14 @@ def info_misto(misto):
 def info():
     ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
                                       OckovaciMisto.operation_id, OckovaciMisto.place_id, OckovaciMisto.mesto,
-                                      OckovaciMisto.kraj, func.max(Kapacita.pocet_mist).label("pocet_mist"))\
-        .outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id)\
+                                      OckovaciMisto.kraj, func.max(Kapacita.pocet_mist).label("pocet_mist")) \
+        .outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id) \
+        .filter(Kapacita.import_id == last_update_import_id()) \
         .group_by(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
-                  OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj)\
-        .order_by(OckovaciMisto.kraj, OckovaciMisto.mesto, OckovaciMisto.nazev)\
+                  OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj) \
+        .order_by(OckovaciMisto.kraj, OckovaciMisto.mesto, OckovaciMisto.nazev) \
         .all()
+
     return render_template('ockovani_info.html', ockovaci_mista=ockovani_info, last_update=last_update())
 
 
@@ -84,3 +87,17 @@ def last_update():
         last_run_formatted = last_run.strftime('%d. %m. %Y %H:%M')
 
     return last_run_formatted
+
+
+def last_update_import_id():
+    """
+    For better filtering.
+    @return:
+    """
+    last_run = app.session.query(func.max(ImportLog.import_id)).first()[0]
+    if last_run is None:
+        max_import_id = 0
+    else:
+        max_import_id = last_run
+
+    return max_import_id
