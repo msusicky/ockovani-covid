@@ -1,4 +1,5 @@
 import json
+import sys
 import time
 from datetime import datetime, date
 
@@ -125,7 +126,50 @@ class FreespaceFetcher:
         else:
             self.import_id_last = res
 
+    def fetch_covtest(self):
+        """
+        Fetching free spaces from the covtest.cz website.
+        @return:
+        """
+        for region_id in range(15, 28):
+            url = 'https://www.covtest.cz/Index?handler=Calendar&regionId={}&type=16'.format(region_id)
+            # print(url)
+            freespaces_response_api = requests.get(url, data='', headers={"Content-Type": "application/json"})
+            if freespaces_response_api.status_code == 200:
+                free_places = json.loads(freespaces_response_api.text)
+                if len(free_places) > 0:
+                    # iterate through freespaces
+                    self.scrape_region(free_places, freespaces_response_api, region_id)
+
+        return 0
+
+    def scrape_region(self, free_places, freespaces_response_api, region_id):
+        """
+        Investigate all places in the region.
+        @param free_places:
+        @param freespaces_response_api:
+        @param region_id:
+        @return:
+        """
+        for place in free_places:
+
+            url_place = 'https://covtest.cz/Index?handler=Place&regionId={}&date={}&type=16'.format(
+                region_id,
+                place[
+                    'date'])
+            # print(url_place)
+            capacities = requests.get(url_place, data='', headers={"Content-Type": "application/json"})
+            if capacities.status_code == 200:
+                places_list = json.loads(capacities.text)
+                for free_space in places_list:
+                    print(free_space)
+                    # Sample {'id': '995902bc-6243-419d-962e-fbe99d97bb2d', 'day': '2021-01-21T00:00:00', 'name': 'Očkování', 'companyName': 'Nemocnice TGM Hodonín', 'capacity': 7}
+
 
 if __name__ == '__main__':
     fetcher = FreespaceFetcher()
-    fetcher.fetch_all()
+    arguments = sys.argv[1:]
+    if arguments[0] == "covtest":
+        fetcher.fetch_covtest()
+    else:
+        fetcher.fetch_all()
