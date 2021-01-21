@@ -58,7 +58,7 @@ def info_misto(misto):
     ).params(misto_param=misto, status_param=STATUS_FINISHED).all()
 
     ockovani_info = app.session.query(OckovaciMisto).from_statement(text(
-        "SELECT m.misto_id, m.nazev, m.service_id, m.operation_id, m.place_id, m.mesto, m.kraj "
+        "SELECT m.misto_id, m.nazev, m.service_id, m.operation_id, m.place_id, m.mesto, m.kraj, m.nazev_odkaz "
         "FROM public.ockovaci_misto m "
         "WHERE m.misto_id=:misto_param"
     )).params(misto_param=misto).first()

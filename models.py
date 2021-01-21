@@ -15,6 +15,7 @@ class OckovaciMisto(db.Model):
     mesto = Column(Unicode)
     kraj = Column(Unicode)
     covtest_id = Column(Unicode)
+    nazev_odkaz = Column(Unicode)
     #table1 = relationship(Kapacita, backref="kapacita_ref")
 
 
