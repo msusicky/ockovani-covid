@@ -1,4 +1,4 @@
-wget -r http://127.0.0.1:5000/ockovani-covid/ 
+wget -r http://127.0.0.1:5000/ockovani-covid/
 find ./127.0.0.1:5000/ -type f -print0 | xargs -0 -I{} mv "{}" "{}".html
 mv ./127.0.0.1:5000/ockovani-covid/index.html.html ./127.0.0.1:5000/ockovani-covid/index.html
 

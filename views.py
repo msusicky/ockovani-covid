@@ -21,8 +21,8 @@ def index():
 def info_mesto(mesto):
     nactene_informace = app.session.query(OckovaciKapacity).from_statement(
         text(
-            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
-            "JOIN kapacita k ON (m.misto_id=k.misto_id) "
+            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
+            "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
             "WHERE m.mesto=:mesto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum, m.nazev"
         )
@@ -36,8 +36,8 @@ def info_mesto(mesto):
 def info_kraj(kraj):
     nactene_informace = app.session.query(OckovaciKapacity).from_statement(
         text(
-            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
-            "JOIN kapacita k ON (m.misto_id=k.misto_id) "
+            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
+            "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
             "WHERE m.kraj=:kraj_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum, m.mesto, m.nazev"
         )
@@ -50,8 +50,8 @@ def info_kraj(kraj):
 def info_misto(misto):
     nactene_informace = app.session.query(OckovaciKapacity).from_statement(
         text(
-            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, k.misto_id FROM ockovaci_misto m "
-            "JOIN kapacita k ON (m.misto_id=k.misto_id) "
+            "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
+            "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
             "WHERE m.misto_id=:misto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
             "ORDER BY k.datum"
         )
@@ -70,8 +70,8 @@ def info_misto(misto):
 def info():
     ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
                                       OckovaciMisto.operation_id, OckovaciMisto.place_id, OckovaciMisto.mesto,
-                                      OckovaciMisto.kraj, func.max(Kapacita.pocet_mist).label("pocet_mist")) \
-        .outerjoin(Kapacita, Kapacita.misto_id == OckovaciMisto.misto_id) \
+                                      OckovaciMisto.kraj, func.sum(Kapacita.pocet_mist).label("pocet_mist")) \
+        .outerjoin(Kapacita, (Kapacita.misto_id == OckovaciMisto.misto_id) | (Kapacita.covtest_id == OckovaciMisto.covtest_id)) \
         .filter(Kapacita.import_id == last_update_import_id()) \
         .group_by(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
                   OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj) \

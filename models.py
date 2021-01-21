@@ -14,6 +14,7 @@ class OckovaciMisto(db.Model):
     place_id = Column(Integer)
     mesto = Column(Unicode)
     kraj = Column(Unicode)
+    covtest_id = Column(Unicode)
     #table1 = relationship(Kapacita, backref="kapacita_ref")
 
 
@@ -25,9 +26,11 @@ class OckovaciKapacity(db.Model):
     mesto = Column(Unicode)
     kraj = Column(Unicode)
     nazev = Column(Unicode)
-    datum = Column(DateTime, primary_key=True)
+    datum = Column(DateTime)
     pocet_mist = Column(Integer)
-    misto_id = Column(Integer, primary_key=True)
+    misto_id = Column(Integer)
+    covtest_id = Column(Unicode)
+    kapacita_id = Column(Integer, primary_key=True)
 
     def __repr__(self):
         return f"{self.mesto} - {self.nazev}:{self.misto_id} - {self.datum}: {self.pocet_mist}"
@@ -35,12 +38,14 @@ class OckovaciKapacity(db.Model):
 
 class Kapacita(db.Model):
     #misto_id = Column(Integer, ForeignKey('OckovaciMisto.misto_id'), primary_key=True)
-    misto_id = Column(Integer, primary_key=True)
-    datum = Column(DateTime, primary_key=True)
+    misto_id = Column(Integer)
+    datum = Column(DateTime)
     raw_data = Column(Unicode)
     pocet_mist = Column(Integer)
     datum_ziskani = Column(DateTime, default=datetime.now())
-    import_id = Column(Integer, primary_key=True)
+    import_id = Column(Integer)
+    covtest_id = Column(Unicode)
+    kapacita_id = Column(Integer, primary_key=True)
 
 
 class Dny(db.Model):
