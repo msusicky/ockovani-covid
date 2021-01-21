@@ -14,6 +14,12 @@
            target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
             Hlídat volná místa
         </a>
+        {% if misto.nazev_odkaz %}
+        <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
+           target="_blank" class="btn btn-primary ml-1">
+            Rezervovat
+        </a>
+        {% endif %}
     </div>
 
     <div class="row">

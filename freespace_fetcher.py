@@ -184,12 +184,7 @@ class FreespaceFetcher:
         places_all = self.get_places()
 
         for place in places_all:
-            place_was_fetched = self.session.query(func.count(Kapacita.kapacita_id))\
-                    .join(OckovaciMisto, Kapacita.covtest_id == OckovaciMisto.covtest_id)\
-                    .filter(OckovaciMisto.misto_id == place.misto_id)\
-                    .filter(Kapacita.import_id == self.current_import_id).first()[0] > 0
-
-            if place_was_fetched:
+            if place.covtesr_id:
                 for day in dny_all:
                     day_was_fetched = self.session.query(func.count(Kapacita.kapacita_id))\
                         .join(OckovaciMisto, Kapacita.covtest_id == OckovaciMisto.covtest_id)\

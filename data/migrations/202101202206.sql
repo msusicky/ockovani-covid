@@ -100,6 +100,6 @@ DROP TABLE public.ockovaci_misto_tmp;
 
 ALTER TABLE public.kapacita ADD COLUMN kapacita_id bigserial NOT NULL;
 ALTER TABLE public.kapacita ADD COLUMN covtest_id character varying COLLATE pg_catalog."default";
-ALTER TABLE public.kapacita ALTER COLUMN misto_id DROP NOT NULL;
 ALTER TABLE public.kapacita DROP CONSTRAINT kapacita_pkey;
 ALTER TABLE public.kapacita ADD CONSTRAINT kapacita_pkey PRIMARY KEY (kapacita_id);
+ALTER TABLE public.kapacita ALTER COLUMN misto_id DROP NOT NULL;
