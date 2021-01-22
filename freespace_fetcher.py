@@ -91,7 +91,8 @@ class FreespaceFetcher:
 
         new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
                            datum_ziskani=datetime.now(), import_id=self.current_import_id)
-        print(self.session.add(new_row))
+        print(new_row)
+        self.session.add(new_row)
         self.session.commit()
 
     def fetch_reservatic(self):
@@ -110,7 +111,8 @@ class FreespaceFetcher:
 
         # Writing this attempt
         new_row = ImportLog(import_id=self.current_import_id, spusteni=datetime.now(), status='RUNNING')
-        print(self.session.add(new_row))
+        print(new_row)
+        self.session.add(new_row)
         self.session.commit()
 
         try:
@@ -119,7 +121,8 @@ class FreespaceFetcher:
                     self.fetch_reservatic_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
                     time.sleep(1)
             # TODO It is necessary to finish this run -> nehance DB
-        except:
+        except Exception as e:
+            print(e)
             new_row.status = 'FAILED'
         else:
             new_row.status = 'FINISHED'
@@ -129,7 +132,8 @@ class FreespaceFetcher:
     def fetch_covtest(self):
         # Writing this attempt
         new_row = ImportLog(import_id=self.current_import_id, spusteni=datetime.now(), status='RUNNING')
-        print(self.session.add(new_row))
+        print(new_row)
+        self.session.add(new_row)
         self.session.commit()
 
         """
@@ -148,7 +152,8 @@ class FreespaceFetcher:
                         self.fetch_covtest_region(free_places, freespaces_response_api, region_id)
 
             self.fetch_covtest_fill_zeros()
-        except:
+        except Exception as e:
+            print(e)
             new_row.status = 'FAILED'
         else:
             new_row.status = 'FINISHED'
@@ -176,7 +181,8 @@ class FreespaceFetcher:
                     new_row = Kapacita(datum=free_space['day'], raw_data=json.dumps(free_space),
                                        pocet_mist=free_space['capacity'], covtest_id=free_space['id'],
                                        datum_ziskani=datetime.now(), import_id=self.current_import_id)
-                    print(self.session.add(new_row))
+                    print(new_row)
+                    self.session.add(new_row)
                     self.session.commit()
 
     def fetch_covtest_fill_zeros(self):
@@ -184,7 +190,7 @@ class FreespaceFetcher:
         places_all = self.get_places()
 
         for place in places_all:
-            if place.covtesr_id:
+            if place.covtest_id:
                 for day in dny_all:
                     day_was_fetched = self.session.query(func.count(Kapacita.kapacita_id))\
                         .join(OckovaciMisto, Kapacita.covtest_id == OckovaciMisto.covtest_id)\
@@ -195,7 +201,8 @@ class FreespaceFetcher:
                     if not day_was_fetched:
                         new_row = Kapacita(misto_id=place.misto_id, datum=day.datum, raw_data='{}', pocet_mist=0, covtest_id=None,
                                            datum_ziskani=datetime.now(), import_id=self.current_import_id)
-                        print(self.session.add(new_row))
+                        print(new_row)
+                        self.session.add(new_row)
                         self.session.commit()
 
 
