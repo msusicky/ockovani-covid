@@ -9,6 +9,8 @@ from sqlalchemy.orm import sessionmaker
 
 from models import Kapacita, OckovaciMisto, Dny, ImportLog
 
+import configparser
+
 
 class FreespaceFetcher:
     """
@@ -23,6 +25,12 @@ class FreespaceFetcher:
         Session = sessionmaker(bind=some_engine)
         self.session = Session()
         self.init_current_import_id()
+
+        self.http_session = requests.session()
+        config = configparser.RawConfigParser()
+        config.read('session.ini')
+        for key in config['DEFAULT']:
+            self.http_session.cookies.set(key, config['DEFAULT'][key])
 
     def init_current_import_id(self):
         res = self.session.query(func.max(ImportLog.import_id)).first()[0]
@@ -54,7 +62,7 @@ class FreespaceFetcher:
                                                                                                     vacc_date)
         data = ''
         print(url)
-        response_api = requests.get(url, data=data, headers={"Content-Type": "application/json"})
+        response_api = self.http_session.get(url, data=data, headers={"Content-Type": "application/json"})
 
         return response_api
 
@@ -79,7 +87,9 @@ class FreespaceFetcher:
             api_response = self.fetch_reservatic_misto_call(service_id, operation_id, vacc_date)
             if api_response.status_code == 200:
                 item_dict = json.loads(api_response.text)
-                pocet = len(item_dict)
+                pocet = 0
+                for item in item_dict:
+                    pocet += item['free_people']
                 raw_data_response = api_response.text
             else:
                 pocet = None
