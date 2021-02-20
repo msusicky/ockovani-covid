@@ -98,7 +98,7 @@ def last_update_import_id():
     """
     last_run = app.session.query(func.max(ImportLog.import_id)).filter(ImportLog.status == STATUS_FINISHED).first()[0]
     if last_run is None:
-        max_import_id = 0
+        max_import_id = -1
     else:
         max_import_id = last_run
 
