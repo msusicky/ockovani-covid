@@ -19,7 +19,7 @@ class FreespaceFetcher:
     """
     session = ''
     current_import_id = 0
-    days = 14
+    days = 10
 
     def __init__(self):
         some_engine = create_engine('postgresql://ockovani:ockovani2021@localhost:5432/ockovani')
