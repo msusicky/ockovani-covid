@@ -19,6 +19,7 @@ class FreespaceFetcher:
     """
     session = ''
     current_import_id = 0
+    days = 14
 
     def __init__(self):
         some_engine = create_engine('postgresql://ockovani:ockovani2021@localhost:5432/ockovani')
@@ -39,8 +40,8 @@ class FreespaceFetcher:
         else:
             self.current_import_id = int(res) + 1
 
-    def get_30_days(self):
-        return self.session.query(Dny).filter(Dny.datum.between(date.today(), date.today() + timedelta(days=29))).order_by(Dny.datum).all()
+    def get_days(self):
+        return self.session.query(Dny).filter(Dny.datum.between(date.today(), date.today() + timedelta(days=self.days-1))).order_by(Dny.datum).all()
 
     def get_places(self):
         return self.session.query(OckovaciMisto).from_statement(
@@ -114,7 +115,7 @@ class FreespaceFetcher:
         @param vacc_date:
         @return:
         """
-        dny_all = self.get_30_days()
+        dny_all = self.get_days()
         # print(dny_all)
         places_all = self.get_places()
         # print(places_all)
@@ -196,7 +197,7 @@ class FreespaceFetcher:
                     self.session.commit()
 
     def fetch_covtest_fill_zeros(self):
-        dny_all = self.get_30_days()
+        dny_all = self.get_days()
         places_all = self.get_places()
 
         for place in places_all:
