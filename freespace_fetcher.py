@@ -102,7 +102,7 @@ class FreespaceFetcher:
 
         new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
                            datum_ziskani=datetime.now(), import_id=self.current_import_id)
-        print(new_row)
+        print('Pocet mist: ' + str(new_row.pocet_mist))
         self.session.add(new_row)
         self.session.commit()
 
