@@ -57,6 +57,9 @@
                 <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/info' else '' }}" href="{{ url_for('my_view.info') }}">Přehled očkovacích
                     míst</a>
             </li>
+            <li class="nav-item col-lg-auto ml-auto">
+                <a class="nav-link " href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity.csv" target="_blank">CSV data</a>
+            </li>
             <!--      <li class="nav-item">-->
             <!--         <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
             <!--      </li>-->
