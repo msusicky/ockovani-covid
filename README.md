@@ -29,6 +29,10 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 
 ### 
 ```
+python app.py
+```
+or
+```
 export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run
