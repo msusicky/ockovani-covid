@@ -59,23 +59,26 @@ def info_kraj(kraj_id):
 
 @bp.route("/misto/<misto>")
 def info_misto(misto):
-    # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
-    #     text(
-    #         "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
-    #         "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
-    #         "WHERE m.misto_id=:misto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
-    #         "ORDER BY k.datum"
-    #     )
-    # ).params(misto_param=misto, status_param=STATUS_FINISHED).all()
-    #
-    # ockovani_info = app.session.query(OckovaciMisto).from_statement(text(
-    #     "SELECT m.misto_id, m.nazev, m.service_id, m.operation_id, m.place_id, m.mesto, m.kraj, m.nazev_odkaz "
-    #     "FROM public.ockovaci_misto m "
-    #     "WHERE m.misto_id=:misto_param"
-    # )).params(misto_param=misto).first()
+    nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
+                                         VolnaMista.datum, VolnaMista.volna_mista.label("pocet_mist"),
+                                         OckovaciMisto.id,
+                                         OckovaciMisto.latitude, OckovaciMisto.longitude,
+                                         OckovaciMisto.minimalni_kapacita,
+                                         OckovaciMisto.bezbarierovy_pristup) \
+        .outerjoin(VolnaMista, (VolnaMista.misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(VolnaMista.import_id == last_update_import_id() and OckovaciMisto.id == misto).order_by(
+        VolnaMista.cas).all()
 
-    nactene_informace = []
-    ockovani_info = []
+    ockovani_info = db.session.query(VolnaMista.id, OckovaciMisto.nazev, OckovaciMisto.operation_id,
+                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
+                                     OckovaciMisto.odkaz) \
+        .outerjoin(VolnaMista, (VolnaMista.misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(VolnaMista.import_id == last_update_import_id() and OckovaciMisto.id == misto).order_by(
+        VolnaMista.cas).first()
 
     return render_template('misto.html', data=nactene_informace, misto=ockovani_info, last_update=last_update())
 
@@ -93,7 +96,7 @@ def info():
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(VolnaMista.import_id == last_update_import_id() and (
-                OckovaciMisto.status != True or OckovaciMisto.status is None)) \
+            OckovaciMisto.status != True or OckovaciMisto.status is None)) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
                   OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
                   OckovaciMisto.service_id, OckovaciMisto.operation_id, OckovaciMisto.odkaz, Kraj.nazev, Okres.nazev) \
