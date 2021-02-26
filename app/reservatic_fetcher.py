@@ -1,16 +1,12 @@
-import json
-import sys
+import configparser
 import time
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 
 import requests
-from sqlalchemy import create_engine, text, func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func
 
-from app import db
-from app.models import Kapacita, OckovaciMisto, Dny, ImportLog
-
-import configparser
+from app import db, app
+from app.models import OckovaciMisto, Import, VolnaMistaRaw, VolnaMista
 
 
 class FreespaceFetcher:
@@ -20,128 +16,103 @@ class FreespaceFetcher:
     RESERVATIC_API = 'https://reservatic.com/public_services/{}/public_operations/{}/hours?date={}'
     DAYS = 10
 
-    session = None
-    current_import_id = 0
-
+    _session = None
+    _current_import_id = 0
+    _centers = []
 
     def __init__(self):
-        self.session = requests.session()
+        self._session = requests.session()
         config = configparser.RawConfigParser()
         config.read('session.ini')
         for key in config['DEFAULT']:
-            self.session.cookies.set(key, config['DEFAULT'][key])
+            self._session.cookies.set(key, config['DEFAULT'][key])
 
         self._init_current_import_id()
+        self._init_centers()
 
-    def fetch_free_capacity(self):
-        centers = self._find_centers()
-        days
+    def fetch_free_capacities(self):
+        new_import = Import(id=self._current_import_id, status='RUNNING')
+        db.session.add(new_import)
+        db.session.commit()
+
+        start_day = datetime.today()
+        end_day = start_day + timedelta(self.DAYS)
+        delta = timedelta(1)
+        day = start_day
+
+        try:
+            while day < end_day:
+                self._fetch_free_capacities_day(day)
+                day += delta
+        except Exception as e:
+            app.logger.error('Fetch failed')
+            app.logger.error(e)
+            new_import.status = 'FAILED'
+        else:
+            app.logger.info('Fetch successful')
+            new_import.status = 'FINISHED'
+        finally:
+            db.session.commit()
 
     def _init_current_import_id(self):
-        prev_import_id = db.query(func.max(ImportLog.import_id)).first()[0]
-        self.current_import_id = 0 if prev_import_id is None else int(prev_import_id) + 1
+        prev_import_id = db.session.query(func.max(Import.id)).first()[0]
+        self._current_import_id = 0 if prev_import_id is None else int(prev_import_id) + 1
 
-    def _find_centers(self):
-        return db.session.query(OckovaciMisto)\
-            .filter(OckovaciMisto.service_id is not None, OckovaciMisto.okres is not None)\
+    def _init_centers(self):
+        self._centers = db.session.query(OckovaciMisto)\
+            .filter(OckovaciMisto.service_id is not None, OckovaciMisto.operation_id is not None)\
             .all()
 
+    def _fetch_free_capacities_day(self, day):
+        for center in self._centers:
+            self._fetch_free_capacities_day_center(day, center)
+            time.sleep(1)
 
+    def _fetch_free_capacities_day_center(self, day, center):
+        response = self._call_api(day, center)
 
-    def fetch_reservatic_misto_call(self, service_id, operation_id, vacc_date):
-        """
+        if response is None:
+            return
 
-        @param service_id:
-        @param operation_id:
-        @param vacc_date: Date that we'd like to fetch
-        @return:
-        """
-        url = 'https://reservatic.com/public_services/{}/public_operations/{}/hours?date={}'.format(service_id,
-                                                                                                    operation_id,
-                                                                                                    vacc_date)
-        data = ''
-        print(url)
-        response_api = self.http_session.get(url, data=data, headers={"Content-Type": "application/json"})
+        db.session.add(VolnaMistaRaw(
+            import_id = self._current_import_id,
+            misto_id = center.id,
+            datum = day,
+            data = response.text
+        ))
 
-        return response_api
+        response_json = response.json()
 
+        for item in response_json:
+            volna_mista = VolnaMista(
+                import_id = self._current_import_id,
+                misto_id = center.id,
+                datum = day,
+                cas = item['label'],
+                start = item['start_at'],
+                volna_mista = item['free_people'],
+                place_id = item['place_id'],
+                user_service_id = item['user_service_id']
+            )
+            db.session.add(volna_mista)
+            app.logger.info(volna_mista)
 
-
-
-    def fetch_reservatic_misto(self, misto_id, vacc_date, service_id=None, operation_id=None):
-        """
-        It fetches necessary info from misto_id -> table ockovaci_misto and executes fetch for it.
-        Result will be stored in DB
-        @param misto_id: Misto that we'd like to fetch
-        @return:
-        """
-
-        if service_id is None:
-            misto_parameters = self.session.query(OckovaciMisto).from_statement(
-                text(
-                    "SELECT om.misto_id, om.nazev, om.service_id, om.operation_id, om.place_id, om.mesto FROM ockovaci_misto om WHERE misto_id=:misto_param"
-                )
-            ).params(misto_param=misto_id).all()
-            service_id = misto_parameters[0].service_id
-            operation_id = misto_parameters[0].operation_id
-
+    def _call_api(self, day, center):
         try:
-            api_response = self.fetch_reservatic_misto_call(service_id, operation_id, vacc_date)
-            if api_response.status_code == 200:
-                item_dict = json.loads(api_response.text)
-                pocet = 0
-                for item in item_dict:
-                    pocet += item['free_people']
-                raw_data_response = api_response.text
+            url = self.RESERVATIC_API.format(center.service_id, center.operation_id, day)
+            app.logger.info(url)
+            response = self._session.get(url)
+            status = response.status_code
+            if status == 200:
+                return response
             else:
-                pocet = None
-                raw_data_response = None
+                app.logger.warning('Response error code: {}' % status)
         except:
-            print('Connection Error')
-            pocet = None
-            raw_data_response = None
+            app.logger.warning('Connection error')
 
-        new_row = Kapacita(misto_id=misto_id, datum=vacc_date, raw_data=raw_data_response, pocet_mist=pocet,
-                           datum_ziskani=datetime.now(), import_id=self.current_import_id)
-        print('Pocet mist: ' + str(new_row.pocet_mist))
-        self.session.add(new_row)
-        self.session.commit()
-
-    def fetch_reservatic(self):
-        """
-        It will run fetch for all vacc. places for all dates from dny table.
-        Get all dates from dny
-        Get all places from OckovaciMista
-        Run fetchMisto in loop
-        @param vacc_date:
-        @return:
-        """
-        dny_all = self.get_days()
-        # print(dny_all)
-        places_all = self.get_places()
-        # print(places_all)
-
-        # Writing this attempt
-        new_row = ImportLog(import_id=self.current_import_id, spusteni=datetime.now(), status='RUNNING')
-        print(new_row)
-        self.session.add(new_row)
-        self.session.commit()
-
-        try:
-            for day in dny_all:
-                for place in places_all:
-                    self.fetch_reservatic_misto(place.misto_id, day.datum, place.service_id, place.operation_id)
-                    time.sleep(1)
-            # TODO It is necessary to finish this run -> nehance DB
-        except Exception as e:
-            print(e)
-            new_row.status = 'FAILED'
-        else:
-            new_row.status = 'FINISHED'
-        finally:
-            self.session.commit()
+        return None
 
 
 if __name__ == '__main__':
     fetcher = FreespaceFetcher()
-    fetcher.fetch_free_capacity()
+    fetcher.fetch_free_capacities()
