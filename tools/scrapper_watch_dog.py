@@ -52,6 +52,6 @@ if __name__ == "__main__":
     session = requests.session()
     session.cookies.set('_reservatic_session2020_a', '<session-value>')
 
-    file = open("out.csv", "a", encoding="utf-8")
+    file = open("old/out.csv", "a", encoding="utf-8")
     _parse(session, file, 411400, 412200)
     file.close()

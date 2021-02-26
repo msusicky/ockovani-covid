@@ -28,12 +28,16 @@ def upgrade():
         next(reader, None)
         kraje_arr = [{'id': row[3], 'nazev': row[1]} for row in reader]
 
+    print(kraje_arr)
+
     op.bulk_insert(Kraj.__table__, kraje_arr)
 
     with open('data/UI_OKRES.csv', mode='r', encoding='utf-8') as okresy_file:
         reader = csv.reader(okresy_file, delimiter=';')
         next(reader, None)
         okresy_arr = [{'id': row[3], 'nazev': row[1], 'kraj_id': row[3][0:5]} for row in reader]
+
+    print(okresy_arr)
 
     op.bulk_insert(Okres.__table__, okresy_arr)
 

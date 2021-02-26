@@ -1,20 +1,27 @@
-from flask import render_template
+from flask import render_template, Blueprint
 from sqlalchemy import func
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.exceptions import abort
 
-from app import app, db
-from app.models import Import
+from app import app, db, bp
+from app.models import Import, Okres, Kraj
 
 STATUS_FINISHED = 'FINISHED'
 
 
-@app.route('/')
+
+
+@bp.route('/')
 def index():
-    app.logger.info('index')
     return render_template('index.html', last_update=last_update())
 
 
-@app.route("/mesto/<okres>")
-def info_okres(mesto):
+@bp.route("/okres/<okres_id>")
+def info_okres(okres_id):
+    okres = db.session.query(Okres).filter(Okres.id == okres_id).one_or_none()
+    if okres is None:
+        abort(404)
+
     # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
     #     text(
     #         "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
@@ -27,11 +34,15 @@ def info_okres(mesto):
 
     nactene_informace = []
 
-    return render_template('okres.html', data=nactene_informace, mesto=mesto, last_update=last_update())
+    return render_template('okres.html', data=nactene_informace, okres=okres, last_update=last_update())
 
 
-@app.route("/kraj/<kraj>")
-def info_kraj(kraj):
+@bp.route("/kraj/<kraj_id>")
+def info_kraj(kraj_id):
+    kraj = db.session.query(Kraj).filter(Kraj.id == kraj_id).one_or_none()
+    if kraj is None:
+        abort(404)
+
     # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
     #     text(
     #         "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
@@ -43,10 +54,12 @@ def info_kraj(kraj):
 
     nactene_informace = []
 
+    print(kraj)
+
     return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
 
 
-@app.route("/misto/<misto>")
+@bp.route("/misto/<misto>")
 def info_misto(misto):
     # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
     #     text(
@@ -69,7 +82,7 @@ def info_misto(misto):
     return render_template('misto.html', data=nactene_informace, misto=ockovani_info, last_update=last_update())
 
 
-@app.route("/info")
+@bp.route("/mista")
 def info():
     # ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
     #                                   OckovaciMisto.operation_id, OckovaciMisto.place_id, OckovaciMisto.mesto,

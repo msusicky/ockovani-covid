@@ -25,6 +25,9 @@ class Okres(db.Model):
         return "<Okres(nazev='%s')>" % (self.nazev)
 
 
+Kraj.okresy = relationship("Okres", back_populates="kraj")
+
+
 class OckovaciMisto(db.Model):
     __tablename__ = 'ockovaci_mista'
 
@@ -45,6 +48,9 @@ class OckovaciMisto(db.Model):
 
     def __repr__(self):
         return "<OckovaciMisto(nazev='%s', service_id=%s, operation_id=%s)>" % (self.nazev, self.service_id, self.operation_id)
+
+
+Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
 
 
 class Import(db.Model):
@@ -72,11 +78,15 @@ class VolnaMista(db.Model):
     place_id = Column(Integer)
     user_service_id = Column(Integer)
 
-    import_ = relationship('Import', 'volna_mista')
-    misto = relationship('OckovaciMisto', 'volna_mista')
+    import_ = relationship('Import', back_populates='volna_mista')
+    misto = relationship('OckovaciMisto', back_populates='volna_mista')
 
     def __repr__(self):
         return "<VolnaMista(misto='%s', cas='%s', volna_mista=%s)>" % (self.misto.nazev, self.start, self.volna_mista)
+
+
+Import.volna_mista = relationship("VolnaMista", back_populates="import_")
+OckovaciMisto.volna_mista = relationship("VolnaMista", back_populates="misto")
 
 
 class VolnaMistaRaw(db.Model):
@@ -89,8 +99,12 @@ class VolnaMistaRaw(db.Model):
     datum = Column(Date)
     data = Column(JSON)
 
-    import_ = relationship('Import', 'volna_mista')
-    misto = relationship('OckovaciMisto', 'volna_mista')
+    import_ = relationship('Import', back_populates='volna_mista_raw')
+    misto = relationship('OckovaciMisto', back_populates='volna_mista_raw')
 
     def __repr__(self):
         return "<VolnaMistaRaw(misto='%s', datum='%s')>" % (self.misto.nazev, self.datum)
+
+
+Import.volna_mista_raw = relationship("VolnaMistaRaw", back_populates="import_")
+OckovaciMisto.volna_mista_raw = relationship("VolnaMistaRaw", back_populates="misto")
