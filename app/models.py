@@ -56,7 +56,7 @@ Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
 class Import(db.Model):
     __tablename__ = 'importy'
 
-    id = Column(Integer, Sequence('import_id_seq'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     start = Column(DateTime, default=datetime.now())
     status = Column(Unicode)
 
@@ -67,7 +67,7 @@ class Import(db.Model):
 class VolnaMistaCas(db.Model):
     __tablename__ = 'volna_mista_cas'
 
-    id = Column(Integer, Sequence('volna_mista_id_seq'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id'))
     cas_ziskani = Column(DateTime, default=datetime.now())
     misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'))
@@ -82,7 +82,7 @@ class VolnaMistaCas(db.Model):
     misto = relationship('OckovaciMisto', back_populates='volna_mista_cas')
 
     def __repr__(self):
-        return "<VolnaMistaCas(misto='%s', cas='%s', volna_mista=%s)>" % (self.misto.nazev, self.start, self.volna_mista)
+        return "<VolnaMistaCas(misto_id='%s', cas='%s', volna_mista=%s)>" % (self.misto_id, self.start, self.volna_mista)
 
 
 Import.volna_mista_cas = relationship("VolnaMistaCas", back_populates="import_")
@@ -92,7 +92,7 @@ OckovaciMisto.volna_mista_cas = relationship("VolnaMistaCas", back_populates="mi
 class VolnaMistaDen(db.Model):
     __tablename__ = 'volna_mista_den'
 
-    id = Column(Integer, Sequence('volna_mista_raw_id_seq'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id'))
     cas_ziskani = Column(DateTime, default=datetime.now())
     misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'))
@@ -104,7 +104,7 @@ class VolnaMistaDen(db.Model):
     misto = relationship('OckovaciMisto', back_populates='volna_mista_den')
 
     def __repr__(self):
-        return "<VolnaMistaDen(misto='%s', datum='%s', volna_mista=%s)>" % (self.misto.nazev, self.datum, self.volna_mista)
+        return "<VolnaMistaDen(misto_id='%s', datum='%s', volna_mista=%s)>" % (self.misto_id, self.datum, self.volna_mista)
 
 
 Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
