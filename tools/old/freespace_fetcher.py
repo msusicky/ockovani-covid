@@ -7,7 +7,7 @@ import requests
 from sqlalchemy import create_engine, text, func
 from sqlalchemy.orm import sessionmaker
 
-from models import Kapacita, OckovaciMisto, Dny, ImportLog
+from app.models import Kapacita, OckovaciMisto, Dny, ImportLog
 
 import configparser
 
