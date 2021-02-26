@@ -4,11 +4,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import abort
 
 from app import app, db, bp
-from app.models import Import, Okres, Kraj
+from app.models import Import, Okres, Kraj, OckovaciMisto, VolnaMista
 
 STATUS_FINISHED = 'FINISHED'
-
-
 
 
 @bp.route('/')
@@ -84,16 +82,22 @@ def info_misto(misto):
 
 @bp.route("/mista")
 def info():
-    # ockovani_info = app.session.query(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id,
-    #                                   OckovaciMisto.operation_id, OckovaciMisto.place_id, OckovaciMisto.mesto,
-    #                                   OckovaciMisto.kraj, func.sum(Kapacita.pocet_mist).label("pocet_mist")) \
-    #     .outerjoin(Kapacita, (Kapacita.misto_id == OckovaciMisto.misto_id) | (Kapacita.covtest_id == OckovaciMisto.covtest_id)) \
-    #     .filter(Kapacita.import_id == last_update_import_id()) \
-    #     .group_by(OckovaciMisto.misto_id, OckovaciMisto.nazev, OckovaciMisto.service_id, OckovaciMisto.operation_id,
-    #               OckovaciMisto.place_id, OckovaciMisto.mesto, OckovaciMisto.kraj) \
-    #     .order_by(OckovaciMisto.kraj, OckovaciMisto.mesto, OckovaciMisto.nazev) \
-    #     .all()
-    ockovani_info = []
+    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
+                                     OckovaciMisto.latitude, OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita,
+                                     OckovaciMisto.bezbarierovy_pristup,
+                                     OckovaciMisto.service_id,
+                                     OckovaciMisto.operation_id, OckovaciMisto.odkaz,
+                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
+                                     func.sum(VolnaMista.volna_mista).label("pocet_mist")) \
+        .outerjoin(VolnaMista, (VolnaMista.misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(VolnaMista.import_id == last_update_import_id() and (
+                OckovaciMisto.status != True or OckovaciMisto.status is None)) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
+                  OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
+                  OckovaciMisto.service_id, OckovaciMisto.operation_id, OckovaciMisto.odkaz, Kraj.nazev, Okres.nazev) \
+        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev).all()
 
     return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=last_update())
 
@@ -106,17 +110,17 @@ def last_update():
         last_import_datetime = last_import.strftime('%d. %m. %Y %H:%M')
 
     return last_import_datetime
-#
-#
-# def last_update_import_id():
-#     """
-#     For better filtering.
-#     @return:
-#     """
-#     last_run = app.session.query(func.max(ImportLog.import_id)).filter(ImportLog.status == STATUS_FINISHED).first()[0]
-#     if last_run is None:
-#         max_import_id = -1
-#     else:
-#         max_import_id = last_run
-#
-#     return max_import_id
+
+
+def last_update_import_id():
+    """
+    For better filtering.
+    @return:
+    """
+    last_run = db.session.query(func.max(Import.id)).filter(Import.status == STATUS_FINISHED).first()[0]
+    if last_run is None:
+        max_import_id = -1
+    else:
+        max_import_id = last_run
+
+    return max_import_id
