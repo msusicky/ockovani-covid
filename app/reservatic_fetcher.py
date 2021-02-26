@@ -60,7 +60,7 @@ class FreespaceFetcher:
 
     def _init_centers(self):
         self._centers = db.session.query(OckovaciMisto)\
-            .filter(OckovaciMisto.service_id is not None, OckovaciMisto.operation_id is not None)\
+            .filter(OckovaciMisto.service_id is not None, OckovaciMisto.operation_id is not None, OckovaciMisto.status == True)\
             .all()
 
     def _fetch_free_capacities_day(self, day):
