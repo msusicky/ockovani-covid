@@ -64,8 +64,8 @@ class Import(db.Model):
         return "<Import(id=%s, start='%s', status='%s')>" % (self.id, self.start, self.status)
 
 
-class VolnaMista(db.Model):
-    __tablename__ = 'volna_mista'
+class VolnaMistaCas(db.Model):
+    __tablename__ = 'volna_mista_cas'
 
     id = Column(Integer, Sequence('volna_mista_id_seq'), primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id'))
@@ -78,33 +78,34 @@ class VolnaMista(db.Model):
     place_id = Column(Integer)
     user_service_id = Column(Integer)
 
-    import_ = relationship('Import', back_populates='volna_mista')
-    misto = relationship('OckovaciMisto', back_populates='volna_mista')
+    import_ = relationship('Import', back_populates='volna_mista_cas')
+    misto = relationship('OckovaciMisto', back_populates='volna_mista_cas')
 
     def __repr__(self):
-        return "<VolnaMista(misto='%s', cas='%s', volna_mista=%s)>" % (self.misto.nazev, self.start, self.volna_mista)
+        return "<VolnaMistaCas(misto='%s', cas='%s', volna_mista=%s)>" % (self.misto.nazev, self.start, self.volna_mista)
 
 
-Import.volna_mista = relationship("VolnaMista", back_populates="import_")
-OckovaciMisto.volna_mista = relationship("VolnaMista", back_populates="misto")
+Import.volna_mista_cas = relationship("VolnaMistaCas", back_populates="import_")
+OckovaciMisto.volna_mista_cas = relationship("VolnaMistaCas", back_populates="misto")
 
 
-class VolnaMistaRaw(db.Model):
-    __tablename__ = 'volna_mista_raw'
+class VolnaMistaDen(db.Model):
+    __tablename__ = 'volna_mista_den'
 
     id = Column(Integer, Sequence('volna_mista_raw_id_seq'), primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id'))
     cas_ziskani = Column(DateTime, default=datetime.now())
     misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'))
     datum = Column(Date)
+    volna_mista = Column(Integer)
     data = Column(JSON)
 
-    import_ = relationship('Import', back_populates='volna_mista_raw')
-    misto = relationship('OckovaciMisto', back_populates='volna_mista_raw')
+    import_ = relationship('Import', back_populates='volna_mista_den')
+    misto = relationship('OckovaciMisto', back_populates='volna_mista_den')
 
     def __repr__(self):
-        return "<VolnaMistaRaw(misto='%s', datum='%s')>" % (self.misto.nazev, self.datum)
+        return "<VolnaMistaDen(misto='%s', datum='%s', volna_mista=%s)>" % (self.misto.nazev, self.datum, self.volna_mista)
 
 
-Import.volna_mista_raw = relationship("VolnaMistaRaw", back_populates="import_")
-OckovaciMisto.volna_mista_raw = relationship("VolnaMistaRaw", back_populates="misto")
+Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
+OckovaciMisto.volna_mista_den = relationship("VolnaMistaDen", back_populates="misto")

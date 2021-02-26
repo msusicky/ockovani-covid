@@ -1,23 +1,19 @@
 """empty message
 
-Revision ID: acfabd93055e
-Revises: 6dfd4b41bc2e
-Create Date: 2021-02-26 16:34:17.397892
+Revision ID: 65dbdf1c6488
+Revises: d83e53594e41
+Create Date: 2021-02-26 23:05:16.015712
 
 """
 import csv
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
-from sqlalchemy import MetaData, Table
-
 from app.models import Kraj, Okres
 
-revision = 'acfabd93055e'
-down_revision = '6dfd4b41bc2e'
+revision = '65dbdf1c6488'
+down_revision = 'd83e53594e41'
 branch_labels = None
 depends_on = None
 

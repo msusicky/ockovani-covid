@@ -6,7 +6,7 @@ import requests
 from sqlalchemy import func
 
 from app import db, app
-from app.models import OckovaciMisto, Import, VolnaMistaRaw, VolnaMista
+from app.models import OckovaciMisto, Import, VolnaMistaDen, VolnaMistaCas
 
 
 class FreespaceFetcher:
@@ -74,7 +74,7 @@ class FreespaceFetcher:
         if response is None:
             return
 
-        db.session.add(VolnaMistaRaw(
+        db.session.add(VolnaMistaDen(
             import_id = self._current_import_id,
             misto_id = center.id,
             datum = day,
@@ -84,7 +84,7 @@ class FreespaceFetcher:
         response_json = response.json()
 
         for item in response_json:
-            volna_mista = VolnaMista(
+            volna_mista = VolnaMistaCas(
                 import_id = self._current_import_id,
                 misto_id = center.id,
                 datum = day,
