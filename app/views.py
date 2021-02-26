@@ -16,43 +16,38 @@ def index():
 
 @bp.route("/okres/<okres_id>")
 def info_okres(okres_id):
-    okres = db.session.query(Okres).filter(Okres.id == okres_id).one_or_none()
+    okres = db.session.query(Okres).filter(Okres.nazev == okres_id).one_or_none()
     if okres is None:
         abort(404)
 
-    # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
-    #     text(
-    #         "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
-    #         "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
-    #         "WHERE m.mesto=:mesto_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
-    #         "ORDER BY k.datum, m.nazev"
-    #     )
-    # ).params(mesto_param=mesto, status_param=STATUS_FINISHED).all()
-    # # TODO casem zmenit to max_import_id
-
-    nactene_informace = []
+    nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
+                                         VolnaMista.datum, VolnaMista.volna_mista.label("pocet_mist"),
+                                         OckovaciMisto.id) \
+        .outerjoin(VolnaMista, (VolnaMista.misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(
+        VolnaMista.import_id == last_update_import_id() and OckovaciMisto.okres_id == okres_id).order_by(
+        VolnaMista.datum, OckovaciMisto.nazev).all()
 
     return render_template('okres.html', data=nactene_informace, okres=okres, last_update=last_update())
 
 
 @bp.route("/kraj/<kraj_id>")
 def info_kraj(kraj_id):
-    kraj = db.session.query(Kraj).filter(Kraj.id == kraj_id).one_or_none()
+    kraj = db.session.query(Kraj).filter(Kraj.nazev == kraj_id).one_or_none()
     if kraj is None:
         abort(404)
 
-    # nactene_informace = app.session.query(OckovaciKapacity).from_statement(
-    #     text(
-    #         "SELECT m.mesto, m.kraj, m.nazev, k.datum, k.pocet_mist, m.misto_id, k.kapacita_id FROM ockovaci_misto m "
-    #         "JOIN kapacita k ON (m.misto_id=k.misto_id OR (m.covtest_id = k.covtest_id)) "
-    #         "WHERE m.kraj=:kraj_param and k.import_id=(SELECT max(import_id) FROM import_log WHERE status=:status_param)"
-    #         "ORDER BY k.datum, m.mesto, m.nazev"
-    #     )
-    # ).params(kraj_param=kraj, status_param=STATUS_FINISHED).all()
-
-    nactene_informace = []
-
-    print(kraj)
+    nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
+                                         VolnaMista.datum, VolnaMista.volna_mista.label("pocet_mist"),
+                                         OckovaciMisto.id) \
+        .outerjoin(VolnaMista, (VolnaMista.misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(
+        VolnaMista.import_id == last_update_import_id() and Okres.kraj_id == kraj_id).order_by(
+        VolnaMista.datum, OckovaciMisto.okres, OckovaciMisto.nazev).all()
 
     return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
 

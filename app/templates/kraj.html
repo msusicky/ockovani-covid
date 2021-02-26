@@ -15,7 +15,7 @@
             <thead  class="thead-dark">
             <tr>
                 <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Město</th>
+                <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
                 <th scope="col" class="text-center">Datum</th>
                 <th scope="col" class="text-center">Volná místa</th>
@@ -24,8 +24,8 @@
             <tbody>
             {% for item in data %}
                 <tr>
-                    <td><a href="../misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
-                    <td><a href="../mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
+                    <td><a href="../misto/{{ item.id }}">{{ item.nazev }}</a></td>
+                    <td><a href="../mesto/{{ item.okres }}">{{ item.okres }}</a></td>
                     <td>{{ item.kraj }}</td>
                     <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
                     <td class="text-right">
