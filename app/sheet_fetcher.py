@@ -28,13 +28,12 @@ class SheetFetcher:
             operation_id = record['operation_id']
             odkaz = record['odkaz']
 
-            if service_id != '' and operation_id != '':
-                db.session.merge(OckovaciMisto(
-                    id = record['id'],
-                    service_id = service_id,
-                    operation_id = operation_id,
-                    odkaz = odkaz if odkaz != '' else None
-                ))
+            db.session.merge(OckovaciMisto(
+                id = record['id'],
+                service_id = service_id if service_id != '' else None,
+                operation_id = operation_id if operation_id != '' else None,
+                odkaz = odkaz if odkaz != '' else None
+            ))
 
         db.session.commit()
 
