@@ -1,5 +1,5 @@
 from flask import render_template
-from sqlalchemy import func
+from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp
@@ -82,13 +82,54 @@ def info_misto(misto_id):
         .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
         VolnaMistaDen.datum).first()
 
-    return render_template('misto.html', data=nactene_informace, misto=ockovani_info, last_update=last_update())
+    ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(
+        text("select * from (select sum(pocet_ampulek) as sum,vyrobce,\'Příjem\' as operace  from ockovani_distribuce " \
+             "where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union " \
+             "(select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce " \
+             "where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union " \
+             "(select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce " \
+             "where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)" \
+             " union ( select sum(pouzite_ampulky), vyrobce, \'Očkováno\' as operace " \
+             "from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)" \
+             " union (select sum(znehodnocene_ampulky), vyrobce, \'Zničeno\' as operace" \
+             " from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce) ) as tbl" \
+             " order by vyrobce, operace")).params(misto_id=misto_id).all()
+    tot = compute_vaccination_stats(ampule_info)
+
+    return render_template('misto.html', data=nactene_informace, misto=ockovani_info, ampule=ampule_info, total=tot,
+                           last_update=last_update())
+
+
+def compute_vaccination_stats(ampule_info):
+    # Compute  statistics
+    pf_celkem = 0;
+    az_celkem = 0;
+    mo_celkem = 0;
+    for item in ampule_info:
+        if item[0] == 'Pfizer':
+            if (item[1] in ('Příjem', 'Příjem odjinud')):
+                pf_celkem += item[2]
+            else:
+                pf_celkem -= item[2]
+        if (item[0] == 'Moderna'):
+            if (item[1] in ('Příjem', 'Příjem odjinud')):
+                mo_celkem += item[2]
+            else:
+                mo_celkem -= item[2]
+        if (item[0] == 'AstraZeneca'):
+            if (item[1] in ('Příjem', 'Příjem odjinud')):
+                az_celkem += item[2]
+            else:
+                az_celkem -= item[2]
+    total = dict([('az', az_celkem), ('mo', mo_celkem), ('pf', pf_celkem)])
+    return total
 
 
 @bp.route("/mista")
 def info():
     ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
-                                     OckovaciMisto.latitude, OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita,
+                                     OckovaciMisto.latitude, OckovaciMisto.longitude,
+                                     OckovaciMisto.minimalni_kapacita,
                                      OckovaciMisto.bezbarierovy_pristup,
                                      OckovaciMisto.service_id,
                                      OckovaciMisto.operation_id, OckovaciMisto.odkaz,
