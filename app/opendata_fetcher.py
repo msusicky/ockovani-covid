@@ -6,7 +6,7 @@ from app import db
 from app.models import OckovaciMisto
 
 
-class OpendataFetcher:
+class OpenDataFetcher:
     CENTERS_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/prehled-ockovacich-mist.json'
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     argument = arguments[0]
 
-    fetcher = OpendataFetcher()
+    fetcher = OpenDataFetcher()
 
     if argument == 'centers':
         fetcher.fetch_centers()
