@@ -93,12 +93,16 @@ def info():
                                      OckovaciMisto.service_id,
                                      OckovaciMisto.operation_id, OckovaciMisto.odkaz,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     VolnaMistaDen.volna_mista.label("pocet_mist")) \
+                                     func.sum(VolnaMistaDen.volna_mista).label("pocet_mist")) \
         .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(VolnaMistaDen.import_id == last_update_import_id() and (
             OckovaciMisto.status is True or OckovaciMisto.status is None)) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
+                  OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
+                  OckovaciMisto.service_id, OckovaciMisto.operation_id, OckovaciMisto.odkaz,
+                  Okres.nazev, Kraj.nazev) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev).all()
 
     return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=last_update())
