@@ -2,7 +2,7 @@ import sys
 
 import requests
 
-from app import db
+from app import db, app
 from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce
 
 
@@ -33,11 +33,14 @@ class OpenDataFetcher:
                 adresa=record['ockovaci_misto_adresa'],
                 latitude=record['latitude'],
                 longitude=record['longitude'],
+                nrpzs_kod=record['nrpzs_kod'],
                 minimalni_kapacita=record['minimalni_kapacita'],
                 bezbarierovy_pristup=record['bezbarierovy_pristup']
             ))
 
         db.session.commit()
+
+        app.logger.info('Fetching vaccination centers finished.')
 
     def fetch_used(self):
         """
@@ -62,6 +65,8 @@ class OpenDataFetcher:
             ))
 
         db.session.commit()
+
+        app.logger.info('Fetching used vaccines finished.')
 
     def fetch_distributed(self):
         """
@@ -90,6 +95,9 @@ class OpenDataFetcher:
             ))
 
         db.session.commit()
+
+        app.logger.info('Fetching distributed vaccines finished.')
+
 
 if __name__ == '__main__':
     arguments = sys.argv[1:]
