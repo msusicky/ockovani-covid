@@ -53,8 +53,12 @@ def info_kraj(kraj_name):
     return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
 
 
-@bp.route("/misto/<misto>")
-def info_misto(misto):
+@bp.route("/misto/<misto_id>")
+def info_misto(misto_id):
+    misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
+    if misto is None:
+        abort(404)
+
     nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                                          VolnaMistaDen.datum, VolnaMistaDen.volna_mista.label("pocet_mist"),
                                          OckovaciMisto.id,
@@ -64,7 +68,7 @@ def info_misto(misto):
         .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMisto.id == misto) \
+        .filter(OckovaciMisto.id == misto.id) \
         .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
         VolnaMistaDen.datum).all()
 
@@ -74,7 +78,7 @@ def info_misto(misto):
         .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMisto.id == misto) \
+        .filter(OckovaciMisto.id == misto.id) \
         .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
         VolnaMistaDen.datum).first()
 
