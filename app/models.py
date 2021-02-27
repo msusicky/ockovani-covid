@@ -135,7 +135,7 @@ class OckovaniSpotreba(db.Model):
         self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
 
 
-OckovaciMisto.spotreba = relationship("OckovaniSpotreba", back_populates="misto")
+OckovaciMisto.ockovani_spotreba = relationship("OckovaniSpotreba", back_populates="misto")
 
 
 class OckovaniDistribuce(db.Model):
@@ -162,4 +162,4 @@ class OckovaniDistribuce(db.Model):
         self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pocet_ampulek)
 
 
-OckovaciMisto.distribuce = relationship("OckovaniDistribuce", back_populates="misto")
+OckovaciMisto.ockovani_distribuce = relationship("OckovaniDistribuce", back_populates="misto")
