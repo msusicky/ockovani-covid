@@ -89,6 +89,7 @@ class OpenDataFetcher:
                 pocet_ampulek=record['pocet_ampulek'],
             ))
 
+        db.session.commit()
 
 if __name__ == '__main__':
     arguments = sys.argv[1:]
