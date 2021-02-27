@@ -38,6 +38,7 @@ class OckovaciMisto(db.Model):
     adresa = Column(Unicode)
     latitude = Column(Float)
     longitude = Column(Float)
+    nrpzs_kod = Column(Unicode)
     minimalni_kapacita = Column(Integer)
     bezbarierovy_pristup = Column(Boolean)
     service_id = Column(Integer)
@@ -118,7 +119,7 @@ class OckovaniSpotreba(db.Model):
     __tablename__ = 'ockovani_spotreba'
 
     datum = Column(Date, primary_key=True)
-    ockovaci_misto_id = Column(Unicode, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     ockovaci_misto_nazev = Column(Unicode)
     kraj_nuts_kod = Column(Unicode)
     kraj_nazev = Column(Unicode)
@@ -127,16 +128,21 @@ class OckovaniSpotreba(db.Model):
     pouzite_ampulky = Column(Integer)
     znehodnocene_ampulky = Column(Integer)
 
+    misto = relationship('OckovaciMisto', back_populates='ockovani_spotreba')
+
     def __repr__(self):
         return "<VaccineConsumption(ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
         self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
+
+
+OckovaciMisto.spotreba = relationship("OckovaniSpotreba", back_populates="misto")
 
 
 class OckovaniDistribuce(db.Model):
     __tablename__ = 'ockovani_distribuce'
 
     datum = Column(Date, primary_key=True)
-    ockovaci_misto_id = Column(Unicode, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     ockovaci_misto_nazev = Column(Unicode)
     kraj_nuts_kod = Column(Unicode)
     kraj_nazev = Column(Unicode)
@@ -149,6 +155,11 @@ class OckovaniDistribuce(db.Model):
     akce = Column(Unicode, primary_key=True)
     pocet_ampulek = Column(Integer)
 
+    misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
+
     def __repr__(self):
         return "<VaccineDistribution(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pocet_ampulek=%s)>" % (
         self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pocet_ampulek)
+
+
+OckovaciMisto.distribuce = relationship("OckovaniDistribuce", back_populates="misto")
