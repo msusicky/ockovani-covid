@@ -1,13 +1,27 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ mesto }} |
+{{ misto.nazev }} |
 {% endblock %}
 
 {% block body %}
     <div class="row">
-        <h3>Očkovací místa ve městě: {{ mesto }} </h3>
+        <h3>Očkovací místo: {{ misto.nazev }} </h3>
     </div>
+	<!--
+    <div class="row mb-3">
+        <a href="https://reservatic.com/watchdogs/new?locale=cs&operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}&service_id={{ misto.service_id }}"
+           target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
+            Hlídat volná místa
+        </a>
+        {% if misto.nazev_odkaz %}
+        <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
+           target="_blank" class="btn btn-primary ml-1">
+            Rezervovat
+        </a>
+        {% endif %}
+    </div>
+	-->
 
     <div class="row">
     {% if data %}
@@ -15,7 +29,7 @@
             <thead  class="thead-dark">
             <tr>
                 <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Město</th>
+                <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
                 <th scope="col" class="text-center">Datum</th>
                 <th scope="col" class="text-center">Volná místa</th>
@@ -24,8 +38,8 @@
             <tbody>
             {% for item in data %}
                 <tr>
-                    <td><a href="../misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
-                    <td>{{ item.mesto }}</td>
+                    <td>{{ item.nazev }}</td>
+                    <td><a href="../okres/{{ item.okres }}">{{ item.okres }}</a></td>
                     <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
                     <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
                     <td class="text-right">
@@ -37,7 +51,7 @@
         </table>
     {% else %}
         <div class="alert alert-warning w-100" role="alert">
-            Pro toto město zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+            Pro toto místo zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
         </div>
     {% endif %}
     </div>
@@ -49,4 +63,5 @@
         $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
     </script>
 {% endblock %}
+
 

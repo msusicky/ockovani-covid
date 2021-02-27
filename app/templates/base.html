@@ -2,6 +2,7 @@
 <html>
 <head lang="en">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     {# Add a banner if using old IE8 #}
@@ -30,8 +31,8 @@
             crossorigin="anonymous"></script>
     <style>.cip-genpw-icon.cip-icon-key-small {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_16x16.png); }
         .cip-genpw-icon.cip-icon-key-big {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_24x24.png); }
-
     </style>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXSRVP25Y2"></script>
     <script>
@@ -40,14 +41,15 @@
 	  gtag('js', new Date());
 
 	  gtag('config', 'G-TXSRVP25Y2');
-
     </script>
+
     {% block head %}{% endblock %}
 </head>
 <body>
+
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="{{ url_for('my_view.index') }}">COVID očkování</a>
+    <a class="navbar-brand" href="{{ url_for('view.index') }}">COVID očkování</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -56,23 +58,22 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/info' else '' }}"
-                   href="{{ url_for('my_view.info') }}">Přehled očkovacích
-                    míst</a>
+                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mista' else '' }}"
+                   href="{{ url_for('view.info') }}">Přehled očkovacích míst
+                </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link "
                    href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity.csv"
-                   target="_blank">RAW data</a>
+                   target="_blank">RAW data
+                </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link "
                    href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity_csv.csv"
-                   target="_blank">CSV data</a>
+                   target="_blank">CSV data
+                </a>
             </li>
-            <!--      <li class="nav-item">-->
-            <!--         <a class="nav-link disabled" href="/hlidac">Hlídání</a> -->
-            <!--      </li>-->
         </ul>
     </div>
 </nav>
@@ -80,7 +81,7 @@
 
 <div class="container mt-4">
     <div class="alert alert-warning alert-dismissible fade show row" role="alert">
-        Poslední aktualizace: <strong> {{ last_update }} </strong>
+        Poslední aktualizace:&nbsp;<strong>{{ last_update }}</strong>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -88,20 +89,18 @@
     {% block body %}{% endblock %}
 </div>
 
-
 {% block scripts %}
 {% endblock %}
+
 <div class="footer text-center p-3 bg-light mt-4">
-    Vznik 16. 01. 2021, poslední aktualizace {{ last_update }}. <a
-        href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/">Zdroj mapy www.mylog.cz.</a>
+    Vznik: 16. 01. 2021, poslední aktualizace:&nbsp;{{ last_update }}. Zdroj mapy: <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/">www.mylog.cz</a>.
     <br/>
-    <i>Data na tomto webu jsou pouze orientační, bez
-        jakékoliv záruky a nelze je považovat za spolehlivé. Provozovatel se zříká zodpovědnosti za veškeré škody a
-        újmy,
-        které by použitím těchto dat mohly vzniknout. Web slouží pouze k testování schopností programovacího jazyka
-        Python a
-        podobnost s reálnými skutečnostmi je čistě náhodná. Pro informace o očkování COVID-19 navštivte web <a
-                href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/">https://koronavirus.mzcr.cz/ockovani-proti-covid-19/</a></i>
+    <i>
+        Data na tomto webu jsou pouze orientační, bez jakékoliv záruky a nelze je považovat za spolehlivé.
+        Provozovatel se zříká zodpovědnosti za veškeré škody a újmy, které by použitím těchto dat mohly vzniknout.
+        Web slouží pouze k testování schopností programovacího jazyka Python a podobnost s reálnými skutečnostmi je čistě náhodná.
+        Pro informace o očkování COVID-19 navštivte web <a href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/">https://koronavirus.mzcr.cz/ockovani-proti-covid-19/</a>.
+    </i>
 </div>
 </body>
 </html>
