@@ -93,7 +93,7 @@ class ReservaticFetcher:
             misto_id = center.id,
             datum = day,
             volna_mista = free_total,
-            data = response.text
+            data = response_json
         )
         db.session.add(volna_mista_den)
         app.logger.info(volna_mista_den)
