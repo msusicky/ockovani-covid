@@ -1,5 +1,5 @@
 from app import app
-from app.opendata_fetcher import OpendataFetcher
+from app.opendata_fetcher import OpenDataFetcher
 from app.reservatic_fetcher import ReservaticFetcher
 from app.sheet_fetcher import SheetFetcher
 
@@ -13,7 +13,7 @@ def fetch_reservatic_command():
 @app.cli.command('fetch-opendata')
 def fetch_opendata_command():
     """Fetch opendata from UZIS."""
-    fetcher = OpendataFetcher()
+    fetcher = OpenDataFetcher()
     fetcher.fetch_all()
 
 @app.cli.command('fetch-sheet')
@@ -21,3 +21,15 @@ def fetch_sheet_command():
     """Fetch sheet from Google Sheets."""
     fetcher = SheetFetcher()
     fetcher.fetch_centers()
+
+@app.cli.command('fetch-all')
+def fetch_sheet_command():
+    """Execute all fetchers."""
+    opendata_fetcher = OpenDataFetcher()
+    opendata_fetcher.fetch_all()
+
+    sheet_fetcher = SheetFetcher()
+    sheet_fetcher.fetch_centers()
+
+    reservatic_fetcher = SheetFetcher()
+    reservatic_fetcher.fetch_centers()
