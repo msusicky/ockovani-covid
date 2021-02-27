@@ -3,7 +3,7 @@ import sys
 import requests
 
 from app import db
-from app.models import OckovaciMisto, VaccineConsumption, VaccineDistribution
+from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce
 
 
 class OpenDataFetcher:
@@ -49,7 +49,7 @@ class OpenDataFetcher:
         data = response.json()['data']
 
         for record in data:
-            db.session.merge(VaccineConsumption(
+            db.session.merge(OckovaniSpotreba(
                 datum=record['datum'],
                 ockovaci_misto_id=record['ockovaci_misto_id'],
                 ockovaci_misto_nazev=record['ockovaci_misto_nazev'],
@@ -73,7 +73,7 @@ class OpenDataFetcher:
         data = response.json()['data']
 
         for record in data:
-            db.session.merge(VaccineDistribution(
+            db.session.merge(OckovaniDistribuce(
                 datum=record['datum'],
                 ockovaci_misto_id=record['ockovaci_misto_id'],
                 ockovaci_misto_nazev=record['ockovaci_misto_nazev'],

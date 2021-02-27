@@ -114,15 +114,15 @@ Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
 OckovaciMisto.volna_mista_den = relationship("VolnaMistaDen", back_populates="misto")
 
 
-class VaccineConsumption(db.Model):
-    __tablename__ = 'vaccine_consumption'
+class OckovaniSpotreba(db.Model):
+    __tablename__ = 'ockovani_spotreba'
 
-    datum = Column(Integer, primary_key=True)
-    ockovaci_misto_id = Column(Unicode)
+    datum = Column(Date, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, primary_key=True)
     ockovaci_misto_nazev = Column(Unicode)
     kraj_nuts_kod = Column(Unicode)
     kraj_nazev = Column(Unicode)
-    ockovaci_latka = Column(Unicode)
+    ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode)
     pouzite_ampulky = Column(Integer)
     znehodnocene_ampulky = Column(Integer)
@@ -132,21 +132,21 @@ class VaccineConsumption(db.Model):
         self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
 
 
-class VaccineDistribution(db.Model):
-    __tablename__ = 'vaccine_consumption'
+class OckovaniDistribuce(db.Model):
+    __tablename__ = 'ockovani_distribuce'
 
-    datum = Column(Integer, primary_key=True)
-    ockovaci_misto_id = Column(Unicode)
+    datum = Column(Date, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, primary_key=True)
     ockovaci_misto_nazev = Column(Unicode)
     kraj_nuts_kod = Column(Unicode)
     kraj_nazev = Column(Unicode)
-    cilove_ockovaci_misto_id = Column(Unicode)
+    cilove_ockovaci_misto_id = Column(Unicode, primary_key=True)
     cilove_ockovaci_misto_nazev = Column(Unicode)
     cilovy_kraj_kod = Column(Unicode)
     cilovy_kraj_nazev = Column(Unicode)
-    ockovaci_latka = Column(Unicode)
+    ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode)
-    akce = Column(Unicode)
+    akce = Column(Unicode, primary_key=True)
     pocet_ampulek = Column(Integer)
 
     def __repr__(self):
