@@ -47,7 +47,8 @@ class OckovaciMisto(db.Model):
     okres = relationship("Okres", back_populates="ockovaci_mista")
 
     def __repr__(self):
-        return "<OckovaciMisto(nazev='%s', service_id=%s, operation_id=%s)>" % (self.nazev, self.service_id, self.operation_id)
+        return "<OckovaciMisto(nazev='%s', service_id=%s, operation_id=%s)>" % (
+        self.nazev, self.service_id, self.operation_id)
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
@@ -82,7 +83,8 @@ class VolnaMistaCas(db.Model):
     misto = relationship('OckovaciMisto', back_populates='volna_mista_cas')
 
     def __repr__(self):
-        return "<VolnaMistaCas(misto_id='%s', cas='%s', volna_mista=%s)>" % (self.misto_id, self.start, self.volna_mista)
+        return "<VolnaMistaCas(misto_id='%s', cas='%s', volna_mista=%s)>" % (
+        self.misto_id, self.start, self.volna_mista)
 
 
 Import.volna_mista_cas = relationship("VolnaMistaCas", back_populates="import_")
@@ -104,8 +106,49 @@ class VolnaMistaDen(db.Model):
     misto = relationship('OckovaciMisto', back_populates='volna_mista_den')
 
     def __repr__(self):
-        return "<VolnaMistaDen(misto_id='%s', datum='%s', volna_mista=%s)>" % (self.misto_id, self.datum, self.volna_mista)
+        return "<VolnaMistaDen(misto_id='%s', datum='%s', volna_mista=%s)>" % (
+        self.misto_id, self.datum, self.volna_mista)
 
 
 Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
 OckovaciMisto.volna_mista_den = relationship("VolnaMistaDen", back_populates="misto")
+
+
+class VaccineConsumption(db.Model):
+    __tablename__ = 'vaccine_consumption'
+
+    datum = Column(Integer, primary_key=True)
+    ockovaci_misto_id = Column(Unicode)
+    ockovaci_misto_nazev = Column(Unicode)
+    kraj_nuts_kod = Column(Unicode)
+    kraj_nazev = Column(Unicode)
+    ockovaci_latka = Column(Unicode)
+    vyrobce = Column(Unicode)
+    pouzite_ampulky = Column(Integer)
+    znehodnocene_ampulky = Column(Integer)
+
+    def __repr__(self):
+        return "<VaccineConsumption(ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
+        self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
+
+
+class VaccineDistribution(db.Model):
+    __tablename__ = 'vaccine_consumption'
+
+    datum = Column(Integer, primary_key=True)
+    ockovaci_misto_id = Column(Unicode)
+    ockovaci_misto_nazev = Column(Unicode)
+    kraj_nuts_kod = Column(Unicode)
+    kraj_nazev = Column(Unicode)
+    cilove_ockovaci_misto_id = Column(Unicode)
+    cilove_ockovaci_misto_nazev = Column(Unicode)
+    cilovy_kraj_kod = Column(Unicode)
+    cilovy_kraj_nazev = Column(Unicode)
+    ockovaci_latka = Column(Unicode)
+    vyrobce = Column(Unicode)
+    akce = Column(Unicode)
+    pocet_ampulek = Column(Integer)
+
+    def __repr__(self):
+        return "<VaccineDistribution(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pocet_ampulek=%s)>" % (
+        self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pocet_ampulek)

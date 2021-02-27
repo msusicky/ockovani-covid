@@ -3,7 +3,7 @@ import sys
 import requests
 
 from app import db
-from app.models import OckovaciMisto
+from app.models import OckovaciMisto, VaccineConsumption, VaccineDistribution
 
 
 class OpenDataFetcher:
@@ -17,6 +17,10 @@ class OpenDataFetcher:
         self.fetch_distributed()
 
     def fetch_centers(self):
+        """
+        It will fetch vaccination centers
+        @return:
+        """
         response = requests.get(url=self.CENTERS_API)
         data = response.json()['data']
 
@@ -36,10 +40,54 @@ class OpenDataFetcher:
         db.session.commit()
 
     def fetch_used(self):
-        pass # todo
+        """
+        Fetch vacination data from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.csv
+        @return:
+        """
+        response = requests.get(url=self.USED_API)
+        data = response.json()['data']
+
+        for record in data:
+            db.session.merge(VaccineConsumption(
+                datum=record['datum'],
+                ockovaci_misto_id=record['ockovaci_misto_id'],
+                ockovaci_misto_nazev=record['ockovaci_misto_nazev'],
+                kraj_nuts_kod=record['kraj_nuts_kod'],
+                kraj_nazev=record['kraj_nazev'],
+                ockovaci_latka=record['ockovaci_latka'],
+                vyrobce=record['vyrobce'],
+                pouzite_ampulky=record['pouzite_ampulky'],
+                znehodnocene_ampulky=record['znehodnocene_ampulky'],
+            ))
+
+        db.session.commit()
 
     def fetch_distributed(self):
-        pass # todo
+        """
+        Fetch distribution files from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.csv
+        @return:
+        """
+        response = requests.get(url=self.DISTRIBUTED_API)
+        data = response.json()['data']
+
+        for record in data:
+            db.session.merge(VaccineDistribution(
+                datum=record['datum'],
+                ockovaci_misto_id=record['ockovaci_misto_id'],
+                ockovaci_misto_nazev=record['ockovaci_misto_nazev'],
+                kraj_nuts_kod=record['kraj_nuts_kod'],
+                kraj_nazev=record['kraj_nazev'],
+                cilove_ockovaci_misto_id=record['cilove_ockovaci_misto_id'],
+                cilove_ockovaci_misto_nazev=record['cilove_ockovaci_misto_nazev'],
+                cilovy_kraj_kod=record['cilovy_kraj_kod'],
+                cilovy_kraj_nazev=record['cilovy_kraj_nazev'],
+                ockovaci_latka=record['ockovaci_latka'],
+                vyrobce=record['vyrobce'],
+                akce=record['akce'],
+                pocet_ampulek=record['pocet_ampulek'],
+            ))
 
 
 if __name__ == '__main__':
