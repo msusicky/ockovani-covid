@@ -22,9 +22,9 @@ class ReservaticFetcher:
     def __init__(self):
         self._session = requests.session()
         config = configparser.RawConfigParser()
-        config.read('session.ini')
-        for key in config['DEFAULT']:
-            self._session.cookies.set(key, config['DEFAULT'][key])
+        config.read('config.ini')
+        for key in config['reservatic_session']:
+            self._session.cookies.set(key, config['reservatic_session'][key])
 
         self._init_centers()
 
