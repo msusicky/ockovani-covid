@@ -33,7 +33,7 @@ class OpenDataFetcher:
                 adresa=record['ockovaci_misto_adresa'],
                 latitude=record['latitude'],
                 longitude=record['longitude'],
-                nrpzs_kod=record['nrpzs_kod'],
+                nrpzs_kod=format(record['nrpzs_kod'], '011d'),
                 minimalni_kapacita=record['minimalni_kapacita'],
                 bezbarierovy_pristup=record['bezbarierovy_pristup']
             ))
