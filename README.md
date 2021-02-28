@@ -35,7 +35,7 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 * Fill connection string in `config.py`
 * Setup `config.ini` according to the `config.ini.template`
 
-### Flask application
+### Start webserver
 ```
 export FLASK_ENV=development
 flask db upgrade
