@@ -66,41 +66,38 @@
                 </div>
             </div>
             <div class="tab-pane" id="vaccination">
-                {% if ampule %}
+                {% if total %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="text-center">Výrobce</th>
-                        <th scope="col" class="text-center">Operace</th>
-                        <th scope="col" class="text-center">Počet ampulí</th>
-                    </tr>
+                        <tr>
+                            <th scope="col" class="text-center w-auto"></th>
+                            <th scope="col" class="text-center" colspan="2">Pfizer</th>
+                            <th scope="col" class="text-center" colspan="2">Moderna</th>
+                            <th scope="col" class="text-center" colspan="2">AstraZeneca</th>
+                            <th scope="col" class="text-center" colspan="2">Celkem</th>
+                        </tr>
+                        <tr>
+                            <th scope="col" class="text-center"></th>
+                            {% for i in range(4) %}
+                                <th scope="col" class="text-center">Ampule</th>
+                                <th scope="col" class="text-center">Dávky</th>
+                            {% endfor %}
+                        </tr>
                     </thead>
                     <tbody>
-                    {% for item in ampule %}
-                    <tr>
-                        <td>{{ item.vyrobce }}</td>
-                        <td>{{ item.operace }}</td>
-                        <td>{{ item.sum }}</td>
-                    </tr>
-                    {% endfor %}
-                    <tfoot>
-                    <tr>
-                        <td>CELKEM dostupných Pfizer (ampule / dávky)</td>
-                        <td>{{ total.pf }} / {{ total.pf_davky }}</td>
-                    </tr>
-                    <tr>
-                        <td>CELKEM dostupných Moderna (ampule / dávky)</td>
-                        <td>{{ total.mo }} / {{ total.mo_davky }}</td>
-                    </tr>
-                    <tr>
-                        <td>CELKEM dostupných AstraZeneca (ampule / dávky)</td>
-                        <td>{{ total.az }} / {{ total.az_davky }}</td>
-                    </tr>
-                    <tr>
-                        <td>CELKEM všech dávek</td>
-                        <td>{{ total.all_total }}</td>
-                    </tr>
-                    </tfoot>
+                        {% for operace in total['all'].keys() %}
+                        <tr>
+                            <td>{{ operace }}</td>
+                            <td class="text-right">{{ total['Pfizer'][operace]['ampule'] }}</td>
+                            <td class="text-right">{{ total['Pfizer'][operace]['davky'] }}</td>
+                            <td class="text-right">{{ total['Moderna'][operace]['ampule'] }}</td>
+                            <td class="text-right">{{ total['Moderna'][operace]['davky'] }}</td>
+                            <td class="text-right">{{ total['AstraZeneca'][operace]['ampule'] }}</td>
+                            <td class="text-right">{{ total['AstraZeneca'][operace]['davky'] }}</td>
+                            <td class="text-right">{{ total['all'][operace]['ampule'] }}</td>
+                            <td class="text-right">{{ total['all'][operace]['davky'] }}</td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 {% endif %}

@@ -72,51 +72,101 @@ def info_misto(misto_id):
         .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
         VolnaMistaDen.datum).all()
 
-    ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(
-        text("select * from (select sum(pocet_ampulek) as sum,vyrobce,\'Příjem\' as operace  from ockovani_distribuce " \
-             "where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union " \
-             "(select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce " \
-             "where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union " \
-             "(select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce " \
-             "where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)" \
-             " union ( select sum(pouzite_ampulky), vyrobce, \'Očkováno\' as operace " \
-             "from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)" \
-             " union (select sum(znehodnocene_ampulky), vyrobce, \'Zničeno\' as operace" \
-             " from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce) ) as tbl" \
-             " order by vyrobce, operace")).params(misto_id=misto_id).all()
-    tot = compute_vaccination_stats(ampule_info)
+    ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
+        """
+        select * from (select sum(pocet_ampulek) as sum,vyrobce,\'Příjem\' as operace from ockovani_distribuce 
+        where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union 
+        (select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce 
+        where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union 
+        (select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce
+        where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)
+        union ( select sum(pouzite_ampulky), vyrobce, \'Očkováno\' as operace
+        from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)
+        union (select sum(znehodnocene_ampulky), vyrobce, \'Zničeno\' as operace
+        from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce) ) as tbl
+        order by vyrobce, operace
+        """
+    )).params(misto_id=misto_id).all()
 
-    return render_template('misto.html', data=nactene_informace, misto=misto, ampule=ampule_info, total=tot,
-                           last_update=last_update())
+    total = _compute_vaccination_stats(ampule_info)
+
+    return render_template('misto.html', data=nactene_informace, misto=misto, total=total, last_update=last_update())
 
 
-def compute_vaccination_stats(ampule_info):
+def _compute_vaccination_stats(ampule_info):
     # Compute  statistics
-    pf_celkem = 0;
-    az_celkem = 0;
-    mo_celkem = 0;
+    total = {
+        'Pfizer': {
+            'Přijato': {'ampule': 0},
+            'Vydáno': {'ampule': 0},
+            'Očkováno': {'ampule': 0},
+            'Zničeno': {'ampule': 0},
+            'Skladem': {'ampule': 0},
+        },
+        'Moderna': {
+            'Přijato': {'ampule': 0},
+            'Vydáno': {'ampule': 0},
+            'Očkováno': {'ampule': 0},
+            'Zničeno': {'ampule': 0},
+            'Skladem': {'ampule': 0},
+        },
+        'AstraZeneca': {
+            'Přijato': {'ampule': 0},
+            'Vydáno': {'ampule': 0},
+            'Očkováno': {'ampule': 0},
+            'Zničeno': {'ampule': 0},
+            'Skladem': {'ampule': 0},
+        }
+    }
+
     for item in ampule_info:
-        if item[0] == 'Pfizer':
-            if (item[1] in ('Příjem', 'Příjem odjinud')):
-                pf_celkem += item[2]
-            else:
-                pf_celkem -= item[2]
-        if (item[0] == 'Moderna'):
-            if (item[1] in ('Příjem', 'Příjem odjinud')):
-                mo_celkem += item[2]
-            else:
-                mo_celkem -= item[2]
-        if (item[0] == 'AstraZeneca'):
-            if (item[1] in ('Příjem', 'Příjem odjinud')):
-                az_celkem += item[2]
-            else:
-                az_celkem -= item[2]
-    az_davky = az_celkem * 10
-    mo_davky = mo_celkem * 10
-    pf_davky = pf_celkem * 6
-    all_total = az_celkem * 10 + mo_celkem * 10 + pf_celkem * 6
-    total = dict([('az', az_celkem), ('az_davky', az_davky), ('mo', mo_celkem), ('mo_davky', mo_davky),
-                  ('pf', pf_celkem), ('pf_davky', pf_davky), ('all_total', all_total)])
+        operation = item[1]
+        if operation in ('Příjem', 'Příjem odjinud'):
+            total[item[0]]['Přijato']['ampule'] += item[2]
+            total[item[0]]['Skladem']['ampule'] += item[2]
+        elif operation == 'Výdej':
+            total[item[0]]['Vydáno']['ampule'] += item[2]
+            total[item[0]]['Skladem']['ampule'] -= item[2]
+        elif operation == 'Očkováno':
+            total[item[0]]['Očkováno']['ampule'] += item[2]
+            total[item[0]]['Skladem']['ampule'] -= item[2]
+        elif operation == 'Zničeno':
+            total[item[0]]['Zničeno']['ampule'] += item[2]
+            total[item[0]]['Skladem']['ampule'] -= item[2]
+
+    total = _compute_vaccination_doses(total, 'Pfizer', 6)
+    total = _compute_vaccination_doses(total, 'Moderna', 10)
+    total = _compute_vaccination_doses(total, 'AstraZeneca', 10)
+
+    total = _compute_vaccination_total(total)
+
+    return total
+
+
+def _compute_vaccination_doses(total, type, doses):
+    for operation in total[type].keys():
+        total[type][operation]['davky'] = total[type][operation]['ampule'] * doses
+    return total
+
+
+def _compute_vaccination_total(total):
+    total_all = {
+        'all': {
+            'Přijato': {'ampule': 0, 'davky': 0},
+            'Vydáno': {'ampule': 0, 'davky': 0},
+            'Očkováno': {'ampule': 0, 'davky': 0},
+            'Zničeno': {'ampule': 0, 'davky': 0},
+            'Skladem': {'ampule': 0, 'davky': 0},
+        }
+    }
+
+    for type in total.keys():
+        for operation in total[type].keys():
+            for dose in total[type][operation].keys():
+                total_all['all'][operation][dose] += total[type][operation][dose]
+
+    total.update(total_all)
+
     return total
 
 
