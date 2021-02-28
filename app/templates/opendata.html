@@ -2,15 +2,55 @@
 
 {% block body %}
 <div class="row">
-    <div class="col">
-        <a class="btn btn-primary"
-           href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity_csv.csv"
-           target="_blank">Volná místa po dnech v CSV
-        </a>
-        <a class="btn btn-primary"
-           href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity.csv"
-           target="_blank">Volná místa po dnech v CSV s JSON daty
-        </a>
+    <div class="col-sm-6 py-2">
+        <div class="card h-100">
+            <h5 class="card-header">
+                Volná místa po dnech
+            </h5>
+            <div class="card-body">
+                <ul>
+                    <li>misto_id - id očkovacího místa</li>
+                    <li>datum - datum</li>
+                    <li>volna_mista - počet volných míst</li>
+                    <li>nazev - název očkovacího místa</li>
+                    <li>okres - název okresu</li>
+                    <li>kraj - název kraje</li>
+                    <li>service_id - Reservatic service id</li>
+                    <li>operation_id - Reservatic operation id</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary"
+                   href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity_csv.csv"
+                   target="_blank">Stáhnout CSV
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 py-2">
+        <div class="card h-100">
+            <h5 class="card-header">
+                Volná místa po dnech s JSON daty
+            </h5>
+            <div class="card-body">
+                <ul>
+                    <li>misto_id - id očkovacího místa</li>
+                    <li>datum - datum</li>
+                    <li>data - JSON data s volnými místy</li>
+                    <li>volna_mista - počet volných míst</li>
+                    <li>okres - název okresu</li>
+                    <li>kraj - název kraje</li>
+                    <li>service_id - Reservatic service id</li>
+                    <li>operation_id - Reservatic operation id</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary"
+                   href="https://raw.githubusercontent.com/msusicky/msusicky.github.io/master/ockovani-covid/dump_kapacity.csv"
+                   target="_blank">Stáhnout CSV
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
