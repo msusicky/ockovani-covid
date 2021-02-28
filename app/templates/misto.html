@@ -150,6 +150,7 @@
 <script>
     var center = SMap.Coords.fromWGS84({{misto.longitude}}, {{misto.latitude}});
     var m = new SMap(JAK.gel("center-map"), center, 14);
+    m.addControl(new SMap.Control.Sync());
     m.addDefaultLayer(SMap.DEF_BASE).enable();
     m.addDefaultControls();
 

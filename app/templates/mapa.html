@@ -5,35 +5,50 @@
         <h3>Očkovací místa</h3>
     </div>
 
-    <div class="row">
-    {% if ockovaci_mista %}
-        <table class="table table-bordered table-striped table-sm">
-            <thead  class="thead-dark">
-            <tr>
-                <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Okres</th>
-                <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Volná místa (příštích 10 dní)</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in ockovaci_mista %}
-                <tr>
-                    <td><a href="./misto/{{ item.id }}">{{ item.nazev }}</a></td>
-                    <td><a href="./okres/{{ item.okres }}">{{ item.okres }}</a></td>
-                    <td><a href="./kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
-                    <td class="text-right">
-                        <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist and item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-warning w-100" role="alert">
-            Zatím nemáme žádná data.
-        </div>
-    {% endif %}
-    </div>
+    <div id="centers-map" class="row" style="height:600px;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var m = new SMap(JAK.gel("centers-map"));
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var markers = [];
+    var coords = [];
+
+    {% for misto in ockovaci_mista %}
+        var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
+        var options = {
+            title: "{{ misto.nazev }}"
+        }
+        var marker = new SMap.Marker(c, null, options);
+
+        var card = new SMap.Card();
+        card.setSize(400, null)
+        card.getHeader().innerHTML = "<strong>{{ misto.nazev }}</strong>";
+        card.getBody().innerHTML = "<strong>Adresa:</strong> {{misto.adresa}}<br>" +
+            "<strong>Bezbariérový přístup:</strong> {{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}<br>" +
+            "<strong>Volná místa (příštích 10 dní):</strong> {{ misto.pocet_mist }}<br>" +
+            "<a href=\"./misto/{{ misto.id }}\" class=\"btn btn-primary mt-2\">Detail místa</a>";
+        card.getFooter().style = "display: none";
+        card.getContainer().style.padding = "0";
+        marker.decorate(SMap.Marker.Feature.Card, card);
+
+        coords.push(c);
+        markers.push(marker);
+    {% endfor %}
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+    for (var i=0;i<markers.length;i++) {
+        layer.addMarker(markers[i]);
+    }
+
+    var cz = m.computeCenterZoom(coords);
+    m.setCenterZoom(cz[0], cz[1]);
+</script>
 {% endblock %}
 

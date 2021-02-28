@@ -41,7 +41,6 @@
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){dataLayer.push(arguments);}
 	  gtag('js', new Date());
-
 	  gtag('config', 'G-TXSRVP25Y2');
     </script>
 
@@ -61,7 +60,7 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mista' else '' }}"
-                   href="{{ url_for('view.mista') }}">Přehled očkovacích míst
+                   href="{{ url_for('view.info_mista') }}">Přehled očkovacích míst
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
