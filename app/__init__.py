@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,6 +12,8 @@ bp = Blueprint('view', __name__, template_folder="templates")
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+logging.basicConfig(level=logging.INFO)
 
 from app import views, models, commands
 
