@@ -72,16 +72,6 @@ def info_misto(misto_id):
         .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
         VolnaMistaDen.datum).all()
 
-    ockovani_info = db.session.query(VolnaMistaDen.id, OckovaciMisto.nazev, OckovaciMisto.operation_id,
-                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     OckovaciMisto.odkaz) \
-        .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMisto.id == misto.id) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()).order_by(
-        VolnaMistaDen.datum).first()
-
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(
         text("select * from (select sum(pocet_ampulek) as sum,vyrobce,\'Příjem\' as operace  from ockovani_distribuce " \
              "where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union " \
@@ -96,7 +86,7 @@ def info_misto(misto_id):
              " order by vyrobce, operace")).params(misto_id=misto_id).all()
     tot = compute_vaccination_stats(ampule_info)
 
-    return render_template('misto.html', data=nactene_informace, misto=ockovani_info, ampule=ampule_info, total=tot,
+    return render_template('misto.html', data=nactene_informace, misto=misto, ampule=ampule_info, total=tot,
                            last_update=last_update())
 
 
