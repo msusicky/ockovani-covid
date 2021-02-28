@@ -51,18 +51,41 @@ class OpenDataFetcher:
         response = requests.get(url=self.USED_API)
         data = response.json()['data']
 
+        db.session.query(OckovaniSpotreba).delete()
+
         for record in data:
-            db.session.merge(OckovaniSpotreba(
-                datum=record['datum'],
-                ockovaci_misto_id=record['ockovaci_misto_id'],
-                ockovaci_misto_nazev=record['ockovaci_misto_nazev'],
-                kraj_nuts_kod=record['kraj_nuts_kod'],
-                kraj_nazev=record['kraj_nazev'],
-                ockovaci_latka=record['ockovaci_latka'],
-                vyrobce=record['vyrobce'],
-                pouzite_ampulky=record['pouzite_ampulky'],
-                znehodnocene_ampulky=record['znehodnocene_ampulky'],
-            ))
+            datum = record['datum']
+            ockovaci_misto_id = record['ockovaci_misto_id']
+            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
+            kraj_nuts_kod = record['kraj_nuts_kod']
+            kraj_nazev = record['kraj_nazev']
+            ockovaci_latka = record['ockovaci_latka']
+            vyrobce = record['vyrobce']
+            pouzite_ampulky = record['pouzite_ampulky']
+            znehodnocene_ampulky = record['znehodnocene_ampulky']
+
+            spotreba = db.session.query(OckovaniSpotreba) \
+                .filter(OckovaniSpotreba.datum == datum,
+                        OckovaniSpotreba.ockovaci_misto_id == ockovaci_misto_id,
+                        OckovaniSpotreba.ockovaci_latka == ockovaci_latka) \
+                .one_or_none()
+
+            if spotreba is None:
+                db.session.add(OckovaniSpotreba(
+                    datum=datum,
+                    ockovaci_misto_id=ockovaci_misto_id,
+                    ockovaci_misto_nazev=ockovaci_misto_nazev,
+                    kraj_nuts_kod=kraj_nuts_kod,
+                    kraj_nazev=kraj_nazev,
+                    ockovaci_latka=ockovaci_latka,
+                    vyrobce=vyrobce,
+                    pouzite_ampulky=pouzite_ampulky,
+                    znehodnocene_ampulky=znehodnocene_ampulky,
+                ))
+            else:
+                spotreba.pouzite_ampulky += pouzite_ampulky
+                spotreba.znehodnocene_ampulky += znehodnocene_ampulky
+                db.session.merge(spotreba)
 
         db.session.commit()
 
@@ -77,22 +100,50 @@ class OpenDataFetcher:
         response = requests.get(url=self.DISTRIBUTED_API)
         data = response.json()['data']
 
+        db.session.query(OckovaniDistribuce).delete()
+
         for record in data:
-            db.session.merge(OckovaniDistribuce(
-                datum=record['datum'],
-                ockovaci_misto_id=record['ockovaci_misto_id'],
-                ockovaci_misto_nazev=record['ockovaci_misto_nazev'],
-                kraj_nuts_kod=record['kraj_nuts_kod'],
-                kraj_nazev=record['kraj_nazev'],
-                cilove_ockovaci_misto_id=record['cilove_ockovaci_misto_id'],
-                cilove_ockovaci_misto_nazev=record['cilove_ockovaci_misto_nazev'],
-                cilovy_kraj_kod=record['cilovy_kraj_kod'],
-                cilovy_kraj_nazev=record['cilovy_kraj_nazev'],
-                ockovaci_latka=record['ockovaci_latka'],
-                vyrobce=record['vyrobce'],
-                akce=record['akce'],
-                pocet_ampulek=record['pocet_ampulek'],
-            ))
+            datum = record['datum']
+            ockovaci_misto_id = record['ockovaci_misto_id']
+            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
+            kraj_nuts_kod = record['kraj_nuts_kod']
+            kraj_nazev = record['kraj_nazev']
+            cilove_ockovaci_misto_id = record['cilove_ockovaci_misto_id']
+            cilove_ockovaci_misto_nazev = record['cilove_ockovaci_misto_nazev']
+            cilovy_kraj_kod = record['cilovy_kraj_kod']
+            cilovy_kraj_nazev = record['cilovy_kraj_nazev']
+            ockovaci_latka = record['ockovaci_latka']
+            vyrobce = record['vyrobce']
+            akce = record['akce']
+            pocet_ampulek = record['pocet_ampulek']
+
+            distribuce = db.session.query(OckovaniDistribuce) \
+                .filter(OckovaniDistribuce.datum == datum,
+                        OckovaniDistribuce.ockovaci_misto_id == ockovaci_misto_id,
+                        OckovaniDistribuce.cilove_ockovaci_misto_id == cilove_ockovaci_misto_id,
+                        OckovaniDistribuce.ockovaci_latka == ockovaci_latka,
+                        OckovaniDistribuce.akce == akce) \
+                .one_or_none()
+
+            if distribuce is None:
+                db.session.add(OckovaniDistribuce(
+                    datum=datum,
+                    ockovaci_misto_id=ockovaci_misto_id,
+                    ockovaci_misto_nazev=ockovaci_misto_nazev,
+                    kraj_nuts_kod=kraj_nuts_kod,
+                    kraj_nazev=kraj_nazev,
+                    cilove_ockovaci_misto_id=cilove_ockovaci_misto_id,
+                    cilove_ockovaci_misto_nazev=cilove_ockovaci_misto_nazev,
+                    cilovy_kraj_kod=cilovy_kraj_kod,
+                    cilovy_kraj_nazev=cilovy_kraj_nazev,
+                    ockovaci_latka=ockovaci_latka,
+                    vyrobce=vyrobce,
+                    akce=akce,
+                    pocet_ampulek=pocet_ampulek,
+                ))
+            else:
+                distribuce.pocet_ampulek += pocet_ampulek
+                db.session.merge(distribuce)
 
         db.session.commit()
 
