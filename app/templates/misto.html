@@ -47,7 +47,7 @@
                                     <dt>Adresa</dt>
                                     <dd>{{misto.adresa}}</dd>
                                     <dt>Bezbariérový přístup</dt>
-                                    <dd>{{ 'Ano' if misto.bezbarierovy_pristup == 'True' else 'Ne' }}</dd>
+                                    <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
                                 </dl>
                                 <a href="https://cfa.uzis.cz/vaccination-centers/{{misto.id}}" class="btn btn-primary" target="_blank">
                                     Oficiální stránka místa
