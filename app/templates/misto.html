@@ -8,57 +8,111 @@
 <div class="row">
     <h3>Očkovací místo: {{ misto.nazev }} </h3>
 </div>
-<!--
-<div class="row mb-3">
-    <a href="https://reservatic.com/watchdogs/new?locale=cs&operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}&service_id={{ misto.service_id }}"
-       target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
-        Hlídat volná místa
-    </a>
-    {% if misto.nazev_odkaz %}
-    <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
-       target="_blank" class="btn btn-primary ml-1">
-        Rezervovat
-    </a>
-    {% endif %}
+<br/>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#info" role="tab" aria-controls="home"
+           aria-selected="true">Informace o místu</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#vaccination" role="tab" aria-controls="profile"
+           aria-selected="false">Stav vakcín</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+        <br/>
+        <!--
+          <div class="row mb-3">
+              <a href="https://reservatic.com/watchdogs/new?locale=cs&operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}&service_id={{ misto.service_id }}"
+                 target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
+                  Hlídat volná místa
+              </a>
+              {% if misto.nazev_odkaz %}
+              <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
+                 target="_blank" class="btn btn-primary ml-1">
+                  Rezervovat
+              </a>
+              {% endif %}
+          </div>
+          -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Oficiální</h5>
+                        <table class="table table-bordered table-striped table-sm">
+                            <tbody>
+                            <tr>
+                                <td>Oficiální stránka</td>
+                                <td><a href="https://cfa.uzis.cz/vaccination-centers/{{data[0].id}}"
+                                       target="_blank">ZDE</a></td>
+                            </tr>
+                            <tr>
+                                <td>Adresa</td>
+                                <td>{{data[0].adresa}}</td>
+                            </tr>
+                            <tr>
+                                <td>Bezbariérový přístup</td>
+                                <td>{{data[0].bezbarierovy_pristup}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Mapa</h5>
+                        <p class="card-text">Bude v příští verzi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="tab-pane fade" id="vaccination" role="tabpanel" aria-labelledby="vaccination-tab">
+        <br/>
+        {% if ampule %}
+        <table class="table table-bordered table-striped table-sm">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col" class="text-center">Výrobce</th>
+                <th scope="col" class="text-center">Operace</th>
+                <th scope="col" class="text-center">Počet ampulí</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in ampule %}
+            <tr>
+                <td>{{ item.vyrobce }}</td>
+                <td>{{ item.operace }}</td>
+                <td>{{ item.sum }}</td>
+            </tr>
+            {% endfor %}
+            <tfoot>
+            <tr>
+                <td>CELKEM dostupných Pfizer</td>
+                <td>{{ total.pf }}</td>
+            </tr>
+            <tr>
+                <td>CELKEM dostupných Moderna</td>
+                <td>{{ total.mo }}</td>
+            </tr>
+            <tr>
+                <td>CELKEM dostupných AstraZeneca</td>
+                <td>{{ total.az }}</td>
+            </tr>
+            </tfoot>
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
 </div>
--->
-<div class="row mb-3">
-    {% if ampule %}
-    Data o distribuci ampulí na tomto očkovacím místě:
-    <table class="table table-bordered table-striped table-sm">
-        <thead class="thead-dark">
-        <tr>
-            <th scope="col" class="text-center">Výrobce</th>
-            <th scope="col" class="text-center">Operace</th>
-            <th scope="col" class="text-center">Počet ampulí</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in ampule %}
-        <tr>
-            <td>{{ item.vyrobce }}</td>
-            <td>{{ item.operace }}</td>
-            <td>{{ item.sum }}</td>
-        </tr>
-        {% endfor %}
-        <tfoot>
-        <tr>
-            <td>CELKEM dostupných Pfizer</td>
-            <td>{{ total.pf }}</td>
-        </tr>
-        <tr>
-            <td>CELKEM dostupných Moderna</td>
-            <td>{{ total.mo }}</td>
-        </tr>
-        <tr>
-            <td>CELKEM dostupných AstraZeneca</td>
-            <td>{{ total.az }}</td>
-        </tr>
-        </tfoot>
-        </tbody>
-    </table>
-    {% endif %}
-</div>
+<br/>
+
 <div class="row">
     {% if data %}
     <table class="table table-bordered table-striped table-sm">
@@ -97,6 +151,9 @@
 <script>
         {# We store this variable so that we know what URL to use in AJAX calls #}
         $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
+
+
+
 
 
 

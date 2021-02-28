@@ -61,7 +61,7 @@ def info_misto(misto_id):
 
     nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                                          VolnaMistaDen.datum, VolnaMistaDen.volna_mista.label("pocet_mist"),
-                                         OckovaciMisto.id,
+                                         OckovaciMisto.id, OckovaciMisto.adresa,
                                          OckovaciMisto.latitude, OckovaciMisto.longitude,
                                          OckovaciMisto.minimalni_kapacita,
                                          OckovaciMisto.bezbarierovy_pristup) \
