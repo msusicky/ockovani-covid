@@ -67,43 +67,45 @@
             </div>
             <div class="tab-pane" id="vaccination">
                 {% if total %}
-                <table class="table table-bordered table-striped table-sm">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col" class="text-center w-auto"></th>
-                            {% for operation in total['all'].keys() %}
-                            <th scope="col" class="text-center" colspan="2">{{ operation }}</th>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm" style="word-break: break-all">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" class="text-center w-auto"></th>
+                                {% for operation in total['all'].keys() %}
+                                <th scope="col" class="text-center" colspan="2">{{ operation }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="col" class="text-center">Výrobce</th>
+                                {% for operation in total['all'].keys() %}
+                                    <th scope="col" class="text-center">Ampule</th>
+                                    <th scope="col" class="text-center">Dávky</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type in ['Pfizer', 'Moderna', 'AstraZeneca'] %}
+                            <tr>
+                                <td>{{ type }}</td>
+                                {% for operation in total[type] %}
+                                    <td class="text-right">{{ total[type][operation]['ampule'] }}</td>
+                                    <td class="text-right">{{ total[type][operation]['davky'] }}</td>
+                                {% endfor %}
+                            </tr>
                             {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="col" class="text-center">Výrobce</th>
-                            {% for operation in total['all'].keys() %}
-                                <th scope="col" class="text-center">Ampule</th>
-                                <th scope="col" class="text-center">Dávky</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for type in ['Pfizer', 'Moderna', 'AstraZeneca'] %}
-                        <tr>
-                            <td>{{ type }}</td>
-                            {% for operation in total[type] %}
-                                <td class="text-right">{{ total[type][operation]['ampule'] }}</td>
-                                <td class="text-right">{{ total[type][operation]['davky'] }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tfoot class="font-weight-bold">
-                        <tr>
-                            <td>Celkem</td>
-                            {% for operation in total['all'] %}
-                                <td class="text-right">{{ total['all'][operation]['ampule'] }}</td>
-                                <td class="text-right">{{ total['all'][operation]['davky'] }}</td>
-                            {% endfor %}
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tbody>
+                        <tfoot class="font-weight-bold">
+                            <tr>
+                                <td>Celkem</td>
+                                {% for operation in total['all'] %}
+                                    <td class="text-right">{{ total['all'][operation]['ampule'] }}</td>
+                                    <td class="text-right">{{ total['all'][operation]['davky'] }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
                 {% endif %}
             </div>
         </div>
