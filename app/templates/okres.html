@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ kraj }} kraj |
+{{ mesto }} |
 {% endblock %}
 
 {% block body %}
     <div class="row">
-        <h3>Očkovací místa v kraji: {{ kraj }} </h3>
+        <h3>Očkovací místa v okrese: {{ okres.nazev }} </h3>
     </div>
 
     <div class="row">
@@ -15,7 +15,7 @@
             <thead  class="thead-dark">
             <tr>
                 <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Město</th>
+                <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
                 <th scope="col" class="text-center">Datum</th>
                 <th scope="col" class="text-center">Volná místa</th>
@@ -24,9 +24,9 @@
             <tbody>
             {% for item in data %}
                 <tr>
-                    <td><a href="../misto/{{ item.misto_id }}">{{ item.nazev }}</a></td>
-                    <td><a href="../mesto/{{ item.mesto }}">{{ item.mesto }}</a></td>
-                    <td>{{ item.kraj }}</td>
+                    <td><a href="../misto/{{ item.id }}">{{ item.nazev }}</a></td>
+                    <td>{{ item.okres }}</td>
+                    <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
                     <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
                     <td class="text-right">
                         <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist and item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
@@ -37,16 +37,10 @@
         </table>
     {% else %}
         <div class="alert alert-warning w-100" role="alert">
-            Pro tento kraj zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+            Pro toto město zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
         </div>
     {% endif %}
     </div>
 {% endblock %}
 
-{% block scripts %}
-    <script>
-        {# We store this variable so that we know what URL to use in AJAX calls #}
-        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    </script>
-{% endblock %}
 

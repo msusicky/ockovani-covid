@@ -128,6 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.idea
-*.ini
-*.out
+/.idea
+/*.ini
+/*.out
+/google_key.json
