@@ -47,5 +47,5 @@ flask run
 1. activate venv `source venv/bin/activate`
 1. execute database migration if needed `flask db upgrade`   
 1. fetch data `flask fetch-all &`
-1. restart or start webserver if needed `flask run --host=0.0.0.0 --port=5001 &`
+1. restart or start webserver if needed `flask run --host=0.0.0.0 --port=5000 &`
 1. publish website and CSV's `bash tools/manual_publish.sh`
