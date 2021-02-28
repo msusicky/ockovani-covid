@@ -5,63 +5,162 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <h3>Očkovací místo: {{ misto.nazev }} </h3>
-    </div>
-	<!--
-    <div class="row mb-3">
-        <a href="https://reservatic.com/watchdogs/new?locale=cs&operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}&service_id={{ misto.service_id }}"
-           target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
-            Hlídat volná místa
-        </a>
-        {% if misto.nazev_odkaz %}
-        <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
-           target="_blank" class="btn btn-primary ml-1">
-            Rezervovat
-        </a>
-        {% endif %}
-    </div>
-	-->
+<div class="row">
+    <h3>Očkovací místo: {{ misto.nazev }} </h3>
+</div>
 
-    <div class="row">
-    {% if data %}
-        <table class="table table-bordered table-striped table-sm">
-            <thead  class="thead-dark">
-            <tr>
-                <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Okres</th>
-                <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Datum</th>
-                <th scope="col" class="text-center">Volná místa</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in data %}
-                <tr>
-                    <td>{{ item.nazev }}</td>
-                    <td><a href="../okres/{{ item.okres }}">{{ item.okres }}</a></td>
-                    <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
-                    <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
-                    <td class="text-right">
-                        <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist and item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-warning w-100" role="alert">
-            Pro toto místo zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
-        </div>
-    {% endif %}
+<div class="card row mb-4">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#info">Informace o místě</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
+            </li>
+        </ul>
     </div>
+
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="info">
+                <!--
+                  <div class="row mb-3">
+                      <a href="https://reservatic.com/watchdogs/new?locale=cs&operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}&service_id={{ misto.service_id }}"
+                         target="_blank" class="btn btn-primary" title="Nejdříve je třeba mít vytvořený účet na Reservatic.com">
+                          Hlídat volná místa
+                      </a>
+                      {% if misto.nazev_odkaz %}
+                      <a href="https://reservatic.com/cs/public_services/{{ misto.nazev_odkaz }}/calendar?operation_id={{ misto.operation_id }}&place_id={{ misto.place_id }}"
+                         target="_blank" class="btn btn-primary ml-1">
+                          Rezervovat
+                      </a>
+                      {% endif %}
+                  </div>
+                -->
+                <div class="row">
+                    <div class="col-sm-6 py-2">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Podrobnosti o očkovacím místě</h5>
+                                <dl>
+                                    <dt>Adresa</dt>
+                                    <dd>{{misto.adresa}}</dd>
+                                    <dt>Bezbariérový přístup</dt>
+                                    <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
+                                </dl>
+                                <a href="https://cfa.uzis.cz/vaccination-centers/{{misto.id}}" class="btn btn-primary" target="_blank">
+                                    Oficiální stránka místa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 py-2">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Mapa</h5>
+                                <div id="center-map" style="height:250px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="vaccination">
+                {% if total %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm" style="word-break: break-all">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" class="text-center w-auto"></th>
+                                {% for operation in total['all'].keys() %}
+                                <th scope="col" class="text-center" colspan="2">{{ operation }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="col" class="text-center">Výrobce</th>
+                                {% for operation in total['all'].keys() %}
+                                    <th scope="col" class="text-center">Ampule</th>
+                                    <th scope="col" class="text-center">Dávky</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type in ['Pfizer', 'Moderna', 'AstraZeneca'] %}
+                            <tr>
+                                <td>{{ type }}</td>
+                                {% for operation in total[type] %}
+                                    <td class="text-right">{{ total[type][operation]['ampule'] }}</td>
+                                    <td class="text-right">{{ total[type][operation]['davky'] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="font-weight-bold">
+                            <tr>
+                                <td>Celkem</td>
+                                {% for operation in total['all'] %}
+                                    <td class="text-right">{{ total['all'][operation]['ampule'] }}</td>
+                                    <td class="text-right">{{ total['all'][operation]['davky'] }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if data %}
+    <table class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Název</th>
+            <th scope="col" class="text-center">Okres</th>
+            <th scope="col" class="text-center">Kraj</th>
+            <th scope="col" class="text-center">Datum</th>
+            <th scope="col" class="text-center">Volná místa</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.nazev }}</td>
+            <td><a href="../okres/{{ item.okres }}">{{ item.okres }}</a></td>
+            <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
+            <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
+            <td class="text-right">
+                <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist and item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning w-100" role="alert">
+        Pro toto místo zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        {# We store this variable so that we know what URL to use in AJAX calls #}
-        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    </script>
+<script>
+    var center = SMap.Coords.fromWGS84({{misto.longitude}}, {{misto.latitude}});
+    var m = new SMap(JAK.gel("center-map"), center, 14);
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+
+    var options = {};
+    var marker = new SMap.Marker(center, "marker", options);
+    layer.addMarker(marker);
+</script>
 {% endblock %}
 
 
