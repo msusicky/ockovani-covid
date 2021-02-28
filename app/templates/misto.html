@@ -94,16 +94,20 @@
             {% endfor %}
             <tfoot>
             <tr>
-                <td>CELKEM dostupných Pfizer</td>
-                <td>{{ total.pf }}</td>
+                <td>CELKEM dostupných Pfizer (ampule / dávky)</td>
+                <td>{{ total.pf }} / {{ total.pf_davky }}</td>
             </tr>
             <tr>
-                <td>CELKEM dostupných Moderna</td>
-                <td>{{ total.mo }}</td>
+                <td>CELKEM dostupných Moderna (ampule / dávky)</td>
+                <td>{{ total.mo }} / {{ total.mo_davky }}</td>
             </tr>
             <tr>
-                <td>CELKEM dostupných AstraZeneca</td>
-                <td>{{ total.az }}</td>
+                <td>CELKEM dostupných AstraZeneca (ampule / dávky)</td>
+                <td>{{ total.az }} / {{ total.az_davky }}</td>
+            </tr>
+            <tr>
+                <td>CELKEM všech dávek</td>
+                <td>{{ total.all_total }}</td>
             </tr>
             </tfoot>
             </tbody>
@@ -151,6 +155,7 @@
 <script>
         {# We store this variable so that we know what URL to use in AJAX calls #}
         $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
+
 
 
 

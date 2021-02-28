@@ -121,7 +121,12 @@ def compute_vaccination_stats(ampule_info):
                 az_celkem += item[2]
             else:
                 az_celkem -= item[2]
-    total = dict([('az', az_celkem), ('mo', mo_celkem), ('pf', pf_celkem)])
+    az_davky = az_celkem * 10
+    mo_davky = mo_celkem * 10
+    pf_davky = pf_celkem * 6
+    all_total = az_celkem * 10 + mo_celkem * 10 + pf_celkem * 6
+    total = dict([('az', az_celkem), ('az_davky', az_davky), ('mo', mo_celkem), ('mo_davky', mo_davky),
+                  ('pf', pf_celkem), ('pf_davky', pf_davky), ('all_total', all_total)])
     return total
 
 
