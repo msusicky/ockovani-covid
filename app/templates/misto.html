@@ -55,7 +55,7 @@
                             </tr>
                             <tr>
                                 <td>Bezbariérový přístup</td>
-                                <td>{{data[0].bezbarierovy_pristup}}</td>
+                                <td> {{ 'Ano' if data[0].bezbarierovy_pristup == 'True' else 'Ne' }}</td>
                             </tr>
                             </tbody>
                         </table>
