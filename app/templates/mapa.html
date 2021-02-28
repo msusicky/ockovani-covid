@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <h3>Očkovací místa</h3>
+    </div>
+
+    <div id="centers-map" class="row" style="height:600px;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var m = new SMap(JAK.gel("centers-map"));
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var markers = [];
+    var coords = [];
+
+    {% for misto in ockovaci_mista %}
+        var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
+        var options = {
+            title: "{{ misto.nazev }}"
+        }
+        var marker = new SMap.Marker(c, null, options);
+
+        var card = new SMap.Card();
+        card.setSize(400, null)
+        card.getHeader().innerHTML = "<strong>{{ misto.nazev }}</strong>";
+        card.getBody().innerHTML = "<strong>Adresa:</strong> {{misto.adresa}}<br>" +
+            "<strong>Bezbariérový přístup:</strong> {{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}<br>" +
+            "<strong>Volná místa (příštích 10 dní):</strong> {{ misto.pocet_mist }}<br>" +
+            "<a href=\"./misto/{{ misto.id }}\" class=\"btn btn-primary mt-2\">Detail místa</a>";
+        card.getFooter().style = "display: none";
+        card.getContainer().style.padding = "0";
+        marker.decorate(SMap.Marker.Feature.Card, card);
+
+        coords.push(c);
+        markers.push(marker);
+    {% endfor %}
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+    for (var i=0;i<markers.length;i++) {
+        layer.addMarker(markers[i]);
+    }
+
+    var cz = m.computeCenterZoom(coords);
+    m.setCenterZoom(cz[0], cz[1]);
+</script>
+{% endblock %}
+

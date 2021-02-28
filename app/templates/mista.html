@@ -13,7 +13,7 @@
                 <th scope="col" class="text-center">Název</th>
                 <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Volná místa (příštích 10 dní)</th>
+                <th scope="col" class="text-center">Volná&nbsp;místa (příštích&nbsp;10&nbsp;dní)</th>
             </tr>
             </thead>
             <tbody>
@@ -36,17 +36,4 @@
     {% endif %}
     </div>
 {% endblock %}
-
-{% block scripts %}
-    <script>
-        {# We store this variable so that we know what URL to use in AJAX calls #}
-        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    </script>
-{% endblock %}
-
-
-{#
-Note: you can also put css/js in 'base.html' if you want it to apply to all templates
-which extend base.html (like this one)
-#}
 

@@ -43,10 +43,4 @@
     </div>
 {% endblock %}
 
-{% block scripts %}
-    <script>
-        {# We store this variable so that we know what URL to use in AJAX calls #}
-        $SCRIPT_ROOT = {{ request.script_root | tojson | safe }};
-    </script>
-{% endblock %}
 
