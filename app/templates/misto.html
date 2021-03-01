@@ -132,7 +132,9 @@
             <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
             <td>{{ item.datum.strftime('%d. %m. %Y') }}</td>
             <td class="text-right">
-                <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist and item.pocet_mist > 0 else 'danger' }}">{{ item.pocet_mist }}</span>
+                <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
+                    {{ item.pocet_mist }}
+                </span>
             </td>
         </tr>
         {% endfor %}

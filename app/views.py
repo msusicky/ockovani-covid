@@ -1,5 +1,5 @@
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp
@@ -209,10 +209,10 @@ def mapa():
                                      OckovaciMisto.operation_id, OckovaciMisto.odkaz,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
                                      func.sum(VolnaMistaDen.volna_mista).label("pocet_mist")) \
-        .join(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+        .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()) \
+        .filter(or_(VolnaMistaDen.import_id == last_update_import_id(), VolnaMistaDen.import_id == None)) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
                   OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
