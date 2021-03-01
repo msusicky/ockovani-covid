@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "ockovani"
+      POSTGRES_DB: "ockovani"
+      POSTGRES_USER: "ockovani"
+  app:
+    build:
+      context: .
+    links:
+      - db:db
+    depends_on:
+      - db
+    environment:
+      FLASK_ENV: "development"
+    ports:
+      - "5000:5000"
+
+volumes:
+  db_data: {}
