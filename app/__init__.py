@@ -1,3 +1,4 @@
+import locale
 import logging
 
 from flask import Flask, Blueprint
@@ -14,6 +15,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 logging.basicConfig(level=logging.INFO)
+
+locale.setlocale(locale.LC_TIME, "cs_CZ")
 
 from app import views, models, commands
 
