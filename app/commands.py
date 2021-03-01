@@ -23,7 +23,7 @@ def fetch_sheet_command():
     fetcher.fetch_centers()
 
 @app.cli.command('fetch-all')
-def fetch_sheet_command():
+def fetch_all_command():
     """Execute all fetchers."""
     opendata_fetcher = OpenDataFetcher()
     opendata_fetcher.fetch_all()
@@ -31,5 +31,5 @@ def fetch_sheet_command():
     sheet_fetcher = SheetFetcher()
     sheet_fetcher.fetch_centers()
 
-    reservatic_fetcher = SheetFetcher()
-    reservatic_fetcher.fetch_centers()
+    reservatic_fetcher = ReservaticFetcher()
+    reservatic_fetcher.fetch_free_capacities()
