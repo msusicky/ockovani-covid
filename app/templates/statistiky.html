@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Statistiky |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <h3>Souhrnné statistiky očkování</h3>
+</div>
+
+<div class="row">
+    {% if vac_stats %}
+    K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno {{ vac_stats[0].druha }} lidí a bylo
+    podáno {{ vac_stats[0].celkem }} dávek. Pokud bychom očkovali rychlostí nejrychlejšího dne a očkovali nepřetržitě,
+    pak skončíme (60% dospělé populace, 2 dávky): <b> {{ end_date }} </b>. Nicméně mnoho očkovacích center bude ještě
+    vybudováno.
+    {% endif %}
+    <br/>
+    <br/>
+</div>
+
+<div class="row">
+    {% if vacc_storage %}
+    <table class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Vakcína</th>
+            <th scope="col" class="text-center">Přišlo</th>
+            <th scope="col" class="text-center">Vyočkováno</th>
+            <th scope="col" class="text-center">Rozdíl - k dispozici</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in vacc_storage %}
+        <tr>
+            <td>{{ item.vyrobce }}</td>
+            <td>{{ item.prijem }}</td>
+            <td>{{ item.spotreba }}</td>
+            <td>{{ item.rozdil }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning w-100" role="alert">
+        Pro toto město zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+    </div>
+    {% endif %}
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nejvíce naočkovaných za den</h5>
+                {% if top5 %}
+                <table class="table table-bordered table-striped table-sm">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="text-center">Datum</th>
+                        <th scope="col" class="text-center">Celkem</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in top5 %}
+                    <tr>
+                        <td>{{ item.datum }}</td>
+                        <td>{{ item.sum }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="alert alert-warning w-100" role="alert">
+                    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+                </div>
+                {% endif %}
+                <!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nejvýkonnější místo</h5>
+                {% if top5_place %}
+                <table class="table table-bordered table-striped table-sm">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="text-center">Datum</th>
+                        <th scope="col" class="text-center">Místo</th>
+                        <th scope="col" class="text-center">Celkem</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in top5_place %}
+                    <tr>
+                        <td>{{ item.datum }}</td>
+                        <td>{{ item.zarizeni_nazev }}</td>
+                        <td>{{ item.sum }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="alert alert-warning w-100" role="alert">
+                    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+                </div>
+                {% endif %}
+                <p class="card-text">5 míst s největším počtem očkovaných za den.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Obdržených dávek</h5>
+                {% if vac_age %}
+                <table class="table table-bordered table-striped table-sm">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="text-center">Věková skupina</th>
+                        <th scope="col" class="text-center">Dávek</th>
+                        <th scope="col" class="text-center">Očkovaných</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in vac_age %}
+                    <tr>
+                        <td>{{ item.vekova_skupina }}</td>
+                        <td>{{ item.sum }}</td>
+                        <td>{{ item.sum_2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="alert alert-warning w-100" role="alert">
+                    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+                </div>
+                {% endif %}
+                <p class="card-text"><i>Očkovaní dostali obě dávky.</i></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
