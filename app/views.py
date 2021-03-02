@@ -98,7 +98,7 @@ def info_misto(misto_id):
     registrace_info = db.session.query(OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani,
                                        func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
         OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
-        OckovaniRegistrace.rezervace is False).group_by(OckovaniRegistrace.vekova_skupina,
+        OckovaniRegistrace.rezervace == False).group_by(OckovaniRegistrace.vekova_skupina,
                                                         OckovaniRegistrace.povolani).order_by(
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
