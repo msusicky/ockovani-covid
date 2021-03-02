@@ -107,9 +107,9 @@ def info_misto(misto_id):
         """
         select vekova_skupina, povolani, 
 	    sum(case when rezervace=true then pocet else 0 end) /
-	    sum(case when rezervace=false then pocet else 0 end) as pomer
+	    NULLIF(sum(case when rezervace=false then pocet else 0 end), 0) as pomer
 	    from ockovani_registrace where datum>now()-'7 days'::interval 
-	    group by vekova_skupina, povolani
+	    group by vekova_skupina, povolani order by vekova_skupina, povolani
         """
     )).params(misto_id=misto_id).all()
 
