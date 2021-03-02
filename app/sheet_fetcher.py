@@ -2,7 +2,7 @@ import configparser
 
 import gspread as gspread
 
-from app import db
+from app import db, app
 from app.models import OckovaciMisto
 
 
@@ -36,6 +36,8 @@ class SheetFetcher:
             ))
 
         db.session.commit()
+
+        app.logger.info('Fetching google sheet finished.')
 
 
 if __name__ == '__main__':
