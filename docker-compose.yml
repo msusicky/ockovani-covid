@@ -5,14 +5,17 @@ services:
     image: postgres
     volumes:
       - db_data:/var/lib/postgresql
+      - ./dockerize/ockovani-2103020753.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     environment:
       POSTGRES_PASSWORD: "ockovani"
-      POSTGRES_DB: "ockovani"
       POSTGRES_USER: "ockovani"
+      # NOTE(ivasilev) If a backup.sql mapped to docker-entrypoint-initdb.d already creates the db then POSTGRES_DB should be removed. This currently works as L23 of ockovani-2103020753.sql is commented out not to cause conflicts.
+      POSTGRES_DB: "ockovani"
   app:
     build:
       context: .
+      dockerfile: dockerize/Dockerfile
     links:
       - db:db
     depends_on:
