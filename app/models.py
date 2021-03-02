@@ -183,3 +183,41 @@ class OckovaniLide(db.Model):
         return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina=%s, pocet=%s)>" % (
             self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
             self.pocet)
+
+
+class OckovaniRegistrace(db.Model):
+    __tablename__ = 'ockovani_registrace'
+
+    datum = Column(Date, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    ockovaci_misto_nazev = Column(Unicode)
+    kraj_nuts_kod = Column(Unicode)
+    kraj_nazev = Column(Unicode)
+    vekova_skupina = Column(Unicode, primary_key=True)
+    povolani = Column(Unicode, primary_key=True)
+    stat = Column(Unicode, primary_key=True)
+    rezervace = Column(Boolean)
+    datum_rezervace = Column(Date)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return "<OckovaniRegistrace(datum='%s',ockovaci_misto_nazev='%s', povolani='%s',  poradi_davky=%s, vekova_skupina=%s, datum_rezervace=%s, pocet=%s)>" % (
+            self.datum, self.ockovaci_misto_nazev, self.povolani, self.poradi_davky, self.vekova_skupina,
+            self.datum_rezervace, self.pocet)
+
+
+class OckovaniRezervace(db.Model):
+    __tablename__ = 'ockovani_rezervace'
+
+    datum = Column(Date, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    ockovaci_misto_nazev = Column(Unicode)
+    kraj_nuts_kod = Column(Unicode)
+    kraj_nazev = Column(Unicode)
+    volna_kapacita = Column(Integer)
+    maximalni_kapacita = Column(Integer)
+    kalendar_ockovani = Column(Unicode)
+
+    def __repr__(self):
+        return "<OckovaniRezervace(datum='%s',ockovaci_misto_nazev='%s', volna_kapacita='%s',  kalendar_ockovani=%s)>" % (
+            self.datum, self.ockovaci_misto_nazev, self.volna_kapacita, self.kalendar_ockovani)
