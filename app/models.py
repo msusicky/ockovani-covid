@@ -199,11 +199,19 @@ class OckovaniRegistrace(db.Model):
     rezervace = Column(Boolean)
     datum_rezervace = Column(Date)
     pocet = Column(Integer)
+    import_id = Column(Integer, ForeignKey('importy.id'))
+
+    import_ = relationship('Import', back_populates='ockovani_registrace')
+    misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
 
     def __repr__(self):
         return "<OckovaniRegistrace(datum='%s',ockovaci_misto_nazev='%s', povolani='%s',  poradi_davky=%s, vekova_skupina=%s, datum_rezervace=%s, pocet=%s)>" % (
             self.datum, self.ockovaci_misto_nazev, self.povolani, self.poradi_davky, self.vekova_skupina,
             self.datum_rezervace, self.pocet)
+
+
+Import.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="import_")
+OckovaciMisto.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="misto")
 
 
 class OckovaniRezervace(db.Model):
@@ -217,7 +225,15 @@ class OckovaniRezervace(db.Model):
     volna_kapacita = Column(Integer)
     maximalni_kapacita = Column(Integer)
     kalendar_ockovani = Column(Unicode)
+    import_id = Column(Integer, ForeignKey('importy.id'))
+
+    import_ = relationship('Import', back_populates='ockovani_rezervace')
+    misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
 
     def __repr__(self):
         return "<OckovaniRezervace(datum='%s',ockovaci_misto_nazev='%s', volna_kapacita='%s',  kalendar_ockovani=%s)>" % (
             self.datum, self.ockovaci_misto_nazev, self.volna_kapacita, self.kalendar_ockovani)
+
+
+Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_")
+OckovaciMisto.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="misto")

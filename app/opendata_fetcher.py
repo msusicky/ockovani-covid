@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 
 from app import db, app
-from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
+from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
     OckovaniRegistrace
 
 
@@ -13,14 +13,29 @@ class OpenDataFetcher:
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
     VACCINATED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
-    RESERVATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
     REGISTRATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
+    RESERVATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
+
+    _import = None
 
     def fetch_all(self):
-        self.fetch_centers()
-        self.fetch_used()
-        self.fetch_distributed()
-        self.fetch_vaccinated()
+        self._import = Import(status='RUNNING')
+        try:
+            self.fetch_centers()
+            self.fetch_used()
+            self.fetch_distributed()
+            self.fetch_vaccinated()
+            self.fetch_registrations()
+            self.fetch_reservations()
+        except Exception as e:
+            app.logger.error('Fetch failed')
+            app.logger.error(e)
+            self._import.status = 'FAILED'
+        else:
+            app.logger.info('Fetch successful')
+            self._import.status = 'FINISHED'
+        finally:
+            db.session.commit()
 
     def fetch_centers(self):
         """
@@ -185,6 +200,41 @@ class OpenDataFetcher:
 
         app.logger.info('Fetching vaccinated people finished.')
 
+    def fetch_registrations(self):
+        """
+        Fetch registrations from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv
+        @return:
+        """
+
+        data = pd.read_csv(self.REGISTRATION_API)
+
+        d = data.groupby(
+            ["datum", "ockovaci_misto_id", "ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev", "vekova_skupina",
+             "povolani", "stat", "rezervace", "datum_rezervace"]).size().reset_index(name='counts')
+
+        db.session.query(OckovaniRegistrace).delete()
+
+        for row in d.itertuples(index=False):
+            db.session.add(OckovaniRegistrace(
+                datum=row[0],
+                ockovaci_misto_id=row[1],
+                ockovaci_misto_nazev=row[2],
+                kraj_nuts_kod=row[3],
+                kraj_nazev=row[4],
+                vekova_skupina=row[5],
+                povolani=row[6],
+                stat=row[7],
+                rezervace=row[8],
+                datum_rezervace=row[9],
+                pocet=row[10],
+                import_id=self._import.id
+            ))
+
+        db.session.commit()
+
+        app.logger.info('Fetching registrations finished.')
+
     def fetch_reservations(self):
         """
         Fetch reservations from opendata.
@@ -192,9 +242,6 @@ class OpenDataFetcher:
         @return:
         """
         data = pd.read_csv(self.RESERVATION_API)
-
-        # d = data.groupby(["datum", "ockovaci_misto_id", "ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev", "volna_kapacita",
-        #                  "maximalni_kapacita", "kalendar_ockovani"]).size().reset_index(name='counts')
 
         db.session.query(OckovaniRezervace).delete()
 
@@ -207,41 +254,13 @@ class OpenDataFetcher:
                 kraj_nazev=row[4],
                 volna_kapacita=row[5],
                 maximalni_kapacita=row[6],
-                kalendar_ockovani=row[7]
+                kalendar_ockovani=row[7],
+                import_id=self._import.id
             ))
 
         db.session.commit()
 
         app.logger.info('Fetching reservations finished.')
-
-    def fetch_registrations(self):
-        """
-        Fetch registrations from opendata.
-        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv
-        @return:
-        """
-        data = pd.read_csv(self.REGISTRATION_API)
-
-        d = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
-                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
-
-        db.session.query(OckovaniRegistrace).delete()
-
-        for row in data.itertuples(index=False):
-            db.session.add(OckovaniRegistrace(
-                datum=row[0],
-                ockovaci_misto_id=row[1],
-                ockovaci_misto_nazev=row[2],
-                kraj_nuts_kod=row[3],
-                kraj_nazev=row[4],
-                volna_kapacita=row[5],
-                maximalni_kapacita=row[6],
-                kalendar_ockovani=row[7]
-            ))
-
-        db.session.commit()
-
-        app.logger.info('Fetching registrations finished.')
 
 
 if __name__ == '__main__':
@@ -262,10 +281,11 @@ if __name__ == '__main__':
         fetcher.fetch_distributed()
     elif argument == 'vaccinated':
         fetcher.fetch_vaccinated()
-    elif argument == 'reservations':
-        fetcher.fetch_reservations()
     elif argument == 'registrations':
         fetcher.fetch_registrations()
+    elif argument == 'reservations':
+        fetcher.fetch_reservations()
+
     else:
         print('Invalid option.')
         exit(1)
