@@ -235,13 +235,9 @@ def info_mista():
 
 @bp.route("/mapa")
 def mapa():
-    # todo: centers with some older imports (stopped working and were removed) will not fulfill the condition (not a problem now)
     ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
-                                     OckovaciMisto.minimalni_kapacita,
                                      OckovaciMisto.bezbarierovy_pristup,
-                                     OckovaciMisto.service_id,
-                                     OckovaciMisto.operation_id, OckovaciMisto.odkaz,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
                                      func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
         .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
