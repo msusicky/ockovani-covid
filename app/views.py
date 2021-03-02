@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta, date
 
 from flask import render_template
@@ -5,9 +6,12 @@ from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp
-from app.models import Import, Okres, Kraj, OckovaciMisto, VolnaMistaCas, VolnaMistaDen, OckovaniRegistrace
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRezervace, OckovaniRegistrace, OckovaniRezervace
 
 STATUS_FINISHED = 'FINISHED'
+
+DAYS = 14
+DAYS_MISTO = 30
 
 
 @bp.route('/')
@@ -22,15 +26,19 @@ def info_okres(okres_nazev):
         abort(404)
 
     nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                                         VolnaMistaDen.datum, VolnaMistaDen.volna_mista.label("pocet_mist"),
-                                         OckovaciMisto.id) \
-        .join(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+                                         OckovaniRezervace.datum, OckovaciMisto.id,
+                                         func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_nazev) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .order_by(VolnaMistaDen.datum, OckovaciMisto.nazev) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id) \
+        .order_by(OckovaniRezervace.datum, OckovaciMisto.nazev) \
         .all()
 
     return render_template('okres.html', data=nactene_informace, okres=okres, last_update=last_update())
@@ -43,15 +51,19 @@ def info_kraj(kraj_name):
         abort(404)
 
     nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                                         VolnaMistaDen.datum, VolnaMistaDen.volna_mista.label("pocet_mist"),
-                                         OckovaciMisto.id) \
-        .join(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+                                         OckovaniRezervace.datum, OckovaciMisto.id,
+                                         func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .order_by(VolnaMistaDen.datum, OckovaciMisto.okres, OckovaciMisto.nazev) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id) \
+        .order_by(OckovaniRezervace.datum, OckovaciMisto.okres, OckovaciMisto.nazev) \
         .all()
 
     return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
@@ -64,18 +76,23 @@ def info_misto(misto_id):
         abort(404)
 
     nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                                         VolnaMistaDen.datum, VolnaMistaDen.volna_mista.label("pocet_mist"),
-                                         OckovaciMisto.id, OckovaciMisto.adresa,
+                                         OckovaniRezervace.datum, OckovaciMisto.id, OckovaciMisto.adresa,
                                          OckovaciMisto.latitude, OckovaciMisto.longitude,
-                                         OckovaciMisto.minimalni_kapacita,
-                                         OckovaciMisto.bezbarierovy_pristup) \
-        .join(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+                                         OckovaciMisto.bezbarierovy_pristup,
+                                         func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaciMisto.id == misto.id) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS_MISTO)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .order_by(VolnaMistaDen.datum) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id,
+                  OckovaciMisto.adresa, OckovaciMisto.latitude, OckovaciMisto.longitude,
+                  OckovaciMisto.bezbarierovy_pristup) \
+        .order_by(OckovaniRezervace.datum) \
         .all()
 
     registrace_info = db.session.query(OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani,
@@ -115,7 +132,7 @@ def info_misto(misto_id):
     total = _compute_vaccination_stats(ampule_info)
 
     return render_template('misto.html', data=nactene_informace, misto=misto, total=total,
-                           registrace_info=registrace_info, metriky_info, last_update=last_update())
+                           registrace_info=registrace_info, metriky_info=metriky_info, last_update=last_update())
 
 
 def _compute_vaccination_stats(ampule_info):
@@ -197,27 +214,22 @@ def _compute_vaccination_total(total):
 
 @bp.route("/mista")
 def info_mista():
-    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
-                                     OckovaciMisto.latitude, OckovaciMisto.longitude,
-                                     OckovaciMisto.minimalni_kapacita,
-                                     OckovaciMisto.bezbarierovy_pristup,
-                                     OckovaciMisto.service_id,
-                                     OckovaciMisto.operation_id, OckovaciMisto.odkaz,
+    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     func.sum(VolnaMistaDen.volna_mista).label("pocet_mist")) \
-        .join(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+                                     func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(VolnaMistaDen.import_id == last_update_import_id()) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
-                  OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
-                  OckovaciMisto.service_id, OckovaciMisto.operation_id, OckovaciMisto.odkaz,
-                  Okres.nazev, Kraj.nazev) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=last_update())
+    return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=last_update(), days=DAYS)
 
 
 @bp.route("/mapa")
@@ -230,20 +242,21 @@ def mapa():
                                      OckovaciMisto.service_id,
                                      OckovaciMisto.operation_id, OckovaciMisto.odkaz,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     func.sum(VolnaMistaDen.volna_mista).label("pocet_mist")) \
-        .outerjoin(VolnaMistaDen, (VolnaMistaDen.misto_id == OckovaciMisto.id)) \
+                                     func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(or_(VolnaMistaDen.import_id == last_update_import_id(), VolnaMistaDen.import_id == None)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
-                  OckovaciMisto.longitude, OckovaciMisto.minimalni_kapacita, OckovaciMisto.bezbarierovy_pristup,
-                  OckovaciMisto.service_id, OckovaciMisto.operation_id, OckovaciMisto.odkaz,
-                  Okres.nazev, Kraj.nazev) \
+                  OckovaciMisto.longitude, OckovaciMisto.bezbarierovy_pristup, Okres.id, Kraj.id) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=last_update())
+    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=last_update(), days=DAYS)
 
 
 @bp.route("/opendata")

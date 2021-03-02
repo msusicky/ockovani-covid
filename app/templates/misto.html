@@ -209,7 +209,7 @@
             <td>{{ item.nazev }}</td>
             <td><a href="../okres/{{ item.okres }}">{{ item.okres }}</a></td>
             <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
-            <td>{{ item.datum.strftime('%a %d. %m. %Y') }}</td>
+            <td class="text-right">{{ item.datum.strftime('%a %d. %m. %Y') }}</td>
             <td class="text-right">
                 <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
                     {{ item.pocet_mist }}
