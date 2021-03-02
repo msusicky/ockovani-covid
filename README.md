@@ -16,6 +16,10 @@ Pro získávání dat využívá metody scrapingu. Vzhledem k tomu, že jsou dat
 Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web stáhne a publikuje na github pages. Tento krok je realizován proto, že nechceme vystavovat veřejně aplikační server a chceme přenést zátěž na prostředky Githubu. Navíc jde o statické stránky, u kterých není problém obsloužit mnoho tisíc lidí současně.
 
 
+## Important to know
+In order to get the data a scraper is run against the reservation system. As long as the the sample data is accessible through github pages and the development server, **please
+do not run the scraper locally, this might cause additional stress to the rezervation system!**
+
 # How to run it [ENG]
 
 ## Quick start with docker-compose
@@ -25,7 +29,7 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 The development server (default flask one for the moment) will start at port `5000`,
 you can access the deployment at `http://localhost:5000/ockovani-covid`.
 
-## Installation
+## Installation without docker-compose
 
 ### Virtual environment
 
