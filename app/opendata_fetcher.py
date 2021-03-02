@@ -207,8 +207,9 @@ class OpenDataFetcher:
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
         df['rezervace'] = df['rezervace'].fillna(False)
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
-        df.groupby(["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace", "datum_rezervace"])\
-            .size()\
+        df = df.groupby(
+            ["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace", "datum_rezervace"]) \
+            .size() \
             .reset_index(name='counts')
 
         for row in df.itertuples(index=False):
@@ -294,4 +295,3 @@ if __name__ == '__main__':
         exit(1)
 
     db.session.commit()
-

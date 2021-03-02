@@ -106,8 +106,8 @@ def info_misto(misto_id):
     metriky_info = db.session.query("vekova_skupina", "povolani", "pomer").from_statement(text(
         """
         select vekova_skupina, povolani, 
-	    sum(case when rezervace=true then pocet else 0 end) /
-	    NULLIF(sum(case when rezervace=false then pocet else 0 end), 0) as pomer
+	    round((CAST (sum(case when rezervace=true then pocet else 0 end) AS FLOAT) /
+	    NULLIF(sum(pocet), 0))::numeric, 2) as pomer
 	    from ockovani_registrace where datum>now()-'7 days'::interval 
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani
         """
