@@ -13,7 +13,8 @@ Statistiky |
     {% if vac_stats %}
     K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno {{ vac_stats[0].druha }} lidí a bylo
     podáno {{ vac_stats[0].celkem }} dávek. Pokud bychom očkovali rychlostí nejrychlejšího dne a očkovali nepřetržitě,
-    pak skončíme (60% dospělé populace, 2 dávky): <b> {{ end_date }} </b>. Nicméně mnoho očkovacích center bude ještě
+    pak skončíme (60% dospělé populace, 2 dávky): <strong>{{ end_date.strftime('%d. %m. %Y') }}</strong>.
+    Nicméně mnoho očkovacích center bude ještě
     vybudováno.
     {% endif %}
     <br/>
