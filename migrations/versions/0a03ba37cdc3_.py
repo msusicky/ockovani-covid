@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4b62cca186e4
+Revision ID: 0a03ba37cdc3
 Revises: aa2c9e377c1b
-Create Date: 2021-03-02 17:02:59.991208
+Create Date: 2021-03-02 20:08:32.237588
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4b62cca186e4'
+revision = '0a03ba37cdc3'
 down_revision = 'aa2c9e377c1b'
 branch_labels = None
 depends_on = None
@@ -21,33 +21,27 @@ def upgrade():
     op.create_table('ockovani_registrace',
     sa.Column('datum', sa.Date(), nullable=False),
     sa.Column('ockovaci_misto_id', sa.Unicode(), nullable=False),
-    sa.Column('ockovaci_misto_nazev', sa.Unicode(), nullable=True),
-    sa.Column('kraj_nuts_kod', sa.Unicode(), nullable=True),
-    sa.Column('kraj_nazev', sa.Unicode(), nullable=True),
     sa.Column('vekova_skupina', sa.Unicode(), nullable=False),
     sa.Column('povolani', sa.Unicode(), nullable=False),
     sa.Column('stat', sa.Unicode(), nullable=False),
-    sa.Column('rezervace', sa.Boolean(), nullable=True),
-    sa.Column('datum_rezervace', sa.Date(), nullable=True),
+    sa.Column('rezervace', sa.Boolean(), nullable=False),
+    sa.Column('datum_rezervace', sa.Date(), nullable=False),
     sa.Column('pocet', sa.Integer(), nullable=True),
-    sa.Column('import_id', sa.Integer(), nullable=True),
+    sa.Column('import_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['import_id'], ['importy.id'], ),
     sa.ForeignKeyConstraint(['ockovaci_misto_id'], ['ockovaci_mista.id'], ),
-    sa.PrimaryKeyConstraint('datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat')
+    sa.PrimaryKeyConstraint('datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace', 'import_id')
     )
     op.create_table('ockovani_rezervace',
     sa.Column('datum', sa.Date(), nullable=False),
     sa.Column('ockovaci_misto_id', sa.Unicode(), nullable=False),
-    sa.Column('ockovaci_misto_nazev', sa.Unicode(), nullable=True),
-    sa.Column('kraj_nuts_kod', sa.Unicode(), nullable=True),
-    sa.Column('kraj_nazev', sa.Unicode(), nullable=True),
     sa.Column('volna_kapacita', sa.Integer(), nullable=True),
     sa.Column('maximalni_kapacita', sa.Integer(), nullable=True),
-    sa.Column('kalendar_ockovani', sa.Unicode(), nullable=True),
-    sa.Column('import_id', sa.Integer(), nullable=True),
+    sa.Column('kalendar_ockovani', sa.Unicode(), nullable=False),
+    sa.Column('import_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['import_id'], ['importy.id'], ),
     sa.ForeignKeyConstraint(['ockovaci_misto_id'], ['ockovaci_mista.id'], ),
-    sa.PrimaryKeyConstraint('datum', 'ockovaci_misto_id')
+    sa.PrimaryKeyConstraint('datum', 'ockovaci_misto_id', 'kalendar_ockovani', 'import_id')
     )
     # ### end Alembic commands ###
 

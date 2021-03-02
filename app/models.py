@@ -158,7 +158,7 @@ class OckovaniDistribuce(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
 
     def __repr__(self):
-        return "<OckovaniDistribuce(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pocet_ampulek=%s)>" % (
+        return "<OckovaniDistribuce(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka='%s', pocet_ampulek=%s)>" % (
             self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka,
             self.pocet_ampulek)
 
@@ -180,7 +180,7 @@ class OckovaniLide(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina=%s, pocet=%s)>" % (
+        return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
             self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
             self.pocet)
 
@@ -190,24 +190,20 @@ class OckovaniRegistrace(db.Model):
 
     datum = Column(Date, primary_key=True)
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    ockovaci_misto_nazev = Column(Unicode)
-    kraj_nuts_kod = Column(Unicode)
-    kraj_nazev = Column(Unicode)
     vekova_skupina = Column(Unicode, primary_key=True)
     povolani = Column(Unicode, primary_key=True)
     stat = Column(Unicode, primary_key=True)
-    rezervace = Column(Boolean)
-    datum_rezervace = Column(Date)
+    rezervace = Column(Boolean, primary_key=True)
+    datum_rezervace = Column(Date, primary_key=True)
     pocet = Column(Integer)
-    import_id = Column(Integer, ForeignKey('importy.id'))
+    import_id = Column(Integer, ForeignKey('importy.id'), primary_key=True)
 
     import_ = relationship('Import', back_populates='ockovani_registrace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
 
     def __repr__(self):
-        return "<OckovaniRegistrace(datum='%s',ockovaci_misto_nazev='%s', povolani='%s',  poradi_davky=%s, vekova_skupina=%s, datum_rezervace=%s, pocet=%s)>" % (
-            self.datum, self.ockovaci_misto_nazev, self.povolani, self.poradi_davky, self.vekova_skupina,
-            self.datum_rezervace, self.pocet)
+        return "<OckovaniRegistrace(ockovaci_misto_id='%s', datum='%s', povolani='%s', vekova_skupina='%s', datum_rezervace='%s', pocet=%s)>" % (
+            self.ockovaci_misto_id, self.datum, self.povolani, self.vekova_skupina, self.datum_rezervace, self.pocet)
 
 
 Import.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="import_")
@@ -219,20 +215,17 @@ class OckovaniRezervace(db.Model):
 
     datum = Column(Date, primary_key=True)
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    ockovaci_misto_nazev = Column(Unicode)
-    kraj_nuts_kod = Column(Unicode)
-    kraj_nazev = Column(Unicode)
     volna_kapacita = Column(Integer)
     maximalni_kapacita = Column(Integer)
-    kalendar_ockovani = Column(Unicode)
-    import_id = Column(Integer, ForeignKey('importy.id'))
+    kalendar_ockovani = Column(Unicode, primary_key=True)
+    import_id = Column(Integer, ForeignKey('importy.id'), primary_key=True)
 
     import_ = relationship('Import', back_populates='ockovani_rezervace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
 
     def __repr__(self):
-        return "<OckovaniRezervace(datum='%s',ockovaci_misto_nazev='%s', volna_kapacita='%s',  kalendar_ockovani=%s)>" % (
-            self.datum, self.ockovaci_misto_nazev, self.volna_kapacita, self.kalendar_ockovani)
+        return "<OckovaniRezervace(ockovaci_misto_id='%s', datum='%s', volna_kapacita='%s', kalendar_ockovani='%s')>" % (
+            self.ockovaci_misto_id, self.datum, self.volna_kapacita, self.kalendar_ockovani)
 
 
 Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_")
