@@ -201,6 +201,7 @@ def info_mista():
 
 @bp.route("/mapa")
 def mapa():
+    # todo: centers with some older imports (stopped working and were removed) will not fulfill the condition (not a problem now)
     ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
                                      OckovaciMisto.minimalni_kapacita,
@@ -234,7 +235,7 @@ def last_update():
     if last_import is None:
         last_import_datetime = 'nikdy'
     else:
-        last_import_datetime = last_import.strftime('%d. %m. %Y %H:%M')
+        last_import_datetime = last_import.strftime('%a %d. %m. %Y %H:%M')
 
     return last_import_datetime
 
