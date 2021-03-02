@@ -1,20 +1,23 @@
 import sys
 
 import requests
+import pandas as pd
 
 from app import db, app
-from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce
+from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide
 
 
 class OpenDataFetcher:
     CENTERS_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/prehled-ockovacich-mist.json'
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
+    VACCINATED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
 
     def fetch_all(self):
         self.fetch_centers()
         self.fetch_used()
         self.fetch_distributed()
+        self.fetch_vaccinated()
 
     def fetch_centers(self):
         """
@@ -149,6 +152,36 @@ class OpenDataFetcher:
 
         app.logger.info('Fetching distributed vaccines finished.')
 
+    def fetch_vaccinated(self):
+        """
+        Fetch distribution files from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv
+        @return:
+        """
+        data = pd.read_csv(self.VACCINATED_API)
+
+        d = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
+                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
+
+        db.session.query(OckovaniLide).delete()
+
+        for row in d.itertuples(index=False):
+            db.session.add(OckovaniLide(
+                datum=row[0],
+                vakcina=row[1],
+                kraj_nuts_kod=row[2],
+                kraj_nazev=row[3],
+                zarizeni_kod=row[4],
+                zarizeni_nazev=row[5],
+                poradi_davky=row[6],
+                vekova_skupina=row[7],
+                pocet=row[8]
+            ))
+
+        db.session.commit()
+
+        app.logger.info('Fetching vaccinated people finished.')
+
 
 if __name__ == '__main__':
     arguments = sys.argv[1:]
@@ -166,6 +199,8 @@ if __name__ == '__main__':
         fetcher.fetch_used()
     elif argument == 'distributed':
         fetcher.fetch_distributed()
+    elif argument == 'vaccinated':
+        fetcher.fetch_vaccinated()
     else:
         print('Invalid option.')
         exit(1)
