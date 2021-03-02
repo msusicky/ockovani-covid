@@ -4,7 +4,8 @@ import requests
 import pandas as pd
 
 from app import db, app
-from app.models import OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide
+from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
+    OckovaniRegistrace
 
 
 class OpenDataFetcher:
@@ -12,14 +13,34 @@ class OpenDataFetcher:
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
     VACCINATED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
+    REGISTRATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
+    RESERVATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
+
+    _import = None
 
     def fetch_all(self):
-        self.fetch_centers()
-        self.fetch_used()
-        self.fetch_distributed()
-        self.fetch_vaccinated()
+        self._import = Import(status='RUNNING')
+        db.session.add(self._import)
+        db.session.commit()
 
-    def fetch_centers(self):
+        try:
+            self._fetch_centers()
+            self._fetch_used()
+            self._fetch_distributed()
+            self._fetch_vaccinated()
+            self._fetch_registrations()
+            self._fetch_reservations()
+        except Exception as e:
+            app.logger.error('Fetch failed')
+            app.logger.error(e)
+            self._import.status = 'FAILED'
+        else:
+            app.logger.info('Fetch successful')
+            self._import.status = 'FINISHED'
+        finally:
+            db.session.commit()
+
+    def _fetch_centers(self):
         """
         It will fetch vaccination centers
         @return:
@@ -41,11 +62,9 @@ class OpenDataFetcher:
                 bezbarierovy_pristup=record['bezbarierovy_pristup']
             ))
 
-        db.session.commit()
-
         app.logger.info('Fetching vaccination centers finished.')
 
-    def fetch_used(self):
+    def _fetch_used(self):
         """
         Fetch vacination data from opendata.
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.csv
@@ -90,11 +109,9 @@ class OpenDataFetcher:
                 spotreba.znehodnocene_ampulky += znehodnocene_ampulky
                 db.session.merge(spotreba)
 
-        db.session.commit()
-
         app.logger.info('Fetching used vaccines finished.')
 
-    def fetch_distributed(self):
+    def _fetch_distributed(self):
         """
         Fetch distribution files from opendata.
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.csv
@@ -148,11 +165,9 @@ class OpenDataFetcher:
                 distribuce.pocet_ampulek += pocet_ampulek
                 db.session.merge(distribuce)
 
-        db.session.commit()
-
         app.logger.info('Fetching distributed vaccines finished.')
 
-    def fetch_vaccinated(self):
+    def _fetch_vaccinated(self):
         """
         Fetch distribution files from opendata.
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv
@@ -178,9 +193,73 @@ class OpenDataFetcher:
                 pocet=row[8]
             ))
 
-        db.session.commit()
-
         app.logger.info('Fetching vaccinated people finished.')
+
+    def _fetch_registrations(self):
+        """
+        Fetch registrations from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv
+        @return:
+        """
+
+        data = pd.read_csv(self.REGISTRATION_API)
+
+        d = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)\
+            .groupby(["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace",
+                      "datum_rezervace"])\
+            .size()\
+            .reset_index(name='counts')
+
+        for row in d.itertuples(index=False):
+            misto_id = row[1]
+            misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
+
+            if misto is None:
+                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                continue
+
+            db.session.add(OckovaniRegistrace(
+                datum=row[0],
+                misto=misto,
+                vekova_skupina=row[2],
+                povolani=row[3],
+                stat=row[4],
+                rezervace=row[5],
+                datum_rezervace=row[6],
+                pocet=row[7],
+                import_=self._import
+            ))
+
+        app.logger.info('Fetching registrations finished.')
+
+    def _fetch_reservations(self):
+        """
+        Fetch reservations from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv
+        @return:
+        """
+        data = pd.read_csv(self.RESERVATION_API)
+
+        d = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
+
+        for row in d.itertuples(index=False):
+            misto_id = row[1]
+            misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
+
+            if misto is None:
+                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                continue
+
+            db.session.add(OckovaniRezervace(
+                datum=row[0],
+                misto=misto,
+                volna_kapacita=row[2],
+                maximalni_kapacita=row[3],
+                kalendar_ockovani=row[4],
+                import_=self._import
+            ))
+
+        app.logger.info('Fetching reservations finished.')
 
 
 if __name__ == '__main__':
@@ -194,13 +273,24 @@ if __name__ == '__main__':
     fetcher = OpenDataFetcher()
 
     if argument == 'centers':
-        fetcher.fetch_centers()
+        fetcher._fetch_centers()
     elif argument == 'used':
-        fetcher.fetch_used()
+        fetcher._fetch_used()
     elif argument == 'distributed':
-        fetcher.fetch_distributed()
+        fetcher._fetch_distributed()
     elif argument == 'vaccinated':
-        fetcher.fetch_vaccinated()
+        fetcher._fetch_vaccinated()
+    elif argument == 'registrations_reservations':
+        fetcher._import = Import(status='RUNNING')
+        db.session.add(fetcher._import)
+        db.session.commit()
+        fetcher._fetch_registrations()
+        fetcher._fetch_reservations()
+        fetcher._import.status = 'FINISHED'
+
     else:
         print('Invalid option.')
         exit(1)
+
+    db.session.commit()
+

@@ -11,7 +11,7 @@ Web: https://msusicky.github.io/ockovani-covid/
 * https://domaci.ihned.cz/c1-66889710-programator-rozjel-web-ktery-ukaze-kde-je-volno-na-ockovani-ve-skladech-lezi-250-tisic-davek-vakcin-rika
 
 ## Poznámky k fungování
-Pro získávání dat využívá metody scrapingu. Vzhledem k tomu, že jsou data zveřejňována na githubu, **prosím scraper nespouštějte na vlastním prostředí a nezpůsobujte tak zbytečnou další zátěž rezervačnímu systému!**
+Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
 
 Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web stáhne a publikuje na github pages. Tento krok je realizován proto, že nechceme vystavovat veřejně aplikační server a chceme přenést zátěž na prostředky Githubu. Navíc jde o statické stránky, u kterých není problém obsloužit mnoho tisíc lidí současně.
 
