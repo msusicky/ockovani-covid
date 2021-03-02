@@ -261,7 +261,7 @@ def statistiky():
 
     vaccination_stats = db.session.query("celkem", "prvni", "druha").from_statement(text(
         """
-        select sum(pocet) celkem, sum(case when poradi_davky='1' then pocet else 0 end) prvni,
+        select sum(pocet) celkem, sum(case when poradi_davky=1 then pocet else 0 end) prvni,
         sum(case when poradi_davky='2' then pocet else 0 end) druha from ockovani_lide
         """
     )).all()
@@ -273,7 +273,7 @@ def statistiky():
 
     vaccination_age = db.session.query("vekova_skupina", "sum", "sum_2").from_statement(text(
         """
-        select vekova_skupina, sum(pocet), sum(case when poradi_davky='2' then pocet else 0 end) sum_2 from ockovani_lide 
+        select vekova_skupina, sum(pocet), sum(case when poradi_davky=2 then pocet else 0 end) sum_2 from ockovani_lide 
         group by vekova_skupina order by vekova_skupina;
         """
     )).all()

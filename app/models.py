@@ -49,7 +49,7 @@ class OckovaciMisto(db.Model):
 
     def __repr__(self):
         return "<OckovaciMisto(nazev='%s', service_id=%s, operation_id=%s)>" % (
-        self.nazev, self.service_id, self.operation_id)
+            self.nazev, self.service_id, self.operation_id)
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
@@ -85,7 +85,7 @@ class VolnaMistaCas(db.Model):
 
     def __repr__(self):
         return "<VolnaMistaCas(misto_id='%s', cas='%s', volna_mista=%s)>" % (
-        self.misto_id, self.start, self.volna_mista)
+            self.misto_id, self.start, self.volna_mista)
 
 
 Import.volna_mista_cas = relationship("VolnaMistaCas", back_populates="import_")
@@ -108,7 +108,7 @@ class VolnaMistaDen(db.Model):
 
     def __repr__(self):
         return "<VolnaMistaDen(misto_id='%s', datum='%s', volna_mista=%s)>" % (
-        self.misto_id, self.datum, self.volna_mista)
+            self.misto_id, self.datum, self.volna_mista)
 
 
 Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
@@ -131,8 +131,8 @@ class OckovaniSpotreba(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_spotreba')
 
     def __repr__(self):
-        return "<VaccineConsumption(ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
-        self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
+        return "<OckovaniSpotreba(ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
+            self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
 
 
 OckovaciMisto.ockovani_spotreba = relationship("OckovaniSpotreba", back_populates="misto")
@@ -158,8 +158,28 @@ class OckovaniDistribuce(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
 
     def __repr__(self):
-        return "<VaccineDistribution(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pocet_ampulek=%s)>" % (
-        self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pocet_ampulek)
+        return "<OckovaniDistribuce(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pocet_ampulek=%s)>" % (
+            self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka,
+            self.pocet_ampulek)
 
 
 OckovaciMisto.ockovani_distribuce = relationship("OckovaniDistribuce", back_populates="misto")
+
+
+class OckovaniLide(db.Model):
+    __tablename__ = 'ockovani_lide'
+
+    datum = Column(Date, primary_key=True)
+    vakcina = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode)
+    kraj_nazev = Column(Unicode)
+    zarizeni_kod = Column(Unicode, primary_key=True)
+    zarizeni_nazev = Column(Unicode)
+    poradi_davky = Column(Integer, primary_key=True)
+    vekova_skupina = Column(Unicode, primary_key=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina=%s, pocet=%s)>" % (
+            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
+            self.pocet)
