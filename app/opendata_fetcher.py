@@ -17,6 +17,7 @@ class OpenDataFetcher:
         self.fetch_centers()
         self.fetch_used()
         self.fetch_distributed()
+        self.fetch_vaccinated()
 
     def fetch_centers(self):
         """
