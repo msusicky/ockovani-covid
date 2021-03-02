@@ -20,12 +20,16 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 
 ## Quick start with docker-compose
 
-`docker-compose up`
+To start the server without fetching recent data use `docker-compose up`.
 
 The development server (default flask one for the moment) will start at port `5000`,
 you can access the deployment at `http://localhost:5000/ockovani-covid`.
 
-## Installation
+If you want to fetch recent data please set the FETCH_DATA environment variable:
+
+`FETCH_DATA=true docker-compose up`
+
+## Installation without docker-compose
 
 ### Virtual environment
 
