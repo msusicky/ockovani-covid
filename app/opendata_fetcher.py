@@ -212,17 +212,19 @@ class OpenDataFetcher:
             .size() \
             .reset_index(name='counts')
 
+        mista_result = db.session.query(OckovaciMisto.id).all()
+        mista_ids = [id for id, in mista_result]
+
         for row in df.itertuples(index=False):
             misto_id = row[1]
-            misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
 
-            if misto is None:
+            if misto_id not in mista_ids:
                 app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
                 continue
 
             db.session.add(OckovaniRegistrace(
                 datum=row[0],
-                misto=misto,
+                ockovaci_misto_id=misto_id,
                 vekova_skupina=row[2],
                 povolani=row[3],
                 stat=row[4],
@@ -242,19 +244,21 @@ class OpenDataFetcher:
         """
         data = pd.read_csv(self.RESERVATION_API)
 
-        d = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
+        df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
 
-        for row in d.itertuples(index=False):
+        mista_result = db.session.query(OckovaciMisto.id).all()
+        mista_ids = [id for id, in mista_result]
+
+        for row in df.itertuples(index=False):
             misto_id = row[1]
-            misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
 
-            if misto is None:
+            if misto_id not in mista_ids:
                 app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
                 continue
 
             db.session.add(OckovaniRezervace(
                 datum=row[0],
-                misto=misto,
+                ockovaci_misto_id=misto_id,
                 volna_kapacita=row[2],
                 maximalni_kapacita=row[3],
                 kalendar_ockovani=row[4],
