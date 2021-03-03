@@ -6,7 +6,7 @@ from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRezervace
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRezervace, OckovaniRegistrace, OckovaniRezervace
 
 STATUS_FINISHED = 'FINISHED'
 
@@ -32,7 +32,8 @@ def info_okres(okres_nazev):
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_nazev) \
-        .filter(OckovaniRezervace.datum >= date.today(), OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
         .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
         .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
@@ -56,7 +57,8 @@ def info_kraj(kraj_name):
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
-        .filter(OckovaniRezervace.datum >= date.today(), OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
         .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
         .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
@@ -82,7 +84,8 @@ def info_misto(misto_id):
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaciMisto.id == misto.id) \
-        .filter(OckovaniRezervace.datum >= date.today(), OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS_MISTO)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS_MISTO)) \
         .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
         .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
@@ -91,6 +94,25 @@ def info_misto(misto_id):
                   OckovaciMisto.bezbarierovy_pristup) \
         .order_by(OckovaniRezervace.datum) \
         .all()
+
+    registrace_info = db.session.query(OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani,
+                                       func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
+        OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
+        OckovaniRegistrace.rezervace == False).group_by(OckovaniRegistrace.vekova_skupina,
+                                                        OckovaniRegistrace.povolani).order_by(
+        OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
+        .all()
+
+    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer").from_statement(text(
+        """
+        select vekova_skupina, povolani, 
+	    round((sum(case when rezervace=true then pocet else 0 end)*100.0 /
+	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer
+	    from ockovani_registrace where datum>now()-'7 days'::interval 
+	    and ockovaci_misto_id=:misto_id 
+	    group by vekova_skupina, povolani order by vekova_skupina, povolani
+        """
+    )).params(misto_id=misto_id).all()
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
@@ -110,7 +132,8 @@ def info_misto(misto_id):
 
     total = _compute_vaccination_stats(ampule_info)
 
-    return render_template('misto.html', data=nactene_informace, misto=misto, total=total, last_update=last_update())
+    return render_template('misto.html', data=nactene_informace, misto=misto, total=total,
+                           registrace_info=registrace_info, metriky_info=metriky_info, last_update=last_update())
 
 
 def _compute_vaccination_stats(ampule_info):
@@ -198,7 +221,8 @@ def info_mista():
         .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRezervace.datum >= date.today(), OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
         .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
         .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
@@ -219,7 +243,8 @@ def mapa():
         .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRezervace.datum >= date.today(), OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
         .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
         .filter(OckovaniRezervace.import_id == last_update_import_id()) \
         .filter(OckovaciMisto.status == True) \
