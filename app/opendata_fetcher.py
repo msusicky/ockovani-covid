@@ -220,11 +220,13 @@ class OpenDataFetcher:
 
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
+        missing_ids = []
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
-            if misto_id not in mista_ids:
+            if misto_id not in mista_ids and misto_id not in missing_ids:
+                missing_ids.append(misto_id)
                 app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
@@ -254,11 +256,13 @@ class OpenDataFetcher:
 
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
+        missing_ids = []
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
-            if misto_id not in mista_ids:
+            if misto_id not in mista_ids and misto_id not in missing_ids:
+                missing_ids.append(misto_id)
                 app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
