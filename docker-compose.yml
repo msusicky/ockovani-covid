@@ -21,6 +21,7 @@ services:
     environment:
       FLASK_ENV: "development"
       FETCH_DATA: "$FETCH_DATA"
+      TZ: "Europe/Prague"
     ports:
       - "5000:5000"
 
