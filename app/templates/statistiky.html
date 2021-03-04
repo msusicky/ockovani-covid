@@ -12,10 +12,9 @@ Statistiky |
 <div class="row">
     {% if vac_stats %}
     K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno {{ vac_stats[0].druha }} lidí a bylo
-    podáno {{ vac_stats[0].celkem }} dávek. Pokud bychom očkovali rychlostí nejrychlejšího dne a očkovali nepřetržitě,
-    pak skončíme (60% dospělé populace, 2 dávky): <strong>{{ end_date.strftime('%d. %m. %Y') }}</strong>.
-    Nicméně mnoho očkovacích center bude ještě
-    vybudováno.
+    podáno {{ vac_stats[0].celkem }} dávek. Pro rozočkované tedy potřebujeme přibližně {{ vac_stats[0].celkem-2*vac_stats[0].druha }}  dávek.<br />
+    <b><i>Nedovolené zjednodušení:</i></b> Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme (60% dospělé populace, 2 dávky)&nbsp; <b>{{ end_date.strftime('%d. %m. %Y') }}</b>
+    Nicméně mnoho očkovacích center bude ještě vybudováno a dodávky vakcín se výrazně zvýší.
     {% endif %}
     <br/>
     <br/>
@@ -27,18 +26,18 @@ Statistiky |
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center">Vakcína</th>
-            <th scope="col" class="text-center">Přišlo</th>
-            <th scope="col" class="text-center">Vyočkováno</th>
-            <th scope="col" class="text-center">Rozdíl - k dispozici</th>
+            <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset distribuce, akce příjem">Přišlo</th>
+            <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset očkovaní">Vyočkováno</th>
+            <th scope="col" class="text-center"data-toggle="tooltip" data-placement="bottom" title="Data o očkování přichází zpožděně">Rozdíl - přibližně k dispozici</th>
         </tr>
         </thead>
         <tbody>
         {% for item in vacc_storage %}
         <tr>
             <td>{{ item.vyrobce }}</td>
-            <td>{{ item.prijem }}</td>
-            <td>{{ item.spotreba }}</td>
-            <td>{{ item.rozdil }}</td>
+            <td class="text-right">{{ item.prijem }}</td>
+            <td class="text-right">{{ item.spotreba }}</td>
+            <td class="text-right">{{ item.rozdil }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -53,7 +52,7 @@ Statistiky |
     <div class="col-sm-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Nejvíce naočkovaných za den</h5>
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Nejvíce naočkovaných za den</h5>
                 {% if top5 %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
@@ -66,7 +65,7 @@ Statistiky |
                     {% for item in top5 %}
                     <tr>
                         <td>{{ item.datum }}</td>
-                        <td>{{ item.sum }}</td>
+                        <td class="text-right">{{ item.sum }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -81,7 +80,7 @@ Statistiky |
         </div>
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Nejvýkonnější místo</h5>
+                <h5 class="card-title" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Nejvýkonnější místo</h5>
                 {% if top5_place %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
@@ -96,7 +95,7 @@ Statistiky |
                     <tr>
                         <td>{{ item.datum }}</td>
                         <td>{{ item.zarizeni_nazev }}</td>
-                        <td>{{ item.sum }}</td>
+                        <td class="text-right">{{ item.sum }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -113,22 +112,22 @@ Statistiky |
     <div class="col-sm-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Obdržených dávek</h5>
+                <h5 class="card-title" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Obdržených dávek</h5>
                 {% if vac_age %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col" class="text-center">Věková skupina</th>
-                        <th scope="col" class="text-center">Dávek</th>
-                        <th scope="col" class="text-center">Očkovaných</th>
+                        <th scope="col" class="text-center" data-placement="bottom" title="Dataset očkování, zahrnuty jsou i již naočkovaní.">Dávek</th>
+                        <th scope="col" class="text-center" data-placement="bottom" title="Dataset očkování, ti, co dostali 2 dávky.">Očkovaných</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for item in vac_age %}
                     <tr>
                         <td>{{ item.vekova_skupina }}</td>
-                        <td>{{ item.sum }}</td>
-                        <td>{{ item.sum_2 }}</td>
+                        <td class="text-right">{{ item.sum }}</td>
+                        <td class="text-right">{{ item.sum_2 }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
