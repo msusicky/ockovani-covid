@@ -13,7 +13,7 @@ def fetch_opendata_command():
     result = fetcher.fetch_all()
     if result:
         end = time.time()
-        app.logger.info("Fetching opendata finished successfully in {0} s.".format(end - start))
+        app.logger.info("Fetching opendata finished successfully in {:.1f} s.".format(end - start))
         exit(0)
     else:
         app.logger.error("Fetching opendata failed.")
