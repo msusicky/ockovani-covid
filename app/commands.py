@@ -9,7 +9,7 @@ def fetch_opendata_command():
     fetcher = OpenDataFetcher()
     result = fetcher.fetch_all()
     if result:
-        app.logger.info("Fetching opendata was successful.")
+        app.logger.info("Fetching opendata finished successfully.")
         exit(0)
     else:
         app.logger.error("Fetching opendata failed.")

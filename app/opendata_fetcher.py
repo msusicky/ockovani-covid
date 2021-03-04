@@ -71,7 +71,7 @@ class OpenDataFetcher:
                 bezbarierovy_pristup=record['bezbarierovy_pristup']
             ))
 
-        app.logger.info('Fetching vaccination centers finished.')
+        app.logger.info('Fetching opendata - vaccination centers finished.')
 
     def _fetch_used(self):
         """
@@ -117,7 +117,7 @@ class OpenDataFetcher:
                 spotreba.znehodnocene_ampulky += znehodnocene_ampulky
                 db.session.merge(spotreba)
 
-        app.logger.info('Fetching used vaccines finished.')
+        app.logger.info('Fetching opendata - used vaccines finished.')
 
     def _fetch_distributed(self):
         """
@@ -172,7 +172,7 @@ class OpenDataFetcher:
                 distribuce.pocet_ampulek += pocet_ampulek
                 db.session.merge(distribuce)
 
-        app.logger.info('Fetching distributed vaccines finished.')
+        app.logger.info('Fetching opendata - distributed vaccines finished.')
 
     def _fetch_vaccinated(self):
         """
@@ -200,7 +200,7 @@ class OpenDataFetcher:
                 pocet=row[8]
             ))
 
-        app.logger.info('Fetching vaccinated people finished.')
+        app.logger.info('Fetching opendata - vaccinated people finished.')
 
     def _fetch_registrations(self):
         """
@@ -225,7 +225,7 @@ class OpenDataFetcher:
             misto_id = row[1]
 
             if misto_id not in mista_ids:
-                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
             db.session.add(OckovaniRegistrace(
@@ -240,7 +240,7 @@ class OpenDataFetcher:
                 import_=self._import
             ))
 
-        app.logger.info('Fetching registrations finished.')
+        app.logger.info('Fetching opendata - registrations finished.')
 
     def _fetch_reservations(self):
         """
@@ -259,7 +259,7 @@ class OpenDataFetcher:
             misto_id = row[1]
 
             if misto_id not in mista_ids:
-                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
             db.session.add(OckovaniRezervace(
@@ -271,17 +271,17 @@ class OpenDataFetcher:
                 import_=self._import
             ))
 
-        app.logger.info('Fetching reservations finished.')
+        app.logger.info('Fetching opendata - reservations finished.')
 
     def _load_json_data(self, url):
         try:
             response = requests.get(url=url)
             json = response.json()
-            modified = datetime.fromisoformat(json['modified'])
+            modified = datetime.fromisoformat(json['modified']).replace(tzinfo=None)
             self._check_modified_date(modified)
             return response.json()['data']
         except Exception as e:
-            raise Exception(e, "Fetching JSON file '{}' failed." % url)
+            raise Exception(e, "Fetching JSON file '{0}' failed.".format(url))
 
     def _load_csv_data(self, url):
         try:
@@ -292,7 +292,7 @@ class OpenDataFetcher:
             self._check_modified_date(modified)
             return pd.read_csv(url)
         except Exception as e:
-            raise Exception(e, "Fetching CSV file '{}' failed." % url)
+            raise Exception(e, "Fetching CSV file '{0}' failed.".format(url))
 
     def _check_modified_date(self, modified):
         if self._check_dates and modified.date() < date.today():
