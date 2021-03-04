@@ -13,8 +13,15 @@ def fetch_reservatic_command():
 @app.cli.command('fetch-opendata')
 def fetch_opendata_command():
     """Fetch opendata from UZIS."""
+    app.logger.info("Fetching opendata started.")
     fetcher = OpenDataFetcher()
-    fetcher.fetch_all()
+    result = fetcher.fetch_all()
+    if result:
+        app.logger.info("Fetching opendata was successful.")
+        exit(0)
+    else:
+        app.logger.error("Fetching opendata failed.")
+        exit(1)
 
 @app.cli.command('fetch-sheet')
 def fetch_sheet_command():
