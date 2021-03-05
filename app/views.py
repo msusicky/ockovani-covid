@@ -103,11 +103,14 @@ def info_misto(misto_id):
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
 
-    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer").from_statement(text(
+    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer", "rezervace_nove",
+                                    "rezervace_celkem", ).from_statement(text(
         """
         select vekova_skupina, povolani, 
 	    round((sum(case when rezervace=true then pocet else 0 end)*100.0 /
-	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer
+	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer,
+	    sum(case when rezervace=true then pocet else 0 end) as rezervace_nove,
+	    NULLIF(sum(pocet), 0) as rezervace_celkem
 	    from ockovani_registrace where datum>now()-'7 days'::interval 
 	    and ockovaci_misto_id=:misto_id 
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani

@@ -111,13 +111,15 @@
                     </table>
                 </div>
                 {% endif %}
+                <i>Jde o orientační výpočet z distribuce a spotřeby vakcín.</i>
             </div>
             <div class="tab-pane" id="registration">
                 <div class="row">
                     <div class="col-sm-6 py-2">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Statistika registrací - čekající</h5>
+                                <h5 class="card-title" data-placement="bottom"
+                                    title="Dataset registrace - čekající na PIN2">Čekající na přidělení PIN2 (výběr termínu)</h5>
                                 {% if registrace_info %}
                                 <table class="table table-bordered table-striped table-sm">
                                     <thead class="thead-dark">
@@ -152,8 +154,7 @@
                     <div class="col-sm-6 py-2">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Metriky čekajících</h5>
-                                <p>Jde o poměr přihlášených a získaných míst za posledních 7 dní.</p>
+                                <h5 class="card-title">7 denní úspěšnost</h5>
                                 {% if metriky_info %}
                                 <table class="table table-bordered table-striped table-sm">
                                     <thead class="thead-dark">
@@ -168,13 +169,14 @@
                                     <tr>
                                         <td>{{ item.vekova_skupina }}</td>
                                         <td>{{ item.povolani }}</td>
-                                        <td class="text-right">
+                                        <td class="text-right"
+                                            title="Dataset registrace - registrace za 7 dní s PIN2/celkem - {{ item.rezervace_nove }} / {{ item.rezervace_celkem }}">
                                             {% if item.pomer %}
-                <span class="badge badge-pill badge-{{ 'success' if item.pomer > 50 else 'warning' if item.pomer > 5 else 'danger' }}">
+                                            <span class="badge badge-pill badge-{{ 'success' if item.pomer > 50 else 'warning' if item.pomer > 5 else 'danger' }}">
                     {{ item.pomer }} %
                 </span>
                                             {% else %}
-                                            Nejsou data
+                                            <span class="badge badge-pill badge-danger">0 %</span>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -186,6 +188,7 @@
                                     Pro toto místo zatím nemáme žádná data o rezervacích.
                                 </div>
                                 {% endif %}
+                                <p>Za posledních 7 dní jde o poměr lidí s konkrétním očkovacím termínem a všech registrovaných (opět za 7 dnů).</p>
                             </div>
                         </div>
                     </div>
@@ -246,6 +249,8 @@
     var options = {};
     var marker = new SMap.Marker(center, "marker", options);
     layer.addMarker(marker);
+
+
 
 
 
