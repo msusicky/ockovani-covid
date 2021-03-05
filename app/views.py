@@ -103,11 +103,14 @@ def info_misto(misto_id):
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
 
-    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer").from_statement(text(
+    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer", "rezervace_nove",
+                                    "rezervace_celkem", ).from_statement(text(
         """
         select vekova_skupina, povolani, 
 	    round((sum(case when rezervace=true then pocet else 0 end)*100.0 /
-	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer
+	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer,
+	    sum(case when rezervace=true then pocet else 0 end) as rezervace_nove,
+	    NULLIF(sum(pocet), 0) as rezervace_celkem
 	    from ockovani_registrace where datum>now()-'7 days'::interval 
 	    and ockovaci_misto_id=:misto_id 
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani
@@ -263,29 +266,30 @@ def opendata():
 
 @bp.route("/statistiky")
 def statistiky():
+    # bad computation :(
     vacc_storage = db.session.query("vyrobce", "prijem", "spotreba", "rozdil").from_statement(text(
         """
         select spotrebovane.vyrobce, prijem, spotreba, prijem-spotreba as rozdil  from (
         select vyrobce, sum(CASE WHEN vyrobce='Pfizer' then 6*pocet_ampulek ELSE 10*pocet_ampulek end) as prijem 
             from ockovani_distribuce where akce='Příjem' group by vyrobce) as prijate
-            JOIN (
-        select vyrobce, sum(CASE WHEN vyrobce='Pfizer' then 6*pouzite_ampulky ELSE 10*pouzite_ampulky end) as spotreba 
-            from ockovani_spotreba group by vyrobce) as spotrebovane 
-            on (prijate.vyrobce=spotrebovane.vyrobce)
+            JOIN (        
+        select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna'
+	        when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, sum(pocet) as spotreba from ockovani_lide group by vyrobce
+            ) as spotrebovane on (prijate.vyrobce=spotrebovane.vyrobce)
         """
     )).all()
 
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
-        select datum, sum(pocet) from ockovani_lide 
-        group by datum order by sum(pocet) desc limit 5
+        select TO_CHAR(datum, 'dd.mm.yyyy') as datum, sum(pocet) from ockovani_lide 
+        group by TO_CHAR(datum, 'dd.mm.yyyy') order by sum(pocet) desc limit 5
         """
     )).all()
 
     top5_vaccination_place_day = db.session.query("datum", "zarizeni_nazev", "sum").from_statement(text(
         """
-        select datum, zarizeni_nazev, sum(pocet) from ockovani_lide 
-        group by datum, zarizeni_nazev order by sum(pocet) desc limit 5;
+        select TO_CHAR(datum, 'dd.mm.yyyy') as datum, zarizeni_nazev, sum(pocet) from ockovani_lide 
+        group by TO_CHAR(datum, 'dd.mm.yyyy'), zarizeni_nazev order by sum(pocet) desc limit 5;
         """
     )).all()
 
