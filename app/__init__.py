@@ -18,6 +18,6 @@ logging.basicConfig(level=logging.INFO)
 
 locale.setlocale(locale.LC_TIME, "cs_CZ")
 
-from app import views, models, commands
+from app import filters, views, models, commands
 
 app.register_blueprint(bp, url_prefix='/ockovani-covid')
