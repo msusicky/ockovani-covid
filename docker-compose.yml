@@ -18,7 +18,11 @@ services:
       - db:db
     depends_on:
       - db
+    command: ["./dockerize/wait_for_db.sh", "db", "./dockerize/entrypoint.sh"]
     environment:
+      POSTGRES_PASSWORD: "ockovani"
+      POSTGRES_USER: "ockovani"
+      POSTGRES_DB: "ockovani"
       FLASK_ENV: "development"
       FETCH_DATA: "$FETCH_DATA"
       TZ: "Europe/Prague"
