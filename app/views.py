@@ -98,7 +98,8 @@ def info_misto(misto_id):
     registrace_info = db.session.query(OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani,
                                        func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
         OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
-        OckovaniRegistrace.rezervace == False).group_by(OckovaniRegistrace.vekova_skupina,
+        OckovaniRegistrace.rezervace == False).filter(
+        OckovaniRegistrace.import_id == last_update_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
                                                         OckovaniRegistrace.povolani).order_by(
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
@@ -112,10 +113,10 @@ def info_misto(misto_id):
 	    sum(case when rezervace=true then pocet else 0 end) as rezervace_nove,
 	    NULLIF(sum(pocet), 0) as rezervace_celkem
 	    from ockovani_registrace where datum>now()-'7 days'::interval 
-	    and ockovaci_misto_id=:misto_id 
+	    and ockovaci_misto_id=:misto_id and import_id=:import_id
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani
         """
-    )).params(misto_id=misto_id).all()
+    )).params(misto_id=misto_id).params(import_id=last_update_import_id()).all()
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
