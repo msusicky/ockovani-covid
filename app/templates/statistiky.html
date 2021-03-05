@@ -11,9 +11,9 @@ Statistiky |
 
 <div class="row">
     {% if vac_stats %}
-    K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno {{ vac_stats[0].druha }} lidí a bylo
-    podáno {{ vac_stats[0].celkem }} dávek. Pro rozočkované tedy potřebujeme přibližně {{ vac_stats[0].celkem-2*vac_stats[0].druha }}  dávek.<br />
-    <b><i>Nedovolené zjednodušení:</i></b> Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme (60% dospělé populace, 2 dávky)&nbsp; <b>{{ end_date.strftime('%d. %m. %Y') }}</b>
+    K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno {{ vac_stats[0].druha | format_number }} lidí a bylo
+    podáno {{ vac_stats[0].celkem | format_number }} dávek. Pro rozočkované tedy potřebujeme přibližně {{ (vac_stats[0].celkem-2*vac_stats[0].druha) | format_number }}  dávek.<br />
+    <b><i>Nedovolené zjednodušení:</i></b> Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme (60% dospělé populace, 2 dávky)&nbsp; <b>{{ end_date | format_date }}</b>
     Nicméně mnoho očkovacích center bude ještě vybudováno a dodávky vakcín se výrazně zvýší.
     {% endif %}
     <br/>
@@ -35,9 +35,9 @@ Statistiky |
         {% for item in vacc_storage %}
         <tr>
             <td>{{ item.vyrobce }}</td>
-            <td class="text-right">{{ item.prijem }}</td>
-            <td class="text-right">{{ item.spotreba }}</td>
-            <td class="text-right">{{ item.rozdil }}</td>
+            <td class="text-right">{{ item.prijem | format_number }}</td>
+            <td class="text-right">{{ item.spotreba | format_number }}</td>
+            <td class="text-right">{{ item.rozdil | format_number }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -65,7 +65,7 @@ Statistiky |
                     {% for item in top5 %}
                     <tr>
                         <td>{{ item.datum }}</td>
-                        <td class="text-right">{{ item.sum }}</td>
+                        <td class="text-right">{{ item.sum | format_number }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -95,7 +95,7 @@ Statistiky |
                     <tr>
                         <td>{{ item.datum }}</td>
                         <td>{{ item.zarizeni_nazev }}</td>
-                        <td class="text-right">{{ item.sum }}</td>
+                        <td class="text-right">{{ item.sum | format_number }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -126,8 +126,8 @@ Statistiky |
                     {% for item in vac_age %}
                     <tr>
                         <td>{{ item.vekova_skupina }}</td>
-                        <td class="text-right">{{ item.sum }}</td>
-                        <td class="text-right">{{ item.sum_2 }}</td>
+                        <td class="text-right">{{ item.sum | format_number }}</td>
+                        <td class="text-right">{{ item.sum_2 | format_number }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
