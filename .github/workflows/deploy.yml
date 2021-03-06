@@ -8,13 +8,10 @@ jobs:
     environment: acc
     runs-on: ubuntu-18.04
     env:
-      RELEASE_NAME: release-${DSTAMP}-${TSTAMP}
-      RELEASE_TAR_NAME: release-${DSTAMP}-${TSTAMP}.tar
       ENV_DIR: ${HOME}/acc
       ENV_APP_DIR: ${ENV_DIR}/app
       ENV_TMP_DIR: ${ENV_DIR}/tmp
       ENV_RELEASES_DIR: ${ENV_DIR}/releases
-      ENV_RELEASE_DIR: ${ENV_RELEASES_DIR}/${RELEASE_NAME}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
@@ -34,7 +31,7 @@ jobs:
       - name: Build release package
         run: |
           mv config.ci.py config.py
-          tar -cvf ${RELEASE_NAME}.tar app data migrations tools .flaskenv config.py ockovani.py requirements.txt
+          tar -cvf release.tar app data migrations tools .flaskenv config.py ockovani.py requirements.txt
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh/
@@ -43,7 +40,11 @@ jobs:
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
       - name: Upload release package
-        run: scp -P ${SSH_PORT} ${RELEASE_TAR_NAME} ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
+        run: scp -P ${SSH_PORT} release.tar ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
+      - name: Prepare relase directory
+        run: |
+          ENV_RELEASE_DIR=${ENV_RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S`"
+          echo "ENV_RELEASE_DIR=$ENV_RELEASE_DIR" >> $GITHUB_ENV
       - name: Unpack release
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR}"
       - name: Create venv and install requirements
