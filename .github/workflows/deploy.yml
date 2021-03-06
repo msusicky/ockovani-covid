@@ -18,6 +18,7 @@ jobs:
       SSH_USER: ${{ secrets.SSH_USER }}
     steps:
       - uses: actions/checkout@v2
+      - uses: haythem/public-ip@v1.2
       - name: Prepare config file
         uses: falnyr/replace-env-vars-action@master
         env:
@@ -39,6 +40,7 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+          echo "Public IP: ${{ steps.ip.outputs.ipv4 }}"
       - name: Upload release package
         run: scp -P ${SSH_PORT} release.tar ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
       - name: Prepare relase directory
