@@ -103,7 +103,7 @@ def info_misto(misto_id):
                                        func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
         OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
         OckovaniRegistrace.rezervace == False).filter(
-        OckovaniRegistrace.import_id == last_update_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
+        OckovaniRegistrace.import_id == _last_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
                                                         OckovaniRegistrace.povolani).order_by(
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
@@ -120,7 +120,7 @@ def info_misto(misto_id):
 	    and ockovaci_misto_id=:misto_id and import_id=:import_id
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani
         """
-    )).params(misto_id=misto_id).params(import_id=last_update_import_id()).all()
+    )).params(misto_id=misto_id).params(import_id=_last_import_id()).all()
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
