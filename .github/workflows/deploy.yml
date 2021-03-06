@@ -1,13 +1,11 @@
 name: deploy
 
-on:
-  push:
-    branches:
-      - feature/pipelines
+on: push
 
 jobs:
   deploy-acceptance:
-    name: deploy-acceptance
+    name: Deploy to acceptance environment
+    environment: acc
     runs-on: ubuntu-18.04
     env:
       ENV_DIR: '$HOME/acc'
@@ -20,11 +18,11 @@ jobs:
       - name: Prepare config file
         uses: falnyr/replace-env-vars-action@master
         env:
-          DB_HOST: ${{ secrets.DB_ACC_HOST }}
-          DB_PORT: ${{ secrets.DB_ACC_PORT }}
-          DB_USER: ${{ secrets.DB_ACC_USER }}
-          DB_PASSWORD: ${{ secrets.DB_ACC_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_ACC_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
         with:
           filename: config.ci.py
       - run: mv config.ci.py config.py
@@ -36,3 +34,4 @@ jobs:
           echo "${DEPLOY_SSH_KEY}" | ssh-add -
       - name: Test SSH connection
         run: ssh ${SSH_USER}@${SSH_HOST}:${SSH_PORT} "ls"
+
