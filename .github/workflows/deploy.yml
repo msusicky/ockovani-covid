@@ -48,11 +48,15 @@ jobs:
         run: |
           ENV_RELEASE_DIR=${ENV_RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S"`
           echo "ENV_RELEASE_DIR=$ENV_RELEASE_DIR" >> $GITHUB_ENV
+          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "mkdir ${ENV_RELEASE_DIR}"
       - name: Unpack release
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/release.tar -C ${ENV_RELEASE_DIR}"
       - name: Create venv and install requirements
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${ENV_RELEASE_DIR} && python3 -m venv venv && pip install -r requirements.txt"
       - name: Swap releases
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
+
+      - name: Clean tmp
+          run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "rm ${ENV_TMP_DIR}/*"
 #      - name: Execute migrations
 #        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
