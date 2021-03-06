@@ -1,8 +1,7 @@
-import datetime
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text, or_
+from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp
@@ -13,10 +12,13 @@ STATUS_FINISHED = 'FINISHED'
 DAYS = 14
 DAYS_MISTO = 30
 
+DATETIME_FORMAT = '%d. %m. %Y %H:%M'
+DATETIME_FORMAT_WD = '%a %d. %m. %Y %H:%M'
+
 
 @bp.route('/')
 def index():
-    return render_template('index.html', last_update=last_update())
+    return render_template('index.html', last_update=_last_import_modified(), now=_now())
 
 
 @bp.route("/okres/<okres_nazev>")
@@ -33,15 +35,16 @@ def info_okres(okres_nazev):
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_nazev) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
-        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
-        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+                OckovaniRezervace.datum < date.today() + timedelta(DAYS)) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id) \
         .order_by(OckovaniRezervace.datum, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('okres.html', data=nactene_informace, okres=okres, last_update=last_update())
+    return render_template('okres.html', data=nactene_informace, okres=okres, last_update=_last_import_modified(),
+                           now=_now())
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -58,15 +61,16 @@ def info_kraj(kraj_name):
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
-        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
-        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+                OckovaniRezervace.datum < date.today() + timedelta(DAYS)) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id) \
         .order_by(OckovaniRezervace.datum, OckovaciMisto.okres, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
+    return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=_last_import_modified(),
+                           now=_now())
 
 
 @bp.route("/misto/<misto_id>")
@@ -85,9 +89,9 @@ def info_misto(misto_id):
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaciMisto.id == misto.id) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS_MISTO)) \
-        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
-        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+                OckovaniRezervace.datum < date.today() + timedelta(DAYS_MISTO)) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id,
                   OckovaciMisto.adresa, OckovaciMisto.latitude, OckovaciMisto.longitude,
@@ -99,7 +103,7 @@ def info_misto(misto_id):
                                        func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
         OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
         OckovaniRegistrace.rezervace == False).filter(
-        OckovaniRegistrace.import_id == last_update_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
+        OckovaniRegistrace.import_id == _last_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
                                                         OckovaniRegistrace.povolani).order_by(
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
@@ -116,7 +120,7 @@ def info_misto(misto_id):
 	    and ockovaci_misto_id=:misto_id and import_id=:import_id
 	    group by vekova_skupina, povolani order by vekova_skupina, povolani
         """
-    )).params(misto_id=misto_id).params(import_id=last_update_import_id()).all()
+    )).params(misto_id=misto_id).params(import_id=_last_import_id()).all()
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
@@ -137,7 +141,8 @@ def info_misto(misto_id):
     total = _compute_vaccination_stats(ampule_info)
 
     return render_template('misto.html', data=nactene_informace, misto=misto, total=total,
-                           registrace_info=registrace_info, metriky_info=metriky_info, last_update=last_update())
+                           registrace_info=registrace_info, metriky_info=metriky_info,
+                           last_update=_last_import_modified(), now=_now())
 
 
 def _compute_vaccination_stats(ampule_info):
@@ -218,15 +223,16 @@ def info_mista():
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
-        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
-        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+                OckovaniRezervace.datum < date.today() + timedelta(DAYS)) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=last_update(), days=DAYS)
+    return render_template('mista.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/mapa")
@@ -240,21 +246,22 @@ def mapa():
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
-        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
-        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+                OckovaniRezervace.datum < date.today() + timedelta(DAYS)) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
                   OckovaciMisto.longitude, OckovaciMisto.bezbarierovy_pristup, Okres.id, Kraj.id) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=last_update(), days=DAYS)
+    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/opendata")
 def opendata():
-    return render_template('opendata.html', last_update=last_update())
+    return render_template('opendata.html', last_update=_last_import_modified())
 
 
 @bp.route("/statistiky")
@@ -307,31 +314,34 @@ def statistiky():
 
     # .params(misto_id=misto_id)
 
-    return render_template('statistiky.html', last_update=last_update(), vacc_storage=vacc_storage, end_date=end_date,
+    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), vacc_storage=vacc_storage,
+                           end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
                            vac_stats=vaccination_stats, vac_age=vaccination_age)
 
 
-def last_update():
-    last_import = db.session.query(func.max(Import.start)).filter(Import.status == STATUS_FINISHED).first()[0]
-    if last_import is None:
-        last_import_datetime = 'nikdy'
-    else:
-        last_import_datetime = last_import.strftime('%a %d. %m. %Y %H:%M')
-
-    return last_import_datetime
-
-
-def last_update_import_id():
+def _last_import_modified():
     """
-    For better filtering.
-    @return:
+    Returns last successful import.
     """
-    last_run = db.session.query(func.max(Import.id)).filter(Import.status == STATUS_FINISHED).first()[0]
-    if last_run is None:
-        max_import_id = -1
+    last_modified = db.session.query(func.max(Import.last_modified)).filter(Import.status == STATUS_FINISHED).first()[0]
+    if last_modified is None:
+        return 'nikdy'
     else:
-        max_import_id = last_run
+        return last_modified.strftime(DATETIME_FORMAT_WD)
 
-    return max_import_id
+
+def _last_import_id():
+    """
+    Returns id of the last successful import.
+    """
+    last_id = db.session.query(func.max(Import.id)).filter(Import.status == STATUS_FINISHED).first()[0]
+    if last_id is None:
+        return -1
+    else:
+        return last_id
+
+
+def _now():
+    return datetime.now().strftime(DATETIME_FORMAT_WD)

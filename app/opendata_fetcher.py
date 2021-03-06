@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime, date
 
 import requests
 import pandas as pd
@@ -7,16 +8,22 @@ from app import db, app
 from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
     OckovaniRegistrace
 
+from email import utils as eut
 
 class OpenDataFetcher:
     CENTERS_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/prehled-ockovacich-mist.json'
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
-    VACCINATED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
-    REGISTRATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
-    RESERVATION_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
+    VACCINATED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
+    REGISTRATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
+    RESERVATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
+    _check_dates = None
     _import = None
+    _last_modified = None
+
+    def __init__(self, check_dates = True):
+        self._check_dates = check_dates
 
     def fetch_all(self):
         self._import = Import(status='RUNNING')
@@ -31,22 +38,24 @@ class OpenDataFetcher:
             self._fetch_registrations()
             self._fetch_reservations()
         except Exception as e:
-            app.logger.error('Fetch failed')
             app.logger.error(e)
             self._import.status = 'FAILED'
-        else:
-            app.logger.info('Fetch successful')
-            self._import.status = 'FINISHED'
-        finally:
+            self._import.end = datetime.now()
             db.session.commit()
+            return False
+
+        self._import.status = 'FINISHED'
+        self._import.end = datetime.now()
+        self._import.last_modified = self._last_modified
+        db.session.commit()
+        return True
 
     def _fetch_centers(self):
         """
         It will fetch vaccination centers
         @return:
         """
-        response = requests.get(url=self.CENTERS_API)
-        data = response.json()['data']
+        data = self._load_json_data(self.CENTERS_API)
 
         for record in data:
             db.session.merge(OckovaciMisto(
@@ -62,7 +71,7 @@ class OpenDataFetcher:
                 bezbarierovy_pristup=record['bezbarierovy_pristup']
             ))
 
-        app.logger.info('Fetching vaccination centers finished.')
+        app.logger.info('Fetching opendata - vaccination centers finished.')
 
     def _fetch_used(self):
         """
@@ -70,8 +79,7 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.csv
         @return:
         """
-        response = requests.get(url=self.USED_API)
-        data = response.json()['data']
+        data = self._load_json_data(self.USED_API)
 
         db.session.query(OckovaniSpotreba).delete()
 
@@ -115,7 +123,7 @@ class OpenDataFetcher:
                 spotreba.znehodnocene_davky += znehodnocene_davky
                 db.session.merge(spotreba)
 
-        app.logger.info('Fetching used vaccines finished.')
+        app.logger.info('Fetching opendata - used vaccines finished.')
 
     def _fetch_distributed(self):
         """
@@ -123,8 +131,7 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.csv
         @return:
         """
-        response = requests.get(url=self.DISTRIBUTED_API)
-        data = response.json()['data']
+        data = self._load_json_data(self.DISTRIBUTED_API)
 
         db.session.query(OckovaniDistribuce).delete()
 
@@ -174,7 +181,7 @@ class OpenDataFetcher:
                 distribuce.pocet_davek += pocet_davek
                 db.session.merge(distribuce)
 
-        app.logger.info('Fetching distributed vaccines finished.')
+        app.logger.info('Fetching opendata - distributed vaccines finished.')
 
     def _fetch_vaccinated(self):
         """
@@ -182,14 +189,14 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv
         @return:
         """
-        data = pd.read_csv(self.VACCINATED_API)
+        data = self._load_csv_data(self.VACCINATED_CSV)
 
-        d = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
+        df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
                           "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
 
         db.session.query(OckovaniLide).delete()
 
-        for row in d.itertuples(index=False):
+        for row in df.itertuples(index=False):
             db.session.add(OckovaniLide(
                 datum=row[0],
                 vakcina=row[1],
@@ -202,7 +209,7 @@ class OpenDataFetcher:
                 pocet=row[8]
             ))
 
-        app.logger.info('Fetching vaccinated people finished.')
+        app.logger.info('Fetching opendata - vaccinated people finished.')
 
     def _fetch_registrations(self):
         """
@@ -210,8 +217,7 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv
         @return:
         """
-
-        data = pd.read_csv(self.REGISTRATION_API)
+        data = self._load_csv_data(self.REGISTRATION_CSV)
 
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
         df['rezervace'] = df['rezervace'].fillna(False)
@@ -223,12 +229,15 @@ class OpenDataFetcher:
 
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
+        missing_ids = []
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
             if misto_id not in mista_ids:
-                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                if misto_id not in missing_ids:
+                    missing_ids.append(misto_id)
+                    app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
             db.session.add(OckovaniRegistrace(
@@ -243,7 +252,7 @@ class OpenDataFetcher:
                 import_=self._import
             ))
 
-        app.logger.info('Fetching registrations finished.')
+        app.logger.info('Fetching opendata - registrations finished.')
 
     def _fetch_reservations(self):
         """
@@ -251,18 +260,21 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv
         @return:
         """
-        data = pd.read_csv(self.RESERVATION_API)
+        data = self._load_csv_data(self.RESERVATION_CSV)
 
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
 
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
+        missing_ids = []
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
             if misto_id not in mista_ids:
-                app.logger.warn("Center: '%s' doesn't exist" % (misto_id))
+                if misto_id not in missing_ids:
+                    missing_ids.append(misto_id)
+                    app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
                 continue
 
             db.session.add(OckovaniRezervace(
@@ -274,7 +286,35 @@ class OpenDataFetcher:
                 import_=self._import
             ))
 
-        app.logger.info('Fetching reservations finished.')
+        app.logger.info('Fetching opendata - reservations finished.')
+
+    def _load_json_data(self, url):
+        try:
+            response = requests.get(url=url)
+            json = response.json()
+            modified = datetime.fromisoformat(json['modified']).replace(tzinfo=None)
+            self._check_modified_date(modified)
+            return response.json()['data']
+        except Exception as e:
+            raise Exception(e, "Fetching JSON file '{0}' failed.".format(url))
+
+    def _load_csv_data(self, url):
+        try:
+            headers = requests.head(url=url).headers
+            modified_tuple = eut.parsedate_tz(headers['last-modified'])
+            modified_timestamp = eut.mktime_tz(modified_tuple)
+            modified = datetime.fromtimestamp(modified_timestamp)
+            self._check_modified_date(modified)
+            return pd.read_csv(url)
+        except Exception as e:
+            raise Exception(e, "Fetching CSV file '{0}' failed.".format(url))
+
+    def _check_modified_date(self, modified):
+        if self._check_dates and modified.date() < date.today():
+            raise Exception("File was not updated today.")
+
+        if self._last_modified is None or self._last_modified < modified:
+            self._last_modified = modified
 
 
 if __name__ == '__main__':
@@ -285,7 +325,7 @@ if __name__ == '__main__':
 
     argument = arguments[0]
 
-    fetcher = OpenDataFetcher()
+    fetcher = OpenDataFetcher(False)
 
     if argument == 'centers':
         fetcher._fetch_centers()
@@ -302,7 +342,6 @@ if __name__ == '__main__':
         fetcher._fetch_registrations()
         fetcher._fetch_reservations()
         fetcher._import.status = 'FINISHED'
-
     else:
         print('Invalid option.')
         exit(1)
