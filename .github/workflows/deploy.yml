@@ -34,7 +34,7 @@ jobs:
       - name: Build release package
         run: |
           mv config.ci.py config.py
-          tar -cvf ${RELEASE_NAME}.tar app data migrations tools .flaskenv config.py ockovani.py requirements.py
+          tar -cvf ${RELEASE_NAME}.tar app data migrations tools .flaskenv config.py ockovani.py requirements.txt
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh/
