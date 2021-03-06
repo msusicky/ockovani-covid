@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       ENV: "acc"
-      APP_DIR: "'$'{HOME}'/${ENV}/app"
-      TMP_DIR: "$'{HOME}'/${ENV}/tmp"
+      APP_DIR: "'${HOME}'/${ENV}/app"
+      TMP_DIR: "'${HOME}'/${ENV}/tmp"
       RELEASES_DIR: "'${HOME}'/${ENV}/releases"
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
