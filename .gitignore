@@ -131,4 +131,4 @@ dmypy.json
 /.idea
 /*.ini
 /*.out
-/google_key.json
+/config.py
