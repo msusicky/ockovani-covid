@@ -32,6 +32,7 @@ jobs:
           ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
+          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
       - name: Test SSH connection
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
 
