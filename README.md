@@ -18,7 +18,18 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 
 # How to run it [ENG]
 
-## Installation
+## Quick start with docker-compose
+
+To start the server without fetching recent data use `docker-compose up`.
+
+The development server (default flask one for the moment) will start at port `5000`,
+you can access the deployment at `http://localhost:5000/ockovani-covid`.
+
+If you want to fetch recent data please set the FETCH_DATA environment variable:
+
+`FETCH_DATA=true docker-compose up`
+
+## Installation without docker-compose
 
 ### Virtual environment
 
@@ -45,7 +56,7 @@ flask run
 ## Update
 1. update config.ini
 1. activate venv `source venv/bin/activate`
-1. execute database migration if needed `flask db upgrade`   
+1. execute database migration if needed `flask db upgrade`
 1. fetch data `flask fetch-all &`
 1. restart or start webserver if needed `flask run --host=0.0.0.0 --port=5000`
 1. publish website and CSV's `bash tools/manual_publish.sh`
