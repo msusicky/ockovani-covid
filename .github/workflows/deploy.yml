@@ -8,10 +8,10 @@ jobs:
     environment: acc
     runs-on: ubuntu-18.04
     env:
-      ENV: acc
-      APP_DIR: '${HOME}'/${ENV}/app
-      TMP_DIR: '${HOME}'/${ENV}/tmp
-      RELEASES_DIR: '${HOME}'/${ENV}/releases
+      APP_ENV: acc
+      APP_DIR: '${HOME}'/${APP_ENV}/app
+      TMP_DIR: '${HOME}'/${APP_ENV}/tmp
+      RELEASES_DIR: '${HOME}'/${APP_ENV}/releases
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
