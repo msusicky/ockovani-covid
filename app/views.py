@@ -124,11 +124,11 @@ def info_misto(misto_id):
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
-        select * from (select sum(pocet_ampulek) as sum,vyrobce,\'Příjem\' as operace from ockovani_distribuce 
+        select * from (select sum(pocet_davek ) as sum,vyrobce,\'Příjem\' as operace from ockovani_distribuce 
         where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union 
-        (select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce 
+        (select coalesce(sum(pocet_davek ),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce 
         where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union 
-        (select coalesce(sum(pocet_ampulek),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce
+        (select coalesce(sum(pocet_davek ),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce
         where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)
         union ( select sum(pouzite_ampulky), vyrobce, \'Očkováno\' as operace
         from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)
@@ -149,46 +149,39 @@ def _compute_vaccination_stats(ampule_info):
     # Compute  statistics
     total = {
         'Pfizer': {
-            'Přijato': {'ampule': 0},
-            'Vydáno': {'ampule': 0},
-            'Očkováno': {'ampule': 0},
-            'Zničeno': {'ampule': 0},
-            'Skladem': {'ampule': 0},
+            'Přijato': {'davky': 0},
+            'Vydáno': {'davky': 0},
+            'Očkováno': {'davky': 0},
+            'Zničeno': {'davky': 0}
         },
         'Moderna': {
-            'Přijato': {'ampule': 0},
-            'Vydáno': {'ampule': 0},
-            'Očkováno': {'ampule': 0},
-            'Zničeno': {'ampule': 0},
-            'Skladem': {'ampule': 0},
+            'Přijato': {'davky': 0},
+            'Vydáno': {'davky': 0},
+            'Očkováno': {'davky': 0},
+            'Zničeno': {'davky': 0}
         },
         'AstraZeneca': {
-            'Přijato': {'ampule': 0},
-            'Vydáno': {'ampule': 0},
-            'Očkováno': {'ampule': 0},
-            'Zničeno': {'ampule': 0},
-            'Skladem': {'ampule': 0},
+            'Přijato': {'davky': 0},
+            'Vydáno': {'davky': 0},
+            'Očkováno': {'davky': 0},
+            'Zničeno': {'davky': 0}
         }
     }
 
     for item in ampule_info:
         operation = item[1]
         if operation in ('Příjem', 'Příjem odjinud'):
-            total[item[0]]['Přijato']['ampule'] += item[2]
-            total[item[0]]['Skladem']['ampule'] += item[2]
+            total[item[0]]['Přijato']['davky'] += item[2]
         elif operation == 'Výdej':
-            total[item[0]]['Vydáno']['ampule'] += item[2]
-            total[item[0]]['Skladem']['ampule'] -= item[2]
+            total[item[0]]['Vydáno']['davky'] += item[2]
         elif operation == 'Očkováno':
-            total[item[0]]['Očkováno']['ampule'] += item[2]
-            total[item[0]]['Skladem']['ampule'] -= item[2]
+            total[item[0]]['Očkováno']['davky'] += item[2]
         elif operation == 'Zničeno':
-            total[item[0]]['Zničeno']['ampule'] += item[2]
-            total[item[0]]['Skladem']['ampule'] -= item[2]
+            total[item[0]]['Zničeno']['davky'] += item[2]
 
-    total = _compute_vaccination_doses(total, 'Pfizer', 6)
-    total = _compute_vaccination_doses(total, 'Moderna', 10)
-    total = _compute_vaccination_doses(total, 'AstraZeneca', 10)
+    # total = _compute_vaccination_doses(total, 'Pfizer', 6)
+    # total = _compute_vaccination_doses(total, 'Moderna', 10)
+    # total = _compute_vaccination_doses(total, 'AstraZeneca', 10)
 
     total = _compute_vaccination_total(total)
 
@@ -204,11 +197,10 @@ def _compute_vaccination_doses(total, type, doses):
 def _compute_vaccination_total(total):
     total_all = {
         'all': {
-            'Přijato': {'ampule': 0, 'davky': 0},
-            'Vydáno': {'ampule': 0, 'davky': 0},
-            'Očkováno': {'ampule': 0, 'davky': 0},
-            'Zničeno': {'ampule': 0, 'davky': 0},
-            'Skladem': {'ampule': 0, 'davky': 0},
+            'Přijato': {'davky': 0},
+            'Vydáno': {'davky': 0},
+            'Očkováno': {'davky': 0},
+            'Zničeno': {'davky': 0},
         }
     }
 

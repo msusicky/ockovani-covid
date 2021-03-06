@@ -129,6 +129,8 @@ class OckovaniSpotreba(db.Model):
     vyrobce = Column(Unicode)
     pouzite_ampulky = Column(Integer)
     znehodnocene_ampulky = Column(Integer)
+    pouzite_davky = Column(Integer)
+    znehodnocene_davky = Column(Integer)
 
     misto = relationship('OckovaciMisto', back_populates='ockovani_spotreba')
 
@@ -156,6 +158,7 @@ class OckovaniDistribuce(db.Model):
     vyrobce = Column(Unicode)
     akce = Column(Unicode, primary_key=True)
     pocet_ampulek = Column(Integer)
+    pocet_davek = Column(Integer)
 
     misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
 
