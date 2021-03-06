@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to production environment
+    name: Deploy to production
     environment: production
     runs-on: ubuntu-18.04
     env:
@@ -55,7 +55,7 @@ jobs:
       - name: Unpack release and clean tmp
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${TMP_DIR}/release.tar -C ${RELEASE_DIR} && rm ${TMP_DIR}/*"
       - name: Create venv and install requirements
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt --no-cache-dir"
       - name: Swap releases
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${RELEASE_DIR} ${APP_DIR}"
       - name: Execute migrations
