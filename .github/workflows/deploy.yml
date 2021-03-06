@@ -44,7 +44,11 @@ jobs:
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
       - name: Upload release package
         run: scp -P ${SSH_PORT} ${RELEASE_TAR_NAME} ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
-      - name: Unpack and swap releases
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR} && ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
-
-
+      - name: Unpack release
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR}"
+      - name: Create venv and install requirements
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${ENV_RELEASE_DIR} && python3 -m venv venv && pip install -r requirements.txt"
+      - name: Swap releases
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
+#      - name: Execute migrations
+#        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
