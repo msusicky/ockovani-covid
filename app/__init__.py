@@ -1,3 +1,4 @@
+import locale
 import logging
 
 from flask import Flask, Blueprint
@@ -15,6 +16,8 @@ migrate = Migrate(app, db)
 
 logging.basicConfig(level=logging.INFO)
 
-from app import views, models, commands
+locale.setlocale(locale.LC_TIME, "cs_CZ")
 
-app.register_blueprint(bp, url_prefix='/ockovani-covid')
+from app import filters, views, models, commands
+
+app.register_blueprint(bp)

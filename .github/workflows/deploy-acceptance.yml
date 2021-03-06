@@ -1,0 +1,63 @@
+name: deploy-acceptance
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    name: Deploy to acceptance
+    environment: acceptance
+    runs-on: ubuntu-18.04
+    env:
+      APP_DIR: '${HOME}/acc/app'
+      TMP_DIR: '${HOME}/acc/tmp'
+      RELEASES_DIR: '${HOME}/acc/releases'
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: ip
+        uses: haythem/public-ip@v1.2
+      - name: Prepare config file
+        uses: falnyr/replace-env-vars-action@master
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        with:
+          filename: config.ci.py
+      - name: Build release package
+        run: |
+          mv config.ci.py config.py
+          tar -cvf release.tar app data migrations scripts .flaskenv config.py ockovani.py requirements.txt
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
+          eval `ssh-agent -s`
+          echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+          echo "Public IP: ${{ steps.ip.outputs.ipv4 }}"
+      - name: Upload release package
+        run: scp -P ${SSH_PORT} release.tar ${SSH_USER_WEB}@${SSH_HOST}:${TMP_DIR}
+      - name: Prepare relase directory
+        run: |
+          RELEASE_DIR=${RELEASES_DIR}/release_`date "+%Y%m%d_%H%M%S"`
+          echo "RELEASE_DIR=$RELEASE_DIR" >> $GITHUB_ENV
+          ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "mkdir ${RELEASE_DIR}"
+      - name: Unpack release and clean tmp
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${TMP_DIR}/release.tar -C ${RELEASE_DIR} && rm ${TMP_DIR}/*"
+      - name: Create venv and install requirements
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt --no-cache-dir"
+      - name: Swap releases
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "rm -f ${APP_DIR} && ln -s ${RELEASE_DIR} ${APP_DIR} && find ${RELEASES_DIR} -maxdepth 1 -mindepth 1 -not -path ${RELEASE_DIR} -exec rm -rf {} \;"
+      - name: Execute migrations
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
+      - name: Restart flask
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "sudo systemctl stop ockovani-acc && sudo systemctl start ockovani-acc"

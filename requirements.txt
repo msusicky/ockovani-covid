@@ -9,3 +9,4 @@ python-dotenv
 markupsafe
 requests
 gspread
+pandas

@@ -5,17 +5,10 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    {# Add a banner if using old IE8 #}
-    <!--[if IE]>
-    <div style='clear: both; height: 112px; padding:0; position: relative;'>
-        <a href="http://www.theie8countdown.com/ie-users-info">
-            <img src="http://www.theie8countdown.com/assets/badge_iecountdown.png"
-                 border="0" height="112" width="348" alt=""/>
-        </a>
-    </div>
-    <![endif]-->
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <title>{% block title %}{% endblock %}COVID očkování</title>
 
     {# All templates which inherit this one will have jQuery #}
@@ -31,9 +24,10 @@
             crossorigin="anonymous"></script>
     <style>.cip-genpw-icon.cip-icon-key-small {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_16x16.png); }
         .cip-genpw-icon.cip-icon-key-big {background-image: url(chrome-extension://dafgdjggglmmknipkhngniifhplpcldb/icons/key_24x24.png); }
+
     </style>
     <script src="https://api.mapy.cz/loader.js"></script>
-	<script>Loader.load()</script>
+    <script>Loader.load()</script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TXSRVP25Y2"></script>
@@ -42,6 +36,7 @@
 	  function gtag(){dataLayer.push(arguments);}
 	  gtag('js', new Date());
 	  gtag('config', 'G-TXSRVP25Y2');
+
     </script>
 
     {% block head %}{% endblock %}
@@ -59,18 +54,18 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mista' else '' }}"
+                <a class="nav-link {{ 'active' if request.path == '/mista' else '' }}"
                    href="{{ url_for('view.info_mista') }}">Přehled očkovacích míst
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mapa' else '' }}"
+                <a class="nav-link {{ 'active' if request.path == '/mapa' else '' }}"
                    href="{{ url_for('view.mapa') }}">Mapa
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/opendata' else '' }}"
-                   href="{{ url_for('view.opendata') }}">Otevřená data
+                <a class="nav-link {{ 'active' if request.path == '/statistiky' else '' }}"
+                   href="{{ url_for('view.statistiky') }}">Statistiky
                 </a>
             </li>
         </ul>
@@ -80,7 +75,10 @@
 
 <div class="container mt-4">
     <div class="alert alert-warning alert-dismissible fade show row" role="alert">
-        Poslední aktualizace:&nbsp;<strong>{{ last_update }}</strong>
+        <p class="mb-0">
+            Poslední aktualizace zdrojových dat:&nbsp;<strong>{{ last_update }}</strong>.
+            Poslední aktualizace webu:&nbsp;<strong>{{ now }}</strong>.
+        </p>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -92,13 +90,17 @@
 {% endblock %}
 
 <div class="footer text-center p-3 bg-light mt-4">
-    Vznik: 16. 01. 2021, poslední aktualizace:&nbsp;{{ last_update }}. Zdroj mapy: <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/">www.mylog.cz</a>.
-    <br/>
-    <i>
-        Data na tomto webu jsou pouze orientační, bez jakékoliv záruky a nelze je považovat za spolehlivé.
+    <p class="mb-1">
+        Vznik: 16. 01. 2021.
+        Data na tomto webu pochází z <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19" target="_blank">opendat Ministerstva zdravotnictví ČR</a>.
+    </p>
+    <p class="mb-1 font-italic">
         Provozovatel se zříká zodpovědnosti za veškeré škody a újmy, které by použitím těchto dat mohly vzniknout.
-        Pro informace o očkování COVID-19 navštivte web <a href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/">https://koronavirus.mzcr.cz/ockovani-proti-covid-19/</a>.
-    </i>
+        Pro informace o očkování COVID-19 navštivte web: <a href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/" target="_blank">Ministerstva zdravotnictví ČR</a>.
+    </p>
+    <p class="mb-0">
+        Zdroj mapy: <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/" target="_blank">www.mylog.cz</a>
+    </p>
 </div>
 </body>
 </html>
