@@ -20,4 +20,4 @@ locale.setlocale(locale.LC_TIME, "cs_CZ")
 
 from app import filters, views, models, commands
 
-app.register_blueprint(bp, url_prefix='/ockovani-covid')
+app.register_blueprint(bp)
