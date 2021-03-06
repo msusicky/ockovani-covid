@@ -15,6 +15,7 @@ jobs:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
     steps:
       - uses: actions/checkout@v2
       - id: ip
@@ -42,21 +43,19 @@ jobs:
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
           echo "Public IP: ${{ steps.ip.outputs.ipv4 }}"
       - name: Upload release package
-        run: scp -P ${SSH_PORT} release.tar ${SSH_USER}@${SSH_HOST}:${TMP_DIR}
+        run: scp -P ${SSH_PORT} release.tar ${SSH_USER_WEB}@${SSH_HOST}:${TMP_DIR}
       - name: Prepare relase directory
         run: |
           RELEASE_DIR=${RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S"`
           echo "RELEASE_DIR=$RELEASE_DIR" >> $GITHUB_ENV
-          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "mkdir ${RELEASE_DIR}"
+          ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "mkdir ${RELEASE_DIR}"
       - name: Unpack release and clean tmp
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${TMP_DIR}/release.tar -C ${RELEASE_DIR} && rm ${TMP_DIR}/*"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${TMP_DIR}/release.tar -C ${RELEASE_DIR} && rm ${TMP_DIR}/*"
       - name: Create venv and install requirements
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
       - name: Swap releases
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${RELEASE_DIR} ${APP_DIR}"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "ln -sf ${RELEASE_DIR} ${APP_DIR}"
       - name: Execute migrations
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
-      - name: Execute flask
-        run: |
-          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask run --host=0.0.0.0 --port=5001" &
-          sleep 100
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
+      - name: Restart flask
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "sudo systemctl stop ockovani-acc && sudo systemctl start ockovani-acc"
