@@ -8,7 +8,7 @@ jobs:
     environment: acc
     runs-on: ubuntu-18.04
     env:
-      ENV_DIR: ${HOME}/acc
+      ENV_DIR: ~/acc
       ENV_APP_DIR: ${ENV_DIR}/app
       ENV_TMP_DIR: ${ENV_DIR}/tmp
       ENV_RELEASES_DIR: ${ENV_DIR}/releases
