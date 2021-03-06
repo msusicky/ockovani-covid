@@ -2,8 +2,7 @@ name: deploy-acceptance
 
 on:
   push:
-    branches:
-      - develop
+    branches: [develop]
 
 jobs:
   deploy:
