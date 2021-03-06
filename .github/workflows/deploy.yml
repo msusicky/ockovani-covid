@@ -31,8 +31,9 @@ jobs:
           mkdir -p ~/.ssh/
           ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
           eval `ssh-agent -s`
-          echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
-          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
+          echo "${SSH_KEY}" | tr -d '\r' > ~/.ssh/id_rsa
       - name: Test SSH connection
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
+        run: |
+          ssh-add ~/.ssh/id_rsa
+          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
 
