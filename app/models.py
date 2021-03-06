@@ -60,6 +60,8 @@ class Import(db.Model):
 
     id = Column(Integer, primary_key=True)
     start = Column(DateTime, default=datetime.now())
+    end = Column(DateTime)
+    last_modified = Column(DateTime)
     status = Column(Unicode)
 
     def __repr__(self):
