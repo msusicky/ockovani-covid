@@ -45,7 +45,7 @@ jobs:
         run: scp -P ${SSH_PORT} release.tar ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
       - name: Prepare relase directory
         run: |
-          ENV_RELEASE_DIR=${ENV_RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S`"
+          ENV_RELEASE_DIR=${ENV_RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S"`
           echo "ENV_RELEASE_DIR=$ENV_RELEASE_DIR" >> $GITHUB_ENV
       - name: Unpack release
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR}"
