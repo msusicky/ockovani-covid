@@ -61,22 +61,17 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mista' else '' }}"
+                <a class="nav-link {{ 'active' if request.path == '/mista' else '' }}"
                    href="{{ url_for('view.info_mista') }}">Přehled očkovacích míst
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/mapa' else '' }}"
+                <a class="nav-link {{ 'active' if request.path == '/mapa' else '' }}"
                    href="{{ url_for('view.mapa') }}">Mapa
                 </a>
             </li>
-<!--            <li class="nav-item col-lg-auto ml-auto">-->
-<!--                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/opendata' else '' }}"-->
-<!--                   href="{{ url_for('view.opendata') }}">Otevřená data-->
-<!--                </a>-->
-<!--            </li>-->
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/ockovani-covid/statistiky' else '' }}"
+                <a class="nav-link {{ 'active' if request.path == '/statistiky' else '' }}"
                    href="{{ url_for('view.statistiky') }}">Statistiky
                 </a>
             </li>
