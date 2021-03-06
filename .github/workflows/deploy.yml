@@ -18,7 +18,8 @@ jobs:
       SSH_USER: ${{ secrets.SSH_USER }}
     steps:
       - uses: actions/checkout@v2
-      - uses: haythem/public-ip@v1.2
+      - id: ip
+        uses: haythem/public-ip@v1.2
       - name: Prepare config file
         uses: falnyr/replace-env-vars-action@master
         env:
@@ -48,7 +49,7 @@ jobs:
           ENV_RELEASE_DIR=${ENV_RELEASES_DIR}/release_`date "+%Y%m%d-%H%M%S"`
           echo "ENV_RELEASE_DIR=$ENV_RELEASE_DIR" >> $GITHUB_ENV
       - name: Unpack release
-        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR}"
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/release.tar -C ${ENV_RELEASE_DIR}"
       - name: Create venv and install requirements
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd ${ENV_RELEASE_DIR} && python3 -m venv venv && pip install -r requirements.txt"
       - name: Swap releases
