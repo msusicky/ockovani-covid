@@ -6,9 +6,15 @@ jobs:
   deploy-acceptance:
     name: Deploy to acceptance environment
     environment: acc
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
-      ENV_DIR: '$HOME/acc'
+      RELEASE_NAME: release-${DSTAMP}-${TSTAMP}
+      RELEASE_TAR_NAME: release-${DSTAMP}-${TSTAMP}.tar
+      ENV_DIR: ${HOME}/acc
+      ENV_APP_DIR: ${ENV_DIR}/app
+      ENV_TMP_DIR: ${ENV_DIR}/tmp
+      ENV_RELEASES_DIR: ${ENV_DIR}/releases
+      ENV_RELEASE_DIR: ${ENV_RELEASES_DIR}/${RELEASE_NAME}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
@@ -25,15 +31,20 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
         with:
           filename: config.ci.py
-      - run: mv config.ci.py config.py
-      - name: Setup SSH key and deploy
+      - name: Build release package
+        run: |
+          mv config.ci.py config.py
+          tar -cvf ${RELEASE_NAME}.tar app data migrations tools .flaskenv config.py ockovani.py requirements.py
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh/
           ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-      - run:
-          ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
+      - name: Upload release package
+        run: scp -P ${SSH_PORT} ${RELEASE_TAR_NAME}.tar ${SSH_USER}@${SSH_HOST}:${ENV_TMP_DIR}
+      - name: Unpack and swap releases
+        run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "tar -xvf ${ENV_TMP_DIR}/${RELEASE_TAR_NAME} -C ${ENV_RELEASE_DIR} && ln -sf ${ENV_RELEASE_DIR} ${ENV_APP_DIR}"
 
 
