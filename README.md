@@ -1,6 +1,10 @@
-# Volná místa na COVID-19 očkování
+# COVID-19 očkování
 Za systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří poskytli cenné připomínky.
 
+## Čtěte!
+Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst. Systém je komplikovaný a pro správná rozhodnutí je nezbytné si přečíst, jak funguje. Nezávazně doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají termín, kolik je volných slotů na očkování a kolik  vakcín přibližně dostává dané místo. Nedává smysl měnit často registraci, změnou registrace se dostáváte na poslední místo ve stejné věkové kategorii na novém místě.
+
+## Starý popis webu
 Během marné snahy zajistit očkovací místa pro příbuzné jsme si všimli toho, že neexistuje žádný přehled volných míst. Ještě v lednu jsme začali tvořit aplikaci, ale narazili na neexistenci dat. Pak došly vakcíny a nedávalo smysl systém spouštět. Nyní je situace taková, že mnoho lidí čeká na vakcinaci, ale pokud nejsou na tom správném místě, budou čekat dál. Na jiných místech už ale lidé 80+ "došli". S naší mapou se lidé mohou přeregistrovat, dostat vakcinu rychleji a zefektivnit celý proces očkování. Prosím kohokoliv, kdo může přispět ke zveřejnění oficiálních dat o volných kapacitách a distribuci vakcín, aby tak učinil.
 
 Web: https://msusicky.github.io/ockovani-covid/
