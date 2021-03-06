@@ -28,6 +28,8 @@ services:
       TZ: "Europe/Prague"
     ports:
       - "5000:5000"
+    volumes:
+      - ./app:/ockovani-covid/app
 
 volumes:
   db_data: {}
