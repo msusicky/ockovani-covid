@@ -85,6 +85,8 @@ class OpenDataFetcher:
             vyrobce = record['vyrobce']
             pouzite_ampulky = record['pouzite_ampulky']
             znehodnocene_ampulky = record['znehodnocene_ampulky']
+            pouzite_davky = record['pouzite_davky']
+            znehodnocene_davky = record['znehodnocene_davky']
 
             spotreba = db.session.query(OckovaniSpotreba) \
                 .filter(OckovaniSpotreba.datum == datum,
@@ -103,10 +105,14 @@ class OpenDataFetcher:
                     vyrobce=vyrobce,
                     pouzite_ampulky=pouzite_ampulky,
                     znehodnocene_ampulky=znehodnocene_ampulky,
+                    pouzite_davky=pouzite_davky,
+                    znehodnocene_davky=znehodnocene_davky
                 ))
             else:
                 spotreba.pouzite_ampulky += pouzite_ampulky
                 spotreba.znehodnocene_ampulky += znehodnocene_ampulky
+                spotreba.pouzite_davky += pouzite_davky
+                spotreba.znehodnocene_davky += znehodnocene_davky
                 db.session.merge(spotreba)
 
         app.logger.info('Fetching used vaccines finished.')
@@ -136,6 +142,7 @@ class OpenDataFetcher:
             vyrobce = record['vyrobce']
             akce = record['akce']
             pocet_ampulek = record['pocet_ampulek']
+            pocet_davek = record['pocet_davek']
 
             distribuce = db.session.query(OckovaniDistribuce) \
                 .filter(OckovaniDistribuce.datum == datum,
@@ -160,9 +167,11 @@ class OpenDataFetcher:
                     vyrobce=vyrobce,
                     akce=akce,
                     pocet_ampulek=pocet_ampulek,
+                    pocet_davek=pocet_davek
                 ))
             else:
                 distribuce.pocet_ampulek += pocet_ampulek
+                distribuce.pocet_davek += pocet_davek
                 db.session.merge(distribuce)
 
         app.logger.info('Fetching distributed vaccines finished.')

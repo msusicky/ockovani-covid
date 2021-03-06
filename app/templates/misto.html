@@ -77,13 +77,12 @@
                         <tr>
                             <th scope="col" class="text-center w-auto"></th>
                             {% for operation in total['all'].keys() %}
-                            <th scope="col" class="text-center" colspan="2">{{ operation }}</th>
+                            <th scope="col" class="text-center">{{ operation }}</th>
                             {% endfor %}
                         </tr>
                         <tr>
                             <th scope="col" class="text-center">Výrobce</th>
                             {% for operation in total['all'].keys() %}
-                            <th scope="col" class="text-center">Ampule</th>
                             <th scope="col" class="text-center">Dávky</th>
                             {% endfor %}
                         </tr>
@@ -93,7 +92,6 @@
                         <tr>
                             <td>{{ type }}</td>
                             {% for operation in total[type] %}
-                            <td class="text-right">{{ total[type][operation]['ampule'] }}</td>
                             <td class="text-right">{{ total[type][operation]['davky'] }}</td>
                             {% endfor %}
                         </tr>
@@ -103,7 +101,6 @@
                         <tr>
                             <td>Celkem</td>
                             {% for operation in total['all'] %}
-                            <td class="text-right">{{ total['all'][operation]['ampule'] }}</td>
                             <td class="text-right">{{ total['all'][operation]['davky'] }}</td>
                             {% endfor %}
                         </tr>
@@ -111,7 +108,7 @@
                     </table>
                 </div>
                 {% endif %}
-                <i>Jde o orientační výpočet z distribuce a spotřeby vakcín.</i>
+                <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké zpoždění a nepřesnosti!!!</b></i>
             </div>
             <div class="tab-pane" id="registration">
                 <div class="row">
