@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta, date
 
 from flask import render_template
-from sqlalchemy import func, text, or_
+from sqlalchemy import func, text, or_, desc
 from werkzeug.exceptions import abort
 
 from app import db, bp
@@ -66,7 +66,24 @@ def info_kraj(kraj_name):
         .order_by(OckovaniRezervace.datum, OckovaciMisto.okres, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('kraj.html', data=nactene_informace, kraj=kraj, last_update=last_update())
+    nejvolnejsi = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
+                                         OckovaciMisto.id,
+                                         func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
+        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(Kraj.nazev == kraj_name) \
+        .filter(OckovaniRezervace.datum >= date.today(),
+                OckovaniRezervace.datum < date.today() + datetime.timedelta(DAYS)) \
+        .filter(or_(OckovaniRezervace.kalendar_ockovani == 'V1')) \
+        .filter(OckovaniRezervace.import_id == last_update_import_id()) \
+        .filter(OckovaciMisto.status == True) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
+        .order_by(desc("pocet_mist")) \
+        .having(func.sum(OckovaniRezervace.volna_kapacita) > 0) \
+        .all()
+
+    return render_template('kraj.html', data=nactene_informace, nejvolnejsi=nejvolnejsi, days=DAYS, kraj=kraj, last_update=last_update())
 
 
 @bp.route("/misto/<misto_id>")

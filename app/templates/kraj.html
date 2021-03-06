@@ -5,8 +5,45 @@
 {% endblock %}
 
 {% block body %}
+    <h2 class="text-center">Očkování v kraji {{ kraj.nazev }}</h2>
+
+    {% if nejvolnejsi %}
+        <div class="row">
+            <h3>Nejvolnější očkovací místa</h3>
+        </div>
+        
+        <div class="row">
+            <table class="table table-bordered table-striped table-sm">
+                <thead  class="thead-dark">
+                <tr>
+                    <th scope="col" class="text-center">Název očkovacícho místa</th>
+                    <th scope="col" class="text-center">Volná místa v dalších {{ days }} dnech</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in nejvolnejsi %}
+                    <tr>
+                        <td><a href="../misto/{{ item.id }}">{{ item.nazev }}</a></td>
+                        <td class="text-right">
+                            <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
+                                {{ item.pocet_mist }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% elif data %}
+        <div class="alert alert-warning w-100" role="alert">
+            V tomto kraji v následujících {{ days }} dnech není volné žádné místo na očkování.
+        </div>
+
+    {% endif %}
+
     <div class="row">
-        <h3>Očkovací místa v kraji: {{ kraj.nazev }} </h3>
+        <h3>Očkovací místa</h3>
     </div>
 
     <div class="row">
