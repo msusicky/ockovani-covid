@@ -26,14 +26,14 @@ jobs:
         with:
           filename: config.ci.py
       - run: mv config.ci.py config.py
-      - name: Setup SSH key
+      - name: Setup SSH key and deploy
         run: |
           mkdir -p ~/.ssh/
           ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
           eval `ssh-agent -s`
-          echo "${SSH_KEY}" | tr -d '\r' > ~/.ssh/id_rsa
-      - name: Test SSH connection
-        run: |
-          ssh-add ~/.ssh/id_rsa
+          echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+      - run:
           ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "ls"
+
 
