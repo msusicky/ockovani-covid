@@ -29,9 +29,11 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh/
-          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
+          echo "${SSH_KEY}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           eval `ssh-agent -s`
-          echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
+          ssh-add ~/.ssh/id_rsa
+          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
       - name: Test SSH connection
         run: ssh ${SSH_USER}@${SSH_HOST}:${SSH_PORT} "ls"
 
