@@ -57,7 +57,7 @@ jobs:
       - name: Create venv and install requirements
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${RELEASE_DIR} && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt --no-cache-dir"
       - name: Swap releases
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "rm -f ${APP_DIR} && ln -s ${RELEASE_DIR} ${APP_DIR} && find ${RELEASES_DIR} -not -path ${RELEASE_DIR} -exec rm -rf {} \"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "rm -f ${APP_DIR} && ln -s ${RELEASE_DIR} ${APP_DIR} && find ${RELEASES_DIR} -not -path ${RELEASE_DIR} -exec rm -rf {} \;"
       - name: Execute migrations
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
       - name: Restart flask
