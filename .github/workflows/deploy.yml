@@ -6,7 +6,7 @@ jobs:
   deploy-acceptance:
     name: Deploy to acceptance environment
     environment: acc
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     env:
       RELEASE_NAME: release-${DSTAMP}-${TSTAMP}
       RELEASE_TAR_NAME: release-${DSTAMP}-${TSTAMP}.tar
