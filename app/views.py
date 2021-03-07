@@ -104,7 +104,7 @@ def info_misto(misto_id):
         OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
         OckovaniRegistrace.rezervace == False).filter(
         OckovaniRegistrace.import_id == _last_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
-                                                        OckovaniRegistrace.povolani).order_by(
+                                                                    OckovaniRegistrace.povolani).order_by(
         OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
         .all()
 
@@ -130,9 +130,9 @@ def info_misto(misto_id):
         where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union 
         (select coalesce(sum(pocet_davek ),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce
         where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)
-        union ( select sum(pouzite_ampulky), vyrobce, \'Očkováno\' as operace
+        union ( select sum(pouzite_davky), vyrobce, \'Očkováno\' as operace
         from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)
-        union (select sum(znehodnocene_ampulky), vyrobce, \'Zničeno\' as operace
+        union (select sum(znehodnocene_davky), vyrobce, \'Zničeno\' as operace
         from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce) ) as tbl
         order by vyrobce, operace
         """
@@ -178,10 +178,6 @@ def _compute_vaccination_stats(ampule_info):
             total[item[0]]['Očkováno']['davky'] += item[2]
         elif operation == 'Zničeno':
             total[item[0]]['Zničeno']['davky'] += item[2]
-
-    # total = _compute_vaccination_doses(total, 'Pfizer', 6)
-    # total = _compute_vaccination_doses(total, 'Moderna', 10)
-    # total = _compute_vaccination_doses(total, 'AstraZeneca', 10)
 
     total = _compute_vaccination_total(total)
 
@@ -314,7 +310,8 @@ def statistiky():
 
     # .params(misto_id=misto_id)
 
-    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), vacc_storage=vacc_storage,
+    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
+                           vacc_storage=vacc_storage,
                            end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
