@@ -3,7 +3,6 @@ name: update-web
 on:
   workflow_run:
     workflows: [deploy-production, update-data]
-    branches: [main]
     types:
       - completed
 
