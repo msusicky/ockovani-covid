@@ -1,3 +1,8 @@
+[![deploy-acceptance](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml)
+[![deploy-production](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml)
+[![update-data](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml)
+[![update-web](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml)
+
 # COVID-19 data o očkování
 Za systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří poskytli cenné připomínky.
 
@@ -23,44 +28,61 @@ Aplikace se skládá z modulu fetcher, pak samotného webu a skriptu, který web
 # How to run it [ENG]
 
 ## Quick start with docker-compose
-
 To start the server without fetching recent data use `docker-compose up`.
 
 The development server (default flask one for the moment) will start at port `5000`,
-you can access the deployment at `http://localhost:5000/ockovani-covid`.
+you can access the deployment at `http://localhost:5000/`.
 
-If you want to fetch recent data please set the FETCH_DATA environment variable:
+If you want to fetch recent data please set the FETCH_DATA environment variable: 
 
 `FETCH_DATA=true docker-compose up`
 
 ## Installation without docker-compose
+1. create virtual environment
+    
+    `python3 -m venv venv`
 
-### Virtual environment
+1. activate virtual environment 
+    
+    `source venv/bin/activate`
 
-#### Create venv
-`python3 -m venv venv`
+1. install requirements
 
-#### Activate venv
-`source venv/bin/activate`
+    `pip install -r requirements.txt`
 
-#### Install requirements
-`pip install -r requirements.txt`
+1. setup `config.py` according to the `config.sample.py` template
 
-### Configuration
-* Fill connection string in `config.py`
-* Setup `config.ini` according to the `config.ini.template`
+1. setup Flask environment
+    
+    `export FLASK_ENV=development`
 
-### Start webserver
-```
-export FLASK_ENV=development
-flask db upgrade
-flask run
-```
+1. execute database migrations
+    
+    `flask db upgrade`
 
-## Update
-1. update config.ini
-1. activate venv `source venv/bin/activate`
-1. execute database migration if needed `flask db upgrade`
-1. fetch data `flask fetch-all &`
-1. restart or start webserver if needed `flask run --host=0.0.0.0 --port=5000`
-1. publish website and CSV's `bash tools/manual_publish.sh`
+1. start Flask webserver
+    
+    `flask run`
+
+## Update web
+_Old manual way, now it's done automatically using GitHub Actions._
+
+1. activate venv
+ 
+    `source venv/bin/activate`
+
+1. execute database migration if needed
+
+    `flask db upgrade`
+
+1. fetch data
+    
+    `flask fetch-opendata`
+
+1. restart or start webserver if needed
+
+    `systemctl start ockovani-prd.service`
+
+1. publish website
+
+    `bash tools/manual_publish.sh`
