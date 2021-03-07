@@ -1,3 +1,8 @@
+[![deploy-acceptance](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml)
+[![deploy-production](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml)
+[![update-data](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml)
+[![update-web](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml)
+
 # COVID-19 data o očkování
 Za systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří poskytli cenné připomínky.
 
