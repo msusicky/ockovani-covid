@@ -12,6 +12,25 @@ class Kraj(db.Model):
     nazev = Column(Unicode)
 
 
+class KrajMetriky(db.Model):
+    __tablename__ = 'kraje_metriky'
+
+    id = Column(Unicode, ForeignKey('kraje.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    typ_metriky = Column(Unicode, primary_key=True)
+    hodnota_int = Column(Integer)
+    hodnota_str = Column(Unicode)
+
+    idcko = relationship("Kraj", back_populates="kraje_metriky")
+
+    def __repr__(self):
+        return "<KrajMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
+            self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
+
+
+Kraj.id = relationship("KrajMetriky", back_populates="id")
+
+
 class Okres(db.Model):
     __tablename__ = 'okresy'
 
@@ -26,6 +45,25 @@ class Okres(db.Model):
 
 
 Kraj.okresy = relationship("Okres", back_populates="kraj")
+
+
+class OkresMetriky(db.Model):
+    __tablename__ = 'okresy_metriky'
+
+    id = Column(Unicode, ForeignKey('okresy.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    typ_metriky = Column(Unicode, primary_key=True)
+    hodnota_int = Column(Integer)
+    hodnota_str = Column(Unicode)
+
+    idcko = relationship("Okres", back_populates="okresy_metriky")
+
+    def __repr__(self):
+        return "<OkresMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
+            self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
+
+
+Okres.id = relationship("OkresMetriky", back_populates="id")
 
 
 class OckovaciMisto(db.Model):
@@ -53,6 +91,25 @@ class OckovaciMisto(db.Model):
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
+
+
+class OckovaciMistoMetriky(db.Model):
+    __tablename__ = 'ockovaci_mista_metriky'
+
+    id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    typ_metriky = Column(Unicode, primary_key=True)
+    hodnota_int = Column(Integer)
+    hodnota_str = Column(Unicode)
+
+    idcko = relationship("OckovaciMisto", back_populates="ockovaci_mista_metriky")
+
+    def __repr__(self):
+        return "<OckovaciMistoMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
+            self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
+
+
+OckovaciMisto.id = relationship("OckovaciMistoMetriky", back_populates="id")
 
 
 class Import(db.Model):
@@ -144,6 +201,7 @@ class OckovaniRegistrace(db.Model):
     datum_rezervace = Column(Date, primary_key=True)
     pocet = Column(Integer)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
+    pocet_zmena = Column(Integer)
 
     import_ = relationship('Import', back_populates='ockovani_registrace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
@@ -166,6 +224,8 @@ class OckovaniRezervace(db.Model):
     maximalni_kapacita = Column(Integer)
     kalendar_ockovani = Column(Unicode, primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
+    volna_kapacita_zmena = Column(Integer)
+    maximalni_kapacita_zmena = Column(Integer)
 
     import_ = relationship('Import', back_populates='ockovani_rezervace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
