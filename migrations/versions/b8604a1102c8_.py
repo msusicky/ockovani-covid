@@ -18,6 +18,7 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
+    connection.execute("update importy set date=start")
     connection.execute("delete from importy where status='FAILED'")
     connection.execute("delete from importy where id in (select id from importy except select max(id) from importy group by date)")
 
