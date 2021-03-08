@@ -22,7 +22,7 @@ class Okres(db.Model):
     kraj = relationship("Kraj", back_populates="okresy")
 
     def __repr__(self):
-        return "<Okres(nazev='%s')>" % (self.nazev)
+        return "<Okres(nazev='%s')>" % self.nazev
 
 
 Kraj.okresy = relationship("Okres", back_populates="kraj")
@@ -59,6 +59,7 @@ class Import(db.Model):
     __tablename__ = 'importy'
 
     id = Column(Integer, primary_key=True)
+    date = Column(Date, unique=True)
     start = Column(DateTime, default=datetime.now())
     end = Column(DateTime)
     last_modified = Column(DateTime)
@@ -68,63 +69,11 @@ class Import(db.Model):
         return "<Import(id=%s, start='%s', status='%s')>" % (self.id, self.start, self.status)
 
 
-class VolnaMistaCas(db.Model):
-    __tablename__ = 'volna_mista_cas'
-
-    id = Column(Integer, primary_key=True)
-    import_id = Column(Integer, ForeignKey('importy.id'))
-    cas_ziskani = Column(DateTime, default=datetime.now())
-    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'))
-    datum = Column(Date)
-    cas = Column(Unicode)
-    start = Column(DateTime)
-    volna_mista = Column(Integer)
-    place_id = Column(Integer)
-    user_service_id = Column(Integer)
-
-    import_ = relationship('Import', back_populates='volna_mista_cas')
-    misto = relationship('OckovaciMisto', back_populates='volna_mista_cas')
-
-    def __repr__(self):
-        return "<VolnaMistaCas(misto_id='%s', cas='%s', volna_mista=%s)>" % (
-            self.misto_id, self.start, self.volna_mista)
-
-
-Import.volna_mista_cas = relationship("VolnaMistaCas", back_populates="import_")
-OckovaciMisto.volna_mista_cas = relationship("VolnaMistaCas", back_populates="misto")
-
-
-class VolnaMistaDen(db.Model):
-    __tablename__ = 'volna_mista_den'
-
-    id = Column(Integer, primary_key=True)
-    import_id = Column(Integer, ForeignKey('importy.id'))
-    cas_ziskani = Column(DateTime, default=datetime.now())
-    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'))
-    datum = Column(Date)
-    volna_mista = Column(Integer)
-    data = Column(JSON)
-
-    import_ = relationship('Import', back_populates='volna_mista_den')
-    misto = relationship('OckovaciMisto', back_populates='volna_mista_den')
-
-    def __repr__(self):
-        return "<VolnaMistaDen(misto_id='%s', datum='%s', volna_mista=%s)>" % (
-            self.misto_id, self.datum, self.volna_mista)
-
-
-Import.volna_mista_den = relationship("VolnaMistaDen", back_populates="import_")
-OckovaciMisto.volna_mista_den = relationship("VolnaMistaDen", back_populates="misto")
-
-
 class OckovaniSpotreba(db.Model):
     __tablename__ = 'ockovani_spotreba'
 
     datum = Column(Date, primary_key=True)
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    ockovaci_misto_nazev = Column(Unicode)
-    kraj_nuts_kod = Column(Unicode)
-    kraj_nazev = Column(Unicode)
     ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode)
     pouzite_ampulky = Column(Integer)
@@ -135,8 +84,8 @@ class OckovaniSpotreba(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_spotreba')
 
     def __repr__(self):
-        return "<OckovaniSpotreba(ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
-            self.ockovaci_misto_nazev, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
+        return "<OckovaniSpotreba(ockovaci_misto_id='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
+            self.ockovaci_misto_id, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
 
 
 OckovaciMisto.ockovani_spotreba = relationship("OckovaniSpotreba", back_populates="misto")
@@ -147,13 +96,7 @@ class OckovaniDistribuce(db.Model):
 
     datum = Column(Date, primary_key=True)
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    ockovaci_misto_nazev = Column(Unicode)
-    kraj_nuts_kod = Column(Unicode)
-    kraj_nazev = Column(Unicode)
     cilove_ockovaci_misto_id = Column(Unicode, primary_key=True)
-    cilove_ockovaci_misto_nazev = Column(Unicode)
-    cilovy_kraj_kod = Column(Unicode)
-    cilovy_kraj_nazev = Column(Unicode)
     ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode)
     akce = Column(Unicode, primary_key=True)
@@ -163,9 +106,8 @@ class OckovaniDistribuce(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
 
     def __repr__(self):
-        return "<OckovaniDistribuce(ockovaci_misto_nazev='%s', cilove_ockovaci_misto_nazev='%s', datum='%s', ockovaci_latka='%s', pocet_ampulek=%s)>" % (
-            self.ockovaci_misto_nazev, self.cilove_ockovaci_misto_nazev, self.datum, self.ockovaci_latka,
-            self.pocet_ampulek)
+        return "<OckovaniDistribuce(ockovaci_misto_id='%s', cilove_ockovaci_misto_id='%s', datum='%s', ockovaci_latka='%s', pocet_ampulek=%s)>" % (
+            self.ockovaci_misto_id, self.cilove_ockovaci_misto_id, self.datum, self.ockovaci_latka, self.pocet_ampulek)
 
 
 OckovaciMisto.ockovani_distribuce = relationship("OckovaniDistribuce", back_populates="misto")
@@ -201,7 +143,7 @@ class OckovaniRegistrace(db.Model):
     rezervace = Column(Boolean, primary_key=True)
     datum_rezervace = Column(Date, primary_key=True)
     pocet = Column(Integer)
-    import_id = Column(Integer, ForeignKey('importy.id'), primary_key=True)
+    import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
 
     import_ = relationship('Import', back_populates='ockovani_registrace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
@@ -223,7 +165,7 @@ class OckovaniRezervace(db.Model):
     volna_kapacita = Column(Integer)
     maximalni_kapacita = Column(Integer)
     kalendar_ockovani = Column(Unicode, primary_key=True)
-    import_id = Column(Integer, ForeignKey('importy.id'), primary_key=True)
+    import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
 
     import_ = relationship('Import', back_populates='ockovani_rezervace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')

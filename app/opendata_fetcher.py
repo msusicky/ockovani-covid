@@ -86,9 +86,6 @@ class OpenDataFetcher:
         for record in data:
             datum = record['datum']
             ockovaci_misto_id = record['ockovaci_misto_id']
-            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
-            kraj_nuts_kod = record['kraj_nuts_kod']
-            kraj_nazev = record['kraj_nazev']
             ockovaci_latka = record['ockovaci_latka']
             vyrobce = record['vyrobce']
             pouzite_ampulky = record['pouzite_ampulky']
@@ -106,9 +103,6 @@ class OpenDataFetcher:
                 db.session.add(OckovaniSpotreba(
                     datum=datum,
                     ockovaci_misto_id=ockovaci_misto_id,
-                    ockovaci_misto_nazev=ockovaci_misto_nazev,
-                    kraj_nuts_kod=kraj_nuts_kod,
-                    kraj_nazev=kraj_nazev,
                     ockovaci_latka=ockovaci_latka,
                     vyrobce=vyrobce,
                     pouzite_ampulky=pouzite_ampulky,
@@ -138,13 +132,7 @@ class OpenDataFetcher:
         for record in data:
             datum = record['datum']
             ockovaci_misto_id = record['ockovaci_misto_id']
-            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
-            kraj_nuts_kod = record['kraj_nuts_kod']
-            kraj_nazev = record['kraj_nazev']
             cilove_ockovaci_misto_id = record['cilove_ockovaci_misto_id']
-            cilove_ockovaci_misto_nazev = record['cilove_ockovaci_misto_nazev']
-            cilovy_kraj_kod = record['cilovy_kraj_kod']
-            cilovy_kraj_nazev = record['cilovy_kraj_nazev']
             ockovaci_latka = record['ockovaci_latka']
             vyrobce = record['vyrobce']
             akce = record['akce']
@@ -163,13 +151,7 @@ class OpenDataFetcher:
                 db.session.add(OckovaniDistribuce(
                     datum=datum,
                     ockovaci_misto_id=ockovaci_misto_id,
-                    ockovaci_misto_nazev=ockovaci_misto_nazev,
-                    kraj_nuts_kod=kraj_nuts_kod,
-                    kraj_nazev=kraj_nazev,
                     cilove_ockovaci_misto_id=cilove_ockovaci_misto_id,
-                    cilove_ockovaci_misto_nazev=cilove_ockovaci_misto_nazev,
-                    cilovy_kraj_kod=cilovy_kraj_kod,
-                    cilovy_kraj_nazev=cilovy_kraj_nazev,
                     ockovaci_latka=ockovaci_latka,
                     vyrobce=vyrobce,
                     akce=akce,
