@@ -21,14 +21,14 @@ class KrajMetriky(db.Model):
     hodnota_int = Column(Integer)
     hodnota_str = Column(Unicode)
 
-    idcko = relationship("Kraj", back_populates="kraje_metriky")
+    kraj = relationship("Kraj", back_populates="metriky")
 
     def __repr__(self):
         return "<KrajMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
             self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
 
 
-Kraj.id = relationship("KrajMetriky", back_populates="id")
+Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
 
 
 class Okres(db.Model):
@@ -56,14 +56,14 @@ class OkresMetriky(db.Model):
     hodnota_int = Column(Integer)
     hodnota_str = Column(Unicode)
 
-    idcko = relationship("Okres", back_populates="okresy_metriky")
+    okres = relationship("Okres", back_populates="metriky")
 
     def __repr__(self):
         return "<OkresMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
             self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
 
 
-Okres.id = relationship("OkresMetriky", back_populates="id")
+Okres.metriky = relationship("OkresMetriky", back_populates="okres")
 
 
 class OckovaciMisto(db.Model):
@@ -102,14 +102,14 @@ class OckovaciMistoMetriky(db.Model):
     hodnota_int = Column(Integer)
     hodnota_str = Column(Unicode)
 
-    idcko = relationship("OckovaciMisto", back_populates="ockovaci_mista_metriky")
+    misto = relationship("OckovaciMisto", back_populates="metriky")
 
     def __repr__(self):
         return "<OckovaciMistoMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
             self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
 
 
-OckovaciMisto.id = relationship("OckovaciMistoMetriky", back_populates="id")
+OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
 
 
 class Import(db.Model):
