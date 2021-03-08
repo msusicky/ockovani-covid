@@ -26,6 +26,10 @@ class OpenDataFetcher:
         self._check_dates = check_dates
 
     def fetch_all(self):
+        prev_import = db.session.query(Import).filter(Import.date == date.today()).one_or_none()
+        if prev_import is not None:
+            db.session.delete(prev_import)
+
         self._import = Import(status='RUNNING')
         db.session.add(self._import)
         db.session.commit()
@@ -47,6 +51,7 @@ class OpenDataFetcher:
         self._import.status = 'FINISHED'
         self._import.end = datetime.now()
         self._import.last_modified = self._last_modified
+        self._import.date = self._last_modified.date()
         db.session.commit()
         return True
 
