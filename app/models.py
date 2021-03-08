@@ -211,7 +211,7 @@ class OckovaniRegistrace(db.Model):
             self.ockovaci_misto_id, self.datum, self.povolani, self.vekova_skupina, self.datum_rezervace, self.pocet)
 
 
-Import.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="import_")
+Import.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="import_", cascade="delete")
 OckovaciMisto.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="misto")
 
 
@@ -235,5 +235,5 @@ class OckovaniRezervace(db.Model):
             self.ockovaci_misto_id, self.datum, self.volna_kapacita, self.kalendar_ockovani)
 
 
-Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_")
+Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_", cascade="delete")
 OckovaciMisto.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="misto")
