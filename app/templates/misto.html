@@ -53,7 +53,10 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link active" data-toggle="tab" href="#overview">Počet registrovaných</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
@@ -63,7 +66,18 @@
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="registration">
+                    <div class="tab-pane active" id="overview">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div id="trend"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="registration">
                         <div class="row">
                             <div class="col-sm-6 py-2">
                                 <div class="card h-100">
@@ -213,6 +227,41 @@
     var options = {};
     var marker = new SMap.Marker(center, "marker", options);
     layer.addMarker(marker);
+</script>
+
+<!-- Script creating graph -->
+<script>
+    var registrace = {
+        x: [{% for item in registrace_overview %}'{{ item.datum }}',{% endfor %}],
+        y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
+        mode: 'lines+markers',
+        type: 'scatter'
+    };
+
+    var layout = {
+        autosize: true,
+        xaxis: {
+            title: 'Datum [den]',
+            type: 'date',
+            tickformat: '%-d.%-m.%Y',
+            autorange: true,
+            dtick: 86400000, {#This number says that tick difference is one day#}
+            automargin: true
+        },
+        yaxis: {
+            title: 'Počet registrovaných [osoba]',
+            automargin: true
+        },
+        title: 'Počet registrovaných za posledních 14 dní',
+    }
+
+    var data = [registrace];
+
+    var config = {
+        responsive: true
+    }
+
+    Plotly.newPlot('trend', data, layout, config);
 </script>
 {% endblock %}
 
