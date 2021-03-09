@@ -68,6 +68,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div id="trend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="tab-pane" id="vaccination">
                 {% if total %}
@@ -255,6 +264,41 @@
 
 
 
+</script>
+
+<!-- Script creating graph -->
+<script>
+    var registrace = {
+        x: [{% for item in registrace_overview %}'{{ item.datum }}',{% endfor %}],
+        y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
+        mode: 'lines+markers',
+        type: 'scatter'
+    };
+
+    var layout = {
+        autosize: true,
+        xaxis: {
+            title: 'Datum [den]',
+            type: 'date',
+            tickformat: '%-d.%-m.%Y',
+            autorange: true,
+            dtick: 86400000, {#This number says that tick difference is one day#}
+            automargin: true
+        },
+        yaxis: {
+            title: 'Počet registrovaných [osoba]',
+            automargin: true
+        },
+        title: 'Počet registrovaných za posledních 14 dní',
+    }
+
+    var data = [registrace];
+
+    var config = {
+        responsive: true
+    }
+
+    Plotly.newPlot('trend', data, layout, config);
 </script>
 {% endblock %}
 
