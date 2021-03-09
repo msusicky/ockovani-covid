@@ -26,6 +26,10 @@ class OpenDataFetcher:
         self._check_dates = check_dates
 
     def fetch_all(self):
+        prev_import = db.session.query(Import).filter(Import.date == date.today()).one_or_none()
+        if prev_import is not None:
+            db.session.delete(prev_import)
+
         self._import = Import(status='RUNNING')
         db.session.add(self._import)
         db.session.commit()
@@ -47,6 +51,7 @@ class OpenDataFetcher:
         self._import.status = 'FINISHED'
         self._import.end = datetime.now()
         self._import.last_modified = self._last_modified
+        self._import.date = self._last_modified.date()
         db.session.commit()
         return True
 
@@ -86,9 +91,6 @@ class OpenDataFetcher:
         for record in data:
             datum = record['datum']
             ockovaci_misto_id = record['ockovaci_misto_id']
-            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
-            kraj_nuts_kod = record['kraj_nuts_kod']
-            kraj_nazev = record['kraj_nazev']
             ockovaci_latka = record['ockovaci_latka']
             vyrobce = record['vyrobce']
             pouzite_ampulky = record['pouzite_ampulky']
@@ -106,9 +108,6 @@ class OpenDataFetcher:
                 db.session.add(OckovaniSpotreba(
                     datum=datum,
                     ockovaci_misto_id=ockovaci_misto_id,
-                    ockovaci_misto_nazev=ockovaci_misto_nazev,
-                    kraj_nuts_kod=kraj_nuts_kod,
-                    kraj_nazev=kraj_nazev,
                     ockovaci_latka=ockovaci_latka,
                     vyrobce=vyrobce,
                     pouzite_ampulky=pouzite_ampulky,
@@ -138,13 +137,7 @@ class OpenDataFetcher:
         for record in data:
             datum = record['datum']
             ockovaci_misto_id = record['ockovaci_misto_id']
-            ockovaci_misto_nazev = record['ockovaci_misto_nazev']
-            kraj_nuts_kod = record['kraj_nuts_kod']
-            kraj_nazev = record['kraj_nazev']
             cilove_ockovaci_misto_id = record['cilove_ockovaci_misto_id']
-            cilove_ockovaci_misto_nazev = record['cilove_ockovaci_misto_nazev']
-            cilovy_kraj_kod = record['cilovy_kraj_kod']
-            cilovy_kraj_nazev = record['cilovy_kraj_nazev']
             ockovaci_latka = record['ockovaci_latka']
             vyrobce = record['vyrobce']
             akce = record['akce']
@@ -163,13 +156,7 @@ class OpenDataFetcher:
                 db.session.add(OckovaniDistribuce(
                     datum=datum,
                     ockovaci_misto_id=ockovaci_misto_id,
-                    ockovaci_misto_nazev=ockovaci_misto_nazev,
-                    kraj_nuts_kod=kraj_nuts_kod,
-                    kraj_nazev=kraj_nazev,
                     cilove_ockovaci_misto_id=cilove_ockovaci_misto_id,
-                    cilove_ockovaci_misto_nazev=cilove_ockovaci_misto_nazev,
-                    cilovy_kraj_kod=cilovy_kraj_kod,
-                    cilovy_kraj_nazev=cilovy_kraj_nazev,
                     ockovaci_latka=ockovaci_latka,
                     vyrobce=vyrobce,
                     akce=akce,

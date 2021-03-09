@@ -4,16 +4,13 @@ from flask import render_template
 from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
-from app import db, bp
+from app import db, bp, filters
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRezervace, OckovaniRegistrace, OckovaniRezervace
 
 STATUS_FINISHED = 'FINISHED'
 
 DAYS = 14
 DAYS_MISTO = 30
-
-DATETIME_FORMAT = '%d. %m. %Y %H:%M'
-DATETIME_FORMAT_WD = '%a %d. %m. %Y %H:%M'
 
 
 @bp.route('/')
@@ -326,7 +323,7 @@ def _last_import_modified():
     if last_modified is None:
         return 'nikdy'
     else:
-        return last_modified.strftime(DATETIME_FORMAT_WD)
+        return filters.format_datetime_short_wd(last_modified)
 
 
 def _last_import_id():
@@ -341,4 +338,4 @@ def _last_import_id():
 
 
 def _now():
-    return datetime.now().strftime(DATETIME_FORMAT_WD)
+    return filters.format_datetime_short_wd(datetime.now())
