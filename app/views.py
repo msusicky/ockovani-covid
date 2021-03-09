@@ -85,9 +85,9 @@ def info_misto(misto_id):
     if misto is None:
         abort(404)
 
-    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer").from_statement(text(
+    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove", "rezervace_celkem").from_statement(text(
         """
-        select t1.vekova_skupina, t1.povolani, fronta_pocet, round((rezervace_nove*100.0)/rezervace_celkem) pomer 
+        select t1.vekova_skupina, t1.povolani, fronta_pocet, round((rezervace_nove*100.0)/rezervace_celkem) pomer, rezervace_nove, rezervace_celkem
         from (
             select vekova_skupina, povolani, sum(pocet) fronta_pocet 
             from ockovani_registrace 
@@ -130,61 +130,62 @@ def _compute_vaccination_stats(ampule_info):
     # Compute  statistics
     total = {
         'Pfizer': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         },
         'Moderna': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         },
         'AstraZeneca': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         }
     }
 
     for item in ampule_info:
         operation = item[1]
         if operation in ('Příjem', 'Příjem odjinud'):
-            total[item[0]]['Přijato']['davky'] += item[2]
+            total[item[0]]['Přijato'] += item[2]
+            total[item[0]]['Skladem'] += item[2]
         elif operation == 'Výdej':
-            total[item[0]]['Vydáno']['davky'] += item[2]
+            total[item[0]]['Vydáno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
         elif operation == 'Očkováno':
-            total[item[0]]['Očkováno']['davky'] += item[2]
+            total[item[0]]['Očkováno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
         elif operation == 'Zničeno':
-            total[item[0]]['Zničeno']['davky'] += item[2]
+            total[item[0]]['Zničeno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
 
     total = _compute_vaccination_total(total)
 
     return total
 
 
-def _compute_vaccination_doses(total, type, doses):
-    for operation in total[type].keys():
-        total[type][operation]['davky'] = total[type][operation]['ampule'] * doses
-    return total
-
-
 def _compute_vaccination_total(total):
     total_all = {
         'all': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0},
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         }
     }
 
     for type in total.keys():
         for operation in total[type].keys():
-            for dose in total[type][operation].keys():
-                total_all['all'][operation][dose] += total[type][operation][dose]
+            total_all['all'][operation] += total[type][operation]
 
     total.update(total_all)
 
