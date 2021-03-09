@@ -18,6 +18,23 @@ def index():
     return render_template('index.html', last_update=_last_import_modified(), now=_now())
 
 
+@bp.route("/mista")
+def info_mista():
+    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
+                             Kraj.nazev.label("kraj"), func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+        .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(OckovaniRegistrace.rezervace == False) \
+        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaciMisto.status == True) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
+        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .all()
+
+    return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now(), days=DAYS)
+
+
 @bp.route("/okres/<okres_name>")
 def info_okres(okres_name):
     okres = db.session.query(Okres).filter(Okres.nazev == okres_name).one_or_none()
@@ -34,7 +51,7 @@ def info_okres(okres_name):
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
-        .order_by(OckovaciMisto.id, OckovaciMisto.nazev) \
+        .order_by(OckovaciMisto.nazev) \
         .all()
 
     return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(), days=DAYS)
@@ -56,7 +73,7 @@ def info_kraj(kraj_name):
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
-        .order_by(OckovaciMisto.id, OckovaciMisto.nazev) \
+        .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
     return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(), days=DAYS)
@@ -197,23 +214,6 @@ def _compute_vaccination_total(total):
     total.update(total_all)
 
     return total
-
-
-@bp.route("/mista")
-def info_mista():
-    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
-        .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRegistrace.rezervace == False) \
-        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
-        .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
-        .all()
-
-    return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now(), days=DAYS)
 
 
 @bp.route("/mapa")
