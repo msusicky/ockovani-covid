@@ -65,18 +65,18 @@
                 <div class="tab-content">
                     <div class="tab-pane active" id="registration">
                         {% if registrace_info %}
-                        <table class="table table-bordered table-striped table-sm">
+                        <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
                             <thead class="thead-dark">
                             <tr>
-                                <th scope="col" class="col-2 text-center">Věková<br>skupina</th>
-                                <th scope="col" class="text-center">Povolání</th>
-                                <th scope="col" class="col-2 text-center">
+                                <th scope="col" class="text-center" style="width: 16.67%">Věková<br>skupina</th>
+                                <th scope="col" class="text-center" style="width: 50%">Povolání</th>
+                                <th scope="col" class="text-center" style="width: 16.67%">
                                     Ve frontě
                                     <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                                        title="Počet registrovaných bez rezervace - čekající na PIN2 (výběr termínu).<br>Červená (>100), žlutá (>1), zelená (0).">
                                     </i>
                                 </th>
-                                <th scope="col" class="col-2 text-center">
+                                <th scope="col" class="text-center" style="width: 16.67%">
                                     Týdenní<br>úspěšnost
                                     <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                                        title="Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.<br>Zelená (>50 %), žlutá (>5 %), červená (>0 %).">
@@ -88,7 +88,7 @@
                             {% for item in registrace_info %}
                             <tr>
                                 <td>{{ item.vekova_skupina }}</td>
-                                <td class="td-ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ item.povolani }}">
+                                <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ item.povolani }}">
                                     {{ item.povolani }}
                                 </td>
                                 <td class="text-right">

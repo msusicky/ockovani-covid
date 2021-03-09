@@ -93,7 +93,7 @@ def info_misto(misto_id):
             from ockovani_registrace 
             where rezervace=False and ockovaci_misto_id=:misto_id and import_id=:import_id
             group by vekova_skupina, povolani) t1
-        full join (
+        left join (
             select vekova_skupina, povolani, sum(case when rezervace=true then pocet else 0 end) as rezervace_nove, NULLIF(sum(pocet), 0) as rezervace_celkem
             from ockovani_registrace
             where datum>now()-'7 days'::interval and ockovaci_misto_id=:misto_id and import_id=:import_id
