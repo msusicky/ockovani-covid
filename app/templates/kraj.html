@@ -7,12 +7,12 @@
 
 {% block body %}
     <div class="row">
-        <h3>Očkovací místa v kraji: {{ kraj.nazev }} </h3>
+        <div class="col">
+            <h3>Očkovací místa v kraji: {{ kraj.nazev }} </h3>
+        </div>
     </div>
 
-    <div class="row">
-        {{ macros.prehled_mist(mista, days) }}
-    </div>
+    {{ macros.prehled_mist(mista, days) }}
 {% endblock %}
 
 

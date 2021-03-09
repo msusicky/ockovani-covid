@@ -1,3 +1,7 @@
+.container {
+    padding-top: 4rem;
+}
+
 .td-ellipsis {
     max-width: 0;
     overflow: hidden;
