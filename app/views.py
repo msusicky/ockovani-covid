@@ -1,7 +1,8 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text, case
+from sqlalchemy import func, text, case, subquery
+from sqlalchemy.sql import Alias
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters
@@ -13,7 +14,7 @@ DAYS = 14
 DAYS_MISTO = 30
 
 
-def _mista_rezervace_subquery(self):
+def _mista_rezervace_subquery() -> Alias:
     return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
         OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
         .filter(OckovaniRezervace.import_id == _last_import_id()) \
@@ -21,7 +22,7 @@ def _mista_rezervace_subquery(self):
         .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
 
 
-def _mista_last7_subquery(self):
+def _mista_last7_subquery() -> Alias:
     return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
         OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_ockovanych_tyden")) \
         .filter(OckovaniRezervace.import_id == _last_import_id()) \
@@ -37,8 +38,8 @@ def index():
 
 @bp.route("/mista")
 def info_mista():
-    mista_rezervace_subquery = _mista_rezervace_subquery
-    mista_last7_subquery = _mista_last7_subquery
+    mista_rezervace_subquery = _mista_rezervace_subquery()
+    mista_last7_subquery = _mista_last7_subquery()
 
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"),
@@ -69,8 +70,8 @@ def info_okres(okres_name):
     if okres is None:
         abort(404)
 
-    mista_rezervace_subquery = _mista_rezervace_subquery
-    mista_last7_subquery = _mista_last7_subquery
+    mista_rezervace_subquery = _mista_rezervace_subquery()
+    mista_last7_subquery = _mista_last7_subquery()
 
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                              OckovaciMisto.id,
@@ -101,8 +102,8 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
-    mista_rezervace_subquery = _mista_rezervace_subquery
-    mista_last7_subquery = _mista_last7_subquery
+    mista_rezervace_subquery = _mista_rezervace_subquery()
+    mista_last7_subquery = _mista_last7_subquery()
 
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                              OckovaciMisto.id,
