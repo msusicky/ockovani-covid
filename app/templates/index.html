@@ -4,22 +4,24 @@
 <div class="row">
     <div class="jumbotron text-justify">
         <h2>COVID-19 data o očkování</h2>
-        <p>     
-            Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst.
-            <strong>
-                Systém je komplikovaný a pro správná rozhodnutí je nezbytné si přečíst, jak funguje (na této stránce
-                níže).
-            </strong>
-            Nezávazně doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají termín,
-            kolik je volných slotů na očkování a kolik vakcín přibližně dostává dané místo.
-            <strong>
-                Nedává smysl měnit často registraci, změnou registrace se dostáváte na poslední místo lidí stejného věku
-                v dané kategorii na novém místě.
-            </strong>
+        <p>
+            <strong>UPDATE 9. 3. 2021:</strong> Skryty volné sloty z reservatic systému - data jsou platná jen několik minut po
+            jejich zveřejnění každé ráno. Dokud nebudou aktualizovaná častěji nebudou zveřejňována. Stále jsou dostupná
+            v oficiálním datasetu UZIS. Pro představu o vytíženosti očkovacích míst můžete zatím použít údaj o počtu
+            lidí ve frontě v záložce <strong>"Stav registrací"</strong> na stránce konkrétního místa.</p>
+        <p>
+            Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst. <strong>Systém je komplikovaný
+            a pro správná rozhodnutí je nezbytné si přečíst, jak funguje (na této stránce níže).</strong> Nezávazně
+            doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají termín, kolik je
+            volných slotů na očkování a kolik vakcín přibližně dostává dané místo. <strong>Nedává smysl měnit často
+            registraci, změnou registrace se dostáváte na poslední místo lidí stejného věku v dané kategorii na novém
+            místě.</strong>
         </p>
         <p>
             Navštivte repozitář <a href="https://github.com/msusicky/ockovani-covid" target="_blank">
-            https://github.com/msusicky/ockovani-covid</a> a napište náměty pro rozšíření nebo se přidejte k vývoji.
+            https://github.com/msusicky/ockovani-covid</a> a napište náměty pro rozšíření nebo se přidejte k vývoji. Za
+            systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří
+            poskytli cenné připomínky.
         </p>
     </div>
 </div>
@@ -120,7 +122,7 @@
             Tím se dostává na konkrétní očkovací místo, které disponuje tzv. "závorou". Ta určuje oblast lidí, kteří
             mají právo vybrat si termín očkování. Se závorou je většinou manipulováno tak, aby nedocházelo k přeplnění,
             tzn.
-            jakmile člověk dostane PIN2, tak pro něj existuje termín v místě, které si vybral.<br/>
+            jakmile člověk dostane PIN2/zvací SMS, tak pro něj existuje termín v místě, které si vybral.<br/>
             POZOR!!! Např. v Praze toto ale neplatí a pro 100 volných míst se rozesílá 110-120 SMS. Pak je systém o tom,
             kdo se
             první zaregistruje, v okamžiku naplnění kapacit ostatním přijde SMS, že jejich vstup zanikl. Toto nám přijde
@@ -131,19 +133,23 @@
         </p>
         <p>
             V ideálním světě by vše fungovalo, ale bohužel ne každý reaguje na SMS zprávu okamžitě a systém nyní nabízí
-            3 dny, po které je v podstatě dané časové místo rezervováno a nemůže být přiděleno jiným. Informaci, kterou
+            3 dny (časové okno), po které je dané místo rezervováno a nemůže být přiděleno jiným. Následně přijde
+            upozornění na konec časového okna a poté o jeho konci. Informaci, kterou
             my na webu zobrazujeme, je bez zohlednění těchto skutečností, neboť na ně nemáme data. Dalším faktorem je
             to, že očkovací místa si mohou vybrat, jaké skupiny lidí pustí k výběru očkovacích časů, tj. lidé dle věku,
-            zdravotníky, učitele, vše ale striktně dle věku. Proto informace na tomto webu jsou orientační a bez dalších
+            zdravotníky, učitele, vše ale striktně dle věku. Proto informace na tomto webu jsou orientační,
+            aktualizované jednou denně a bez dalších
             dodatečných informací ze
             strany státu není možné zjistit opravdu "volná" místa.<br/>
-            <b>Pokud do tří dnů nedojde k výběru místa, celá rezervace zaniká.</b>
+            <b>Pokud do tří dnů nedojde k výběru místa, okno zaniká. Zvací SMS přijde nejvýše 3x, pokud vyprší i třetí
+                časové okno, registrace zaniká a je třeba se registrovat znovu.(**)</b>
         </p>
         <p>
             POZOR! pokud dojde k přeregistraci, tak se člověk dostane na čekací listinu daného místa na konec lidí
             stejného věku v dané kategorii a záleží, jak
             často a jak se nastaví závora. Může se tak stát, že se člověk přeregistruje na místo, které deklaruje více
-            volných míst, ale bude na něm ve frontě více zájemců. Proto  také sledujte počty čekajících a jejich úspěšnost.
+            volných míst, ale bude na něm ve frontě více zájemců. Proto také sledujte počty čekajících a jejich
+            úspěšnost.
         </p>
 
         <h3>Zdroje, ze kterých čerpáme data</h3>
@@ -157,6 +163,9 @@
         ČR. Onemocnění aktuálně [online]. Praha: Ministerstvo zdravotnictví ČR, 2020 [cit. 28.02.2021]. Dostupné z:
         <a href="https://onemocneni-aktualne.mzcr.cz/covid-19" target="_blank">https://onemocneni-aktualne.mzcr.cz/covid-19</a>.
         Vývoj: společné pracoviště ÚZIS ČR a IBA LF MU. ISSN 2694-9423.
+        <br/>
+        (**) <a
+            href="https://covid.gov.cz/situace/registrace-na-ockovani/zaregistrovala-jsem-se-na-ockovani-ale-nemam-kam-zadat-pin2-nebo-mi">https://covid.gov.cz/situace/registrace-na-ockovani/zaregistrovala-jsem-se-na-ockovani-ale-nemam-kam-zadat-pin2-nebo-mi</a>
     </div>
 </div>
 
