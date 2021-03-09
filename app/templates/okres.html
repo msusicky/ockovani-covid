@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% import 'macros.html' as macros %}
 
 {% block title %}
 {{ okres.nazev }} |
@@ -6,43 +7,12 @@
 
 {% block body %}
     <div class="row">
-        <h3>Očkovací místa v okrese: {{ okres.nazev }} </h3>
+        <div class="col">
+             <h3>Očkovací místa v okrese: {{ okres.nazev }} </h3>
+        </div>
     </div>
 
-    <div class="row">
-    {% if data %}
-        <table class="table table-bordered table-striped table-sm">
-            <thead  class="thead-dark">
-            <tr>
-                <th scope="col" class="text-center">Název</th>
-                <th scope="col" class="text-center">Okres</th>
-                <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Datum</th>
-                <th scope="col" class="text-center">Volná místa</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for item in data %}
-                <tr>
-                    <td><a href="../misto/{{ item.id }}">{{ item.nazev }}</a></td>
-                    <td>{{ item.okres }}</td>
-                    <td><a href="../kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
-                    <td class="text-right">{{ item.datum.strftime('%a %d. %m. %Y') }}</td>
-                    <td class="text-right">
-                        <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
-                            {{ item.pocet_mist }}
-                        </span>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-warning w-100" role="alert">
-            Pro toto město zatím nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
-        </div>
-    {% endif %}
-    </div>
+    {{ macros.prehled_mist(mista, days) }}
 {% endblock %}
 
 

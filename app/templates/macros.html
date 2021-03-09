@@ -1,0 +1,53 @@
+{% macro prehled_mist(centers, days) -%}
+    <div class="row">
+        <div class="col">
+            {% if centers %}
+            <table class="table table-bordered table-striped table-sm">
+                <thead  class="thead-dark">
+                <tr>
+                    <th scope="col" class="text-center">Název</th>
+                    <th scope="col" class="text-center">Okres</th>
+                    <th scope="col" class="text-center">Kraj</th>
+                    <th scope="col" class="text-center">Počet čekajících</th>
+    <!--                <th scope="col" class="text-center">-->
+    <!--                    Volná místa-->
+    <!--                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"-->
+    <!--                       title="Počet volných míst na následujících {{ days }} dní. Některá očkovací místa ale neumožňují obsadit všechna volná místa!"></i>-->
+    <!--                </th>-->
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in centers %}
+                    <tr>
+                        <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
+                        <td>
+                            {% if request.path.startswith('/okres') %}
+                                {{ item.okres }}
+                            {% else %}
+                                <a href="{{ url_for('view.info_okres', okres_name=item.okres) }}">{{ item.okres }}</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if request.path.startswith('/kraj') %}
+                                {{ item.kraj }}
+                            {% else %}
+                                <a href="{{ url_for('view.info_kraj', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
+                                {{ item.pocet_fronta }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning w-100" role="alert">
+                Zatím nemáme žádná data.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}
