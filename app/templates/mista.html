@@ -17,7 +17,7 @@ Přehled očkovacích míst |
                 <th scope="col" class="text-center">Název</th>
                 <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
-                <th scope="col" class="text-center">Volná&nbsp;místa (příštích&nbsp;{{ days }}&nbsp;dní)</th>
+                <!-- <th scope="col" class="text-center">Volná&nbsp;místa (příštích&nbsp;{{ days }}&nbsp;dní)</th> -->
             </tr>
             </thead>
             <tbody>
@@ -26,11 +26,11 @@ Přehled očkovacích míst |
                     <td><a href="./misto/{{ item.id }}">{{ item.nazev }}</a></td>
                     <td><a href="./okres/{{ item.okres }}">{{ item.okres }}</a></td>
                     <td><a href="./kraj/{{ item.kraj }}">{{ item.kraj }}</a></td>
-                    <td class="text-right">
+                    <!-- <td class="text-right">
                         <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
                             {{ item.pocet_mist }}
                         </span>
-                    </td>
+                    </td> -->
                 </tr>
             {% endfor %}
             </tbody>

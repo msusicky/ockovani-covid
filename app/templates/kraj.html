@@ -18,7 +18,7 @@
                 <th scope="col" class="text-center">Okres</th>
                 <th scope="col" class="text-center">Kraj</th>
                 <th scope="col" class="text-center">Datum</th>
-                <th scope="col" class="text-center">Volná místa</th>
+                <!-- <th scope="col" class="text-center">Volná místa</th> -->
             </tr>
             </thead>
             <tbody>
@@ -28,11 +28,11 @@
                     <td><a href="../okres/{{ item.okres }}">{{ item.okres }}</a></td>
                     <td>{{ item.kraj }}</td>
                     <td class="text-right">{{ item.datum.strftime('%a %d. %m. %Y') }}</td>
-                    <td class="text-right">
+                    <!-- <td class="text-right">
                         <span class="badge badge-pill badge-{{ 'success' if item.pocet_mist > 100 else 'warning' if item.pocet_mist > 0 else 'danger' }}">
                             {{ item.pocet_mist }}
                         </span>
-                    </td>
+                    </td> -->
                 </tr>
             {% endfor %}
             </tbody>
