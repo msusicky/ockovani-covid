@@ -1,16 +1,33 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, case
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide
 
 STATUS_FINISHED = 'FINISHED'
 
 DAYS = 14
 DAYS_MISTO = 30
+
+
+def _mista_rezervace_subquery(self):
+    return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+
+def _mista_last7_subquery(self):
+    return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_ockovanych_tyden")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today() - timedelta(8)) \
+        .filter(OckovaniRezervace.datum < datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
 
 
 @bp.route('/')
@@ -20,15 +37,26 @@ def index():
 
 @bp.route("/mista")
 def info_mista():
+    mista_rezervace_subquery = _mista_rezervace_subquery
+    mista_last7_subquery = _mista_last7_subquery
+
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             Kraj.nazev.label("kraj"),
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_rezervace"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
@@ -41,20 +69,30 @@ def info_okres(okres_name):
     if okres is None:
         abort(404)
 
+    mista_rezervace_subquery = _mista_rezervace_subquery
+    mista_last7_subquery = _mista_last7_subquery
+
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             OckovaciMisto.id,
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_name) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(OckovaciMisto.nazev) \
         .all()
 
-    return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(), days=DAYS)
+    return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -63,20 +101,32 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
+    mista_rezervace_subquery = _mista_rezervace_subquery
+    mista_last7_subquery = _mista_last7_subquery
+
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             OckovaciMisto.id,
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_rezervace"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(), days=DAYS)
+    return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/misto/<misto_id>")
