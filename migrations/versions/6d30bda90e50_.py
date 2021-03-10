@@ -19,7 +19,6 @@ depends_on = None
 def upgrade():
     connection = op.get_bind()
     connection.execute("update ockovani_lide set zarizeni_kod=lpad(zarizeni_kod,11,'0')")
-    pass
 
 
 def downgrade():
