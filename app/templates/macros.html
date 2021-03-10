@@ -51,7 +51,7 @@
                         </td>
                         <td class="text-right">
                             <span class="badge badge-pill">
-                                {{ item.pocet_ockovanych_tyden }}
+                                {{ 'Bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
                             </span>
                         </td>
                     </tr>

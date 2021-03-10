@@ -40,8 +40,8 @@ def info_mista():
                              mista_rezervace_subquery.c.pocet_rezervace_f,
                              mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
-        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
@@ -79,8 +79,8 @@ def info_okres(okres_name):
                              mista_rezervace_subquery.c.pocet_rezervace_f,
                              mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
-        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_name) \
@@ -120,8 +120,8 @@ def info_kraj(kraj_name):
                              mista_rezervace_subquery.c.pocet_rezervace_f,
                              mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .join(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
-        .join(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
