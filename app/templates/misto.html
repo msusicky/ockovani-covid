@@ -53,30 +53,19 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#overview">Počet registrovaných</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link active" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#overview">Počet registrovaných</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="overview">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <div id="trend"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="tab-pane active" id="registration">
                         {% if registrace_info %}
                         <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
@@ -189,6 +178,21 @@
                         {% endif %}
                         <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké zpoždění a nepřesnosti!</b></i>
                     </div>
+                    <div class="tab-pane" id="overview">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h3 class="card-title">Počet registrovaných za posledních 14 dní</h3>
+                                        <p class="card-text">Tahle data se vzala z nebe a komu se to nelibi at si .... polibi.</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="trend"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -220,7 +224,8 @@
         x: [{% for item in registrace_overview %}'{{ item.datum }}',{% endfor %}],
         y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
         mode: 'lines+markers',
-        type: 'scatter'
+        type: 'scatter',
+        name: 'Počet registrovaných',
     };
 
     var layout = {
@@ -235,9 +240,11 @@
         },
         yaxis: {
             title: 'Počet registrovaných [osoba]',
-            automargin: true
+            automargin: true,
+            rangemode: "tozero",
         },
         title: 'Počet registrovaných za posledních 14 dní',
+        showlegend: true
     }
 
     var data = [registrace];
@@ -246,7 +253,16 @@
         responsive: true
     }
 
-    Plotly.newPlot('trend', data, layout, config);
+    {#Fix autosizing when tab turns to be active#}
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+
+        var target = $(e.target).attr("href") // activated tab
+        if(target==="#overview")
+        {
+            //call the corresponding function which generates that plot
+            Plotly.newPlot('trend', data, layout, config);
+        }
+    });
 </script>
 {% endblock %}
 
