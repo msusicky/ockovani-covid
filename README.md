@@ -18,6 +18,11 @@ Web: https://ockovani.opendatalab.cz
 * https://denikn.cz/569269/kde-maji-volna-mista-programatori-po-nocich-vymysleli-aplikaci-ktera-muze-zkratit-cekani-na-vakcinu
 * https://www.zive.cz/clanky/kdyz-to-neudelal-stat-poradili-si-programatori-sami-vytvorili-aplikaci-s-prehledem-volnych-mist-pro-ockovani/sc-3-a-208719/default.aspx
 * https://domaci.ihned.cz/c1-66889710-programator-rozjel-web-ktery-ukaze-kde-je-volno-na-ockovani-ve-skladech-lezi-250-tisic-davek-vakcin-rika
+* https://forbes.cz/kde-se-nechat-naockovat-platforma-z-cvut-ukazuje-dostupne-ockovaci-kapacity/
+* https://www.echo24.cz/a/Sqbj5/kde-je-volna-vakcina-web-ukazuje-stav-na-ockovacich-mistech
+* https://zpravy.aktualne.cz/domaci/mladici-marne-hledali-ockovaci-termin-pro-prarodice-vytvoril/r~c7975d9c802511eb9cafac1f6b220ee8/
+* https://prazsky.denik.cz/zpravy_region/ockovani-termin-vakcina-senior-covid-nemocnice-poradi.html
+* https://www.ceskenoviny.cz/zpravy/2007015
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
