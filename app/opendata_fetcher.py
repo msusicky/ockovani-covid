@@ -37,16 +37,16 @@ class OpenDataFetcher:
             self._fetch_vaccinated()
             self._fetch_registrations()
             self._fetch_reservations()
+
+            # delete older data delivery from the same day
+            db.session.query(Import).filter(Import.date == date.today()).delete()
+
         except Exception as e:
             app.logger.error(e)
             self._import.status = 'FAILED'
             self._import.end = datetime.now()
             db.session.commit()
             return False
-
-        prev_import = db.session.query(Import).filter(Import.date == date.today()).one_or_none()
-        if prev_import is not None:
-            db.session.delete(prev_import)
 
         self._import.status = 'FINISHED'
         self._import.end = datetime.now()
