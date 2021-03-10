@@ -1,11 +1,12 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, case, subquery
+from sqlalchemy.sql import Alias
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide
 
 STATUS_FINISHED = 'FINISHED'
 
@@ -20,15 +21,33 @@ def index():
 
 @bp.route("/mista")
 def info_mista():
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
+
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             Kraj.nazev.label("kraj"),
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
@@ -41,20 +60,39 @@ def info_okres(okres_name):
     if okres is None:
         abort(404)
 
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
+
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             OckovaciMisto.id,
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_name) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(OckovaciMisto.nazev) \
         .all()
 
-    return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(), days=DAYS)
+    return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -63,20 +101,39 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
+
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label("pocet_fronta")) \
+                             OckovaciMisto.id,
+                             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
+                                           else_=0)).label("pocet_fronta"),
+                             mista_rezervace_subquery.c.pocet_rezervace_f,
+                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
+        .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
-        .filter(OckovaniRegistrace.rezervace == False) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id) \
+        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaciMisto.id,
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(), days=DAYS)
+    return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(),
+                           days=DAYS)
 
 
 @bp.route("/misto/<misto_id>")
@@ -85,48 +142,25 @@ def info_misto(misto_id):
     if misto is None:
         abort(404)
 
-    nactene_informace = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
-                                         OckovaniRezervace.datum, OckovaciMisto.id, OckovaciMisto.adresa,
-                                         OckovaciMisto.latitude, OckovaciMisto.longitude,
-                                         OckovaciMisto.bezbarierovy_pristup,
-                                         func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
-        .join(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMisto.id == misto.id) \
-        .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + timedelta(DAYS_MISTO)) \
-        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
-        .filter(OckovaciMisto.status == True) \
-        .group_by(Okres.id, Kraj.id, OckovaciMisto.nazev, OckovaniRezervace.datum, OckovaciMisto.id,
-                  OckovaciMisto.adresa, OckovaciMisto.latitude, OckovaciMisto.longitude,
-                  OckovaciMisto.bezbarierovy_pristup) \
-        .order_by(OckovaniRezervace.datum) \
-        .all()
-
-    registrace_info = db.session.query(OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani,
-                                       func.sum(OckovaniRegistrace.pocet).label("pocet_mist")).filter(
-        OckovaniRegistrace.ockovaci_misto_id == misto.id).filter(
-        OckovaniRegistrace.rezervace == False).filter(
-        OckovaniRegistrace.import_id == _last_import_id()).group_by(OckovaniRegistrace.vekova_skupina,
-                                                                    OckovaniRegistrace.povolani).order_by(
-        OckovaniRegistrace.vekova_skupina, OckovaniRegistrace.povolani) \
-        .all()
-
-    metriky_info = db.session.query("vekova_skupina", "povolani", "pomer", "rezervace_nove",
-                                    "rezervace_celkem", ).from_statement(text(
+    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove",
+                                       "rezervace_celkem").from_statement(text(
         """
-        select vekova_skupina, povolani, 
-	    round((sum(case when rezervace=true then pocet else 0 end)*100.0 /
-	    NULLIF(sum(pocet), 0))::numeric, 0) as pomer,
-	    sum(case when rezervace=true then pocet else 0 end) as rezervace_nove,
-	    NULLIF(sum(pocet), 0) as rezervace_celkem
-	    from ockovani_registrace where datum>now()-'7 days'::interval 
-	    and ockovaci_misto_id=:misto_id and import_id=:import_id
-	    group by vekova_skupina, povolani order by vekova_skupina, povolani
+        select t1.vekova_skupina, t1.povolani, fronta_pocet, round((rezervace_nove*100.0)/rezervace_celkem) pomer, rezervace_nove, rezervace_celkem
+        from (
+            select vekova_skupina, povolani, sum(pocet) fronta_pocet 
+            from ockovani_registrace 
+            where rezervace=False and ockovaci_misto_id=:misto_id and import_id=:import_id
+            group by vekova_skupina, povolani) t1
+        left join (
+            select vekova_skupina, povolani, sum(case when rezervace=true then pocet else 0 end) as rezervace_nove, NULLIF(sum(pocet), 0) as rezervace_celkem
+            from ockovani_registrace
+            where datum>now()-'7 days'::interval and ockovaci_misto_id=:misto_id and import_id=:import_id
+            group by vekova_skupina, povolani
+        ) t2 on (t1.vekova_skupina = t2.vekova_skupina and t1.povolani = t2.povolani) order by (t1.vekova_skupina, t1.povolani)   
         """
-    )).params(misto_id=misto_id).params(import_id=_last_import_id()).all()
+    )).params(misto_id=misto_id) \
+        .params(import_id=_last_import_id()) \
+        .all()
 
     ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
         """
@@ -160,8 +194,8 @@ def info_misto(misto_id):
         OckovaniRegistrace.datum
     ).all()
 
-    return render_template('misto.html', data=nactene_informace, misto=misto, total=total,
-                           registrace_info=registrace_info, metriky_info=metriky_info,
+    return render_template('misto.html', misto=misto, total=total,
+                           registrace_info=registrace_info,
                            last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview)
 
 
@@ -169,61 +203,62 @@ def _compute_vaccination_stats(ampule_info):
     # Compute  statistics
     total = {
         'Pfizer': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         },
         'Moderna': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         },
         'AstraZeneca': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0}
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         }
     }
 
     for item in ampule_info:
         operation = item[1]
         if operation in ('Příjem', 'Příjem odjinud'):
-            total[item[0]]['Přijato']['davky'] += item[2]
+            total[item[0]]['Přijato'] += item[2]
+            total[item[0]]['Skladem'] += item[2]
         elif operation == 'Výdej':
-            total[item[0]]['Vydáno']['davky'] += item[2]
+            total[item[0]]['Vydáno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
         elif operation == 'Očkováno':
-            total[item[0]]['Očkováno']['davky'] += item[2]
+            total[item[0]]['Očkováno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
         elif operation == 'Zničeno':
-            total[item[0]]['Zničeno']['davky'] += item[2]
+            total[item[0]]['Zničeno'] += item[2]
+            total[item[0]]['Skladem'] -= item[2]
 
     total = _compute_vaccination_total(total)
 
     return total
 
 
-def _compute_vaccination_doses(total, type, doses):
-    for operation in total[type].keys():
-        total[type][operation]['davky'] = total[type][operation]['ampule'] * doses
-    return total
-
-
 def _compute_vaccination_total(total):
     total_all = {
         'all': {
-            'Přijato': {'davky': 0},
-            'Vydáno': {'davky': 0},
-            'Očkováno': {'davky': 0},
-            'Zničeno': {'davky': 0},
+            'Přijato': 0,
+            'Vydáno': 0,
+            'Očkováno': 0,
+            'Zničeno': 0,
+            'Skladem': 0,
         }
     }
 
     for type in total.keys():
         for operation in total[type].keys():
-            for dose in total[type][operation].keys():
-                total_all['all'][operation][dose] += total[type][operation][dose]
+            total_all['all'][operation] += total[type][operation]
 
     total.update(total_all)
 
