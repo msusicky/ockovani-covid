@@ -14,23 +14,6 @@ DAYS = 14
 DAYS_MISTO = 30
 
 
-def _mista_rezervace_subquery() -> Alias:
-    return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
-        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
-        .filter(OckovaniRezervace.datum > datetime.today()) \
-        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
-
-
-def _mista_last7_subquery() -> Alias:
-    return db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
-        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_ockovanych_tyden")) \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
-        .filter(OckovaniRezervace.datum > datetime.today() - timedelta(8)) \
-        .filter(OckovaniRezervace.datum < datetime.today()) \
-        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
-
-
 @bp.route('/')
 def index():
     return render_template('index.html', last_update=_last_import_modified(), now=_now())
@@ -38,8 +21,17 @@ def index():
 
 @bp.route("/mista")
 def info_mista():
-    mista_rezervace_subquery = _mista_rezervace_subquery()
-    mista_last7_subquery = _mista_last7_subquery()
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
 
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"),
@@ -70,8 +62,17 @@ def info_okres(okres_name):
     if okres is None:
         abort(404)
 
-    mista_rezervace_subquery = _mista_rezervace_subquery()
-    mista_last7_subquery = _mista_last7_subquery()
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
 
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                              OckovaciMisto.id,
@@ -102,8 +103,17 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
-    mista_rezervace_subquery = _mista_rezervace_subquery()
-    mista_last7_subquery = _mista_last7_subquery()
+    mista_rezervace_subquery = db.session.query(OckovaniRezervace.ockovaci_misto_id, func.sum(
+        OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label("pocet_rezervace_f")) \
+        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+        .filter(OckovaniRezervace.datum > datetime.today()) \
+        .group_by(OckovaniRezervace.ockovaci_misto_id).subquery()
+
+    mista_last7_subquery = db.session.query(OckovaciMisto.id.label("ockovaci_misto_id"),
+                                            func.sum(OckovaniLide.pocet).label("pocet_ockovanych_tyden")) \
+        .join(OckovaciMisto, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        .filter(OckovaniLide.datum > datetime.today() - timedelta(8)) \
+        .group_by(OckovaciMisto.id).subquery()
 
     mista = db.session.query(Okres.nazev.label("okres"), Kraj.nazev.label("kraj"), OckovaciMisto.nazev,
                              OckovaciMisto.id,
