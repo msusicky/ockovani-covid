@@ -2,8 +2,7 @@
     padding-top: 4rem;
 }
 
-.td-ellipsis {
-    max-width: 0;
+.ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
