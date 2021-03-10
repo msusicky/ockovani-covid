@@ -8,7 +8,12 @@
                     <th scope="col" class="text-center">Název</th>
                     <th scope="col" class="text-center">Okres</th>
                     <th scope="col" class="text-center">Kraj</th>
-                    <th scope="col" class="text-center">Počet čekajících</th>
+                    <th scope="col" class="text-center">Ve frontě <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                                       title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu). <br />Zelená (0-500), žlutá (500-5000), červená nad 5000 )" /></th>
+                    <th scope="col" class="text-center">S termínem <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                                       title="Počet lidí s vybraným termínem na daném místě od zítřka. <br />" /></th>
+                    <th scope="col" class="text-center">Očkovaných za 7 dní <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                                       title="Počet podaných dávek za posledních 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku." /></th>
     <!--                <th scope="col" class="text-center">-->
     <!--                    Volná místa-->
     <!--                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"-->
@@ -37,6 +42,16 @@
                         <td class="text-right">
                             <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
                                 {{ item.pocet_fronta }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <span class="badge badge-pill">
+                                {{ item.pocet_rezervace_f }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <span class="badge badge-pill">
+                                {{ item.pocet_ockovanych_tyden }}
                             </span>
                         </td>
                     </tr>
