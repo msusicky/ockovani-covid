@@ -295,15 +295,15 @@ def statistiky():
 
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
-        select TO_CHAR(datum, 'dd.mm.yyyy') as datum, sum(pocet) from ockovani_lide 
-        group by TO_CHAR(datum, 'dd.mm.yyyy') order by sum(pocet) desc limit 5
+        select datum, sum(pocet) from ockovani_lide 
+        group by datum order by sum(pocet) desc limit 5
         """
     )).all()
 
     top5_vaccination_place_day = db.session.query("datum", "zarizeni_nazev", "sum").from_statement(text(
         """
-        select TO_CHAR(datum, 'dd.mm.yyyy') as datum, zarizeni_nazev, sum(pocet) from ockovani_lide 
-        group by TO_CHAR(datum, 'dd.mm.yyyy'), zarizeni_nazev order by sum(pocet) desc limit 5;
+        select datum, zarizeni_nazev, sum(pocet) from ockovani_lide 
+        group by datum, zarizeni_nazev order by sum(pocet) desc limit 5;
         """
     )).all()
 
@@ -319,10 +319,16 @@ def statistiky():
     delka_dny = (cr_to_vacc - vaccination_stats[0].celkem) * 2 / top5_vaccination_day[0].sum
     end_date = date.today() + timedelta(days=delka_dny)
 
-    vaccination_age = db.session.query("vekova_skupina", "sum", "sum_2").from_statement(text(
+    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2").from_statement(text(
         """
-        select vekova_skupina, sum(pocet), sum(case when poradi_davky=2 then pocet else 0 end) sum_2 from ockovani_lide 
-        group by vekova_skupina order by vekova_skupina;
+        select vekova_skupina, (sum_1 - sum_2) sum_1, sum_2 
+        from (
+            select vekova_skupina, 
+                sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
+                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
+            from ockovani_lide
+            group by vekova_skupina order by vekova_skupina
+        ) t1
         """
     )).all()
 
