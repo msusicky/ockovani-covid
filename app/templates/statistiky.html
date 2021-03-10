@@ -23,7 +23,7 @@ Statistiky |
         <h5>Nedovolené zjednodušení</h5>
         <p>
             Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme
-            (60% dospělé populace, 2 dávky) <b>{{ end_date | format_date }}</b>.
+            (60% dospělé populace, 2 dávky) <strong>{{ end_date | format_date }}</strong>.
             Nicméně mnoho očkovacích center bude ještě vybudováno a dodávky vakcín se výrazně zvýší.
         </p>
         {% endif %}
@@ -37,13 +37,33 @@ Statistiky |
             <thead class="thead-dark">
             <tr>
                 <th scope="col" class="text-center">Vakcína</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset distribuce, akce příjem">Přišlo</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset očkovaní">Vyočkováno</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Data o očkování přichází zpožděně">Rozdíl - přibližně k dispozici</th>
+                <th scope="col" class="text-center">
+                    Přijato
+                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                       title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
+                    </i>
+                </th>
+                <th scope="col" class="text-center">
+                    Očkováno
+                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                       title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
+                    </i>
+                </th>
+                <th scope="col" class="text-center">
+                    Skladem
+                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                       title="Odhadovaný počet skladem. Data o očkování přicházejí zpožděně!">
+                    </i>
+                </th>
             </tr>
             </thead>
             <tbody>
+            {% set ns=namespace(prijem = 0, spotreba = 0, rozdil = 0)  %}
+
             {% for item in vacc_storage %}
+            {% set ns.prijem += item.prijem %}
+            {% set ns.spotreba += item.spotreba %}
+            {% set ns.rozdil += item.rozdil %}
             <tr>
                 <td>{{ item.vyrobce }}</td>
                 <td class="text-right">{{ item.prijem | format_number }}</td>
@@ -52,6 +72,14 @@ Statistiky |
             </tr>
             {% endfor %}
             </tbody>
+            <tfoot>
+            <tr>
+                <td></td>
+                <td class="text-right">{{ prijem | format_number }}</td>
+                <td class="text-right">{{ spotreba | format_number }}</td>
+                <td class="text-right">{{ rozdil | format_number }}</td>
+            </tr>
+            </tfoot>
         </table>
         {% else %}
         <div class="alert alert-warning w-100" role="alert">

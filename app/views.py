@@ -284,7 +284,7 @@ def statistiky():
     vacc_storage = db.session.query("vyrobce", "prijem", "spotreba", "rozdil").from_statement(text(
         """
         select spotrebovane.vyrobce, prijem, spotreba, prijem-spotreba as rozdil  from (
-        select vyrobce, sum(CASE WHEN vyrobce='Pfizer' then 6*pocet_ampulek ELSE 10*pocet_ampulek end) as prijem 
+        select vyrobce, sum(pocet_davek) as prijem 
             from ockovani_distribuce where akce='Příjem' group by vyrobce) as prijate
             JOIN (        
         select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna'
