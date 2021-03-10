@@ -37,8 +37,6 @@ def info_mista():
                              Kraj.nazev.label("kraj"),
                              func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
                                            else_=0)).label("pocet_fronta"),
-                             func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), ],
-                                           else_=0)).label("pocet_rezervace"),
                              mista_rezervace_subquery.c.pocet_rezervace_f,
                              mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
@@ -119,8 +117,6 @@ def info_kraj(kraj_name):
                              OckovaciMisto.id,
                              func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
                                            else_=0)).label("pocet_fronta"),
-                             func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), ],
-                                           else_=0)).label("pocet_rezervace"),
                              mista_rezervace_subquery.c.pocet_rezervace_f,
                              mista_last7_subquery.c.pocet_ockovanych_tyden) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
