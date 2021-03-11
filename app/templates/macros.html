@@ -41,17 +41,17 @@
                         </td>
                         <td class="text-right">
                             <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
-                                {{ item.pocet_fronta }}
+                                {{ 'bez dat' if item.pocet_fronta == None else item.pocet_fronta }}
                             </span>
                         </td>
                         <td class="text-right">
                             <span class="badge badge-pill">
-                                {{ item.pocet_rezervace_f }}
+                                {{ 'bez dat' if item.pocet_rezervace_f == None else item.pocet_rezervace_f }}
                             </span>
                         </td>
                         <td class="text-right">
                             <span class="badge badge-pill">
-                                {{ 'Bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
+                                {{ 'bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
                             </span>
                         </td>
                     </tr>

@@ -26,10 +26,6 @@ class OpenDataFetcher:
         self._check_dates = check_dates
 
     def fetch_all(self):
-        prev_import = db.session.query(Import).filter(Import.date == date.today()).one_or_none()
-        if prev_import is not None:
-            db.session.delete(prev_import)
-
         self._import = Import(status='RUNNING')
         db.session.add(self._import)
         db.session.commit()
@@ -41,6 +37,10 @@ class OpenDataFetcher:
             self._fetch_vaccinated()
             self._fetch_registrations()
             self._fetch_reservations()
+
+            # delete older data delivery from the same day
+            db.session.query(Import).filter(Import.date == date.today()).delete()
+
         except Exception as e:
             app.logger.error(e)
             self._import.status = 'FAILED'
@@ -189,7 +189,7 @@ class OpenDataFetcher:
                 vakcina=row[1],
                 kraj_nuts_kod=row[2],
                 kraj_nazev=row[3],
-                zarizeni_kod=row[4],
+                zarizeni_kod=format(row[4], '011d'),
                 zarizeni_nazev=row[5],
                 poradi_davky=row[6],
                 vekova_skupina=row[7],
