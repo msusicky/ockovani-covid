@@ -189,7 +189,7 @@ class OpenDataFetcher:
                 vakcina=row[1],
                 kraj_nuts_kod=row[2],
                 kraj_nazev=row[3],
-                zarizeni_kod=row[4],
+                zarizeni_kod=format(row[4], '011d'),
                 zarizeni_nazev=row[5],
                 poradi_davky=row[6],
                 vekova_skupina=row[7],
