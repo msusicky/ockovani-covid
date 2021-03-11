@@ -98,15 +98,29 @@ class OckovaciMistoMetriky(db.Model):
 
     id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
-    typ_metriky = Column(Unicode, primary_key=True)
-    hodnota_int = Column(Integer)
-    hodnota_str = Column(Unicode)
+    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci
+    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci - zmena za den
+    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani
+    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani - zmena za den
+    registrace_celkem = Column(Integer)                     # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)           # pocet vsech registraci - zmena za den
+    registrace_fronta = Column(Integer)                     # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)           # pocet registraci bez rezervace - zmena za den
+    registrace_tydenni_uspesnost = Column(Float)            # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)  # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_prumerne_cekani = Column(Float)              # prumerna doba cekani na rezervaci za poslednich 7 dni
+    registrace_prumerne_cekani_zmena_den = Column(Float)    # prumerna doba cekani na rezervaci za poslednich 7 dni - zmena za den
+    ockovani_pocet = Column(Integer)                        # pocet ockovanych
+    ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
+    ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden
 
     misto = relationship("OckovaciMisto", back_populates="metriky")
 
     def __repr__(self):
-        return "<OckovaciMistoMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
-            self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
+        return "<OckovaciMistoMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
 
 
 OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
