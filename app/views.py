@@ -307,30 +307,55 @@ def statistiky():
         """
     )).all()
 
-    vaccination_stats = db.session.query("celkem", "prvni", "druha").from_statement(text(
+    vaccination_stats = db.session.query("sum", "sum_1", "sum_2", "fronta", "termin").from_statement(text(
         """
-        select sum(pocet) celkem, sum(case when poradi_davky=1 then pocet else 0 end) prvni,
-        sum(case when poradi_davky='2' then pocet else 0 end) druha from ockovani_lide
+        select sum, (sum_1 - sum_2) sum_1, sum_2, fronta, termin
+        from (
+            select sum(pocet) sum, 
+                sum(case when poradi_davky=1 then pocet else 0 end) sum_1,
+                sum(case when poradi_davky='2' then pocet else 0 end) sum_2 
+            from ockovani_lide
+        ) t1
+        cross join (
+            select sum(pocet) fronta 
+            from ockovani_registrace 
+            where rezervace=False and import_id=:import_id
+        ) t2 
+        cross join (
+            select sum(maximalni_kapacita - volna_kapacita) termin 
+            from ockovani_rezervace 
+            where datum >= current_date and import_id=:import_id
+        ) t3
         """
-    )).all()
+    )).params(import_id=_last_import_id()) \
+        .all()
+
     cr_people = 8670000
     cr_factor = 0.6
     cr_to_vacc = cr_people * cr_factor
-    delka_dny = (cr_to_vacc - vaccination_stats[0].celkem) * 2 / top5_vaccination_day[0].sum
+    delka_dny = (cr_to_vacc - vaccination_stats[0].sum) * 2 / top5_vaccination_day[0].sum
     end_date = date.today() + timedelta(days=delka_dny)
 
-    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2").from_statement(text(
+    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
         """
-        select vekova_skupina, (sum_1 - sum_2) sum_1, sum_2 
+        select t1.vekova_skupina, coalesce(sum_1 - sum_2, 0) sum_1, coalesce(sum_2, 0) sum_2, coalesce(fronta, 0) fronta
         from (
-            select vekova_skupina, 
+            select replace(vekova_skupina, 'nezařazeno', 'neuvedeno') vekova_skupina, 
                 sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
                 sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
             from ockovani_lide
-            group by vekova_skupina order by vekova_skupina
+            group by vekova_skupina 
         ) t1
+        full join (
+            select vekova_skupina, sum(pocet) fronta 
+            from ockovani_registrace 
+            where rezervace=False and import_id=:import_id
+            group by vekova_skupina
+        ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
+        order by t1.vekova_skupina
         """
-    )).all()
+    )).params(import_id=_last_import_id()) \
+        .all()
 
     # .params(misto_id=misto_id)
 
