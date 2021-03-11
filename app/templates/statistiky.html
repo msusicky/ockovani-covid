@@ -15,15 +15,16 @@ Statistiky |
     <div class="col text-justify">
         {% if vac_stats %}
         <p>
-            K datu poslední aktualizace, tj. {{ last_update }}, bylo celkem naočkováno
-            {{ vac_stats[0].druha | format_number }} lidí a bylo podáno {{ vac_stats[0].celkem | format_number }} dávek.
-            Pro rozočkované tedy potřebujeme přibližně {{ (vac_stats[0].celkem-2*vac_stats[0].druha) | format_number }}
-            dávek.
+            K datu poslední aktualizace ({{ last_update }}), bylo celkem naočkováno
+            <strong>{{ vac_stats[0].druha | format_number }}</strong> lidí a bylo podáno
+            <strong>{{ vac_stats[0].celkem | format_number }}</strong> dávek.
+            Pro rozočkované tedy potřebujeme přibližně
+            <strong>{{ (vac_stats[0].celkem-2*vac_stats[0].druha) | format_number }}</strong> dávek.
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>
             Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme
-            (60% dospělé populace, 2 dávky) <b>{{ end_date | format_date }}</b>.
+            (60% dospělé populace, 2 dávky) <strong>{{ end_date | format_date }}</strong>.
             Nicméně mnoho očkovacích center bude ještě vybudováno a dodávky vakcín se výrazně zvýší.
         </p>
         {% endif %}
@@ -36,14 +37,33 @@ Statistiky |
         <table class="table table-bordered table-striped table-sm">
             <thead class="thead-dark">
             <tr>
-                <th scope="col" class="text-center">Vakcína</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset distribuce, akce příjem">Přišlo</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset očkovaní">Vyočkováno</th>
-                <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Data o očkování přichází zpožděně">Rozdíl - přibližně k dispozici</th>
+                <th scope="col" class="col-3 text-center">Vakcína</th>
+                <th scope="col" class="col-3 text-center">
+                    Přijato
+                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                       title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
+                    </i>
+                </th>
+                <th scope="col" class="col-3 text-center">
+                    Očkováno
+                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                       title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
+                    </i>
+                </th>
+                <th scope="col" class="col-3 text-center">
+                    Skladem
+                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                       title="Přibližný počet skladem. Data o očkování přicházejí zpožděně!">
+                    </i>
+                </th>
             </tr>
             </thead>
             <tbody>
+            {% set sum=namespace(prijem = 0, spotreba = 0, rozdil = 0) %}
             {% for item in vacc_storage %}
+            {% set sum.prijem = sum.prijem + item.prijem %}
+            {% set sum.spotreba = sum.spotreba + item.spotreba %}
+            {% set sum.rozdil = sum.rozdil + item.rozdil %}
             <tr>
                 <td>{{ item.vyrobce }}</td>
                 <td class="text-right">{{ item.prijem | format_number }}</td>
@@ -52,6 +72,14 @@ Statistiky |
             </tr>
             {% endfor %}
             </tbody>
+            <tfoot class="font-weight-bold">
+            <tr>
+                <td>Celkem</td>
+                <td class="text-right">{{ sum.prijem | format_number }}</td>
+                <td class="text-right">{{ sum.spotreba | format_number }}</td>
+                <td class="text-right">{{ sum.rozdil | format_number }}</td>
+            </tr>
+            </tfoot>
         </table>
         {% else %}
         <div class="alert alert-warning w-100" role="alert">
@@ -69,14 +97,14 @@ Statistiky |
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
                     <tr>
-                        <th scope="col" class="text-center">Datum</th>
-                        <th scope="col" class="text-center">Celkem</th>
+                        <th scope="col" class="col-6 text-center">Datum</th>
+                        <th scope="col" class="col-6 text-center">Očkováno</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for item in top5 %}
                     <tr>
-                        <td>{{ item.datum }}</td>
+                        <td class="text-right">{{ item.datum | format_date_wd }}</td>
                         <td class="text-right">{{ item.sum | format_number }}</td>
                     </tr>
                     {% endfor %}
@@ -87,26 +115,27 @@ Statistiky |
                     Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
                 </div>
                 {% endif %}
+                <p class="card-text font-italic">5 dní s největším počtem očkovaných.</p>
             </div>
         </div>
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Nejvýkonnější místo</h5>
                 {% if top5_place %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
                     <tr>
-                        <th scope="col" class="text-center">Datum</th>
                         <th scope="col" class="text-center">Místo</th>
-                        <th scope="col" class="text-center">Celkem</th>
+                        <th scope="col" class="text-center">Očkováno</th>
+                        <th scope="col" class="text-center">Datum</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for item in top5_place %}
                     <tr>
-                        <td>{{ item.datum }}</td>
                         <td>{{ item.zarizeni_nazev }}</td>
                         <td class="text-right">{{ item.sum | format_number }}</td>
+                        <td class="text-right">{{ item.datum | format_date_wd }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -116,39 +145,58 @@ Statistiky |
                     Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
                 </div>
                 {% endif %}
-                <p class="card-text">5 míst s největším počtem očkovaných za den.</p>
+                <p class="card-text font-italic">5 míst s největším počtem očkovaných za den.</p>
             </div>
         </div>
     </div>
     <div class="col-sm-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Obdržených dávek</h5>
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
                 {% if vac_age %}
                 <table class="table table-bordered table-striped table-sm">
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col" class="text-center">Věková skupina</th>
-                        <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, zahrnuti jsou i již naočkovaní.">Dávek</th>
-                        <th scope="col" class="text-center" data-toggle="tooltip" data-placement="bottom" title="Dataset očkování, ti, co dostali 2 dávky.">Očkovaných</th>
+                        <th scope="col" class="text-center">
+                            1 dávka
+                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                               title="Počet očkovaných jednou dávkou. Podle datasetu vykázaných očkování.">
+                            </i>
+                        </th>
+                        <th scope="col" class="text-center">
+                            2 dávky
+                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                               title="Počet očkovaných oběma dávkami. Podle datasetu vykázaných očkování.">
+                            </i>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
+                    {% set sum=namespace(sum = 0, sum_1 = 0, sum_2 = 0) %}
                     {% for item in vac_age %}
+                    {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
+                    {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
                     <tr>
                         <td>{{ item.vekova_skupina }}</td>
-                        <td class="text-right">{{ item.sum | format_number }}</td>
+                        <td class="text-right">{{ item.sum_1 | format_number }}</td>
                         <td class="text-right">{{ item.sum_2 | format_number }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
+                    <tfoot class="font-weight-bold">
+                    <tr>
+                        <td>Celkem</td>
+                        <td class="text-right">{{ sum.sum_1 | format_number }}</td>
+                        <td class="text-right">{{ sum.sum_2 | format_number }}</td>
+                    </tr>
+                    </tfoot>
                 </table>
                 {% else %}
                 <div class="alert alert-warning w-100" role="alert">
                     Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
                 </div>
                 {% endif %}
-                <p class="card-text"><i>Očkovaní dostali obě dávky.</i></p>
             </div>
         </div>
     </div>
