@@ -1,9 +1,5 @@
 #!/bin/bash
-wget -r http://127.0.0.1:5000/
-find ./127.0.0.1:5000/ -type f -print0 | xargs -0 -I{} mv "{}" "{}".html
-mv ./127.0.0.1:5000/index.html.html ./127.0.0.1:5000/index.html
-mv ./127.0.0.1:5000/static/styles/style.css.html ./127.0.0.1:5000/static/styles/style.css
-
+wget -r --adjust-extension http://127.0.0.1:5000/
 cp -r 127.0.0.1:5000/* /home/ockovani/prd/web/ockovani-covid-pages/
 rm -r 127.0.0.1:5000
 cd /home/ockovani/prd/web/ockovani-covid-pages
