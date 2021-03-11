@@ -199,10 +199,14 @@ def info_misto(misto_id):
         .group_by(OckovaniRegistrace.datum_rezervace) \
         .order_by(OckovaniRegistrace.datum_rezervace).all()
 
+    # Compute boundary dates for rangeslider in time series chart
+    dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
+
     return render_template('misto.html', misto=misto, total=total,
                            registrace_info=registrace_info,
                            last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview,
-                           registrace_overview_terminy=registrace_overview_terminy)
+                           registrace_overview_terminy=registrace_overview_terminy,
+                           end_date=max(dates), start_date=min(dates))
 
 
 def _compute_vaccination_stats(ampule_info):

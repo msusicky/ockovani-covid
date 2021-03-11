@@ -196,12 +196,12 @@
                                             termín očkování.</p>
                                         <p class="card-text">Nové rezervace - počet lidí, kteří ten den získali termín očkování.</p>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body text-center">
                                         <div id="trend"></div>
+                                        <p id="card-text" style="color: dimgrey;"><i>Dvojklikem v grafu vracíte přiblížení zpět.</i></p>
                                     </div>
                                     <div class="card-body">
                                         <p class="card-text">
-                                        Dvojklikem v grafu vracíte přiblížení zpět.
                                         <ul>
                                             <li/>
                                             <i>1. 3. 2021 došlo k otevření registrací pro starší 70 let</i>
@@ -245,37 +245,69 @@
 <!-- Script creating graph -->
 <script>
     var registrace = {
-        x: [{% for item in registrace_overview %}'{{ item.datum }}',{% endfor %}],
+        x: [{% for item in registrace_overview %}"{{ item.datum }}",{% endfor %}],
         y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: 'Nově registrovaných',
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Nově registrovaných",
     };
 
     var rezervace = {
-        x: [{% for item in registrace_overview_terminy %}'{{ item.datum_rezervace }}',{% endfor %}],
+        x: [{% for item in registrace_overview_terminy %}"{{ item.datum_rezervace }}",{% endfor %}],
         y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: 'Počet nových rezervací (PIN2)',
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Počet nových rezervací (PIN2)",
     };
 
     var layout = {
         autosize: true,
         xaxis: {
-            title: 'Datum [den]',
-            type: 'date',
-            tickformat: '%-d.%-m.%Y',
+            title: "Datum [den]",
+            type: "date",
+            tickformat: "%-d.%-m.%Y",
             autorange: true,
             dtick: 86400000, {#This number says that tick difference is one day#}
-            automargin: true
+            automargin: true,
+            rangeslider: {
+                range: ["{{ start_date }}", "{{ end_date }}"]
+            },
+            rangeselector: {
+                buttons: [
+                    {
+                        count: 14,
+                        label: "14 dní",
+                        step: "day",
+                        stepmode: "backward"
+                    },
+                    {
+                        count: 1,
+                        label: "1 měsíc",
+                        step: "month",
+                        stepmode: "backward"
+                    },
+                    {
+                        label: "všechna data",
+                        step: "all"
+                    }
+                ],
+                xanchor: "center",
+                x: 0.5,
+            }
         },
         yaxis: {
-            title: 'Počet osob',
-            automargin: true,
-            rangemode: "tozero",
+            title: "Počet osob",
+            automargin: true
         },
-        showlegend: true
+        showlegend: true,
+        legend: {
+            orientation: "h",
+            xanchor: "center",
+            x: 0.5,
+            yanchor: "top",
+            y: -0.6,
+        },
+        height: 700,
     }
 
     var data = [registrace, rezervace];
@@ -285,13 +317,13 @@
     }
 
     {#Fix autosizing when tab turns to be active#}
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         var target = $(e.target).attr("href") // activated tab
         if(target==="#overview")
         {
             //call the corresponding function which generates that plot
-            Plotly.newPlot('trend', data, layout, config);
+            Plotly.newPlot("trend", data, layout, config);
         }
     });
 
