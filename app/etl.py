@@ -1,9 +1,10 @@
-from datetime import date, timedelta
+from datetime import timedelta, date
 
-from sqlalchemy import func, case, text
+from sqlalchemy import func, case, text, or_, and_
 
-from app import db, app
-from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace
+from app import db, app, queries
+from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniRezervace, Import, OckovaniLide, \
+    OckovaniDistribuce
 
 
 class Etl:
@@ -20,7 +21,10 @@ class Etl:
     def compute_vaccination_centers(self):
         try:
             self._compute_vaccination_centers_registrations()
+            self._compute_vaccination_centers_reservations()
 
+            self._compute_vaccination_centers_vaccinated()
+            self._compute_vaccination_centers_distributed()
             self._compute_vaccination_centers_deltas()
 
         except Exception as e:
@@ -36,7 +40,7 @@ class Etl:
             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label('registrace_celkem'),
             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)).label("registrace_fronta")
         ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id))\
-            .filter(OckovaniRegistrace.datum < self._date) \
+            .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -49,29 +53,69 @@ class Etl:
             ))
 
         # db.session.merge(OckovaciMistoMetriky(
-        #     id=id,
-        #     datum=self._today,
-        #     rezervace_celkem=None,
-        #     rezervace_celkem_zmena_den=None,
-        #     rezervace_cekajici=None,
-        #     rezervace_cekajici_zmena_den=None,
-        #     registrace_celkem=None,
-        #     registrace_celkem_zmena_den=None,
-        #     registrace_fronta=None,
-        #     registrace_fronta_zmena_den=None,
         #     registrace_tydenni_uspesnost=None,
-        #     registrace_tydenni_uspesnost_zmena_den=None,
         #     registrace_prumerne_cekani=None,
-        #     registrace_prumerne_cekani_zmena_den=None,
-        #     ockovani_pocet=None,
-        #     ockovani_pocet_zmena_den=None,
-        #     ockovani_pocet_zmena_tyden=None,
-        #     vakciny_prijate_pocet=None,
-        #     vakciny_prijate_pocet_zmena_den=None,
-        #     vakciny_prijate_pocet_zmena_tyden=None
         # ))
 
         app.logger.info('Computing vaccination centers metrics - registrations finished.')
+
+    def _compute_vaccination_centers_reservations(self):
+        reservations = db.session.query(
+            OckovaciMisto.id,
+            func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label('rezervace_celkem'),
+            func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)).label("rezervace_cekajici")
+        ).join(OckovaniRezervace, (OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id)) \
+            .filter(OckovaniRezervace.import_id == self._find_import_id()) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for reservation in reservations:
+            db.session.merge(OckovaciMistoMetriky(
+                id=reservation.id,
+                datum=self._date,
+                rezervace_celkem=reservation.rezervace_celkem,
+                rezervace_cekajici=reservation.rezervace_cekajici
+            ))
+
+        app.logger.info('Computing vaccination centers metrics - reservations finished.')
+
+    def _compute_vaccination_centers_vaccinated(self):
+        vaccinated = db.session.query(OckovaciMisto.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet')) \
+            .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+            .filter(OckovaniLide.datum < self._date) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for vacc in vaccinated:
+            db.session.merge(OckovaciMistoMetriky(
+                id=vacc.id,
+                datum=self._date,
+                ockovani_pocet=vacc.ockovani_pocet
+            ))
+
+        app.logger.info('Computing vaccination centers metrics - vaccinated people finished.')
+
+    def _compute_vaccination_centers_distributed(self):
+        distributed = db.session.query(
+            OckovaciMisto.id,
+            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), -OckovaniDistribuce.pocet_davek)], else_=OckovaniDistribuce.pocet_davek)).label('vakciny_prijate_pocet')
+        ).join(OckovaniDistribuce,
+               or_(
+                   and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
+                   and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
+               )) \
+            .filter(OckovaniDistribuce.datum < self._date) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for dist in distributed:
+            db.session.merge(OckovaciMistoMetriky(
+                id=dist.id,
+                datum=self._date,
+                vakciny_prijate_pocet=dist.vakciny_prijate_pocet
+            ))
+
+        app.logger.info('Computing vaccination centers metrics - distributed vaccines finished.')
 
     def _compute_vaccination_centers_deltas(self):
         db.session.query().from_statement(text(
@@ -99,7 +143,6 @@ class Etl:
             """
         )).params(datum_1=self._date-timedelta(1), datum_7=self._date-timedelta(7))
 
-
         app.logger.info('Computing vaccination centers metrics - deltas finished.')
 
     def compute_districts(self):
@@ -108,7 +151,13 @@ class Etl:
     def compute_regions(self):
         return True
 
+    def _find_import_id(self):
+        id = db.session.query(Import.id) \
+            .filter(Import.date == self._date, Import.status == queries.STATUS_FINISHED) \
+            .first()[0]
+        return -1 if id is None else id
+
 
 if __name__ == '__main__':
-    etl = Etl()
+    etl = Etl(date.today())
     etl.compute_all()
