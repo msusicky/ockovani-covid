@@ -186,7 +186,7 @@ def info_misto(misto_id):
         func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=30), date.today())) \
+        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
         .group_by(OckovaniRegistrace.datum) \
         .order_by(OckovaniRegistrace.datum).all()
 
@@ -195,7 +195,7 @@ def info_misto(misto_id):
         func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=30)) \
+        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
         .group_by(OckovaniRegistrace.datum_rezervace) \
         .order_by(OckovaniRegistrace.datum_rezervace).all()
 
