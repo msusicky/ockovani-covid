@@ -1,4 +1,7 @@
 import time
+from datetime import date
+
+import click
 
 from app import app
 from app.etl import Etl
@@ -22,11 +25,12 @@ def fetch_opendata_command():
 
 
 @app.cli.command('compute-metrics')
-def compute_metrics_command():
+@click.argument("datum", nargs=-1)
+def compute_metrics_command(datum):
     """Fetch opendata from UZIS."""
     start = time.time()
     app.logger.info("Computing metrics started.")
-    etl = Etl()
+    etl = Etl(date.fromisoformat(datum[0]) if len(datum) == 1 else date.today())
     result = etl.compute_all()
     if result:
         end = time.time()
