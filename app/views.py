@@ -183,20 +183,26 @@ def info_misto(misto_id):
     # Source data for plotly graph
     registrace_overview = db.session.query(
         OckovaniRegistrace.datum,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")
-    ).filter(
-        OckovaniRegistrace.ockovaci_misto_id == misto.id
-    ).filter(
-        OckovaniRegistrace.datum.between(date.today() - timedelta(days=14), date.today())
-    ).group_by(
-        OckovaniRegistrace.datum
-    ).order_by(
-        OckovaniRegistrace.datum
-    ).all()
+        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
+        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
+        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=30), date.today())) \
+        .group_by(OckovaniRegistrace.datum) \
+        .order_by(OckovaniRegistrace.datum).all()
+
+    registrace_overview_terminy = db.session.query(
+        OckovaniRegistrace.datum_rezervace,
+        func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
+        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
+        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=30)) \
+        .group_by(OckovaniRegistrace.datum_rezervace) \
+        .order_by(OckovaniRegistrace.datum_rezervace).all()
 
     return render_template('misto.html', misto=misto, total=total,
                            registrace_info=registrace_info,
-                           last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview)
+                           last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview,
+                           registrace_overview_terminy=registrace_overview_terminy)
 
 
 def _compute_vaccination_stats(ampule_info):
