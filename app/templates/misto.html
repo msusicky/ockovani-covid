@@ -50,13 +50,16 @@
 <div class="row">
     <div class="col">
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#registrations_reservations">Počet registrovaných</a>
                     </li>
                 </ul>
             </div>
@@ -72,13 +75,15 @@
                                 <th scope="col" class="text-center" style="width: 50%">Povolání</th>
                                 <th scope="col" class="text-center" style="width: 16.67%">
                                     Ve frontě
-                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                       data-html="true"
                                        title="Počet registrovaných bez rezervace - čekající na PIN2 (výběr termínu).<br>Červená (>100), žlutá (>1), zelená (0).">
                                     </i>
                                 </th>
                                 <th scope="col" class="text-center" style="width: 16.67%">
                                     Týdenní<br>úspěšnost
-                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                       data-html="true"
                                        title="Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.<br>Zelená (>50 %), žlutá (>5 %), červená (>0 %).">
                                     </i>
                                 </th>
@@ -88,7 +93,8 @@
                             {% for item in registrace_info %}
                             <tr>
                                 <td>{{ item.vekova_skupina }}</td>
-                                <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ item.povolani }}">
+                                <td class="ellipsis" data-toggle="tooltip" data-placement="auto"
+                                    title="{{ item.povolani }}">
                                     {{ item.povolani }}
                                 </td>
                                 <td class="text-right">
@@ -99,7 +105,8 @@
                                 <td class="text-right">
                                     {% if item.pomer is not none %}
                                     <span class="badge badge-pill badge-{{ 'success' if item.pomer > 50 else 'warning' if item.pomer > 5 else 'danger' }}"
-                                          data-toggle="tooltip" data-placement="auto" title="{{ item.rezervace_nove }} / {{ item.rezervace_celkem }}">
+                                          data-toggle="tooltip" data-placement="auto"
+                                          title="{{ item.rezervace_nove }} / {{ item.rezervace_celkem }}">
                                         {{ item.pomer }} %
                                     </span>
                                     {% endif %}
@@ -135,19 +142,22 @@
                                 </th>
                                 <th scope="col" class="text-center">
                                     Očkováno
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                                       data-html="true"
                                        title="Počet vyočkovaných dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
                                     </i>
                                 </th>
                                 <th scope="col" class="text-center">
                                     Zničeno
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                                       data-html="true"
                                        title="Počet zničených dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
                                     </i>
                                 </th>
                                 <th scope="col" class="text-center">
                                     Skladem
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                                       data-html="true"
                                        title="Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!">
                                     </i>
                                 </th>
@@ -173,7 +183,29 @@
                             </tfoot>
                         </table>
                         {% endif %}
-                        <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké zpoždění a nepřesnosti!</b></i>
+                        <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké
+                            zpoždění a nepřesnosti!</b></i>
+                    </div>
+
+                    <div class="tab-pane" id="registrations_reservations">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Počet registrovaných a rezervací</h5>
+                                        <div id="trend"></div>
+                                        <div class="card-text font-italic">
+                                            <h6>Poznámky</h6>
+                                            <ul>
+                                                <li>15. 1. 2021 - otevření registrací pro starší 80 let</li>
+                                                <li>27. 2. 2021 - otevření registrací pro zaměstnance škol a školských zařízení</li>
+                                                <li>1. 3. 2021 - otevření registrací pro starší 70 let</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,6 +230,129 @@
     var options = {};
     var marker = new SMap.Marker(center, "marker", options);
     layer.addMarker(marker);
+
+
+</script>
+
+<!-- Script creating graph -->
+<script>
+    var registrace = {
+        x: [{% for item in registrace_overview %}"{{ item.datum }}",{% endfor %}],
+        y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Nové registrace (počet nově registrovaných, včetně těch, kteří již mají vybraný termín očkování)",
+    };
+
+    var rezervace = {
+        x: [{% for item in registrace_overview_terminy %}"{{ item.datum_rezervace }}",{% endfor %}],
+        y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Nové rezervace (počet lidí, kteří ten den získali termín očkování)",
+    };
+
+    var layout = {
+        autosize: true,
+        xaxis: {
+            title: "Datum [den]",
+            type: "date",
+            tickformat: "%-d.%-m.%Y",
+            autorange: true,
+            rangeslider: {
+                range: ["{{ start_date }}", "{{ end_date }}"]
+            },
+            rangeselector: {
+                buttons: [
+                    {
+                        count: 7,
+                        label: "1 týden",
+                        step: "day",
+                        stepmode: "backward"
+                    },
+                    {
+                        count: 14,
+                        label: "2 týdny",
+                        step: "day",
+                        stepmode: "backward"
+                    },
+                    {
+                        count: 1,
+                        label: "1 měsíc",
+                        step: "month",
+                        stepmode: "backward",
+                    },
+                    {
+                        label: "všechna data",
+                        step: "all"
+                    }
+                ],
+                xanchor: "center",
+                x: 0.5,
+            }
+        },
+        yaxis: {
+            title: "Počet osob",
+            automargin: true
+        },
+        showlegend: true,
+        legend: {
+            orientation: "h",
+            xanchor: "center",
+            x: 0.5,
+            yanchor: "bottom",
+            y: -0.5,
+        },
+        height: 700,
+    }
+
+    var data = [registrace, rezervace];
+
+    var config = {
+        responsive: true,
+        displayModeBar: false,
+    }
+
+    {#Fix autosizing when tab turns to be active#}
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+
+        var target = $(e.target).attr("href") // activated tab
+        if(target==="#registrations_reservations")
+        {
+            //call the corresponding function which generates that plot
+            Plotly.newPlot("trend", data, layout, config);
+        }
+    });
+
+
+</script>
+<script>
+<!-- To have the possibility to send links with opened tab -->
+  $(document).ready(() => {
+  let url = location.href.replace(/\/$/, "");
+
+  if (location.hash) {
+    const hash = url.split("#");
+    $('#cards a[href="#'+hash[1]+'"]').tab("show");
+    url = location.href.replace(/\/#/, "#");
+    history.replaceState(null, null, url);
+    setTimeout(() => {
+      $(window).scrollTop(0);
+    }, 400);
+  }
+
+  $('a[data-toggle="tab"]').on("click", function() {
+    let newUrl;
+    const hash = $(this).attr("href");
+    if(hash == "#") {
+      newUrl = url.split("#")[0];
+    } else {
+      newUrl = url.split("#")[0] + hash;
+    }
+    newUrl += "";
+    history.replaceState(null, null, newUrl);
+  });
+});
 </script>
 {% endblock %}
 

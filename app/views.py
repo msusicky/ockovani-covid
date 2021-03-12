@@ -139,7 +139,8 @@ def info_misto(misto_id):
     if misto is None:
         abort(404)
 
-    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove", "rezervace_celkem").from_statement(text(
+    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove",
+                                       "rezervace_celkem").from_statement(text(
         """
         select t1.vekova_skupina, t1.povolani, fronta_pocet, round((rezervace_nove*100.0)/rezervace_celkem) pomer, rezervace_nove, rezervace_celkem
         from (
@@ -176,8 +177,33 @@ def info_misto(misto_id):
 
     total = _compute_vaccination_stats(ampule_info)
 
-    return render_template('misto.html', misto=misto, total=total, registrace_info=registrace_info,
-                           last_update=_last_import_modified(), now=_now())
+    # Source data for plotly graph
+    registrace_overview = db.session.query(
+        OckovaniRegistrace.datum,
+        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
+        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
+        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
+        .group_by(OckovaniRegistrace.datum) \
+        .order_by(OckovaniRegistrace.datum).all()
+
+    registrace_overview_terminy = db.session.query(
+        OckovaniRegistrace.datum_rezervace,
+        func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
+        .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
+        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
+        .group_by(OckovaniRegistrace.datum_rezervace) \
+        .order_by(OckovaniRegistrace.datum_rezervace).all()
+
+    # Compute boundary dates for rangeslider in time series chart
+    dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
+
+    return render_template('misto.html', misto=misto, total=total,
+                           registrace_info=registrace_info,
+                           last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview,
+                           registrace_overview_terminy=registrace_overview_terminy,
+                           end_date=max(dates), start_date=min(dates))
 
 
 def _compute_vaccination_stats(ampule_info):
