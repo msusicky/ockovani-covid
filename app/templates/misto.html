@@ -50,7 +50,7 @@
 <div class="row">
     <div class="col">
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#registration">Stav registrací</a>
@@ -59,7 +59,7 @@
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#overview">Počet registrovaných</a>
+                        <a class="nav-link" data-toggle="tab" href="#registrations_reservations">Počet registrovaných</a>
                     </li>
                 </ul>
             </div>
@@ -187,7 +187,7 @@
                             zpoždění a nepřesnosti!</b></i>
                     </div>
 
-                    <div class="tab-pane" id="overview">
+                    <div class="tab-pane" id="registrations_reservations">
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card h-100">
@@ -317,7 +317,7 @@
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         var target = $(e.target).attr("href") // activated tab
-        if(target==="#overview")
+        if(target==="#registrations_reservations")
         {
             //call the corresponding function which generates that plot
             Plotly.newPlot("trend", data, layout, config);
@@ -325,6 +325,34 @@
     });
 
 
+</script>
+<script>
+<!-- To have the possibility to send links with opened tab -->
+  $(document).ready(() => {
+  let url = location.href.replace(/\/$/, "");
+
+  if (location.hash) {
+    const hash = url.split("#");
+    $('#cards a[href="#'+hash[1]+'"]').tab("show");
+    url = location.href.replace(/\/#/, "#");
+    history.replaceState(null, null, url);
+    setTimeout(() => {
+      $(window).scrollTop(0);
+    }, 400);
+  }
+
+  $('a[data-toggle="tab"]').on("click", function() {
+    let newUrl;
+    const hash = $(this).attr("href");
+    if(hash == "#") {
+      newUrl = url.split("#")[0];
+    } else {
+      newUrl = url.split("#")[0] + hash;
+    }
+    newUrl += "";
+    history.replaceState(null, null, newUrl);
+  });
+});
 </script>
 {% endblock %}
 
