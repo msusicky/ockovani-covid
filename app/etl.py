@@ -241,8 +241,12 @@ class Etl:
     def _find_import_id(self):
         id_ = db.session.query(Import.id) \
             .filter(Import.date == self._date, Import.status == queries.STATUS_FINISHED) \
-            .first()[0]
-        return -1 if id_ is None else id_
+            .first()
+
+        if id_ is None:
+            raise Exception("No data for date: '{0}'.".format(self._date))
+
+        return id_[0]
 
 
 if __name__ == '__main__':
