@@ -27,7 +27,7 @@ def fetch_opendata_command():
 @app.cli.command('compute-metrics')
 @click.argument("datum", nargs=-1)
 def compute_metrics_command(datum):
-    """Fetch opendata from UZIS."""
+    """Compute metrics."""
     start = time.time()
     app.logger.info("Computing metrics started.")
 
