@@ -1,5 +1,5 @@
 import time
-from datetime import date
+from datetime import date, timedelta
 
 import click
 
@@ -30,8 +30,27 @@ def compute_metrics_command(datum):
     """Fetch opendata from UZIS."""
     start = time.time()
     app.logger.info("Computing metrics started.")
-    etl = Etl(date.fromisoformat(datum[0]) if len(datum) == 1 else date.today())
-    result = etl.compute_all()
+
+    if len(datum) == 2:
+        start_date = date.fromisoformat(datum[0])
+        end_date = date.fromisoformat(datum[1])
+    elif len(datum) == 1:
+        start_date = date.fromisoformat(datum[0])
+        end_date = date.fromisoformat(datum[0])
+    else:
+        start_date = date.today()
+        end_date = date.today()
+
+    result = True
+
+    while start_date <= end_date:
+        app.logger.info("Computing metrics for date: '{}'.".format(start_date))
+        etl = Etl(start_date)
+        result = etl.compute_all()
+        if not result:
+            break
+        start_date += timedelta(1)
+
     if result:
         end = time.time()
         app.logger.info("Computing metrics finished successfully in {:.1f} s.".format(end - start))
