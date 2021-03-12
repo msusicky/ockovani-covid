@@ -239,10 +239,10 @@ class Etl:
         return True
 
     def _find_import_id(self):
-        id = db.session.query(Import.id) \
+        id_ = db.session.query(Import.id) \
             .filter(Import.date == self._date, Import.status == queries.STATUS_FINISHED) \
             .first()[0]
-        return -1 if id is None else id
+        return -1 if id_ is None else id_
 
     def _unique_nrpzs_subquery(self):
         return db.session.query(OckovaciMisto.nrpzs_kod) \
