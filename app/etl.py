@@ -79,7 +79,7 @@ class Etl:
         vaccinated = db.session.query(OckovaciMisto.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet')) \
             .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
             .filter(OckovaniLide.datum < self._date) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(self._unique_nrpzs_subquery())) \
+            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -162,7 +162,7 @@ class Etl:
             .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
             .filter(OckovaniLide.datum < self._date) \
             .filter(OckovaniLide.datum >= self._date - timedelta(7)) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(self._unique_nrpzs_subquery())) \
+            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -243,14 +243,6 @@ class Etl:
             .filter(Import.date == self._date, Import.status == queries.STATUS_FINISHED) \
             .first()[0]
         return -1 if id_ is None else id_
-
-    @staticmethod
-    def _unique_nrpzs_subquery():
-        return db.session.query(OckovaciMisto.nrpzs_kod) \
-            .filter(OckovaciMisto.status == True) \
-            .group_by(OckovaciMisto.nrpzs_kod) \
-            .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
-            .subquery()
 
 
 if __name__ == '__main__':
