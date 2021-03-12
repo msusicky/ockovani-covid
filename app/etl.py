@@ -244,7 +244,8 @@ class Etl:
             .first()[0]
         return -1 if id_ is None else id_
 
-    def _unique_nrpzs_subquery(self):
+    @staticmethod
+    def _unique_nrpzs_subquery():
         return db.session.query(OckovaciMisto.nrpzs_kod) \
             .filter(OckovaciMisto.status == True) \
             .group_by(OckovaciMisto.nrpzs_kod) \
