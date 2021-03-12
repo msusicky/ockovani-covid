@@ -186,30 +186,22 @@
                         <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké
                             zpoždění a nepřesnosti!</b></i>
                     </div>
+
                     <div class="tab-pane" id="overview">
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card h-100">
                                     <div class="card-body">
-                                        <h3 class="card-title">Počet registrovaných za posledních 30 dní</h3>
-                                        <p class="card-text">Nové registrace - počet nově registrovaných, včetně těch, kteří již mají
-                                            termín očkování.</p>
-                                        <p class="card-text">Nové rezervace - počet lidí, kteří ten den získali termín očkování.</p>
-                                    </div>
-                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Počet registrovaných a rezervací</h5>
                                         <div id="trend"></div>
-                                        <p id="card-text" style="color: dimgrey;"><i>Dvojklikem v grafu vracíte přiblížení zpět.</i></p>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="card-text">
-                                        <ul>
-                                            <li/>
-                                            <i>1. 3. 2021 došlo k otevření registrací pro starší 70 let</i>
-                                            <li/>
-                                            <i>27. 2. 2021 došlo k otevření registrací pro zaměstnance škol a školských
-                                                zařízení.</i>
-                                        </ul>
-                                        </p>
+                                        <div class="card-text">
+                                            <h6>Poznámky</h6>
+                                            <ul>
+                                                <li>15. 1. 2021 - otevření registrací pro starší 80 let</li>
+                                                <li>27. 2. 2021 - otevření registrací pro zaměstnance škol a školských zařízení</li>
+                                                <li>1. 3. 2021 - otevření registrací pro starší 70 let</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -249,7 +241,7 @@
         y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
         mode: "lines+markers",
         type: "scatter",
-        name: "Nově registrovaných",
+        name: "Nové registrace (počet nově registrovaných, včetně těch, kteří již mají vybraný termín očkování)",
     };
 
     var rezervace = {
@@ -257,7 +249,7 @@
         y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
         mode: "lines+markers",
         type: "scatter",
-        name: "Počet nových rezervací (PIN2)",
+        name: "Nové rezervace (počet lidí, kteří ten den získali termín očkování)",
     };
 
     var layout = {
