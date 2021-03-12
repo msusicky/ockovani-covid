@@ -66,6 +66,18 @@ class OkresMetriky(db.Model):
 Okres.metriky = relationship("OkresMetriky", back_populates="okres")
 
 
+class Populace(db.Model):
+    __tablename__ = 'populace'
+
+    orp_kod = Column(Unicode, primary_key=True)
+    pocet = Column(Integer, primary_key=True)
+    vek = Column(Integer, primary_key=True)
+
+    def __repr__(self):
+        return "<Populace(orp_kod='%s', pocet=%s, vek=%s)>" % (
+            self.orp_kod, self.pocet, self.vek)
+
+
 class OckovaciMisto(db.Model):
     __tablename__ = 'ockovaci_mista'
 
