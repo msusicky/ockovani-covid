@@ -108,14 +108,25 @@ class OckovaciMistoMetriky(db.Model):
     registrace_fronta_zmena_den = Column(Integer)           # pocet registraci bez rezervace - zmena za den
     registrace_tydenni_uspesnost = Column(Float)            # uspesnost rezervaci za poslednich 7 dni
     registrace_tydenni_uspesnost_zmena_den = Column(Float)  # uspesnost rezervaci za poslednich 7 dni - zmena za den
-    registrace_prumerne_cekani = Column(Float)              # prumerna doba cekani na rezervaci za poslednich 7 dni
-    registrace_prumerne_cekani_zmena_den = Column(Float)    # prumerna doba cekani na rezervaci za poslednich 7 dni - zmena za den
+    registrace_prumer_cekani = Column(Float)                # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)      # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_odhad_cekani = Column(Float)                 # odhadovana doba cekani na rezervaci
+    registrace_odhad_cekani_zmena_den = Column(Float)       # odhadovana doba cekani na rezervaci - zmena za den
     ockovani_pocet = Column(Integer)                        # pocet ockovanych
     ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
     ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
     vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden
+    vakciny_vydane_pocet = Column(Integer)                  # pocet vydanych vakcin
+    vakciny_vydane_pocet_zmena_den = Column(Integer)        # pocet vydanych vakcin - zmena za den
+    vakciny_vydane_pocet_zmena_tyden = Column(Integer)      # pocet vydanych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)      # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)    # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                 # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)       # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)     # pocet znicenych vakcin - zmena za tyden
 
     misto = relationship("OckovaciMisto", back_populates="metriky")
 
