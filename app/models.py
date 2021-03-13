@@ -127,6 +127,8 @@ class OckovaciMistoMetriky(db.Model):
     ockovani_pocet = Column(Integer)                        # pocet ockovanych
     ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
     ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    ockovani_odhad_cekani = Column(Float)                   # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
+    ockovani_odhad_cekani_zmena_den = Column(Float)         # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
     vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden

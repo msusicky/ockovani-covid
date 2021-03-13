@@ -10,6 +10,7 @@ from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, 
 class Etl:
     def __init__(self, date_):
         self._date = date_
+        self._import_id = self._find_import_id()
 
     def compute_all(self):
         vaccination_centers_result = self.compute_vaccination_centers()
@@ -41,7 +42,7 @@ class Etl:
             OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label('registrace_celkem'),
             func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)).label("registrace_fronta")
         ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id))\
-            .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -61,7 +62,7 @@ class Etl:
             func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label('rezervace_celkem'),
             func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)).label("rezervace_cekajici")
         ).join(OckovaniRezervace, (OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id)) \
-            .filter(OckovaniRezervace.import_id == self._find_import_id()) \
+            .filter(OckovaniRezervace.import_id == self._import_id) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -140,8 +141,8 @@ class Etl:
         avg_waiting = db.session.query(
             OckovaciMisto.id,
             func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
-        ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id)) \
-            .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
+        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -153,17 +154,17 @@ class Etl:
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
             ))
 
-        est_waiting = db.session.query(
-            OckovaciMisto.id,
-            (7.0 * func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0))
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_odhad_cekani')
-        ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id)) \
-            .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
-            .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
-            .filter(OckovaniLide.datum < self._date) \
-            .filter(OckovaniLide.datum >= self._date - timedelta(7)) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
-            .group_by(OckovaciMisto.id) \
+        est_waiting = db.session.query("id", "registrace_odhad_cekani").from_statement(text(
+            """
+            select id, 7.0 * sum(case when rezervace = false then pocet else 0 end) 
+                / nullif(sum(case when rezervace = true and datum_rezervace >= :datum_7 then pocet else 0 end), 0)
+                 registrace_odhad_cekani
+            from ockovaci_mista
+            join ockovani_registrace on id = ockovaci_misto_id
+            where import_id = :import_id
+            group by (id)
+            """
+        )).params(datum_7=self._date - timedelta(7), import_id=self._import_id) \
             .all()
 
         for wait in est_waiting:
@@ -177,8 +178,8 @@ class Etl:
             OckovaciMisto.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
-        ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id)) \
-            .filter(OckovaniRegistrace.import_id == self._find_import_id()) \
+        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -188,6 +189,25 @@ class Etl:
                 id=rate.id,
                 datum=self._date,
                 registrace_tydenni_uspesnost=rate.registrace_tydenni_uspesnost
+            ))
+
+        vacc_est_waiting = db.session.query(
+            OckovaciMisto.id,
+            (7.0 * (OckovaciMistoMetriky.registrace_fronta + OckovaciMistoMetriky.rezervace_cekajici)
+             / case([(func.sum(OckovaniLide.pocet) > 0, func.sum(OckovaniLide.pocet))], else_=None)).label('ockovani_odhad_cekani')
+        ).join(OckovaciMistoMetriky, OckovaciMisto.id == OckovaciMistoMetriky.id) \
+            .join(OckovaniLide, OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
+            .filter(OckovaniLide.datum < self._date, OckovaniLide.datum >= self._date - timedelta(7)) \
+            .group_by(OckovaciMisto.id, OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.rezervace_cekajici) \
+            .all()
+
+        for wait in vacc_est_waiting:
+            db.session.merge(OckovaciMistoMetriky(
+                id=wait.id,
+                datum=self._date,
+                ockovani_odhad_cekani=wait.ockovani_odhad_cekani
             ))
 
         app.logger.info('Computing vaccination centers metrics - waiting time finished.')
