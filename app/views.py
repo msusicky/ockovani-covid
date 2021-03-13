@@ -2,12 +2,11 @@ import os
 from datetime import timedelta, date, datetime
 
 from flask import render_template, send_from_directory
-from sqlalchemy import func, text, case
+from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide, \
-    OckovaciMistoMetriky
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky
 
 DAYS = 14
 DAYS_MISTO = 30
