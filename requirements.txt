@@ -10,3 +10,4 @@ markupsafe
 requests
 gspread
 pandas
+ipykernel

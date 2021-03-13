@@ -66,6 +66,18 @@ class OkresMetriky(db.Model):
 Okres.metriky = relationship("OkresMetriky", back_populates="okres")
 
 
+class Populace(db.Model):
+    __tablename__ = 'populace'
+
+    orp_kod = Column(Unicode, primary_key=True)
+    pocet = Column(Integer, primary_key=True)
+    vek = Column(Integer, primary_key=True)
+
+    def __repr__(self):
+        return "<Populace(orp_kod='%s', pocet=%s, vek=%s)>" % (
+            self.orp_kod, self.pocet, self.vek)
+
+
 class OckovaciMisto(db.Model):
     __tablename__ = 'ockovaci_mista'
 
@@ -98,15 +110,42 @@ class OckovaciMistoMetriky(db.Model):
 
     id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
-    typ_metriky = Column(Unicode, primary_key=True)
-    hodnota_int = Column(Integer)
-    hodnota_str = Column(Unicode)
+    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
+    registrace_celkem = Column(Integer)                     # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)           # pocet vsech registraci - zmena za den
+    registrace_fronta = Column(Integer)                     # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)           # pocet registraci bez rezervace - zmena za den
+    registrace_tydenni_uspesnost = Column(Float)            # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)  # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_prumer_cekani = Column(Float)                # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)      # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_odhad_cekani = Column(Float)                 # odhadovana doba cekani na rezervaci
+    registrace_odhad_cekani_zmena_den = Column(Float)       # odhadovana doba cekani na rezervaci - zmena za den
+    ockovani_pocet = Column(Integer)                        # pocet ockovanych
+    ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
+    ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    ockovani_odhad_cekani = Column(Float)                   # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
+    ockovani_odhad_cekani_zmena_den = Column(Float)         # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
+    vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden
+    vakciny_vydane_pocet = Column(Integer)                  # pocet vydanych vakcin
+    vakciny_vydane_pocet_zmena_den = Column(Integer)        # pocet vydanych vakcin - zmena za den
+    vakciny_vydane_pocet_zmena_tyden = Column(Integer)      # pocet vydanych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)      # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)    # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                 # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)       # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)     # pocet znicenych vakcin - zmena za tyden
 
     misto = relationship("OckovaciMisto", back_populates="metriky")
 
     def __repr__(self):
-        return "<OckovaciMistoMetriky(id='%s', typ_metriky='%s', hodnota_int=%s, hodnota_str='%s')>" % (
-            self.id, self.typ_metriky, self.hodnota_int, self.hodnota_str)
+        return "<OckovaciMistoMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
 
 
 OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
