@@ -4,7 +4,13 @@ from app import app
 @app.template_filter()
 def format_number(number):
     """Converts number to string with space separated thoudands."""
-    return '{:,}'.format(number).replace(',', ' ')
+    return 'bez dat' if number is None else '{:,}'.format(number).replace(',', ' ')
+
+
+@app.template_filter()
+def format_decimal(number):
+    """Converts number to string with space separated thoudands and one digit after decimal point."""
+    return 'bez dat' if number is None else '{:,}'.format(round(number, 1)).replace(',', ' ').replace('.', ',')
 
 
 @app.template_filter()
