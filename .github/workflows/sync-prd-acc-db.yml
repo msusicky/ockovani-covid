@@ -6,7 +6,7 @@ on:
     
 jobs:
   deploy:
-    name: Sync databases
+    name: Sync databases - PRD to ACC
     environment: acceptance
     runs-on: ubuntu-18.04
     env:
