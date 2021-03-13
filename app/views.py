@@ -1,14 +1,11 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text, case, subquery
-from sqlalchemy.sql import Alias
+from sqlalchemy import func, text, case
 from werkzeug.exceptions import abort
 
-from app import db, bp, filters
+from app import db, bp, filters, queries
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide
-
-STATUS_FINISHED = 'FINISHED'
 
 DAYS = 14
 DAYS_MISTO = 30
@@ -397,22 +394,20 @@ def _last_import_modified():
     """
     Returns last successful import.
     """
-    last_modified = db.session.query(func.max(Import.last_modified)).filter(Import.status == STATUS_FINISHED).first()[0]
-    if last_modified is None:
-        return 'nikdy'
-    else:
-        return filters.format_datetime_short_wd(last_modified)
+    last_modified = db.session.query(func.max(Import.last_modified)) \
+        .filter(Import.status == queries.STATUS_FINISHED) \
+        .first()[0]
+    return 'nikdy' if last_modified is None else filters.format_datetime_short_wd(last_modified)
 
 
 def _last_import_id():
     """
     Returns id of the last successful import.
     """
-    last_id = db.session.query(func.max(Import.id)).filter(Import.status == STATUS_FINISHED).first()[0]
-    if last_id is None:
-        return -1
-    else:
-        return last_id
+    last_id = db.session.query(func.max(Import.id)) \
+        .filter(Import.status == queries.STATUS_FINISHED) \
+        .first()[0]
+    return -1 if last_id is None else last_id
 
 
 def _now():
