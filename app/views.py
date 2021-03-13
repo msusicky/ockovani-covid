@@ -88,8 +88,10 @@ def info_okres(okres_name):
         .order_by(OckovaciMisto.nazev) \
         .all()
 
+    vaccines = queries.count_vaccines('okres_id', okres.id)
+
     return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(),
-                           days=DAYS)
+                           days=DAYS, vaccines=vaccines)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -129,8 +131,10 @@ def info_kraj(kraj_name):
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
+    vaccines = queries.count_vaccines('kraj_id', kraj.id)
+
     return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(),
-                           days=DAYS)
+                           days=DAYS, vaccines=vaccines)
 
 
 @bp.route("/misto/<misto_id>")

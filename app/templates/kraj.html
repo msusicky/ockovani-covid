@@ -6,13 +6,74 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col">
-            <h3>Očkovací místa v kraji: {{ kraj.nazev }} </h3>
+<div class="row">
+    <div class="col">
+        <h3>Kraj: {{ kraj.nazev }} </h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-4">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#info">Základní údaje</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="info">
+                        <div class="row mb-n3">
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Počet obyvatel</h5>
+                                        <p class="card-text text-right">123456</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card">
+                                    <div class="card-header">Čekající ve frontě</div>
+                                    <div class="card-body text-right">123456</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card">
+                                    <div class="card-header">Čekající s rezervací</div>
+                                    <div class="card-body text-right">123456</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card">
+                                    <div class="card-header">Počet přijatých vakcín</div>
+                                    <div class="card-body text-right">123456</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="vaccines">
+                        {{ macros.stav_vakcin(vaccines) }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    {{ macros.prehled_mist(mista, days) }}
+<div class="row">
+    <div class="col">
+        <h4>Očkovací místa v kraji</h4>
+    </div>
+</div>
+{{ macros.prehled_mist(mista, days) }}
 {% endblock %}
 
 
