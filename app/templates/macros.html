@@ -15,37 +15,13 @@
                     </i>
                 </th>
                 <th scope="col" class="text-center">
-                    S termínem
-                    <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                       title="Počet lidí s vybraným termínem na daném místě od zítřka.">
-                    </i>
-                </th>
-                <th scope="col" class="text-center">
-                    Očkovaných za 7 dní
-                    <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                       title="Počet podaných dávek za posledních 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
-                    </i>
-                </th>
-                <th scope="col" class="text-center">
-                    Týdnů pro jednu dávku pro frontu a lidi s termínem
-                    <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                       title="(čekající ve frontě + lidé s termínem) / počet dávek naočkovaných za 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
-                    </i>
-                </th>
-                <th scope="col" class="text-center">
-                    Týdnů pro jednu dávku pro frontu a lidi s termínem
-                    <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                       title="(čekající ve frontě + lidé s termínem) / počet dávek naočkovaných za 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
-                    </i>
-                </th>
-                <th scope="col" class="text-center">
                     Čekání na pin
                     <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
                        title="(čekající ve frontě + lidé s termínem) / počet dávek naočkovaných za 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
                     </i>
                 </th>
                 <th scope="col" class="text-center">
-                    Uspesnost
+                    Týdnů pro jednu dávku pro frontu a lidi s termínem
                     <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
                        title="(čekající ve frontě + lidé s termínem) / počet dávek naočkovaných za 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
                     </i>
@@ -54,9 +30,6 @@
             </thead>
             <tbody>
             {% for item in centers %}
-            {% set vaccination_speed = None if item.pocet_ockovanych_tyden == None or item.pocet_rezervace_f == None
-            else
-            7*(item.pocet_fronta+item.pocet_rezervace_f) / item.pocet_ockovanych_tyden %}
             <tr>
                 <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
                 <td>
@@ -74,38 +47,16 @@
                     {% endif %}
                 </td>
                 <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'pill' if vaccination_speed == None else 'success' if vaccination_speed < 4 else 'warning' if vaccination_speed<8 else 'danger' }}">
-                        {{ 'bez dat' if item.pocet_fronta == None else item.pocet_fronta }}
+                    {{ item.pocet_fronta | format_number }}
+                </td>
+                <td class="text-right">
+                    <span class="badge badge-pill badge-{{ 'light' if item.registrace_prumer_cekani == None else 'success' if item.registrace_prumer_cekani < 4 else 'warning' if item.registrace_prumer_cekani<8 else 'danger' }}">
+                        {{ (None if item.registrace_prumer_cekani == None else ((item.registrace_prumer_cekani | float) / 7)) | format_decimal }}
                     </span>
                 </td>
                 <td class="text-right">
-                    <span class="badge badge-pill">
-                        {{ 'bez dat' if item.pocet_rezervace_f == None else item.pocet_rezervace_f }}
-                    </span>
-                </td>
-                <td class="text-right">
-                    <span class="badge badge-pill">
-                        {{ 'bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
-                    </span>
-                </td>
-                <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'pill' if vaccination_speed == None else 'success' if vaccination_speed < 4 else 'warning' if vaccination_speed<8 else 'danger' }}">
-                        {{ 'bez dat' if vaccination_speed == None else "%.1f"|format(vaccination_speed)  }}
-                    </span>
-                </td>
-                <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'pill' if item.ockovani_odhad_cekani == None else 'success' if item.ockovani_odhad_cekani < 4 else 'warning' if item.ockovani_odhad_cekani<8 else 'danger' }}">
-                        {{ 'bez dat' if item.ockovani_odhad_cekani == None else "%.1f"|format(item.ockovani_odhad_cekani)  }}
-                    </span>
-                </td>
-                <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'pill' if item.registrace_prumer_cekani == None else 'success' if item.registrace_prumer_cekani < 4 else 'warning' if item.registrace_prumer_cekani<8 else 'danger' }}">
-                        {{ 'bez dat' if item.registrace_prumer_cekani == None else "%.1f"|format(item.registrace_prumer_cekani)  }}
-                    </span>
-                </td>
-                <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'pill' if item.registrace_tydenni_uspesnost == None else 'danger' if item.registrace_tydenni_uspesnost < 0.2 else 'warning' if item.registrace_tydenni_uspesnost < 0.5 else 'success' }}">
-                        {{ 'bez dat' if item.registrace_tydenni_uspesnost == None else "%.1f"|format(item.registrace_tydenni_uspesnost * 100) }} %
+                    <span class="badge badge-pill badge-{{ 'light' if item.ockovani_odhad_cekani == None else 'success' if item.ockovani_odhad_cekani < 4 else 'warning' if item.ockovani_odhad_cekani<8 else 'danger' }}">
+                        {{ (None if item.ockovani_odhad_cekani == None else ((item.ockovani_odhad_cekani | float) / 7)) | format_decimal }}
                     </span>
                 </td>
             </tr>
