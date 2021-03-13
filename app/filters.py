@@ -4,7 +4,7 @@ from app import app
 @app.template_filter()
 def format_number(number):
     """Converts number to string with space separated thoudands."""
-    return '{:,}'.format(number).replace(',', ' ')
+    return 'bez dat' if number is None else '{:,}'.format(number).replace(',', ' ')
 
 
 @app.template_filter()
