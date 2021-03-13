@@ -224,6 +224,7 @@ class Etl:
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
                 registrace_odhad_cekani_zmena_den = t0.registrace_odhad_cekani - t1.registrace_odhad_cekani,
                 ockovani_pocet_zmena_den = t0.ockovani_pocet - t1.ockovani_pocet,
+                ockovani_odhad_cekani_zmena_den = t0.ockovani_odhad_cekani - t1.ockovani_odhad_cekani,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_den = t0.vakciny_vydane_pocet - t1.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,

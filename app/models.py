@@ -110,10 +110,10 @@ class OckovaciMistoMetriky(db.Model):
 
     id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
-    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci
-    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci - zmena za den
-    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani
-    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani - zmena za den
+    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
     registrace_celkem = Column(Integer)                     # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)           # pocet vsech registraci - zmena za den
     registrace_fronta = Column(Integer)                     # pocet registraci bez rezervace
