@@ -1,5 +1,9 @@
 name: sync-prd-acc-db
 
+on:
+  schedule:
+    - cron:  '30 8 * * *'
+    
 jobs:
   deploy:
     name: Sync databases
