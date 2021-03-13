@@ -175,7 +175,7 @@ def info_misto(misto_id):
         """
     )).params(misto_id=misto_id).all()
 
-    total = _compute_vaccination_stats(ampule_info)
+    vaccines = queries.count_vaccines('ockovaci_mista.id', misto_id)
 
     # Source data for plotly graph
     registrace_overview = db.session.query(
@@ -199,77 +199,11 @@ def info_misto(misto_id):
     # Compute boundary dates for rangeslider in time series chart
     dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
 
-    return render_template('misto.html', misto=misto, total=total,
-                           registrace_info=registrace_info,
-                           last_update=_last_import_modified(), now=_now(), registrace_overview=registrace_overview,
+    return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto,
+                           registrace_info=registrace_info, vaccines=vaccines,
+                           registrace_overview=registrace_overview,
                            registrace_overview_terminy=registrace_overview_terminy,
                            end_date=max(dates), start_date=min(dates))
-
-
-def _compute_vaccination_stats(ampule_info):
-    # Compute  statistics
-    total = {
-        'Pfizer': {
-            'Přijato': 0,
-            'Vydáno': 0,
-            'Očkováno': 0,
-            'Zničeno': 0,
-            'Skladem': 0,
-        },
-        'Moderna': {
-            'Přijato': 0,
-            'Vydáno': 0,
-            'Očkováno': 0,
-            'Zničeno': 0,
-            'Skladem': 0,
-        },
-        'AstraZeneca': {
-            'Přijato': 0,
-            'Vydáno': 0,
-            'Očkováno': 0,
-            'Zničeno': 0,
-            'Skladem': 0,
-        }
-    }
-
-    for item in ampule_info:
-        operation = item[1]
-        if operation in ('Příjem', 'Příjem odjinud'):
-            total[item[0]]['Přijato'] += item[2]
-            total[item[0]]['Skladem'] += item[2]
-        elif operation == 'Výdej':
-            total[item[0]]['Vydáno'] += item[2]
-            total[item[0]]['Skladem'] -= item[2]
-        elif operation == 'Očkováno':
-            total[item[0]]['Očkováno'] += item[2]
-            total[item[0]]['Skladem'] -= item[2]
-        elif operation == 'Zničeno':
-            total[item[0]]['Zničeno'] += item[2]
-            total[item[0]]['Skladem'] -= item[2]
-
-    total = _compute_vaccination_total(total)
-
-    return total
-
-
-def _compute_vaccination_total(total):
-    total_all = {
-        'all': {
-            'Přijato': 0,
-            'Vydáno': 0,
-            'Očkováno': 0,
-            'Zničeno': 0,
-            'Skladem': 0,
-        }
-    }
-
-    for type in total.keys():
-        for operation in total[type].keys():
-            total_all['all'][operation] += total[type][operation]
-
-    total.update(total_all)
-
-    return total
 
 
 @bp.route("/mapa")

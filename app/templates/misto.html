@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% import 'macros.html' as macros %}
 
 {% block title %}
 {{ misto.nazev }} |
@@ -123,68 +124,7 @@
                     </div>
 
                     <div class="tab-pane" id="vaccination">
-                        {% if total %}
-                        <table class="table table-bordered table-striped table-sm" style="word-break: break-all">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th scope="col" class="text-center">Výrobce</th>
-                                <th scope="col" class="text-center">
-                                    Přijato
-                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                                       title="Počet dávek přijatých na očkovací místo.">
-                                    </i>
-                                </th>
-                                <th scope="col" class="text-center">
-                                    Vydáno
-                                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                                       title="Počet dávek převedených na jiné očkovací místo.">
-                                    </i>
-                                </th>
-                                <th scope="col" class="text-center">
-                                    Očkováno
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                                       data-html="true"
-                                       title="Počet vyočkovaných dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
-                                    </i>
-                                </th>
-                                <th scope="col" class="text-center">
-                                    Zničeno
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                                       data-html="true"
-                                       title="Počet zničených dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
-                                    </i>
-                                </th>
-                                <th scope="col" class="text-center">
-                                    Skladem
-                                    <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                                       data-html="true"
-                                       title="Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!">
-                                    </i>
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for type in ['Pfizer', 'Moderna', 'AstraZeneca'] %}
-                            <tr>
-                                <td>{{ type }}</td>
-                                {% for operation in total[type] %}
-                                <td class="text-right">{{ total[type][operation] | format_number }}</td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                            <tfoot class="font-weight-bold">
-                            <tr>
-                                <td>Celkem</td>
-                                {% for operation in total['all'] %}
-                                <td class="text-right">{{ total['all'][operation] | format_number }}</td>
-                                {% endfor %}
-                            </tr>
-                            </tfoot>
-                        </table>
-                        {% endif %}
-                        <i>Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje <b>velké
-                            zpoždění a nepřesnosti!</b></i>
+                        {{ macros.stav_vakcin(vaccines) }}
                     </div>
 
                     <div class="tab-pane" id="registrations_reservations">
