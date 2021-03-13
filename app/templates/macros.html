@@ -26,10 +26,19 @@
                        title="Počet podaných dávek za posledních 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
                     </i>
                 </th>
+                <th scope="col" class="text-center">
+                    Týdnů pro jednu dávku pro frontu a lidi s termínem
+                    <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                       title="(čekající ve frontě + lidé s termínem) / počet dávek naočkovaných za 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
+                    </i>
+                </th>
             </tr>
             </thead>
             <tbody>
             {% for item in centers %}
+            {% set vaccination_speed = None if item.pocet_ockovanych_tyden == None or item.pocet_rezervace_f == None
+            else
+            (item.pocet_fronta+item.pocet_rezervace_f) / item.pocet_ockovanych_tyden %}
             <tr>
                 <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
                 <td>
@@ -47,7 +56,7 @@
                     {% endif %}
                 </td>
                 <td class="text-right">
-                    <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
+                    <span class="badge badge-pill badge-{{ 'pill' if vaccination_speed == None else 'success' if vaccination_speed < 4 else 'warning' if vaccination_speed<8 else 'danger' }}">
                         {{ 'bez dat' if item.pocet_fronta == None else item.pocet_fronta }}
                     </span>
                 </td>
@@ -59,6 +68,11 @@
                 <td class="text-right">
                     <span class="badge badge-pill">
                         {{ 'bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
+                    </span>
+                </td>
+                <td class="text-right">
+                    <span class="badge badge-pill badge-{{ 'pill' if vaccination_speed == None else 'success' if vaccination_speed < 4 else 'warning' if vaccination_speed<8 else 'danger' }}">
+                        {{ 'bez dat' if vaccination_speed == None else "%.1f"|format(vaccination_speed)  }}
                     </span>
                 </td>
             </tr>
