@@ -1,68 +1,144 @@
 {% macro prehled_mist(centers, days) -%}
-    <div class="row">
-        <div class="col">
-            {% if centers %}
-            <table class="table table-bordered table-striped table-sm">
-                <thead  class="thead-dark">
-                <tr>
-                    <th scope="col" class="text-center">Název</th>
-                    <th scope="col" class="text-center">Okres</th>
-                    <th scope="col" class="text-center">Kraj</th>
-                    <th scope="col" class="text-center">Ve frontě <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                                       title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu). <br />Zelená (0-500), žlutá (500-5000), červená (nad 5000)" /></th>
-                    <th scope="col" class="text-center">S termínem <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                                       title="Počet lidí s vybraným termínem na daném místě od zítřka. <br />" /></th>
-                    <th scope="col" class="text-center">Očkovaných za 7 dní <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                                       title="Počet podaných dávek za posledních 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku." /></th>
-    <!--                <th scope="col" class="text-center">-->
-    <!--                    Volná místa-->
-    <!--                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"-->
-    <!--                       title="Počet volných míst na následujících {{ days }} dní. Některá očkovací místa ale neumožňují obsadit všechna volná místa!"></i>-->
-    <!--                </th>-->
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in centers %}
-                    <tr>
-                        <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
-                        <td>
-                            {% if request.path.startswith('/okres') %}
-                                {{ item.okres }}
-                            {% else %}
-                                <a href="{{ url_for('view.info_okres', okres_name=item.okres) }}">{{ item.okres }}</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if request.path.startswith('/kraj') %}
-                                {{ item.kraj }}
-                            {% else %}
-                                <a href="{{ url_for('view.info_kraj', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
-                            {% endif %}
-                        </td>
-                        <td class="text-right">
-                            <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
-                                {{ 'bez dat' if item.pocet_fronta == None else item.pocet_fronta }}
-                            </span>
-                        </td>
-                        <td class="text-right">
-                            <span class="badge badge-pill">
-                                {{ 'bez dat' if item.pocet_rezervace_f == None else item.pocet_rezervace_f }}
-                            </span>
-                        </td>
-                        <td class="text-right">
-                            <span class="badge badge-pill">
-                                {{ 'bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
-                            </span>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="alert alert-warning w-100" role="alert">
-                Zatím nemáme žádná data.
-            </div>
-            {% endif %}
+<div class="row">
+    <div class="col">
+        {% if centers %}
+        <table class="table table-bordered table-striped table-sm">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col" class="text-center">Název</th>
+                <th scope="col" class="text-center">Okres</th>
+                <th scope="col" class="text-center">Kraj</th>
+                <th scope="col" class="text-center">
+                    Ve frontě
+                    <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                       title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).<br>Zelená (0-500), žlutá (500-5000), červená (nad 5000)">
+                    </i>
+                </th>
+                <th scope="col" class="text-center">
+                    S termínem
+                    <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                       title="Počet lidí s vybraným termínem na daném místě od zítřka.">
+                    </i>
+                </th>
+                <th scope="col" class="text-center">
+                    Očkovaných za 7 dní
+                    <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                       title="Počet podaných dávek za posledních 7 dní. <br />Data o očkování jsou zpětně doplńována, proto číslo berte jako orientační.<br />Data o očkování obsahují pouze kód zdravotního střediska nrpzs. Pokud očkovací místo spadá pod větší středisko, číslo ukazuje na počet očkování v celém středisku.">
+                    </i>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in centers %}
+            <tr>
+                <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
+                <td>
+                    {% if request.path.startswith('/okres') %}
+                    {{ item.okres }}
+                    {% else %}
+                    <a href="{{ url_for('view.info_okres', okres_name=item.okres) }}">{{ item.okres }}</a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if request.path.startswith('/kraj') %}
+                    {{ item.kraj }}
+                    {% else %}
+                    <a href="{{ url_for('view.info_kraj', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
+                    {% endif %}
+                </td>
+                <td class="text-right">
+                    <span class="badge badge-pill badge-{{ 'success' if item.pocet_fronta < 500 else 'warning' if item.pocet_fronta < 5000 else 'danger' }}">
+                        {{ 'bez dat' if item.pocet_fronta == None else item.pocet_fronta }}
+                    </span>
+                </td>
+                <td class="text-right">
+                    <span class="badge badge-pill">
+                        {{ 'bez dat' if item.pocet_rezervace_f == None else item.pocet_rezervace_f }}
+                    </span>
+                </td>
+                <td class="text-right">
+                    <span class="badge badge-pill">
+                        {{ 'bez dat' if item.pocet_ockovanych_tyden == None else item.pocet_ockovanych_tyden }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning w-100" role="alert">
+            Zatím nemáme žádná data.
         </div>
+        {% endif %}
     </div>
+</div>
+{%- endmacro %}
+
+{% macro stav_vakcin(vaccines) -%}
+<table class="table table-bordered table-striped table-sm" style="word-break: break-all">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col" class="text-center">Výrobce</th>
+        <th scope="col" class="text-center">
+            Přijato
+            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+               title="Počet dávek přijatých na očkovací místo.">
+            </i>
+        </th>
+        <th scope="col" class="text-center">
+            Vydáno
+            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+               title="Počet dávek převedených na jiné očkovací místo.">
+            </i>
+        </th>
+        <th scope="col" class="text-center">
+            Očkováno
+            <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+               data-html="true"
+               title="Počet vyočkovaných dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
+            </i>
+        </th>
+        <th scope="col" class="text-center">
+            Zničeno
+            <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+               data-html="true"
+               title="Počet zničených dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
+            </i>
+        </th>
+        <th scope="col" class="text-center">
+            Skladem
+            <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+               data-html="true"
+               title="Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!">
+            </i>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for idx, row in vaccines.iterrows() %}
+    <tr>
+        <td>{{ row['vyrobce'] }}</td>
+        <td class="text-right">{{ row['prijato_celkem'] | format_number }}</td>
+        <td class="text-right">{{ row['vydano'] | format_number }}</td>
+        <td class="text-right">{{ row['pouzito'] | format_number }}</td>
+        <td class="text-right">{{ row['znehodnoceno'] | format_number }}</td>
+        <td class="text-right">{{ row['skladem'] | format_number }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot class="font-weight-bold">
+    <tr>
+        <td>Celkem</td>
+        <td class="text-right">{{ vaccines['prijato_celkem'].sum() | format_number }}</td>
+        <td class="text-right">{{ vaccines['vydano'].sum() | format_number }}</td>
+        <td class="text-right">{{ vaccines['pouzito'].sum() | format_number }}</td>
+        <td class="text-right">{{ vaccines['znehodnoceno'].sum() | format_number }}</td>
+        <td class="text-right">{{ vaccines['skladem'].sum() | format_number }}</td>
+    </tr>
+    </tfoot>
+</table>
+<p class="font-italic">
+    Jde o orientační výpočet z distribuce a spotřeby vakcín. Dataset spotřeba vakcín vykazuje
+    <strong>velké zpoždění a nepřesnosti!</strong>
+</p>
 {%- endmacro %}
