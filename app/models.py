@@ -110,10 +110,10 @@ class OckovaciMistoMetriky(db.Model):
 
     id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
-    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci
-    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci - zmena za den
-    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani
-    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani - zmena za den
+    rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_cekajici = Column(Integer)                    # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)          # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
     registrace_celkem = Column(Integer)                     # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)           # pocet vsech registraci - zmena za den
     registrace_fronta = Column(Integer)                     # pocet registraci bez rezervace
@@ -127,6 +127,8 @@ class OckovaciMistoMetriky(db.Model):
     ockovani_pocet = Column(Integer)                        # pocet ockovanych
     ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
     ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    ockovani_odhad_cekani = Column(Float)                   # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
+    ockovani_odhad_cekani_zmena_den = Column(Float)         # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
     vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden
