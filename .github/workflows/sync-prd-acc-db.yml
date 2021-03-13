@@ -1,8 +1,7 @@
 name: sync-prd-acc-db
 
 on:
-  schedule:
-    - cron:  '30 8 * * *'
+  workflow_dispatch
     
 jobs:
   deploy:
