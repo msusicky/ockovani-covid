@@ -16,10 +16,6 @@ DAYS_MISTO = 30
 def index():
     return render_template('index.html', last_update=_last_import_modified(), now=_now())
 
-@bp.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(bp.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @bp.route("/mista")
 def info_mista():
