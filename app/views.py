@@ -6,7 +6,8 @@ from sqlalchemy import func, text, case
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaniLide, \
+    OckovaciMistoMetriky
 
 DAYS = 14
 DAYS_MISTO = 30
@@ -40,16 +41,18 @@ def info_mista():
                              func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet), ],
                                            else_=0)).label("pocet_fronta"),
                              mista_rezervace_subquery.c.pocet_rezervace_f,
-                             mista_last7_subquery.c.pocet_ockovanych_tyden) \
+                             mista_last7_subquery.c.pocet_ockovanych_tyden, OckovaciMistoMetriky.registrace_odhad_cekani, OckovaciMistoMetriky.registrace_prumer_cekani) \
         .join(OckovaniRegistrace, (OckovaniRegistrace.ockovaci_misto_id == OckovaciMisto.id)) \
+        .join(OckovaciMistoMetriky, (OckovaciMistoMetriky.id == OckovaciMisto.id)) \
         .outerjoin(mista_rezervace_subquery, (OckovaciMisto.id == mista_rezervace_subquery.c.ockovaci_misto_id)) \
         .outerjoin(mista_last7_subquery, (OckovaciMisto.id == mista_last7_subquery.c.ockovaci_misto_id)) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaniRegistrace.import_id == _last_import_id()) \
+        .filter(OckovaciMistoMetriky.datum == date.today()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id,
-                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden) \
+                  mista_rezervace_subquery.c.pocet_rezervace_f, mista_last7_subquery.c.pocet_ockovanych_tyden, OckovaciMistoMetriky.registrace_odhad_cekani, OckovaciMistoMetriky.registrace_prumer_cekani) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
