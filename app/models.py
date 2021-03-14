@@ -379,3 +379,23 @@ class OckovaniRezervace(db.Model):
 
 Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_", cascade="delete")
 OckovaciMisto.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="misto")
+
+
+class ZdravotnickeStredisko(db.Model):
+    __tablename__ = 'zdravotnicke_stredisko'
+
+    zdravotnicke_zarizeni_id = Column(Integer, primary_key=True)
+    pcz = Column(Integer)
+    pcdp = Column(Integer)
+    nazev_cely = Column(Unicode)
+    zdravotnicke_zarizeni_kod = Column(Unicode)
+    druh_zarizeni_kod = Column(Integer)
+    druh_zarizeni = Column(Unicode)
+    obec = Column(Unicode)
+    psc = Column(Unicode)
+    ulice = Column(Unicode)
+    cislo_domu = Column(Unicode)
+    kraj = Column(Unicode)
+    kraj_kod = Column(Unicode)
+    okres = Column(Unicode)
+    okres_kod = Column(Unicode)
