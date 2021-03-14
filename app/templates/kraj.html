@@ -31,7 +31,7 @@
                     <div class="tab-pane active" id="stats">
                         <div class="row mb-n3">
                             {{ macros.metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
-                            {{ macros.metrika('Očkovaní oběma dáv.', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
+                            {{ macros.metrika('Očkovaní oběma dávkami', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
                             {{ macros.metrika('Očkováno dávek', metriky.ockovani_pocet, delta_day=metriky.ockovani_pocet_zmena_den, delta_week=metriky.ockovani_pocet_zmena_tyden, color='std') }}
                             {% set skladem = (metriky.vakciny_prijate_pocet or 0) - (metriky.vakciny_vydane_pocet or 0) - (metriky.vakciny_znicene_pocet or 0) - (metriky.ockovani_pocet or 0) %}
                             {% set skladem_zmena_den = (metriky.vakciny_prijate_pocet_zmena_den or 0) - (metriky.vakciny_vydane_pocet_zmena_den or 0) - (metriky.vakciny_znicene_pocet_zmena_den or 0) - (metriky.ockovani_pocet_zmena_den or 0) %}
