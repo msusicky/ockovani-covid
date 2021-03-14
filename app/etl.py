@@ -201,7 +201,7 @@ class Etl:
                 registrace_odhad_cekani=wait.registrace_odhad_cekani
             ))
 
-        success_ratio = db.session.query(
+        success_ratio_7 = db.session.query(
             OckovaciMisto.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
@@ -211,11 +211,45 @@ class Etl:
             .group_by(OckovaciMisto.id) \
             .all()
 
-        for rate in success_ratio:
+        for ratio in success_ratio_7:
             db.session.merge(OckovaciMistoMetriky(
-                misto_id=rate.id,
+                misto_id=ratio.id,
                 datum=self._date,
-                registrace_tydenni_uspesnost=rate.registrace_tydenni_uspesnost
+                registrace_tydenni_uspesnost=ratio.registrace_tydenni_uspesnost
+            ))
+
+        success_ratio_14 = db.session.query(
+            OckovaciMisto.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
+        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for ratio in success_ratio_14:
+            db.session.merge(OckovaciMistoMetriky(
+                misto_id=ratio.id,
+                datum=self._date,
+                registrace_14denni_uspesnost=ratio.registrace_14denni_uspesnost
+            ))
+
+        success_ratio_30 = db.session.query(
+            OckovaciMisto.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
+        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for ratio in success_ratio_30:
+            db.session.merge(OckovaciMistoMetriky(
+                misto_id=ratio.id,
+                datum=self._date,
+                registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
         vacc_est_waiting = db.session.query(
@@ -237,6 +271,23 @@ class Etl:
                 ockovani_odhad_cekani=wait.ockovani_odhad_cekani
             ))
 
+        vacc_skladem = db.session.query(
+            OckovaciMisto.id, (OckovaciMistoMetriky.vakciny_prijate_pocet - OckovaciMistoMetriky.vakciny_vydane_pocet
+                               - OckovaciMistoMetriky.ockovani_pocet - OckovaciMistoMetriky.vakciny_znicene_pocet).label('vakciny_skladem_pocet')
+        ).join(OckovaciMistoMetriky, OckovaciMisto.id == OckovaciMistoMetriky.misto_id) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .group_by(OckovaciMisto.id, OckovaciMistoMetriky.vakciny_prijate_pocet,
+                      OckovaciMistoMetriky.vakciny_vydane_pocet, OckovaciMistoMetriky.ockovani_pocet,
+                      OckovaciMistoMetriky.vakciny_znicene_pocet) \
+            .all()
+
+        for vacc in vacc_skladem:
+            db.session.merge(OckovaciMistoMetriky(
+                misto_id=vacc.id,
+                datum=self._date,
+                vakciny_skladem_pocet=vacc.vakciny_skladem_pocet
+            ))
+
         app.logger.info('Computing vaccination centers metrics - derived metrics finished.')
 
     def _compute_center_deltas(self):
@@ -249,6 +300,8 @@ class Etl:
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
                 registrace_odhad_cekani_zmena_den = t0.registrace_odhad_cekani - t1.registrace_odhad_cekani,
                 ockovani_pocet_zmena_den = t0.ockovani_pocet - t1.ockovani_pocet,
@@ -258,7 +311,8 @@ class Etl:
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_den = t0.vakciny_vydane_pocet - t1.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet
+                vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
+                vakciny_skladem_pocet_zmena_den = t0.vakciny_skladem_pocet - t1.vakciny_skladem_pocet
             from ockovaci_mista_metriky t0 
             join ockovaci_mista_metriky t1
             on t0.misto_id = t1.misto_id
@@ -269,13 +323,24 @@ class Etl:
         db.session.execute(text(
             """
             update ockovaci_mista_metriky t
-            set ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
+            set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
+                rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
+                registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
+                registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
+                registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                registrace_odhad_cekani_zmena_tyden = t0.registrace_odhad_cekani - t7.registrace_odhad_cekani,
+                ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
                 ockovani_pocet_1_zmena_tyden = t0.ockovani_pocet_1 - t7.ockovani_pocet_1,
                 ockovani_pocet_2_zmena_tyden = t0.ockovani_pocet_2 - t7.ockovani_pocet_2,
+                ockovani_odhad_cekani_zmena_tyden = t0.ockovani_odhad_cekani - t7.ockovani_odhad_cekani,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_tyden = t0.vakciny_vydane_pocet - t7.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet
+                vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,
+                vakciny_skladem_pocet_zmena_tyden = t0.vakciny_skladem_pocet - t7.vakciny_skladem_pocet
             from ockovaci_mista_metriky t0 
             join ockovaci_mista_metriky t7
             on t0.misto_id = t7.misto_id
@@ -406,7 +471,7 @@ class Etl:
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
             ))
 
-        success_ratio = db.session.query(
+        success_ratio_7 = db.session.query(
             Okres.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
@@ -417,11 +482,47 @@ class Etl:
             .group_by(Okres.id) \
             .all()
 
-        for rate in success_ratio:
+        for ratio in success_ratio_7:
             db.session.merge(OkresMetriky(
-                okres_id=rate.id,
+                okres_id=ratio.id,
                 datum=self._date,
-                registrace_tydenni_uspesnost=rate.registrace_tydenni_uspesnost
+                registrace_tydenni_uspesnost=ratio.registrace_tydenni_uspesnost
+            ))
+
+        success_ratio_14 = db.session.query(
+            Okres.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
+            .group_by(Okres.id) \
+            .all()
+
+        for ratio in success_ratio_14:
+            db.session.merge(OkresMetriky(
+                okres_id=ratio.id,
+                datum=self._date,
+                registrace_14denni_uspesnost=ratio.registrace_14denni_uspesnost
+            ))
+
+        success_ratio_30 = db.session.query(
+            Okres.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \
+            .group_by(Okres.id) \
+            .all()
+
+        for ratio in success_ratio_30:
+            db.session.merge(OkresMetriky(
+                okres_id=ratio.id,
+                datum=self._date,
+                registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
         app.logger.info('Computing okres metrics - derived metrics finished.')
@@ -436,6 +537,8 @@ class Etl:
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_den = t0.vakciny_vydane_pocet - t1.vakciny_vydane_pocet,
@@ -451,7 +554,15 @@ class Etl:
         db.session.execute(text(
             """
             update okresy_metriky t
-            set vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
+            set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
+                rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
+                registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
+                registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
+                registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_tyden = t0.vakciny_vydane_pocet - t7.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet
@@ -612,7 +723,7 @@ class Etl:
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
             ))
 
-        success_ratio = db.session.query(
+        success_ratio_7 = db.session.query(
             Kraj.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
@@ -624,11 +735,65 @@ class Etl:
             .group_by(Kraj.id) \
             .all()
 
-        for rate in success_ratio:
+        for ratio in success_ratio_7:
             db.session.merge(KrajMetriky(
-                kraj_id=rate.id,
+                kraj_id=ratio.id,
                 datum=self._date,
-                registrace_tydenni_uspesnost=rate.registrace_tydenni_uspesnost
+                registrace_tydenni_uspesnost=ratio.registrace_tydenni_uspesnost
+            ))
+
+        success_ratio_14 = db.session.query(
+            Kraj.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
+            .group_by(Kraj.id) \
+            .all()
+
+        for ratio in success_ratio_14:
+            db.session.merge(KrajMetriky(
+                kraj_id=ratio.id,
+                datum=self._date,
+                registrace_14denni_uspesnost=ratio.registrace_14denni_uspesnost
+            ))
+
+        success_ratio_30 = db.session.query(
+            Kraj.id,
+            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \
+            .group_by(Kraj.id) \
+            .all()
+
+        for ratio in success_ratio_30:
+            db.session.merge(KrajMetriky(
+                kraj_id=ratio.id,
+                datum=self._date,
+                registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
+            ))
+
+        vacc_skladem = db.session.query(
+            Kraj.id, (KrajMetriky.vakciny_prijate_pocet - KrajMetriky.vakciny_vydane_pocet - KrajMetriky.ockovani_pocet
+                      - KrajMetriky.vakciny_znicene_pocet).label('vakciny_skladem_pocet')
+        ).join(KrajMetriky, Kraj.id == KrajMetriky.kraj_id) \
+            .filter(KrajMetriky.datum == self._date) \
+            .group_by(Kraj.id, KrajMetriky.vakciny_prijate_pocet, KrajMetriky.vakciny_vydane_pocet,
+                      KrajMetriky.ockovani_pocet, KrajMetriky.vakciny_znicene_pocet) \
+            .all()
+
+        for vacc in vacc_skladem:
+            db.session.merge(KrajMetriky(
+                kraj_id=vacc.id,
+                datum=self._date,
+                vakciny_skladem_pocet=vacc.vakciny_skladem_pocet
             ))
 
         app.logger.info('Computing kraj metrics - derived metrics finished.')
@@ -643,6 +808,8 @@ class Etl:
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
                 ockovani_pocet_zmena_den = t0.ockovani_pocet - t1.ockovani_pocet,
                 ockovani_pocet_1_zmena_den = t0.ockovani_pocet_1 - t1.ockovani_pocet_1,
@@ -650,7 +817,8 @@ class Etl:
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_den = t0.vakciny_vydane_pocet - t1.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet
+                vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
+                vakciny_skladem_pocet_zmena_den = t0.vakciny_skladem_pocet - t1.vakciny_skladem_pocet
             from kraje_metriky t0 
             join kraje_metriky t1
             on t0.kraj_id = t1.kraj_id
@@ -661,13 +829,22 @@ class Etl:
         db.session.execute(text(
             """
             update kraje_metriky t
-            set ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
+            set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
+                rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
+                registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
+                registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
+                registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
+                registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
+                registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
                 ockovani_pocet_1_zmena_tyden = t0.ockovani_pocet_1 - t7.ockovani_pocet_1,
                 ockovani_pocet_2_zmena_tyden = t0.ockovani_pocet_2 - t7.ockovani_pocet_2,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_vydane_pocet_zmena_tyden = t0.vakciny_vydane_pocet - t7.vakciny_vydane_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet
+                vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,
+                vakciny_skladem_pocet_zmena_tyden = t0.vakciny_skladem_pocet - t7.vakciny_skladem_pocet
             from kraje_metriky t0 
             join kraje_metriky t7
             on t0.kraj_id = t7.kraj_id

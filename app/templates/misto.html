@@ -73,20 +73,22 @@
                     <div class="tab-pane active" id="stats">
                         <div class="row mb-n3">
                             {% if metriky.ockovani_pocet %}
-                            {{ macros.metrika('Očkovaní oběma dávkami', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
+                            {{ macros.metrika('Očkovaní (obě dávky)', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
                             {{ macros.metrika('Očkováno dávek', metriky.ockovani_pocet, delta_day=metriky.ockovani_pocet_zmena_den, delta_week=metriky.ockovani_pocet_zmena_tyden, color='std') }}
-                            {% set skladem = (metriky.vakciny_prijate_pocet or 0) - (metriky.vakciny_vydane_pocet or 0) - (metriky.vakciny_znicene_pocet or 0) - (metriky.ockovani_pocet or 0) %}
-                            {% set skladem_zmena_den = (metriky.vakciny_prijate_pocet_zmena_den or 0) - (metriky.vakciny_vydane_pocet_zmena_den or 0) - (metriky.vakciny_znicene_pocet_zmena_den or 0) - (metriky.ockovani_pocet_zmena_den or 0) %}
-                            {% set skladem_zmena_tyden = (metriky.vakciny_prijate_pocet_zmena_tyden or 0) - (metriky.vakciny_vydane_pocet_zmena_tyden or 0) - (metriky.vakciny_znicene_pocet_zmena_tyden or 0) - (metriky.ockovani_pocet_zmena_tyden or 0) %}
-                            {{ macros.metrika('Přibližně skladem', skladem, delta_day=skladem_zmena_den, delta_week=skladem_zmena_tyden, warning='Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!') }}
+                            {{ macros.metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!') }}
                             {% endif %}
-                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, color='rev') }}
-                            {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den) }}
-                            {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani / 7, delta_day=metriky.registrace_prumer_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
-                            {% if metriky.ockovani_pocet %}
-                            {{ macros.metrika('Naočkování registrovaných', metriky.ockovani_odhad_cekani / 7, delta_day=metriky.ockovani_odhad_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev', warning='TODO') }}
+
+                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_den, color='rev') }}
+                            {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den, delta_week=metriky.rezervace_cekajici_zmena_den) }}
+                            {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev') }}
+
+                            {% if metriky.ockovani_odhad_cekani %}
+                            {{ macros.metrika('Naočkování registrovaných', metriky.ockovani_odhad_cekani, delta_day=metriky.ockovani_odhad_cekani_zmena_den, delta_week=metriky.ockovani_odhad_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', warning='TODO') }}
                             {% endif %}
-                            {{ macros.metrika('Týdenní úspěšnost', metriky.registrace_tydenni_uspesnost * 100, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den * 100, decimal=True, unit='%', color='std') }}
+
+                            {{ macros.metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std') }}
+                            {{ macros.metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std') }}
+                            {{ macros.metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std') }}
                         </div>
                     </div>
 

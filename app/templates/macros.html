@@ -141,47 +141,65 @@
 </p>
 {%- endmacro %}
 
-{% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', color=None, note=None, warning=None) -%}
+{% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', multiply=1, divide=1, color=None, note=None, warning=None) -%}
 <div class="col-md-4 col-lg-3 mb-3 py-2">
     <div class="card h-100">
         <div class="card-body">
-            <h6 class="card-title ellipsis">
-                {{ name }}
-                {% if note %}
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ note }}"></i>
-                {% endif %}
-                {% if warning %}
-                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ warning }}"></i>
-                {% endif %}
-            </h6>
+            <div class="row">
+                <div class="col-md-9 col-xl-10 pr-0">
+                    <h6 class="card-title ellipsis">
+                        {{ name }}
+                    </h6>
+                </div>
+                <div class="col pl-0 text-right">
+                    <h6 class="card-title">
+                        {% if note %}
+                        <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ note }}"></i>
+                        {% endif %}
+                        {% if warning %}
+                        <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ warning }}"></i>
+                        {% endif %}
+                    </h6>
+                </div>
+            </div>
             {% if decimal %}
-            <p class="card-text text-right metrics-number">{{ number | format_decimal }} {{ unit }}</p>
+            <p class="card-text text-right metrics-number">{{ (number if number == None else ((number * multiply) / divide)) | format_decimal }} {{ unit }}</p>
             <p class="card-text text-right metrics-delta">
                 {% if delta_day != None %}
-                <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else delta_day) }}">
-                    {{ delta_day | format_decimal_delta }} {{ unit }}
+                <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else delta_day) }}"
+                      data-toggle="tooltip" data-placement="auto" title="Změna za 1 den">
+                    {{ ((delta_day * multiply) / divide) | format_decimal_delta }}
                 </span>
                 {% endif %}
                 {% if delta_week != None %}
                 /
-                <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else delta_week) }}">
-                    {{ delta_week | format_decimal_delta }} {{ unit }}
+                <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else delta_week) }}"
+                      data-toggle="tooltip" data-placement="auto" title="Změna za 7 dní">
+                    {{ ((delta_week * multiply) / divide) | format_decimal_delta }}
                 </span>
+                {% endif %}
+                {% if delta_day != None or delta_week != None %}
+                {{ unit }}
                 {% endif %}
             </p>
             {% else %}
             <p class="card-text text-right metrics-number">{{ number | format_number }} {{ unit }}</p>
             <p class="card-text text-right metrics-delta">
                 {% if delta_day != None %}
-                <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else delta_day) }}">
-                    {{ delta_day | format_number_delta }} {{ unit }}
+                <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else delta_day) }}"
+                      data-toggle="tooltip" data-placement="auto" title="Změna za 1 den">
+                    {{ delta_day | format_number_delta }}
                 </span>
                 {% endif %}
                 {% if delta_week != None %}
                 /
-                <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else delta_week) }}">
-                    {{ delta_week | format_number_delta }} {{ unit }}
+                <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else delta_week) }}"
+                      data-toggle="tooltip" data-placement="auto" title="Změna za 7 dní">
+                    {{ delta_week | format_number_delta }}
                 </span>
+                {% endif %}
+                {% if delta_day != None or delta_week != None %}
+                {{ unit }}
                 {% endif %}
             </p>
             {% endif %}
