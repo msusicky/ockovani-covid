@@ -145,13 +145,15 @@ def info_misto(misto_id):
 
     # Compute boundary dates for rangeslider in time series chart
     dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
+    start_date = None if len(dates) == 0 else min(dates)
+    end_date = None if len(dates) == 0 else max(dates)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
                            vaccines=vaccines,
                            registrace_info=registrace_info,
                            registrace_overview=registrace_overview,
                            registrace_overview_terminy=registrace_overview_terminy,
-                           end_date=max(dates), start_date=min(dates))
+                           start_date=start_date, end_date=end_date)
 
 
 @bp.route("/mapa")
