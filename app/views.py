@@ -1,16 +1,12 @@
-import os
 from datetime import timedelta, date, datetime
 
-from flask import render_template, send_from_directory
+from flask import render_template
 from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky, \
-    KrajMetriky
-
-DAYS = 14
-DAYS_MISTO = 30
+    KrajMetriky, OkresMetriky
 
 
 @bp.route('/')
@@ -33,7 +29,7 @@ def info_mista():
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now(), days=DAYS)
+    return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now())
 
 
 @bp.route("/okres/<okres_name>")
@@ -41,6 +37,10 @@ def info_okres(okres_name):
     okres = db.session.query(Okres).filter(Okres.nazev == okres_name).one_or_none()
     if okres is None:
         abort(404)
+
+    metriky = db.session.query(OkresMetriky) \
+        .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == _last_import_date()) \
+        .one_or_none()
 
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
@@ -58,8 +58,8 @@ def info_okres(okres_name):
 
     vaccines = queries.count_vaccines('okres_id', okres.id)
 
-    return render_template('okres.html', mista=mista, okres=okres, last_update=_last_import_modified(), now=_now(),
-                           days=DAYS, vaccines=vaccines)
+    return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, metriky=metriky,
+                           mista=mista, vaccines=vaccines)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -97,6 +97,10 @@ def info_misto(misto_id):
     misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
     if misto is None:
         abort(404)
+
+    metriky = db.session.query(OckovaciMistoMetriky) \
+        .filter(OckovaciMistoMetriky.misto_id == misto_id, OckovaciMistoMetriky.datum == _last_import_date()) \
+        .one_or_none()
 
     registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove",
                                        "rezervace_celkem").from_statement(text(
@@ -142,8 +146,9 @@ def info_misto(misto_id):
     # Compute boundary dates for rangeslider in time series chart
     dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
 
-    return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto,
-                           registrace_info=registrace_info, vaccines=vaccines,
+    return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
+                           vaccines=vaccines,
+                           registrace_info=registrace_info,
                            registrace_overview=registrace_overview,
                            registrace_overview_terminy=registrace_overview_terminy,
                            end_date=max(dates), start_date=min(dates))
@@ -160,7 +165,7 @@ def mapa():
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + timedelta(DAYS)) \
+                OckovaniRezervace.datum < date.today() + timedelta(14)) \
         .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
         .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
@@ -170,7 +175,7 @@ def mapa():
         .all()
 
     return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
-                           days=DAYS)
+                           days=14)
 
 
 @bp.route("/opendata")

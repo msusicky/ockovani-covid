@@ -39,9 +39,9 @@ class Etl:
         self._compute_okres_registrations()
         self._compute_okres_reservations()
         # # self._compute_okres_vaccinated() # todo
-        # self._compute_okres_distributed()
-        # self._compute_okres_used()
-        # self._compute_okres_derived()
+        self._compute_okres_distributed()
+        self._compute_okres_used()
+        self._compute_okres_derived()
         self._compute_okres_deltas()
 
     def compute_regions(self):
@@ -49,9 +49,9 @@ class Etl:
         self._compute_kraj_registrations()
         self._compute_kraj_reservations()
         self._compute_kraj_vaccinated()
-        # self._compute_kraj_distributed()
-        # self._compute_kraj_used()
-        # self._compute_kraj_derived()
+        self._compute_kraj_distributed()
+        self._compute_kraj_used()
+        self._compute_kraj_derived()
         self._compute_kraj_deltas()
 
     def _compute_center_registrations(self):
@@ -144,7 +144,7 @@ class Etl:
 
     def _compute_center_used(self):
         """Computes metrics based on used vaccines dataset for each vaccination center."""
-        distributed = db.session.query(
+        used = db.session.query(
             OckovaciMisto.id,
             func.sum(OckovaniSpotreba.pouzite_davky).label('vakciny_ockovane_pocet'),
             func.sum(OckovaniSpotreba.znehodnocene_davky).label('vakciny_znicene_pocet')
@@ -153,12 +153,12 @@ class Etl:
             .group_by(OckovaciMisto.id) \
             .all()
 
-        for dist in distributed:
+        for use in used:
             db.session.merge(OckovaciMistoMetriky(
-                misto_id=dist.id,
+                misto_id=use.id,
                 datum=self._date,
-                vakciny_ockovane_pocet=dist.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet=dist.vakciny_znicene_pocet
+                vakciny_ockovane_pocet=use.vakciny_ockovane_pocet,
+                vakciny_znicene_pocet=use.vakciny_znicene_pocet
             ))
 
         app.logger.info('Computing vaccination centers metrics - used vaccines finished.')
@@ -348,16 +348,12 @@ class Etl:
     def _compute_okres_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each okres."""
         distributed = db.session.query(
-            OckovaciMisto.id,
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)).label('vakciny_prijate_pocet'),
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_vydane_pocet')
-        ).join(OckovaniDistribuce,
-               or_(
-                   and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
-                   and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
-               )) \
-            .filter(OckovaniDistribuce.datum < self._date) \
-            .group_by(OckovaciMisto.id) \
+            Okres.id, func.sum(OckovaciMistoMetriky.vakciny_prijate_pocet).label('vakciny_prijate_pocet'),
+            func.sum(OckovaciMistoMetriky.vakciny_vydane_pocet).label("vakciny_vydane_pocet")
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .group_by(Okres.id) \
             .all()
 
         for dist in distributed:
@@ -372,21 +368,21 @@ class Etl:
 
     def _compute_okres_used(self):
         """Computes metrics based on used vaccines dataset for each okres."""
-        distributed = db.session.query(
-            OckovaciMisto.id,
-            func.sum(OckovaniSpotreba.pouzite_davky).label('vakciny_ockovane_pocet'),
-            func.sum(OckovaniSpotreba.znehodnocene_davky).label('vakciny_znicene_pocet')
-        ).join(OckovaniSpotreba, OckovaciMisto.id == OckovaniSpotreba.ockovaci_misto_id) \
-            .filter(OckovaniSpotreba.datum < self._date) \
-            .group_by(OckovaciMisto.id) \
+        used = db.session.query(
+            Okres.id, func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
+            func.sum(OckovaciMistoMetriky.vakciny_znicene_pocet).label("vakciny_znicene_pocet")
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .group_by(Okres.id) \
             .all()
 
-        for dist in distributed:
+        for use in used:
             db.session.merge(OkresMetriky(
-                okres_id=dist.id,
+                okres_id=use.id,
                 datum=self._date,
-                vakciny_ockovane_pocet=dist.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet=dist.vakciny_znicene_pocet
+                vakciny_ockovane_pocet=use.vakciny_ockovane_pocet,
+                vakciny_znicene_pocet=use.vakciny_znicene_pocet
             ))
 
         app.logger.info('Computing okres metrics - used vaccines finished.')
@@ -394,12 +390,13 @@ class Etl:
     def _compute_okres_derived(self):
         """Computes metrics derived from the previous metrics for each okres."""
         avg_waiting = db.session.query(
-            OckovaciMisto.id,
+            Okres.id,
             func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
-        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
-            .group_by(OckovaciMisto.id) \
+            .group_by(Okres.id) \
             .all()
 
         for wait in avg_waiting:
@@ -410,13 +407,14 @@ class Etl:
             ))
 
         success_ratio = db.session.query(
-            OckovaciMisto.id,
+            Okres.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
-        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
-            .group_by(OckovaciMisto.id) \
+            .group_by(Okres.id) \
             .all()
 
         for rate in success_ratio:
@@ -553,16 +551,13 @@ class Etl:
     def _compute_kraj_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each kraj."""
         distributed = db.session.query(
-            OckovaciMisto.id,
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)).label('vakciny_prijate_pocet'),
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_vydane_pocet')
-        ).join(OckovaniDistribuce,
-               or_(
-                   and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
-                   and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
-               )) \
-            .filter(OckovaniDistribuce.datum < self._date) \
-            .group_by(OckovaciMisto.id) \
+            Kraj.id, func.sum(OckovaciMistoMetriky.vakciny_prijate_pocet).label('vakciny_prijate_pocet'),
+            func.sum(OckovaciMistoMetriky.vakciny_vydane_pocet).label("vakciny_vydane_pocet")
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .group_by(Kraj.id) \
             .all()
 
         for dist in distributed:
@@ -577,21 +572,22 @@ class Etl:
 
     def _compute_kraj_used(self):
         """Computes metrics based on used vaccines dataset for each kraj."""
-        distributed = db.session.query(
-            OckovaciMisto.id,
-            func.sum(OckovaniSpotreba.pouzite_davky).label('vakciny_ockovane_pocet'),
-            func.sum(OckovaniSpotreba.znehodnocene_davky).label('vakciny_znicene_pocet')
-        ).join(OckovaniSpotreba, OckovaciMisto.id == OckovaniSpotreba.ockovaci_misto_id) \
-            .filter(OckovaniSpotreba.datum < self._date) \
-            .group_by(OckovaciMisto.id) \
+        used = db.session.query(
+            Kraj.id, func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
+            func.sum(OckovaciMistoMetriky.vakciny_znicene_pocet).label("vakciny_znicene_pocet")
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
+            .filter(OckovaciMistoMetriky.datum == self._date) \
+            .group_by(Kraj.id) \
             .all()
 
-        for dist in distributed:
+        for use in used:
             db.session.merge(KrajMetriky(
-                kraj_id=dist.id,
+                kraj_id=use.id,
                 datum=self._date,
-                vakciny_ockovane_pocet=dist.vakciny_ockovane_pocet,
-                vakciny_znicene_pocet=dist.vakciny_znicene_pocet
+                vakciny_ockovane_pocet=use.vakciny_ockovane_pocet,
+                vakciny_znicene_pocet=use.vakciny_znicene_pocet
             ))
 
         app.logger.info('Computing kraj metrics - used vaccines finished.')
@@ -599,12 +595,14 @@ class Etl:
     def _compute_kraj_derived(self):
         """Computes metrics derived from the previous metrics for each kraj."""
         avg_waiting = db.session.query(
-            OckovaciMisto.id,
+            Kraj.id,
             func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
-        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
-            .group_by(OckovaciMisto.id) \
+            .group_by(Kraj.id) \
             .all()
 
         for wait in avg_waiting:
@@ -615,13 +613,15 @@ class Etl:
             ))
 
         success_ratio = db.session.query(
-            OckovaciMisto.id,
+            Kraj.id,
             (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
-        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
-            .group_by(OckovaciMisto.id) \
+            .group_by(Kraj.id) \
             .all()
 
         for rate in success_ratio:

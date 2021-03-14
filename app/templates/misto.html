@@ -54,7 +54,10 @@
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link active" data-toggle="tab" href="#stats">Statistiky</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
@@ -67,7 +70,27 @@
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="registration">
+                    <div class="tab-pane active" id="stats">
+                        <div class="row mb-n3">
+                            {% if metriky.ockovani_pocet %}
+                            {{ macros.metrika('Očkovaní oběma dáv.', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
+                            {{ macros.metrika('Očkováno dávek', metriky.ockovani_pocet, delta_day=metriky.ockovani_pocet_zmena_den, delta_week=metriky.ockovani_pocet_zmena_tyden, color='std') }}
+                            {% set skladem = (metriky.vakciny_prijate_pocet or 0) - (metriky.vakciny_vydane_pocet or 0) - (metriky.vakciny_znicene_pocet or 0) - (metriky.ockovani_pocet or 0) %}
+                            {% set skladem_zmena_den = (metriky.vakciny_prijate_pocet_zmena_den or 0) - (metriky.vakciny_vydane_pocet_zmena_den or 0) - (metriky.vakciny_znicene_pocet_zmena_den or 0) - (metriky.ockovani_pocet_zmena_den or 0) %}
+                            {% set skladem_zmena_tyden = (metriky.vakciny_prijate_pocet_zmena_tyden or 0) - (metriky.vakciny_vydane_pocet_zmena_tyden or 0) - (metriky.vakciny_znicene_pocet_zmena_tyden or 0) - (metriky.ockovani_pocet_zmena_tyden or 0) %}
+                            {{ macros.metrika('Přibližně skladem', skladem, delta_day=skladem_zmena_den, delta_week=skladem_zmena_tyden, warning='Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!') }}
+                            {% endif %}
+                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, color='rev') }}
+                            {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den) }}
+                            {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani / 7, delta_day=metriky.registrace_prumer_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
+                            {% if metriky.ockovani_pocet %}
+                            {{ macros.metrika('Týdnů k naočkování registrovaných', metriky.ockovani_odhad_cekani / 7, delta_day=metriky.ockovani_odhad_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
+                            {% endif %}
+                            {{ macros.metrika('Týdenní úspěšnost', metriky.registrace_tydenni_uspesnost * 100, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den * 100, decimal=True, unit='%', color='std') }}
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="registration">
                         {% if registrace_info %}
                         <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
                             <thead class="thead-dark">

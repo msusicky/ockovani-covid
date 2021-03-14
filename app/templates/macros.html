@@ -107,7 +107,7 @@
             Skladem
             <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
                data-html="true"
-               title="Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!">
+               title="Počet dávek skladem.<br>Údaj je počítán z předchozích sloupců a může vykazovat velké nepřesnosti!">
             </i>
         </th>
     </tr>
@@ -148,10 +148,10 @@
             <h6 class="card-title">
                 {{ name }}
                 {% if note %}
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" title="{{ note }}"></i>
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ note }}"></i>
                 {% endif %}
                 {% if warning %}
-                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" title="{{ warning }}"></i>
+                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ warning }}"></i>
                 {% endif %}
             </h6>
             {% if decimal %}
