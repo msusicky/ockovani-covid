@@ -45,9 +45,9 @@ def format_datetime_short_wd(date):
 
 @app.template_filter()
 def number_color(number):
-    return '' if number is None or number == 0 else 'text-danger' if number < 0 else 'text-success'
+    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, 1) < 0 else 'text-success'
 
 
 @app.template_filter()
 def number_color_rev(number):
-    return '' if number is None or number == 0 else 'text-danger' if number > 0 else 'text-success'
+    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, 1) > 0 else 'text-success'
