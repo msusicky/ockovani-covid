@@ -84,7 +84,7 @@
                             {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den) }}
                             {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani / 7, delta_day=metriky.registrace_prumer_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
                             {% if metriky.ockovani_pocet %}
-                            {{ macros.metrika('Týdnů k naočkování registrovaných', metriky.ockovani_odhad_cekani / 7, delta_day=metriky.ockovani_odhad_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
+                            {{ macros.metrika('Nočkování registrovaných', metriky.ockovani_odhad_cekani / 7, delta_day=metriky.ockovani_odhad_cekani_zmena_den / 7, decimal=True, unit='týdne', color='rev') }}
                             {% endif %}
                             {{ macros.metrika('Týdenní úspěšnost', metriky.registrace_tydenni_uspesnost * 100, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den * 100, decimal=True, unit='%', color='std') }}
                         </div>
