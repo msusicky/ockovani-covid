@@ -30,7 +30,7 @@
                 <div class="tab-content">
                     <div class="tab-pane active" id="stats">
                         <div class="row mb-n3">
-                            {{ macros.metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
+                            {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
                             {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev') }}
                             {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den, delta_week=metriky.rezervace_cekajici_zmena_tyden) }}
                             {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev') }}

@@ -30,7 +30,7 @@
                 <div class="tab-content">
                     <div class="tab-pane active" id="stats">
                         <div class="row mb-n3">
-                            {{ macros.metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
+                            {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
                             {{ macros.metrika('Očkovaní (obě dávky)', metriky.ockovani_pocet_2, delta_day=metriky.ockovani_pocet_2_zmena_den, delta_week=metriky.ockovani_pocet_2_zmena_tyden, color='std') }}
                             {{ macros.metrika('Očkováno dávek', metriky.ockovani_pocet, delta_day=metriky.ockovani_pocet_zmena_den, delta_week=metriky.ockovani_pocet_zmena_tyden, color='std') }}
                             {{ macros.metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!') }}
