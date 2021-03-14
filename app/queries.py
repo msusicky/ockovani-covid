@@ -89,6 +89,6 @@ def count_vaccines(filter_column, filter_value):
     res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud']
     res['skladem'] = res['prijato_celkem'] - res['vydano'] - res['pouzito'] - res['znehodnoceno']
 
-    res = res.sort_values(by=['vyrobce'])
+    res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
     return res

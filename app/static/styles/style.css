@@ -7,3 +7,14 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.metrics-number {
+    text-align: right;
+    margin-bottom: 0;
+    font-size: 200%;
+}
+
+.metrics-delta {
+    text-align: right;
+    font-size: 120%;
+}
