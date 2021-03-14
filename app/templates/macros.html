@@ -142,6 +142,7 @@
 {%- endmacro %}
 
 {% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', multiply=1, divide=1, color=None, note=None, warning=None) -%}
+{% if number != None %}
 <div class="col-md-4 col-lg-3 mb-3 py-2">
     <div class="card h-100">
         <div class="card-body">
@@ -163,7 +164,7 @@
                 </div>
             </div>
             {% if decimal %}
-            <p class="card-text text-right metrics-number">{{ (number if number == None else ((number * multiply) / divide)) | format_decimal }} {{ unit }}</p>
+            <p class="card-text text-right metrics-number">{{ ((number * multiply) / divide) | format_decimal }} {{ unit }}</p>
             <p class="card-text text-right metrics-delta">
                 {% if delta_day != None %}
                 <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else delta_day) }}"
@@ -206,4 +207,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {%- endmacro %}

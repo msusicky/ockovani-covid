@@ -57,8 +57,8 @@ class Etl:
     def _compute_center_registrations(self):
         """Computes metrics based on registrations dataset for each vaccination center."""
         registrations = db.session.query(
-            OckovaciMisto.id, func.sum(OckovaniRegistrace.pocet).label('registrace_celkem'),
-            func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)).label("registrace_fronta")
+            OckovaciMisto.id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
+            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta")
         ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id))\
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .group_by(OckovaciMisto.id) \
@@ -78,8 +78,8 @@ class Etl:
         """Computes metrics based on reservations dataset for each vaccination center."""
         reservations = db.session.query(
             OckovaciMisto.id,
-            func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita).label('rezervace_celkem'),
-            func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)).label("rezervace_cekajici")
+            func.coalesce(func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), 0).label('rezervace_celkem'),
+            func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici")
         ).join(OckovaniRezervace, (OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id)) \
             .filter(OckovaniRezervace.import_id == self._import_id) \
             .group_by(OckovaciMisto.id) \
@@ -97,9 +97,9 @@ class Etl:
 
     def _compute_center_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each vaccination center."""
-        vaccinated = db.session.query(OckovaciMisto.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet'),
-                                      func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_1'),
-                                      func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_2')) \
+        vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
+                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
+                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')) \
             .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
             .filter(OckovaniLide.datum < self._date) \
             .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
@@ -121,8 +121,8 @@ class Etl:
         """Computes metrics based on distributed vaccines dataset for each vaccination center."""
         distributed = db.session.query(
             OckovaciMisto.id,
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)).label('vakciny_prijate_pocet'),
-            func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_vydane_pocet')
+            func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)), 0).label('vakciny_prijate_pocet'),
+            func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0).label('vakciny_vydane_pocet')
         ).join(OckovaniDistribuce,
                or_(
                    and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
@@ -146,8 +146,8 @@ class Etl:
         """Computes metrics based on used vaccines dataset for each vaccination center."""
         used = db.session.query(
             OckovaciMisto.id,
-            func.sum(OckovaniSpotreba.pouzite_davky).label('vakciny_ockovane_pocet'),
-            func.sum(OckovaniSpotreba.znehodnocene_davky).label('vakciny_znicene_pocet')
+            func.coalesce(func.sum(OckovaniSpotreba.pouzite_davky), 0).label('vakciny_ockovane_pocet'),
+            func.coalesce(func.sum(OckovaniSpotreba.znehodnocene_davky), 0).label('vakciny_znicene_pocet')
         ).join(OckovaniSpotreba, OckovaciMisto.id == OckovaniSpotreba.ockovaci_misto_id) \
             .filter(OckovaniSpotreba.datum < self._date) \
             .group_by(OckovaciMisto.id) \
@@ -203,7 +203,7 @@ class Etl:
 
         success_ratio_7 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
@@ -220,7 +220,7 @@ class Etl:
 
         success_ratio_14 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
@@ -237,7 +237,7 @@ class Etl:
 
         success_ratio_30 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
@@ -473,7 +473,7 @@ class Etl:
 
         success_ratio_7 = db.session.query(
             Okres.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -491,7 +491,7 @@ class Etl:
 
         success_ratio_14 = db.session.query(
             Okres.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -509,7 +509,7 @@ class Etl:
 
         success_ratio_30 = db.session.query(
             Okres.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -640,9 +640,9 @@ class Etl:
     def _compute_kraj_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each kraj."""
         vaccinated = db.session.query(
-            Kraj.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet'),
-            func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_1'),
-            func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_2')
+            Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')
         ).join(OckovaniLide, OckovaniLide.kraj_nuts_kod == Kraj.id) \
             .filter(OckovaniLide.datum < self._date) \
             .group_by(Kraj.id) \
@@ -725,7 +725,7 @@ class Etl:
 
         success_ratio_7 = db.session.query(
             Kraj.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -744,7 +744,7 @@ class Etl:
 
         success_ratio_14 = db.session.query(
             Kraj.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -763,7 +763,7 @@ class Etl:
 
         success_ratio_30 = db.session.query(
             Kraj.id,
-            (1.0 * func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0))
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
