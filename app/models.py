@@ -15,7 +15,7 @@ class Kraj(db.Model):
 class KrajMetriky(db.Model):
     __tablename__ = 'kraje_metriky'
 
-    id = Column(Unicode, ForeignKey('kraje.id'), primary_key=True)
+    kraj_id = Column(Unicode, ForeignKey('kraje.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
     pocet_obyvatel_celkem = Column(Integer)
     pocet_obyvatel_dospeli = Column(Integer)
@@ -34,6 +34,12 @@ class KrajMetriky(db.Model):
     ockovani_pocet = Column(Integer)                        # pocet ockovanych
     ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
     ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    ockovani_pocet_1 = Column(Integer)                      # pocet ockovanych alespon prvni davkou
+    ockovani_pocet_1_zmena_den = Column(Integer)            # pocet ockovanych alespon prvni davkou - zmena za den
+    ockovani_pocet_1_zmena_tyden = Column(Integer)          # pocet ockovanych alespon prvni davkou - zmena za tyden
+    ockovani_pocet_2 = Column(Integer)                      # pocet ockovanych obema davkami
+    ockovani_pocet_2_zmena_den = Column(Integer)            # pocet ockovanych obema davkami - zmena za den
+    ockovani_pocet_2_zmena_tyden = Column(Integer)          # pocet ockovanych obema davkami - zmena za tyden
     vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)       # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)     # pocet prijatych vakcin - zmena za tyden
@@ -50,7 +56,7 @@ class KrajMetriky(db.Model):
     kraj = relationship("Kraj", back_populates="metriky")
 
     def __repr__(self):
-        return "<KrajMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
+        return "<KrajMetriky(id='%s', datum='%s')>" % (self.kraj_id, self.datum)
 
 
 Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
@@ -75,7 +81,7 @@ Kraj.okresy = relationship("Okres", back_populates="kraj")
 class OkresMetriky(db.Model):
     __tablename__ = 'okresy_metriky'
 
-    id = Column(Unicode, ForeignKey('okresy.id'), primary_key=True)
+    okres_id = Column(Unicode, ForeignKey('okresy.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
     pocet_obyvatel_celkem = Column(Integer)
     pocet_obyvatel_dospeli = Column(Integer)
@@ -155,7 +161,7 @@ Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
 class OckovaciMistoMetriky(db.Model):
     __tablename__ = 'ockovaci_mista_metriky'
 
-    id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     datum = Column(DateTime, primary_key=True)
     rezervace_celkem = Column(Integer)                      # pocet vsech rezervaci (vsechny kalendare)
     rezervace_celkem_zmena_den = Column(Integer)            # pocet vsech rezervaci (vsechny kalendare) - zmena za den
@@ -174,6 +180,12 @@ class OckovaciMistoMetriky(db.Model):
     ockovani_pocet = Column(Integer)                        # pocet ockovanych
     ockovani_pocet_zmena_den = Column(Integer)              # pocet ockovanych - zmena za den
     ockovani_pocet_zmena_tyden = Column(Integer)            # pocet ockovanych - zmena za tyden
+    ockovani_pocet_1 = Column(Integer)                      # pocet ockovanych alespon prvni davkou
+    ockovani_pocet_1_zmena_den = Column(Integer)            # pocet ockovanych alespon prvni davkou - zmena za den
+    ockovani_pocet_1_zmena_tyden = Column(Integer)          # pocet ockovanych alespon prvni davkou - zmena za tyden
+    ockovani_pocet_2 = Column(Integer)                      # pocet ockovanych obema davkami
+    ockovani_pocet_2_zmena_den = Column(Integer)            # pocet ockovanych obema davkami - zmena za den
+    ockovani_pocet_2_zmena_tyden = Column(Integer)          # pocet ockovanych obema davkami - zmena za tyden
     ockovani_odhad_cekani = Column(Float)                   # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
     ockovani_odhad_cekani_zmena_den = Column(Float)         # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
     vakciny_prijate_pocet = Column(Integer)                 # pocet prijatych vakcin

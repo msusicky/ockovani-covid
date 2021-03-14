@@ -6,7 +6,8 @@ from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky, \
+    KrajMetriky
 
 DAYS = 14
 DAYS_MISTO = 30
@@ -22,7 +23,7 @@ def info_mista():
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
                              OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky, (OckovaciMistoMetriky.id == OckovaciMisto.id)) \
+        .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaciMistoMetriky.datum == _last_import_date()) \
@@ -44,7 +45,7 @@ def info_okres(okres_name):
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
                              OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky, (OckovaciMistoMetriky.id == OckovaciMisto.id)) \
+        .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_name) \
@@ -67,10 +68,14 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
+    metriky = db.session.query(KrajMetriky) \
+        .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == _last_import_date()) \
+        .one_or_none()
+
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                              Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
                              OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky, (OckovaciMistoMetriky.id == OckovaciMisto.id)) \
+        .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
@@ -83,8 +88,8 @@ def info_kraj(kraj_name):
 
     vaccines = queries.count_vaccines('kraj_id', kraj.id)
 
-    return render_template('kraj.html', mista=mista, kraj=kraj, last_update=_last_import_modified(), now=_now(),
-                           days=DAYS, vaccines=vaccines)
+    return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
+                           mista=mista, vaccines=vaccines)
 
 
 @bp.route("/misto/<misto_id>")
@@ -112,22 +117,6 @@ def info_misto(misto_id):
     )).params(misto_id=misto_id) \
         .params(import_id=_last_import_id()) \
         .all()
-
-    ampule_info = db.session.query("vyrobce", "operace", "sum").from_statement(text(
-        """
-        select * from (select sum(pocet_davek ) as sum,vyrobce,\'Příjem\' as operace from ockovani_distribuce 
-        where ockovaci_misto_id=:misto_id and akce=\'Příjem\' group by vyrobce union 
-        (select coalesce(sum(pocet_davek ),0)as sum,vyrobce,\'Výdej\' as operace from ockovani_distribuce 
-        where ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce) union 
-        (select coalesce(sum(pocet_davek ),0)as sum,vyrobce,\'Příjem odjinud\' as operace from ockovani_distribuce
-        where cilove_ockovaci_misto_id=:misto_id and akce=\'Výdej\' group by vyrobce)
-        union ( select sum(pouzite_davky), vyrobce, \'Očkováno\' as operace
-        from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce)
-        union (select sum(znehodnocene_davky), vyrobce, \'Zničeno\' as operace
-        from ockovani_spotreba where ockovaci_misto_id=:misto_id group by vyrobce) ) as tbl
-        order by vyrobce, operace
-        """
-    )).params(misto_id=misto_id).all()
 
     vaccines = queries.count_vaccines('ockovaci_mista.id', misto_id)
 
