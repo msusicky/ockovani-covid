@@ -18,7 +18,10 @@
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#stats">Statistiky</a>
+                        <a class="nav-link active" data-toggle="tab" href="#centers">Očkovací místa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#stats">Statistiky</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
@@ -28,7 +31,12 @@
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="stats">
+                    <div class="tab-pane active" id="centers">
+                        <div class="mb-n3">
+                            {{ macros.prehled_mist(mista, days) }}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="stats">
                         <div class="row mb-n3">
                             {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
                             {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
@@ -40,20 +48,15 @@
                         </div>
                     </div>
                     <div class="tab-pane" id="vaccines">
-                        {{ macros.stav_vakcin(vaccines) }}
+                        <div class="mb-n3">
+                            {{ macros.stav_vakcin(vaccines) }}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<div class="row">
-    <div class="col">
-        <h4>Očkovací místa v kraji</h4>
-    </div>
-</div>
-{{ macros.prehled_mist(mista, days) }}
 {% endblock %}
 
 
