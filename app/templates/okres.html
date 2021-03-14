@@ -6,13 +6,54 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col">
-             <h3>Očkovací místa v okrese: {{ okres.nazev }} </h3>
+<div class="row">
+    <div class="col">
+        <h3>Okres: {{ okres.nazev }} </h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-4">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#stats">Statistiky</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="stats">
+                        <div class="row mb-n3">
+                            {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
+                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
+                            {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den, delta_week=metriky.rezervace_cekajici_zmena_tyden, info='Počet registrovaných s rezervovaným konkrétním termínem na očkování.') }}
+                            {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).') }}
+                            {{ macros.metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
+                            {{ macros.metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
+                            {{ macros.metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="vaccines">
+                        {{ macros.stav_vakcin(vaccines) }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    {{ macros.prehled_mist(mista, days) }}
+<div class="row">
+    <div class="col">
+        <h4>Očkovací místa v kraji</h4>
+    </div>
+</div>
+{{ macros.prehled_mist(mista, days) }}
 {% endblock %}
 
 
