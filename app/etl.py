@@ -59,8 +59,7 @@ class Etl:
         registrations = db.session.query(
             OckovaciMisto.id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
             func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta")
-        ).join(OckovaniRegistrace, (OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id))\
-            .filter(OckovaniRegistrace.import_id == self._import_id) \
+        ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -80,8 +79,7 @@ class Etl:
             OckovaciMisto.id,
             func.coalesce(func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), 0).label('rezervace_celkem'),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici")
-        ).join(OckovaniRezervace, (OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id)) \
-            .filter(OckovaniRezervace.import_id == self._import_id) \
+        ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -100,8 +98,7 @@ class Etl:
         vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')) \
-            .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
-            .filter(OckovaniLide.datum < self._date) \
+            .outerjoin(OckovaniLide, and_(OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod, OckovaniLide.datum < self._date)) \
             .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -123,12 +120,14 @@ class Etl:
             OckovaciMisto.id,
             func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)), 0).label('vakciny_prijate_pocet'),
             func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0).label('vakciny_vydane_pocet')
-        ).join(OckovaniDistribuce,
-               or_(
-                   and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
-                   and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
+        ).outerjoin(OckovaniDistribuce,
+               and_(
+                   or_(
+                       and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
+                       and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
+                   ),
+                   OckovaniDistribuce.datum < self._date
                )) \
-            .filter(OckovaniDistribuce.datum < self._date) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -148,8 +147,7 @@ class Etl:
             OckovaciMisto.id,
             func.coalesce(func.sum(OckovaniSpotreba.pouzite_davky), 0).label('vakciny_ockovane_pocet'),
             func.coalesce(func.sum(OckovaniSpotreba.znehodnocene_davky), 0).label('vakciny_znicene_pocet')
-        ).join(OckovaniSpotreba, OckovaciMisto.id == OckovaniSpotreba.ockovaci_misto_id) \
-            .filter(OckovaniSpotreba.datum < self._date) \
+        ).outerjoin(OckovaniSpotreba, and_(OckovaciMisto.id == OckovaniSpotreba.ockovaci_misto_id, OckovaniSpotreba.datum < self._date)) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -643,8 +641,7 @@ class Etl:
             Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')
-        ).join(OckovaniLide, OckovaniLide.kraj_nuts_kod == Kraj.id) \
-            .filter(OckovaniLide.datum < self._date) \
+        ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_nuts_kod == Kraj.id, OckovaniLide.datum < self._date)) \
             .group_by(Kraj.id) \
             .all()
 
