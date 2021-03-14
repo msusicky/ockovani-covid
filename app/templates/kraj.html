@@ -42,8 +42,15 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Očkovaní oběma dáv.</h6>
-                                        <p class="card-text text-right metrics-number">123456</p>
-                                        <p class="card-text text-right metrics-delta text-success">+ 123</p>
+                                        <p class="card-text text-right metrics-number">{{ metriky.ockovani_pocet_2 | format_number }}</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span class="{{ metriky.ockovani_pocet_2_zmena_den | number_color }}">
+                                                {{ metriky.ockovani_pocet_2_zmena_den | format_number_delta }}
+                                            </span> /
+                                            <span class="{{ metriky.ockovani_pocet_2_zmena_tyden | number_color }}">
+                                                {{ metriky.ockovani_pocet_2_zmena_tyden | format_number_delta }}
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -51,11 +58,19 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Očkováno dávek</h6>
-                                        <p class="card-text text-right metrics-number">123456</p>
-                                        <p class="card-text text-right metrics-delta text-success">+ 123 / + 521</p>
+                                        <p class="card-text text-right metrics-number">{{ metriky.ockovani_pocet | format_number }}</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span class="{{ metriky.ockovani_pocet_zmena_den | number_color }}">
+                                                {{ metriky.ockovani_pocet_zmena_den | format_number_delta }}
+                                            </span> /
+                                            <span class="{{ metriky.ockovani_pocet_zmena_tyden | number_color }}">
+                                                {{ metriky.ockovani_pocet_zmena_tyden | format_number_delta }}
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-md-4 col-lg-3 mb-3 py-2">
                                 <div class="card h-100">
                                     <div class="card-body">
@@ -65,18 +80,26 @@
                                                title="Počet dávek skladem.<br>Údaj je počítám z předchozích sloupců a může vykazovat velké nepřesnosti!">
                                             </i>
                                         </h6>
-                                        <p class="card-text text-right metrics-number">123456</p>
-                                        <p class="card-text text-right metrics-delta">+ 123</p>
+                                        <p class="card-text text-right metrics-number">{{ 1 | format_number }}</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span>
+                                                {{ 1 | format_number_delta }}
+                                            </span> /
+                                            <span>
+                                                {{ 1 | format_number_delta }}
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, color='rev') }}
                             <div class="col-md-4 col-lg-3 mb-3 py-2">
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Čekající ve frontě</h6>
                                         <p class="card-text text-right metrics-number">{{ metriky.registrace_fronta | format_number }}</p>
                                         <p class="card-text text-right metrics-delta">
-                                            <span class="{{ metriky.registrace_fronta_zmena_den | number_color }}">
+                                            <span class="{{ metriky.registrace_fronta_zmena_den | number_color_rev }}">
                                                 {{ metriky.registrace_fronta_zmena_den | format_number_delta }}
                                             </span>
                                         </p>
@@ -87,8 +110,12 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Čekající s rezervací</h6>
-                                        <p class="card-text text-right metrics-number">123456</p>
-                                        <p class="card-text text-right metrics-delta">+ 123</p>
+                                        <p class="card-text text-right metrics-number">{{ metriky.rezervace_cekajici | format_number }}</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span>
+                                                {{ metriky.rezervace_cekajici_zmena_den | format_number_delta }}
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -96,8 +123,12 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Čekání na rezervaci</h6>
-                                        <p class="card-text text-right metrics-number">1,2 týdne</p>
-                                        <p class="card-text text-right metrics-delta text-danger">+ 0,1 týdne</p>
+                                        <p class="card-text text-right metrics-number">{{ metriky.registrace_prumer_cekani | format_decimal }} týdne</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span class="{{ metriky.registrace_prumer_cekani_zmena_den | number_color_rev }}">
+                                                {{ metriky.registrace_prumer_cekani_zmena_den | format_decimal_delta }} týdne
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -105,8 +136,12 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-title">Týdenní úspěšnost</h6>
-                                        <p class="card-text text-right metrics-number">86 %</p>
-                                        <p class="card-text text-right metrics-delta text-success">+ 12%</p>
+                                        <p class="card-text text-right metrics-number">{{ metriky.registrace_tydenni_uspesnost | format_number }} %</p>
+                                        <p class="card-text text-right metrics-delta">
+                                            <span class="{{ metriky.registrace_tydenni_uspesnost_zmena_den | number_color }}">
+                                                {{ metriky.registrace_tydenni_uspesnost_zmena_den | format_number_delta }} %
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>

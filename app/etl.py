@@ -48,7 +48,7 @@ class Etl:
         self._compute_kraj_population()
         self._compute_kraj_registrations()
         self._compute_kraj_reservations()
-        # self._compute_kraj_vaccinated()
+        self._compute_kraj_vaccinated()
         # self._compute_kraj_distributed()
         # self._compute_kraj_used()
         # self._compute_kraj_derived()
@@ -530,18 +530,22 @@ class Etl:
 
     def _compute_kraj_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each kraj."""
-        vaccinated = db.session.query(OckovaciMisto.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet')) \
-            .join(OckovaniLide, (OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod)) \
+        vaccinated = db.session.query(
+            Kraj.id, func.sum(OckovaniLide.pocet).label('ockovani_pocet'),
+            func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_1'),
+            func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)).label('ockovani_pocet_2')
+        ).join(OckovaniLide, OckovaniLide.kraj_nuts_kod == Kraj.id) \
             .filter(OckovaniLide.datum < self._date) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
-            .group_by(OckovaciMisto.id) \
+            .group_by(Kraj.id) \
             .all()
 
         for vacc in vaccinated:
             db.session.merge(KrajMetriky(
                 kraj_id=vacc.id,
                 datum=self._date,
-                ockovani_pocet=vacc.ockovani_pocet
+                ockovani_pocet=vacc.ockovani_pocet,
+                ockovani_pocet_1=vacc.ockovani_pocet_1,
+                ockovani_pocet_2=vacc.ockovani_pocet_2
             ))
 
         app.logger.info('Computing kraj metrics - vaccinated people finished.')
