@@ -31,14 +31,14 @@ Mapa |
         var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
 
         var icon = JAK.mel("div");
-        {% if misto.cekaci_doba == None %}
+        {% if misto.registrace_prumer_cekani == None %}
         var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"grayscale(1)"});
-        {% elif misto.cekaci_doba > 2 %}
-        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"hue-rotate(80deg)"});
-        {% elif misto.cekaci_doba < 1 %}
-        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-green.png"});
-        {% else %}
+        {% elif misto.registrace_prumer_cekani/7 > 2 %}
         var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
+        {% elif misto.registrace_prumer_cekani/7 < 1 %}
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"hue-rotate(80deg)"});
+        {% else %}
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"});
         {% endif %}
 
         icon.appendChild(image);
@@ -54,7 +54,8 @@ Mapa |
         card.getHeader().innerHTML = "<strong>{{ misto.nazev }}</strong>";
         card.getBody().innerHTML = "<strong>Adresa:</strong> {{misto.adresa}}<br>" +
             "<strong>Bezbariérový přístup:</strong> {{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}<br>" +
-            "<strong>Čekání na rezervaci v týdnech:</strong> {{ 'nemáme data' if misto.cekaci_doba == None else misto.cekaci_doba }} <br>" +
+            "<strong>Čekání na rezervaci v týdnech:</strong> {{ (None if misto.registrace_prumer_cekani == None else (misto.registrace_prumer_cekani / 7)) | format_decimal }} <br>" +
+            "<strong>Odhad týdnů potřebných k naočkování lidí ve frontě a rezervacích:</strong> {{ (None if misto.ockovani_odhad_cekani == None else (misto.ockovani_odhad_cekani / 7)) | format_decimal }} <br>" +
             "<a href=\"./misto/{{ misto.id }}\" class=\"btn btn-primary mt-2\">Detail místa</a>";
         card.getFooter().style = "display: none";
         card.getContainer().style.padding = "0";

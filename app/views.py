@@ -162,17 +162,12 @@ def mapa():
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
                                      OckovaciMisto.bezbarierovy_pristup,
                                      Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
-        .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
+                                     OckovaciMistoMetriky.registrace_prumer_cekani,
+                                     OckovaciMistoMetriky.ockovani_odhad_cekani) \
+        .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + timedelta(14)) \
-        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
-                  OckovaciMisto.longitude, OckovaciMisto.bezbarierovy_pristup, Okres.id, Kraj.id) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
