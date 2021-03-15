@@ -399,3 +399,4 @@ class ZdravotnickeStredisko(db.Model):
     kraj_kod = Column(Unicode)
     okres = Column(Unicode)
     okres_kod = Column(Unicode)
+    nrpzs_kod = Column(Unicode)

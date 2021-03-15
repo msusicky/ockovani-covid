@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 49ee1eec2be8
+Revision ID: db2b53362b1c
 Revises: d99e9c5e147a
-Create Date: 2021-03-14 20:54:50.321824
+Create Date: 2021-03-15 21:32:27.792471
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import csv
 from app.models import ZdravotnickeStredisko
 
 # revision identifiers, used by Alembic.
-revision = '49ee1eec2be8'
+revision = 'db2b53362b1c'
 down_revision = 'd99e9c5e147a'
 branch_labels = None
 depends_on = None
@@ -35,20 +35,20 @@ def upgrade():
     sa.Column('kraj_kod', sa.Unicode(), nullable=True),
     sa.Column('okres', sa.Unicode(), nullable=True),
     sa.Column('okres_kod', sa.Unicode(), nullable=True),
+    sa.Column('nrpzs_kod', sa.Unicode(), nullable=True),
     sa.PrimaryKeyConstraint('zdravotnicke_zarizeni_id')
     )
     # ### end Alembic commands ###
     
+    
     with open('data/export-2021-03.csv', mode='r', encoding='utf-8') as populace_file:
         reader = csv.reader(populace_file, delimiter=';')
         next(reader, None)
-        populace_arr = [{'zdravotnicke_zarizeni_id': row[0], 'pcz': row[1], 'pcdp': row[2], 'nazev_cely': row[3], 'zdravotnicke_zarizeni_kod': row[4], 'druh_zarizeni_kod': row[5], 'druh_zarizeni': row[6], 'obec': row[7], 'psc': row[8], 'ulice': row[9], 'cislo_domu': row[10], 'kraj': row[11], 'kraj_kod': row[12], 'okres': row[13], 'okres_kod': row[14]} for row in reader]
+        zdrstr_arr = [{'zdravotnicke_zarizeni_id': row[0], 'pcz': row[1], 'pcdp': row[2], 'nazev_cely': row[3], 'zdravotnicke_zarizeni_kod': row[4], 'druh_zarizeni_kod': row[5], 'druh_zarizeni': row[6], 'obec': row[7], 'psc': row[8], 'ulice': row[9], 'cislo_domu': row[10], 'kraj': row[11], 'kraj_kod': row[12], 'okres': row[13], 'okres_kod': row[14], 'nrpzs_kod': row[4][:-3] } for row in reader]
 
-    print(populace_arr)
+    # print(zdrstr_arr)
 
-    op.bulk_insert(Populace.__table__, populace_arr)
-
-
+    op.bulk_insert(ZdravotnickeStredisko.__table__, zdrstr_arr)
 
 
 def downgrade():
