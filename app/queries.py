@@ -32,9 +32,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) prijato
         from ockovani_distribuce 
-        where akce = 'Příjem' and ockovaci_misto_id in ({})
+        where akce = 'Příjem' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({})
         group by (ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
@@ -42,9 +42,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select cilove_ockovaci_misto_id ockovaci_misto_id, vyrobce, sum(pocet_davek) prijato_odjinud
         from ockovani_distribuce 
-        where akce = 'Výdej' and cilove_ockovaci_misto_id in ({})
+        where akce = 'Výdej' and cilove_ockovaci_misto_id in ({}) and ockovaci_misto_id not in({})
         group by (cilove_ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
@@ -52,9 +52,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) vydano
         from ockovani_distribuce 
-        where akce = 'Výdej' and ockovaci_misto_id in ({})
+        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({})
         group by (ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
@@ -86,8 +86,8 @@ def count_vaccines(filter_column, filter_value):
     res['pouzito'] = res['pouzito'].fillna(0).astype('int')
     res['znehodnoceno'] = res['znehodnoceno'].fillna(0).astype('int')
 
-    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud']
-    res['skladem'] = res['prijato_celkem'] - res['vydano'] - res['pouzito'] - res['znehodnoceno']
+    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud'] - res['vydano']
+    res['skladem'] = res['prijato_celkem'] - res['pouzito'] - res['znehodnoceno']
 
     res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
