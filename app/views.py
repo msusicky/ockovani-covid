@@ -158,26 +158,17 @@ def info_misto(misto_id):
 
 @bp.route("/mapa")
 def mapa():
-    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
+    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
                                      OckovaciMisto.bezbarierovy_pristup,
-                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
-        .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + timedelta(14)) \
-        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+                                     OckovaciMistoMetriky.registrace_prumer_cekani,
+                                     OckovaciMistoMetriky.ockovani_odhad_cekani) \
+        .join(OckovaciMistoMetriky) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
-                  OckovaciMisto.longitude, OckovaciMisto.bezbarierovy_pristup, Okres.id, Kraj.id) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .filter(OckovaciMistoMetriky.datum == _last_import_date()) \
         .all()
 
-    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
-                           days=14)
+    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
 @bp.route("/opendata")
