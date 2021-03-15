@@ -24,8 +24,8 @@ Statistiky |
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>
-            Pokud bychom očkovali rychlostí nejrychlejšího dne včetně víkendů a očkovali nepřetržitě, pak skončíme
-            (60% dospělé populace, 2 dávky) <strong>{{ end_date | format_date }}</strong>.
+            Pokud bychom očkovali průměrnou rychlostí posledního týdne, pak skončíme (60 % dospělé populace, 2 dávky)
+            <strong>{{ end_date | format_date }}</strong>.
             Nicméně mnoho očkovacích center bude ještě vybudováno a dodávky vakcín se výrazně zvýší.
         </p>
         {% endif %}
@@ -42,36 +42,44 @@ Statistiky |
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col" class="col-3 text-center">Vakcína</th>
-                        <th scope="col" class="col-3 text-center">
+                        <th scope="col" class="col-2 text-center">
                             Přijato
                             <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                                title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
                             </i>
                         </th>
-                        <th scope="col" class="col-3 text-center">
+                        <th scope="col" class="col-2 text-center">
                             Očkováno
                             <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                                title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
                             </i>
                         </th>
-                        <th scope="col" class="col-3 text-center">
+                        <th scope="col" class="col-2 text-center">
+                            Zničeno
+                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                               title="Počet znehodnocených dávek. Podle datasetu spotřeba vakcín.">
+                            </i>
+                        </th>
+                        <th scope="col" class="col-2 text-center">
                             Skladem
                             <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                               title="Přibližný počet skladem. Data o očkování přicházejí zpožděně!">
+                               title="Přibližný počet skladem. Vypočteno jako rozdíl předchozích sloupců, data o vykázaných očkováních a spotřebě ale přicházejí se zpožděním, proto může být reálný počet výrazně nižší.">
                             </i>
                         </th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% set sum=namespace(prijem = 0, spotreba = 0, rozdil = 0) %}
+                    {% set sum=namespace(prijem = 0, ockovano = 0, zniceno = 0, rozdil = 0) %}
                     {% for item in vacc_storage %}
                     {% set sum.prijem = sum.prijem + item.prijem %}
-                    {% set sum.spotreba = sum.spotreba + item.spotreba %}
+                    {% set sum.ockovano = sum.ockovano + item.ockovano %}
+                    {% set sum.zniceno = sum.zniceno + item.zniceno %}
                     {% set sum.rozdil = sum.rozdil + item.rozdil %}
                     <tr>
                         <td>{{ item.vyrobce }}</td>
                         <td class="text-right">{{ item.prijem | format_number }}</td>
-                        <td class="text-right">{{ item.spotreba | format_number }}</td>
+                        <td class="text-right">{{ item.ockovano | format_number }}</td>
+                        <td class="text-right">{{ item.zniceno | format_number }}</td>
                         <td class="text-right">{{ item.rozdil | format_number }}</td>
                     </tr>
                     {% endfor %}
@@ -80,7 +88,8 @@ Statistiky |
                     <tr>
                         <td>Celkem</td>
                         <td class="text-right">{{ sum.prijem | format_number }}</td>
-                        <td class="text-right">{{ sum.spotreba | format_number }}</td>
+                        <td class="text-right">{{ sum.ockovano | format_number }}</td>
+                        <td class="text-right">{{ sum.zniceno | format_number }}</td>
                         <td class="text-right">{{ sum.rozdil | format_number }}</td>
                     </tr>
                     </tfoot>
