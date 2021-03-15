@@ -76,38 +76,32 @@
 <table class="table table-bordered table-striped table-sm" style="word-break: break-all">
     <thead class="thead-dark">
     <tr>
-        <th scope="col" class="text-center">Výrobce</th>
-        <th scope="col" class="text-center">
+        <th scope="col" class="col-3 text-center">Výrobce</th>
+        <th scope="col" class="col-2 text-center">
             Přijato
             <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                title="Počet dávek přijatých na očkovací místo.">
             </i>
         </th>
-        <th scope="col" class="text-center">
-            Vydáno
-            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-               title="Počet dávek převedených na jiné očkovací místo.">
-            </i>
-        </th>
-        <th scope="col" class="text-center">
-            Očkováno
+        <th scope="col" class="col-2 text-center">
+            Použito
             <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
                data-html="true"
                title="Počet vyočkovaných dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
             </i>
         </th>
-        <th scope="col" class="text-center">
+        <th scope="col" class="col-2 text-center">
             Zničeno
             <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
                data-html="true"
                title="Počet zničených dávek.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
             </i>
         </th>
-        <th scope="col" class="text-center">
+        <th scope="col" class="col-2 text-center">
             Skladem
             <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
                data-html="true"
-               title="Počet dávek skladem.<br>Údaj je počítán z předchozích sloupců a může vykazovat velké nepřesnosti!">
+               title="Počet dávek skladem.<br>Údaj je počítán z předchozích sloupců a může vykazovat nepřesnosti způsobené zpožděním v datech. Údaj na kartě &#34;Statistiky&#34;, pokud je k dispozici, vychází z dat o očkovaných lidech a měl by být přesnější.">
             </i>
         </th>
     </tr>
@@ -117,7 +111,6 @@
     <tr>
         <td>{{ row['vyrobce'] }}</td>
         <td class="text-right">{{ row['prijato_celkem'] | format_number }}</td>
-        <td class="text-right">{{ row['vydano'] | format_number }}</td>
         <td class="text-right">{{ row['pouzito'] | format_number }}</td>
         <td class="text-right">{{ row['znehodnoceno'] | format_number }}</td>
         <td class="text-right">{{ row['skladem'] | format_number }}</td>
@@ -128,7 +121,6 @@
     <tr>
         <td>Celkem</td>
         <td class="text-right">{{ vaccines['prijato_celkem'].sum() | format_number }}</td>
-        <td class="text-right">{{ vaccines['vydano'].sum() | format_number }}</td>
         <td class="text-right">{{ vaccines['pouzito'].sum() | format_number }}</td>
         <td class="text-right">{{ vaccines['znehodnoceno'].sum() | format_number }}</td>
         <td class="text-right">{{ vaccines['skladem'].sum() | format_number }}</td>
@@ -143,16 +135,16 @@
 
 {% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', multiply=1, divide=1, color=None, info=None, warning=None) -%}
 {% if number != None %}
-<div class="col-md-4 col-lg-3 mb-3 py-2">
+<div class="col-sm-6 col-md-4 col-lg-3 mb-3 py-2">
     <div class="card h-100">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-9 col-xl-10 pr-0">
+                <div class="col-9 col-xl-10 pr-0">
                     <h6 class="card-title ellipsis mb-1">
                         {{ name }}
                     </h6>
                 </div>
-                <div class="col pl-0 text-right">
+                <div class="col-3 col-xl-2 pl-0 text-right">
                     <h6 class="card-title mb-1">
                         {% if info %}
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ info }}"></i>

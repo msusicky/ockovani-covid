@@ -158,26 +158,17 @@ def info_misto(misto_id):
 
 @bp.route("/mapa")
 def mapa():
-    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
+    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
                                      OckovaciMisto.bezbarierovy_pristup,
-                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
-                                     func.sum(OckovaniRezervace.volna_kapacita).label("pocet_mist")) \
-        .outerjoin(OckovaniRezervace, (OckovaniRezervace.ockovaci_misto_id == OckovaciMisto.id)) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaniRezervace.datum >= date.today(),
-                OckovaniRezervace.datum < date.today() + timedelta(14)) \
-        .filter(OckovaniRezervace.kalendar_ockovani == 'V1') \
-        .filter(OckovaniRezervace.import_id == _last_import_id()) \
+                                     OckovaciMistoMetriky.registrace_prumer_cekani,
+                                     OckovaciMistoMetriky.ockovani_odhad_cekani) \
+        .join(OckovaciMistoMetriky) \
         .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa, OckovaciMisto.latitude,
-                  OckovaciMisto.longitude, OckovaciMisto.bezbarierovy_pristup, Okres.id, Kraj.id) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .filter(OckovaciMistoMetriky.datum == _last_import_date()) \
         .all()
 
-    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
-                           days=14)
+    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
 @bp.route("/opendata")
@@ -188,15 +179,27 @@ def opendata():
 @bp.route("/statistiky")
 def statistiky():
     # bad computation :(
-    vacc_storage = db.session.query("vyrobce", "prijem", "spotreba", "rozdil").from_statement(text(
+    vacc_storage = db.session.query("vyrobce", "prijem", "ockovano", "zniceno", "rozdil").from_statement(text(
         """
-        select spotrebovane.vyrobce, prijem, spotreba, prijem-spotreba as rozdil  from (
-        select vyrobce, sum(pocet_davek) as prijem 
-            from ockovani_distribuce where akce='Příjem' group by vyrobce) as prijate
-            JOIN (        
-        select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna'
-	        when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, sum(pocet) as spotreba from ockovani_lide group by vyrobce
-            ) as spotrebovane on (prijate.vyrobce=spotrebovane.vyrobce)
+        select ockovane.vyrobce, prijem, ockovano, zniceno, prijem-ockovano-zniceno as rozdil 
+        from (
+            select vyrobce, sum(pocet_davek) as prijem 
+            from ockovani_distribuce 
+            where akce='Příjem' 
+            group by vyrobce
+        ) as prijate
+        join (        
+            select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
+                when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, 
+                sum(pocet) as ockovano 
+            from ockovani_lide 
+            group by vyrobce
+        ) as ockovane on (prijate.vyrobce=ockovane.vyrobce)
+        join (
+            select vyrobce, sum(znehodnocene_davky) zniceno
+            from ockovani_spotreba
+            group by vyrobce
+        ) as znicene on (prijate.vyrobce=znicene.vyrobce) 
         """
     )).all()
 
@@ -220,7 +223,7 @@ def statistiky():
         from (
             select sum(pocet) sum, 
                 sum(case when poradi_davky=1 then pocet else 0 end) sum_1,
-                sum(case when poradi_davky='2' then pocet else 0 end) sum_2 
+                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
             from ockovani_lide
         ) t1
         cross join (
@@ -237,11 +240,22 @@ def statistiky():
     )).params(import_id=_last_import_id()) \
         .all()
 
-    cr_people = 8670000
-    cr_factor = 0.6
-    cr_to_vacc = cr_people * cr_factor
-    delka_dny = (cr_to_vacc - vaccination_stats[0].sum) * 2 / top5_vaccination_day[0].sum
-    end_date = date.today() + timedelta(days=delka_dny)
+    estimate_stats = db.session.query(
+        func.sum(KrajMetriky.pocet_obyvatel_dospeli).label("pocet_obyvatel"),
+        func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
+        func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden")
+    ).filter(KrajMetriky.datum == _last_import_date()) \
+        .one_or_none()
+
+    if estimate_stats is not None and estimate_stats.pocet_obyvatel is not None \
+            and estimate_stats.ockovane_davky_celkem is not None and estimate_stats.ockovane_davky_tyden is not None:
+        cr_people = estimate_stats.pocet_obyvatel
+        cr_factor = 0.6
+        cr_to_vacc = cr_people * cr_factor
+        delka_dny = (7 * (2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem)) / estimate_stats.ockovane_davky_tyden
+        end_date = date.today() + timedelta(days=delka_dny)
+    else:
+        end_date = None
 
     vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
         """
@@ -263,8 +277,6 @@ def statistiky():
         """
     )).params(import_id=_last_import_id()) \
         .all()
-
-    # .params(misto_id=misto_id)
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
                            vacc_storage=vacc_storage,
