@@ -261,7 +261,7 @@ def statistiky():
         cr_people = estimate_stats.pocet_obyvatel
         cr_factor = 0.6
         cr_to_vacc = cr_people * cr_factor
-        delka_dny = (7 * 2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem) / estimate_stats.ockovane_davky_tyden
+        delka_dny = (7 * (2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem)) / estimate_stats.ockovane_davky_tyden
         end_date = date.today() + timedelta(days=delka_dny)
     else:
         end_date = None
