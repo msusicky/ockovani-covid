@@ -188,15 +188,27 @@ def opendata():
 @bp.route("/statistiky")
 def statistiky():
     # bad computation :(
-    vacc_storage = db.session.query("vyrobce", "prijem", "spotreba", "rozdil").from_statement(text(
+    vacc_storage = db.session.query("vyrobce", "prijem", "ockovano", "zniceno", "rozdil").from_statement(text(
         """
-        select spotrebovane.vyrobce, prijem, spotreba, prijem-spotreba as rozdil  from (
-        select vyrobce, sum(pocet_davek) as prijem 
-            from ockovani_distribuce where akce='Příjem' group by vyrobce) as prijate
-            JOIN (        
-        select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna'
-	        when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, sum(pocet) as spotreba from ockovani_lide group by vyrobce
-            ) as spotrebovane on (prijate.vyrobce=spotrebovane.vyrobce)
+        select ockovane.vyrobce, prijem, ockovano, zniceno, prijem-ockovano-zniceno as rozdil 
+        from (
+            select vyrobce, sum(pocet_davek) as prijem 
+            from ockovani_distribuce 
+            where akce='Příjem' 
+            group by vyrobce
+        ) as prijate
+        join (        
+            select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
+                when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, 
+                sum(pocet) as ockovano 
+            from ockovani_lide 
+            group by vyrobce
+        ) as ockovane on (prijate.vyrobce=ockovane.vyrobce)
+        join (
+            select vyrobce, sum(znehodnocene_davky) zniceno
+            from ockovani_spotreba
+            group by vyrobce
+        ) as znicene on (prijate.vyrobce=znicene.vyrobce) 
         """
     )).all()
 
