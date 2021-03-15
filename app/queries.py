@@ -86,8 +86,8 @@ def count_vaccines(filter_column, filter_value):
     res['pouzito'] = res['pouzito'].fillna(0).astype('int')
     res['znehodnoceno'] = res['znehodnoceno'].fillna(0).astype('int')
 
-    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud']
-    res['skladem'] = res['prijato_celkem'] - res['vydano'] - res['pouzito'] - res['znehodnoceno']
+    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud'] - res['vydano']
+    res['skladem'] = res['prijato_celkem'] - res['pouzito'] - res['znehodnoceno']
 
     res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
