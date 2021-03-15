@@ -256,7 +256,8 @@ def statistiky():
     ).filter(KrajMetriky.datum == _last_import_date()) \
         .one_or_none()
 
-    if estimate_stats is not None:
+    if estimate_stats is not None and estimate_stats.pocet_obyvatel is not None \
+            and estimate_stats.ockovane_davky_celkem is not None and estimate_stats.ockovane_davky_tyden is not None:
         cr_people = estimate_stats.pocet_obyvatel
         cr_factor = 0.6
         cr_to_vacc = cr_people * cr_factor
