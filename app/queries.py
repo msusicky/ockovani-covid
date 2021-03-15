@@ -32,9 +32,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) prijato
         from ockovani_distribuce 
-        where akce = 'Příjem' and ockovaci_misto_id in ({})
+        where akce = 'Příjem' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({})
         group by (ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
@@ -42,9 +42,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select cilove_ockovaci_misto_id ockovaci_misto_id, vyrobce, sum(pocet_davek) prijato_odjinud
         from ockovani_distribuce 
-        where akce = 'Výdej' and cilove_ockovaci_misto_id in ({})
+        where akce = 'Výdej' and cilove_ockovaci_misto_id in ({}) and ockovaci_misto_id not in({})
         group by (cilove_ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
@@ -52,9 +52,9 @@ def count_vaccines(filter_column, filter_value):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) vydano
         from ockovani_distribuce 
-        where akce = 'Výdej' and ockovaci_misto_id in ({})
+        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({})
         group by (ockovaci_misto_id, vyrobce);
-        """.format(mista_ids),
+        """.format(mista_ids, mista_ids),
         db.engine
     )
 
