@@ -27,7 +27,7 @@ Mapa |
     var markers = [];
     var coords = [];
 
-    {% for misto in ockovaci_mista %}
+    {% for misto in mista %}
         var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
 
         var icon = JAK.mel("div");

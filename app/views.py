@@ -158,21 +158,17 @@ def info_misto(misto_id):
 
 @bp.route("/mapa")
 def mapa():
-    ockovani_info = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
+    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
                                      OckovaciMisto.latitude, OckovaciMisto.longitude,
                                      OckovaciMisto.bezbarierovy_pristup,
-                                     Okres.nazev.label("okres"), Kraj.nazev.label("kraj"),
                                      OckovaciMistoMetriky.registrace_prumer_cekani,
                                      OckovaciMistoMetriky.ockovani_odhad_cekani) \
         .join(OckovaciMistoMetriky) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(OckovaciMisto.status == True) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .filter(OckovaciMistoMetriky.datum == _last_import_date()) \
         .all()
 
-    return render_template('mapa.html', ockovaci_mista=ockovani_info, last_update=_last_import_modified(), now=_now(),
-                           days=14)
+    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
 @bp.route("/opendata")
