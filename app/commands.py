@@ -6,6 +6,7 @@ import click
 from app import app
 from app.etl import Etl
 from app.opendata_fetcher import OpenDataFetcher
+from app.twitter_bot import TwitterBot
 
 
 @app.cli.command('fetch-opendata')
@@ -58,3 +59,9 @@ def compute_metrics_command(datum):
     else:
         app.logger.error("Computing metrics failed.")
         exit(1)
+
+
+@app.cli.command('tweet-vaccinated')
+def fetch_opendata_command():
+    """TODO."""
+    twitter_bot = TwitterBot()
