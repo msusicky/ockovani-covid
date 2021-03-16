@@ -19,7 +19,7 @@ Mapa |
 
 {% block scripts %}
 <script>
-    var m = new SMap(JAK.gel("centers-map"));
+    var m = new SMap(JAK.gel("centers-map"), SMap.Coords(15.4467614, 49.84937455), 7,  {minZoom: 7});
     m.addControl(new SMap.Control.Sync());
     m.addDefaultLayer(SMap.DEF_BASE).enable();
     m.addDefaultControls();

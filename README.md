@@ -23,6 +23,7 @@ Web: https://ockovani.opendatalab.cz
 * https://zpravy.aktualne.cz/domaci/mladici-marne-hledali-ockovaci-termin-pro-prarodice-vytvoril/r~c7975d9c802511eb9cafac1f6b220ee8/
 * https://prazsky.denik.cz/zpravy_region/ockovani-termin-vakcina-senior-covid-nemocnice-poradi.html
 * https://www.ceskenoviny.cz/zpravy/2007015
+* https://radiozurnal.rozhlas.cz/kde-maji-dostatek-vakcin-vedci-z-cvut-vytvorili-web-ktery-porovnava-jednotliva-8446956
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
