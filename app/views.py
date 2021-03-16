@@ -159,10 +159,10 @@ def info_misto(misto_id):
 @bp.route("/mapa")
 def mapa():
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
-                                     OckovaciMisto.latitude, OckovaciMisto.longitude,
-                                     OckovaciMisto.bezbarierovy_pristup,
-                                     OckovaciMistoMetriky.registrace_prumer_cekani,
-                                     OckovaciMistoMetriky.ockovani_odhad_cekani) \
+                             OckovaciMisto.latitude, OckovaciMisto.longitude,
+                             OckovaciMisto.bezbarierovy_pristup,
+                             OckovaciMistoMetriky.registrace_prumer_cekani,
+                             OckovaciMistoMetriky.ockovani_odhad_cekani) \
         .join(OckovaciMistoMetriky) \
         .filter(OckovaciMisto.status == True) \
         .filter(OckovaciMistoMetriky.datum == queries.last_import_date()) \
@@ -284,6 +284,11 @@ def statistiky():
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
                            vac_stats=vaccination_stats, vac_age=vaccination_age)
+
+
+@bp.route("/codelat")
+def codelat():
+    return render_template('codelat.html', last_update=_last_import_modified(), now=_now())
 
 
 def _last_import_modified():
