@@ -14,9 +14,9 @@ def format_number_delta(number):
 
 
 @app.template_filter()
-def format_decimal(number):
+def format_decimal(number, digits=1):
     """Converts number to string with space separated thoudands and one digit after decimal point."""
-    return 'bez dat' if number is None else ('{:,}'.format(round(number, 1)).replace(',', ' ').replace('.', ','))
+    return 'bez dat' if number is None else ('{:,}'.format(round(number, digits)).replace(',', ' ').replace('.', ','))
 
 
 @app.template_filter()
@@ -44,10 +44,10 @@ def format_datetime_short_wd(date):
 
 
 @app.template_filter()
-def number_color(number):
-    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, 1) < 0 else 'text-success'
+def number_color(number, digits=1):
+    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, digits) < 0 else 'text-success'
 
 
 @app.template_filter()
-def number_color_rev(number):
-    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, 1) > 0 else 'text-success'
+def number_color_rev(number, digits=1):
+    return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, digits) > 0 else 'text-success'

@@ -61,7 +61,8 @@ def compute_metrics_command(datum):
         exit(1)
 
 
-@app.cli.command('tweet-vaccinated')
-def fetch_opendata_command():
-    """TODO."""
+@app.cli.command('post-tweet')
+def post_tweet_command():
+    """Post statistics as a tweet."""
     twitter_bot = TwitterBot()
+    twitter_bot.post_tweet()
