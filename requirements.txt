@@ -11,3 +11,4 @@ requests
 gspread
 pandas
 ipykernel
+python-twitter

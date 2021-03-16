@@ -1,11 +1,33 @@
+from datetime import date
+
 from sqlalchemy import func
 
 from app import db
-from app.models import OckovaciMisto
+from app.models import OckovaciMisto, Import
 
 import pandas as pd
 
 STATUS_FINISHED = 'FINISHED'
+
+
+def last_import_id():
+    """
+    Returns id of the last successful import.
+    """
+    last_id = db.session.query(func.max(Import.id)) \
+        .filter(Import.status == STATUS_FINISHED) \
+        .first()[0]
+    return -1 if last_id is None else last_id
+
+
+def last_import_date():
+    """
+    Returns date of the last successful import.
+    """
+    last_date = db.session.query(func.max(Import.date)) \
+        .filter(Import.status == STATUS_FINISHED) \
+        .first()[0]
+    return date.today() if last_date is None else last_date
 
 
 def unique_nrpzs_subquery():
