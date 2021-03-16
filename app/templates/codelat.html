@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Co dělat když |
+{% endblock %}
+
+{% block body %}
+<div class="accordion" id="accordionExample">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left" type="button" data-toggle="collapse"
+                        data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"><strong>Jak se
+                    registrovat na očkování?</strong></button>
+            </h2>
+        </div>
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card-body"> Navštivte web <a href="https://registrace.mzcr.cz/" target="_blank">https://registrace.mzcr.cz/</a>
+                a postupujte dle instrukcí. Zadejte telefonní číslo pro ověření, přijde Vám SMS. Po jejím zadání
+                vyplníte osobní údaje a vyberete si prefereované místo na očkování.
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingTwo">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"><strong>Mohu
+                    již vybrané místo změnit?</strong></button>
+            </h2>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div class="card-body"> Ministerstvo zdravotnictví nedoporučuje změnu očkovacího místa. Pokud to ale
+                přesto chcete udělat, stačí provést novou registraci. Stará tím zanikne. Na novém místě ale budete
+                zařazení do fronty za posledního člověka stejného věku.
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"><strong> Přišel
+                    mi
+                    PIN2, co dál?</strong>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+            <div class="card-body"> Navštivte stránky <a href="http://rezervace.mzcr.cz/" target="_blank">http://rezervace.mzcr.cz/</a>
+                a vložte informace. POZOR! Nezaměňte registraci s rezervací.
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingFour">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour"><strong> Jsem
+                    ztracen. Co mám dělat?</strong>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+            <div class="card-body"> Kontaktujte linku 1221, kde Vám vše vysvětlí a pomohou.</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingFive">
+            <h2 class="mb-0">
+                <button class="btn btn-block text-left collapsed" type="button" data-toggle="collapse"
+                        data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive"><strong>Jaké jsou
+                    oficiální stránky ministerstva?</strong>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
+            <div class="card-body"> Podívejte se na <a href="https://koronavirus.mzcr.cz/ockovani-proti-covid-19/">https://koronavirus.mzcr.cz/ockovani-proti-covid-19/</a>
+                , případně vládní portál <a href="https://covid.gov.cz/" target="_blank">https://covid.gov.cz/</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
