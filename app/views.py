@@ -288,7 +288,7 @@ def statistiky():
 
 @bp.route("/codelat")
 def codelat():
-    return render_template('codelat.html', last_update=_last_import_modified())
+    return render_template('codelat.html', last_update=_last_import_modified(), now=_now())
 
 
 def _last_import_modified():
