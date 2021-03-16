@@ -32,7 +32,7 @@ class TwitterBot():
         self._post_tweet(text)
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} včera). Na přidělení termínu aktuálně čeká {} zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} včera). Na přidělení termínu právě čeká {} zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
                     filters.format_date(self._end_date))
@@ -50,7 +50,7 @@ class TwitterBot():
             else:
                 progressbar += '░'
 
-        return progressbar + ' ' + filters.format_decimal(vaccinated_percent, 2) + ' %'
+        return progressbar + ' ' + filters.format_decimal(vaccinated_percent, 2) + ' %'
 
     def _post_tweet(self, text):
         api = twitter.Api(consumer_key=app.config['TWITTER_CONSUMER_KEY'],
