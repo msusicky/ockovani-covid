@@ -39,6 +39,7 @@
                     <div class="tab-pane" id="stats">
                         <div class="row mb-n3">
                             {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
+                            {{ macros.metrika('Přijaté vakcíny', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std') }}
                             {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
                             {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den, delta_week=metriky.rezervace_cekajici_zmena_tyden, info='Počet registrovaných s rezervovaným konkrétním termínem na očkování.') }}
                             {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).') }}
