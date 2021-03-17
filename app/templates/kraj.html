@@ -29,6 +29,9 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
+                    </li>
                 </ul>
             </div>
 
@@ -59,6 +62,11 @@
                     <div class="tab-pane" id="vaccines">
                         <div class="mb-n3">
                             {{ macros.stav_vakcin(vaccines) }}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="vaccination">
+                        <div class="mb-n3">
+                            {{ macros.stav_ockovani(vac_age) }}
                         </div>
                     </div>
                 </div>
