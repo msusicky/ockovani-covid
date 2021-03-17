@@ -88,12 +88,34 @@ def info_kraj(kraj_name):
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
+    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
+        """
+        select t1.vekova_skupina, coalesce(sum_1 - sum_2, 0) sum_1, coalesce(sum_2, 0) sum_2, coalesce(fronta, 0) fronta
+        from (
+            select replace(vekova_skupina, 'nezařazeno', 'neuvedeno') vekova_skupina, 
+                sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
+                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
+            from ockovani_lide
+            where kraj_nuts_kod=:kraj_kod
+            group by vekova_skupina 
+        ) t1
+        full join (
+            select vekova_skupina, sum(pocet) fronta 
+            from ockovani_registrace ocr join ockovaci_mista om on (ocr.ockovaci_misto_id=om.id)
+            where rezervace=False and import_id=:import_id and substr(om.okres_id, 0 ,6)=:kraj_kod
+            group by vekova_skupina
+        ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
+        order by t1.vekova_skupina
+        """
+    )).params(import_id=queries.last_import_id()).params(kraj_kod=kraj.id) \
+        .all()
+
     registrations = queries.count_registrations(queries.last_import_id(), 'kraj_id', kraj.id)
 
     vaccines = queries.count_vaccines('kraj_id', kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age)
 
 
 @bp.route("/misto/<misto_id>")
