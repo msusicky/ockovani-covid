@@ -158,6 +158,18 @@ class Populace(db.Model):
             self.orp_kod, self.pocet, self.vek)
 
 
+class PopulaceKategorie(db.Model):
+    __tablename__ = 'populace_kategorie'
+
+    vekova_skupina = Column(Unicode, primary_key=True)
+    min_vek = Column(Integer)
+    max_vek = Column(Integer)
+
+    def __repr__(self):
+        return "<PopulaceKategorie(vekova_skupina='%s', min_vek=%s, max_vek=%s)>" % (
+            self.vekova_skupina, self.min_vek, self.max_vek)
+
+
 class OckovaciMisto(db.Model):
     __tablename__ = 'ockovaci_mista'
 
