@@ -38,62 +38,64 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title">Počty vakcín</h5>
                 {% if vacc_storage %}
-                <table class="table table-bordered table-striped table-sm">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="w-20 text-center">Vakcína</th>
-                        <th scope="col" class="w-20 text-center">
-                            Přijato
-                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                               title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
-                            </i>
-                        </th>
-                        <th scope="col" class="w-20 text-center">
-                            Očkováno
-                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                               title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
-                            </i>
-                        </th>
-                        <th scope="col" class="w-20 text-center">
-                            Zničeno
-                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                               title="Počet znehodnocených dávek. Podle datasetu spotřeba vakcín.">
-                            </i>
-                        </th>
-                        <th scope="col" class="w-20 text-center">
-                            Skladem
-                            <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                               title="Přibližný počet skladem. Vypočteno jako rozdíl předchozích sloupců, data o vykázaných očkováních a spotřebě ale přicházejí se zpožděním, proto může být reálný počet výrazně nižší.">
-                            </i>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% set sum=namespace(prijem = 0, ockovano = 0, zniceno = 0, rozdil = 0) %}
-                    {% for item in vacc_storage %}
-                    {% set sum.prijem = sum.prijem + item.prijem %}
-                    {% set sum.ockovano = sum.ockovano + item.ockovano %}
-                    {% set sum.zniceno = sum.zniceno + item.zniceno %}
-                    {% set sum.rozdil = sum.rozdil + item.rozdil %}
-                    <tr>
-                        <td>{{ item.vyrobce }}</td>
-                        <td class="text-right">{{ item.prijem | format_number }}</td>
-                        <td class="text-right">{{ item.ockovano | format_number }}</td>
-                        <td class="text-right">{{ item.zniceno | format_number }}</td>
-                        <td class="text-right">{{ item.rozdil | format_number }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                    <tfoot class="font-weight-bold">
-                    <tr>
-                        <td>Celkem</td>
-                        <td class="text-right">{{ sum.prijem | format_number }}</td>
-                        <td class="text-right">{{ sum.ockovano | format_number }}</td>
-                        <td class="text-right">{{ sum.zniceno | format_number }}</td>
-                        <td class="text-right">{{ sum.rozdil | format_number }}</td>
-                    </tr>
-                    </tfoot>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Vakcína</th>
+                            <th scope="col" class="w-20 text-center">
+                                Přijato
+                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                   title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
+                                </i>
+                            </th>
+                            <th scope="col" class="w-20 text-center">
+                                Očkováno
+                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                   title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
+                                </i>
+                            </th>
+                            <th scope="col" class="w-20 text-center">
+                                Zničeno
+                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                   title="Počet znehodnocených dávek. Podle datasetu spotřeba vakcín.">
+                                </i>
+                            </th>
+                            <th scope="col" class="w-20 text-center">
+                                Skladem
+                                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                                   title="Přibližný počet skladem. Vypočteno jako rozdíl předchozích sloupců, data o vykázaných očkováních a spotřebě ale přicházejí se zpožděním, proto může být reálný počet výrazně nižší.">
+                                </i>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% set sum=namespace(prijem = 0, ockovano = 0, zniceno = 0, rozdil = 0) %}
+                        {% for item in vacc_storage %}
+                        {% set sum.prijem = sum.prijem + item.prijem %}
+                        {% set sum.ockovano = sum.ockovano + item.ockovano %}
+                        {% set sum.zniceno = sum.zniceno + item.zniceno %}
+                        {% set sum.rozdil = sum.rozdil + item.rozdil %}
+                        <tr>
+                            <td>{{ item.vyrobce }}</td>
+                            <td class="text-right">{{ item.prijem | format_number }}</td>
+                            <td class="text-right">{{ item.ockovano | format_number }}</td>
+                            <td class="text-right">{{ item.zniceno | format_number }}</td>
+                            <td class="text-right">{{ item.rozdil | format_number }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot class="font-weight-bold">
+                        <tr>
+                            <td>Celkem</td>
+                            <td class="text-right">{{ sum.prijem | format_number }}</td>
+                            <td class="text-right">{{ sum.ockovano | format_number }}</td>
+                            <td class="text-right">{{ sum.zniceno | format_number }}</td>
+                            <td class="text-right">{{ sum.rozdil | format_number }}</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
                 {% else %}
                 <div class="alert alert-warning w-100" role="alert">
                     Zatím nemáme žádná data.

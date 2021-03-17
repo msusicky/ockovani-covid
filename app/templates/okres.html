@@ -24,6 +24,9 @@
                         <a class="nav-link" data-toggle="tab" href="#stats">Statistiky</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
                     </li>
                 </ul>
@@ -46,6 +49,9 @@
                             {{ macros.metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
                             {{ macros.metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
                         </div>
+                    </div>
+                    <div class="tab-pane" id="registration">
+                        {{ macros.stav_registraci(registrations) }}
                     </div>
                     <div class="tab-pane" id="vaccines">
                         <div class="mb-n3">
