@@ -165,7 +165,7 @@ class Etl:
         """Computes metrics derived from the previous metrics for each vaccination center."""
         avg_waiting = db.session.query(
             OckovaciMisto.id,
-            func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
+            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum)*OckovaniRegistrace.pocet)/func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
@@ -454,7 +454,7 @@ class Etl:
         """Computes metrics derived from the previous metrics for each okres."""
         avg_waiting = db.session.query(
             Okres.id,
-            func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
+            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum)*OckovaniRegistrace.pocet)/func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
@@ -704,7 +704,9 @@ class Etl:
         """Computes metrics derived from the previous metrics for each kraj."""
         avg_waiting = db.session.query(
             Kraj.id,
-            func.avg(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label('registrace_prumer_cekani'),
+            (func.sum(
+                (OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet) / func.sum(
+                OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
