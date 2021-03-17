@@ -4,25 +4,26 @@ from app import app
 @app.template_filter()
 def format_number(number):
     """Converts number to string with space separated thoudands."""
-    return 'bez dat' if number is None else ('{:,}'.format(number).replace(',', ' '))
+    return 'bez dat' if number is None else ('{:,}'.format(round(number)).replace(',', ' '))
 
 
 @app.template_filter()
 def format_number_delta(number):
     """Converts number to string with space separated thoudands."""
-    return 'bez dat' if number is None else (('+' if number > 0 else '') + '{:,}'.format(number).replace(',', ' '))
+    return 'bez dat' if number is None else (('+' if number > 0 else '') + format_number(number))
 
 
 @app.template_filter()
 def format_decimal(number, digits=1):
     """Converts number to string with space separated thoudands and one digit after decimal point."""
-    return 'bez dat' if number is None else ('{:,}'.format(round(number, digits)).replace(',', ' ').replace('.', ','))
+    return 'bez dat' if number is None \
+        else ('{:,}'.format(round(number, digits)).replace(',', ' ').replace('.', ','))
 
 
 @app.template_filter()
-def format_decimal_delta(number):
+def format_decimal_delta(number, digits=1):
     """Converts number to string with space separated thoudands and one digit after decimal point."""
-    return 'bez dat' if number is None else (('+' if number > 0 else '') + '{:,}'.format(round(number, 1)).replace(',', ' ').replace('.', ','))
+    return 'bez dat' if number is None else (('+' if number > 0 else '') + format_decimal(number, digits))
 
 
 @app.template_filter()

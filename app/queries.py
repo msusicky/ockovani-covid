@@ -1,5 +1,6 @@
-from datetime import date
+from datetime import date, timedelta
 
+import numpy as np
 from sqlalchemy import func
 
 from app import db
@@ -47,7 +48,6 @@ def count_vaccines(filter_column, filter_value):
         """.format(filter_column, filter_value),
         db.engine
     )
-
     mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
 
     prijato = pd.read_sql_query(
@@ -114,3 +114,50 @@ def count_vaccines(filter_column, filter_value):
     res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
     return res
+
+
+def count_registrations(import_id, filter_column, filter_value):
+    mista = pd.read_sql_query(
+        """
+        select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
+        where {}='{}';
+        """.format(filter_column, filter_value),
+        db.engine
+    )
+    mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
+
+    df = pd.read_sql_query(
+        """
+        select *
+        from ockovani_registrace
+        where import_id = {} and ockovaci_misto_id in({})
+        """.format(import_id, mista_ids),
+        db.engine
+    )
+
+    df['datum_rezervace_fix'] = df['datum_rezervace'].where(df['datum_rezervace'] != date(1970, 1, 1))
+    df['fronta'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
+    df['registrace_7'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(7))
+    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(7)))
+    df['registrace_14'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(14))
+    df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(14)))
+    df['registrace_30'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(30))
+    df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(30)))
+    df['cekani'] = (df['datum_rezervace_fix'] - df['datum']).dt.days
+    df['rezervace_7'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= date.today() - timedelta(7)))
+    df['rezervace_7_x_cekani'] = df['cekani'] * df['rezervace_7']
+
+    df = df.groupby(['vekova_skupina', 'povolani']).sum()
+
+    df['uspesnost_7'] = ((df['registrace_7_rez'] / df['registrace_7']) * 100).replace({np.nan: None})
+    df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
+    df['uspesnost_30'] = ((df['registrace_30_rez'] / df['registrace_30']) * 100).replace({np.nan: None})
+    df['registrace_7'] = df['registrace_7'].astype('int')
+    df['registrace_7_rez'] = df['registrace_7_rez'].astype('int')
+    df['registrace_14'] = df['registrace_14'].astype('int')
+    df['registrace_14_rez'] = df['registrace_14_rez'].astype('int')
+    df['registrace_30'] = df['registrace_30'].astype('int')
+    df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
+    df['prumer_cekani'] = ((df['rezervace_7_x_cekani'] / df['rezervace_7']) / 7).replace({np.nan: None})
+
+    return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])

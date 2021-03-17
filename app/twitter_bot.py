@@ -29,10 +29,18 @@ class TwitterBot():
 
     def post_tweet(self):
         text = self._generate_tweet()
-        self._post_tweet(text)
+        try:
+            self._post_tweet(text)
+        except Exception as e:
+            app.logger.error(e)
+            app.logger.info("Posting tweet '{}' - failed.".format(text))
+            return False
+
+        app.logger.info("Posting tweet '{}' - successful.".format(text))
+        return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} včera). Na přidělení termínu právě čeká {} zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na přidělení termínu právě čeká {} zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
                     filters.format_date(self._end_date))

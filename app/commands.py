@@ -65,4 +65,9 @@ def compute_metrics_command(datum):
 def post_tweet_command():
     """Post statistics as a tweet."""
     twitter_bot = TwitterBot()
-    twitter_bot.post_tweet()
+    result = twitter_bot.post_tweet()
+
+    if result:
+        exit(0)
+    else:
+        exit(1)

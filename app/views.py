@@ -56,10 +56,12 @@ def info_okres(okres_name):
         .order_by(OckovaciMisto.nazev) \
         .all()
 
+    registrations = queries.count_registrations(queries.last_import_id(), 'okres_id', okres.id)
+
     vaccines = queries.count_vaccines('okres_id', okres.id)
 
     return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, metriky=metriky,
-                           mista=mista, vaccines=vaccines)
+                           mista=mista, vaccines=vaccines, registrations=registrations)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -86,10 +88,34 @@ def info_kraj(kraj_name):
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
+    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
+        """
+        select t1.vekova_skupina, coalesce(sum_1 - sum_2, 0) sum_1, coalesce(sum_2, 0) sum_2, coalesce(fronta, 0) fronta
+        from (
+            select replace(vekova_skupina, 'nezařazeno', 'neuvedeno') vekova_skupina, 
+                sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
+                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
+            from ockovani_lide
+            where kraj_nuts_kod=:kraj_kod
+            group by vekova_skupina 
+        ) t1
+        full join (
+            select vekova_skupina, sum(pocet) fronta 
+            from ockovani_registrace ocr join ockovaci_mista om on (ocr.ockovaci_misto_id=om.id)
+            where rezervace=False and import_id=:import_id and substr(om.okres_id, 0 ,6)=:kraj_kod
+            group by vekova_skupina
+        ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
+        order by t1.vekova_skupina
+        """
+    )).params(import_id=queries.last_import_id()).params(kraj_kod=kraj.id) \
+        .all()
+
+    registrations = queries.count_registrations(queries.last_import_id(), 'kraj_id', kraj.id)
+
     vaccines = queries.count_vaccines('kraj_id', kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age)
 
 
 @bp.route("/misto/<misto_id>")
@@ -98,29 +124,13 @@ def info_misto(misto_id):
     if misto is None:
         abort(404)
 
+    import_id = queries.last_import_id()
+
     metriky = db.session.query(OckovaciMistoMetriky) \
         .filter(OckovaciMistoMetriky.misto_id == misto_id, OckovaciMistoMetriky.datum == queries.last_import_date()) \
         .one_or_none()
 
-    registrace_info = db.session.query("vekova_skupina", "povolani", "fronta_pocet", "pomer", "rezervace_nove",
-                                       "rezervace_celkem").from_statement(text(
-        """
-        select t1.vekova_skupina, t1.povolani, fronta_pocet, round((rezervace_nove*100.0)/rezervace_celkem) pomer, rezervace_nove, rezervace_celkem
-        from (
-            select vekova_skupina, povolani, sum(pocet) fronta_pocet 
-            from ockovani_registrace 
-            where rezervace=False and ockovaci_misto_id=:misto_id and import_id=:import_id
-            group by vekova_skupina, povolani) t1
-        left join (
-            select vekova_skupina, povolani, sum(case when rezervace=true then pocet else 0 end) as rezervace_nove, NULLIF(sum(pocet), 0) as rezervace_celkem
-            from ockovani_registrace
-            where datum>now()-'7 days'::interval and ockovaci_misto_id=:misto_id and import_id=:import_id
-            group by vekova_skupina, povolani
-        ) t2 on (t1.vekova_skupina = t2.vekova_skupina and t1.povolani = t2.povolani) order by (t1.vekova_skupina, t1.povolani)   
-        """
-    )).params(misto_id=misto_id) \
-        .params(import_id=queries.last_import_id()) \
-        .all()
+    registrations = queries.count_registrations(import_id, 'ockovaci_mista.id', misto_id)
 
     vaccines = queries.count_vaccines('ockovaci_mista.id', misto_id)
 
@@ -128,7 +138,7 @@ def info_misto(misto_id):
     registrace_overview = db.session.query(
         OckovaniRegistrace.datum,
         func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
-        .filter(OckovaniRegistrace.import_id == queries.last_import_id()) \
+        .filter(OckovaniRegistrace.import_id == import_id) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
         .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
         .group_by(OckovaniRegistrace.datum) \
@@ -137,7 +147,7 @@ def info_misto(misto_id):
     registrace_overview_terminy = db.session.query(
         OckovaniRegistrace.datum_rezervace,
         func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
-        .filter(OckovaniRegistrace.import_id == queries.last_import_id()) \
+        .filter(OckovaniRegistrace.import_id == import_id) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
         .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
         .group_by(OckovaniRegistrace.datum_rezervace) \
@@ -149,8 +159,7 @@ def info_misto(misto_id):
     end_date = None if len(dates) == 0 else max(dates)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
-                           vaccines=vaccines,
-                           registrace_info=registrace_info,
+                           vaccines=vaccines, registrations=registrations,
                            registrace_overview=registrace_overview,
                            registrace_overview_terminy=registrace_overview_terminy,
                            start_date=start_date, end_date=end_date)
