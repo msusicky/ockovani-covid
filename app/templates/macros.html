@@ -176,7 +176,7 @@
                 {{ row['fronta'] | format_number }}
             </td>
             <td class="text-center">
-                <span class="badge badge-pill badge-{{ 'light' if row['prumer_cekani'] == None else 'success' if row['prumer_cekani'] > 2 else 'warning' if row['prumer_cekani'] > 1 else 'danger' }}">
+                <span class="badge badge-pill badge-{{ 'light' if row['prumer_cekani'] == None else 'danger' if row['prumer_cekani'] > 2 else 'warning' if row['prumer_cekani'] > 1 else 'success' }}">
                     {{ row['prumer_cekani'] | format_decimal }}
                 </span>
             </td>
