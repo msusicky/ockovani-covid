@@ -25,6 +25,7 @@ Web: https://ockovani.opendatalab.cz
 * https://prazsky.denik.cz/zpravy_region/ockovani-termin-vakcina-senior-covid-nemocnice-poradi.html
 * https://www.ceskenoviny.cz/zpravy/2007015
 * https://radiozurnal.rozhlas.cz/kde-maji-dostatek-vakcin-vedci-z-cvut-vytvorili-web-ktery-porovnava-jednotliva-8446956
+* https://www.vitalia.cz/clanky/jak-si-ne-vybrat-nejpomalejsi-misto-na-ockovani-proti-covidu/
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
