@@ -28,6 +28,7 @@ Mapa očkovacích míst |
     var coords = [];
 
     {% for misto in mista %}
+        {% if misto.longitude != None and misto.latitude != None %}
         var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
 
         var icon = JAK.mel("div");
@@ -63,6 +64,7 @@ Mapa očkovacích míst |
 
         coords.push(c);
         markers.push(marker);
+        {% endif %}
     {% endfor %}
 
     var layer = new SMap.Layer.Marker();
