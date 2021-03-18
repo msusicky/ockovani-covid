@@ -54,7 +54,7 @@ def count_vaccines(filter_column, filter_value):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) prijato
         from ockovani_distribuce 
-        where akce = 'Příjem' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({})
+        where akce = 'Příjem' and ockovaci_misto_id in ({})
         group by (ockovaci_misto_id, vyrobce);
         """.format(mista_ids, mista_ids),
         db.engine

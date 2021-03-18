@@ -120,17 +120,15 @@ class Etl:
     def _compute_center_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each vaccination center."""
         distributed = db.session.query(
-            OckovaciMisto.id,
-            func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), 0)], else_=OckovaniDistribuce.pocet_davek)), 0).label('vakciny_prijate_pocet'),
-            func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0).label('vakciny_vydane_pocet')
-        ).outerjoin(OckovaniDistribuce,
-               and_(
-                   or_(
-                       and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, or_(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.akce == 'Výdej')),
-                       and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej')
-                   ),
-                   OckovaniDistribuce.datum < self._date
-               )) \
+            OckovaciMisto.id, (
+                    func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Příjem'), OckovaniDistribuce.pocet_davek)], else_=0)), 0)
+                    + func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0)
+                    - func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0))
+                .label('vakciny_prijate_pocet')
+        ).outerjoin(OckovaniDistribuce, and_(
+            or_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id),
+            OckovaniDistribuce.datum < self._date
+        )) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -138,7 +136,7 @@ class Etl:
             db.session.merge(OckovaciMistoMetriky(
                 misto_id=dist.id,
                 datum=self._date,
-                vakciny_prijate_pocet=dist.vakciny_prijate_pocet-dist.vakciny_vydane_pocet
+                vakciny_prijate_pocet=dist.vakciny_prijate_pocet
             ))
 
         app.logger.info('Computing vaccination centers metrics - distributed vaccines finished.')
@@ -413,17 +411,22 @@ class Etl:
 
     def _compute_okres_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each okres."""
-        distributed = db.session.query(
-            Okres.id, func.sum(OckovaciMistoMetriky.vakciny_prijate_pocet).label('vakciny_prijate_pocet')
-        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
-            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
-            .filter(OckovaciMistoMetriky.datum == self._date) \
-            .group_by(Okres.id) \
-            .all()
+        distributed = db.session.query("okres_id", "vakciny_prijate_pocet").from_statement(text(
+            """
+            select m.okres_id okres_id, ( 
+                    coalesce(sum(case when akce = 'Příjem' and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 where m1.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
+                    + coalesce(sum(case when akce = 'Výdej' and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 where m2.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
+                    - coalesce(sum(case when akce = 'Výdej' and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 where m3.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
+                ) vakciny_prijate_pocet
+            from ockovaci_mista m
+            left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
+            group by (m.okres_id)
+            """
+        )).all()
 
         for dist in distributed:
             db.session.merge(OkresMetriky(
-                okres_id=dist.id,
+                okres_id=dist.okres_id,
                 datum=self._date,
                 vakciny_prijate_pocet=dist.vakciny_prijate_pocet
             ))
@@ -661,18 +664,23 @@ class Etl:
 
     def _compute_kraj_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each kraj."""
-        distributed = db.session.query(
-            Kraj.id, func.sum(OckovaciMistoMetriky.vakciny_prijate_pocet).label('vakciny_prijate_pocet')
-        ).join(Okres, Okres.kraj_id == Kraj.id) \
-            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
-            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
-            .filter(OckovaciMistoMetriky.datum == self._date) \
-            .group_by(Kraj.id) \
-            .all()
+        distributed = db.session.query("kraj_id", "vakciny_prijate_pocet").from_statement(text(
+            """
+            select o.kraj_id kraj_id, ( 
+                    coalesce(sum(case when akce = 'Příjem' and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 join okresy o1 on m1.okres_id = o1.id where o1.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
+                    + coalesce(sum(case when akce = 'Výdej' and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 join okresy o2 on m2.okres_id = o2.id where o2.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
+                    - coalesce(sum(case when akce = 'Výdej' and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 join okresy o3 on m3.okres_id = o3.id where o3.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
+                ) vakciny_prijate_pocet
+            from okresy o
+            join ockovaci_mista m on (m.okres_id = o.id)
+            left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
+            group by (o.kraj_id)
+            """
+        )).all()
 
         for dist in distributed:
             db.session.merge(KrajMetriky(
-                kraj_id=dist.id,
+                kraj_id=dist.kraj_id,
                 datum=self._date,
                 vakciny_prijate_pocet=dist.vakciny_prijate_pocet
             ))
