@@ -107,15 +107,24 @@ def info_kraj(kraj_name):
         ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
         order by t1.vekova_skupina
         """
-    )).params(import_id=queries.last_import_id()).params(kraj_kod=kraj.id) \
-        .all()
+    )).params(import_id=queries.last_import_id()).params(kraj_kod=kraj.id).all()
+
+    vaccination_doctor_age = db.session.query("nazev", "zarizeni_kod", "sum_1", "sum_2").from_statement(text(
+        """
+        select nazev_cely as nazev, zarizeni_kod, sum(pocet) as sum_1, sum(case when ol.datum>=current_date -'7 days'::interval then pocet else 0 end)  as sum_2
+            from ockovani_lide ol join (SELECT max(nazev_cely) nazev_cely,nrpzs_kod from zdravotnicke_stredisko zs where zs.zdravotnicke_zarizeni_kod in (select min(zs1.zdravotnicke_zarizeni_kod) from zdravotnicke_stredisko zs1 group by zs1.nrpzs_kod) group by nrpzs_kod)  zs on (ol.zarizeni_kod=zs.nrpzs_kod)
+	        where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and kraj_nuts_kod=:kraj_kod
+	        group by nazev_cely, zarizeni_kod order by  sum(pocet) desc
+        """
+    )).params(kraj_kod=kraj.id).all()
 
     registrations = queries.count_registrations(queries.last_import_id(), 'kraj_id', kraj.id)
 
     vaccines = queries.count_vaccines('kraj_id', kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age,
+                           vac_doctor_age=vaccination_doctor_age)
 
 
 @bp.route("/misto/<misto_id>")

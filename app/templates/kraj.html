@@ -32,6 +32,9 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccination_doctors">Praktičtí lékaři</a>
+                    </li>
                 </ul>
             </div>
 
@@ -72,6 +75,17 @@
                             {{ macros.stav_ockovani(vac_age) }}
                         </div>
                     </div>
+                    <div class="tab-pane" id="vaccination_doctors">
+                        <div class="mb-n3">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
+                                </div>
+                                <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
+                            </div>
+                            {{ macros.stav_ockovani_praktici(vac_doctor_age) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -81,32 +95,39 @@
 
 {% block scripts %}
 <script>
-<!-- To have the possibility to send links with opened tab -->
-  $(document).ready(() => {
-  let url = location.href.replace(/\/$/, "");
+    <!-- To have the possibility to send links with opened tab -->
+    $(document).ready(() => {
+        let url = location.href.replace(/\/$/, "");
 
-  if (location.hash) {
-    const hash = url.split("#");
-    $('#cards a[href="#'+hash[1]+'"]').tab("show");
-    url = location.href.replace(/\/#/, "#");
-    history.replaceState(null, null, url);
-    setTimeout(() => {
-      $(window).scrollTop(0);
-    }, 400);
-  }
+        if (location.hash) {
+            const hash = url.split("#");
+            $('#cards a[href="#' + hash[1] + '"]').tab("show");
+            url = location.href.replace(/\/#/, "#");
+            history.replaceState(null, null, url);
+            setTimeout(() => {
+                $(window).scrollTop(0);
+            }, 400);
+        }
 
-  $('a[data-toggle="tab"]').on("click", function() {
-    let newUrl;
-    const hash = $(this).attr("href");
-    if(hash == "#") {
-      newUrl = url.split("#")[0];
-    } else {
-      newUrl = url.split("#")[0] + hash;
-    }
-    newUrl += "";
-    history.replaceState(null, null, newUrl);
-  });
-});
+        $('a[data-toggle="tab"]').on("click", function () {
+            let newUrl;
+            const hash = $(this).attr("href");
+            if (hash == "#") {
+                newUrl = url.split("#")[0];
+            } else {
+                newUrl = url.split("#")[0] + hash;
+            }
+            newUrl += "";
+            history.replaceState(null, null, newUrl);
+        });
+
+        $("#centers-searchbox").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#centers-doc-table tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
 </script>
 {% endblock %}
 

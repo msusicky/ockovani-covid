@@ -299,21 +299,59 @@
     <tbody>
     {% set sum=namespace(fronta = 0, sum_1 = 0, sum_2 = 0) %}
     {% for item in vac_age %}
-        {% set sum.fronta = sum.fronta + item.fronta %}
-        {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
-        {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
-        <tr>
-            <td>{{ item.vekova_skupina }}</td>
-            <td class="text-right">{{ item.fronta | format_number }}</td>
-            <td class="text-right">{{ item.sum_1 | format_number }}</td>
-            <td class="text-right">{{ item.sum_2 | format_number }}</td>
-        </tr>
+    {% set sum.fronta = sum.fronta + item.fronta %}
+    {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
+    {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
+    <tr>
+        <td>{{ item.vekova_skupina }}</td>
+        <td class="text-right">{{ item.fronta | format_number }}</td>
+        <td class="text-right">{{ item.sum_1 | format_number }}</td>
+        <td class="text-right">{{ item.sum_2 | format_number }}</td>
+    </tr>
     {% endfor %}
     </tbody>
     <tfoot class="font-weight-bold">
     <tr>
         <td>Celkem</td>
         <td class="text-right">{{ sum.fronta | format_number }}</td>
+        <td class="text-right">{{ sum.sum_1 | format_number }}</td>
+        <td class="text-right">{{ sum.sum_2 | format_number }}</td>
+    </tr>
+    </tfoot>
+</table>
+{% else %}
+<div class="alert alert-warning w-100" role="alert">
+    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro stav_ockovani_praktici(vac_doctor_age) -%}
+
+{% if vac_doctor_age %}
+<table id="centers-doc-table" class="table table-bordered table-striped table-sm">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col" class="text-center">Název zařízení (nrpzs kód)</th>
+        <th scope="col" class="text-center">Očkováno</th>
+        <th scope="col" class="text-center">Očkováno za posledních 7 dní</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% set sum=namespace(sum_1 = 0, sum_2 = 0) %}
+    {% for item in vac_doctor_age %}
+    {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
+    {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
+    <tr>
+        <td>{{ item.nazev }} ({{ item.zarizeni_kod }})</td>
+        <td class="text-right">{{ item.sum_1 | format_number }}</td>
+        <td class="text-right">{{ item.sum_2 | format_number }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot class="font-weight-bold">
+    <tr>
+        <td>Celkem</td>
         <td class="text-right">{{ sum.sum_1 | format_number }}</td>
         <td class="text-right">{{ sum.sum_2 | format_number }}</td>
     </tr>
