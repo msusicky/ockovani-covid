@@ -53,12 +53,12 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link {{ 'active' if request.path == '/mista' else '' }}"
-                   href="{{ url_for('view.info_mista') }}">Přehled očkovacích míst
+                   href="{{ url_for('view.info_mista') }}">Očkovací místa
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link {{ 'active' if request.path == '/mapa' else '' }}"
-                   href="{{ url_for('view.mapa') }}">Mapa očkovacích míst
+                   href="{{ url_for('view.mapa') }}">Mapa
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
@@ -71,12 +71,17 @@
                    href="{{ url_for('view.statistiky') }}">Statistiky
                 </a>
             </li>
+            <li class="nav-item col-lg-auto ml-auto">
+                <a class="nav-link {{ 'active' if request.path == '/odkazy' else '' }}"
+                   href="{{ url_for('view.odkazy') }}">Odkazy
+                </a>
+            </li>
         </ul>
         <ul class="navbar-nav navbar-right">
           <li class="nav-item col-lg-auto ml-auto">
               <a class="nav-link" href="https://twitter.com/ocko_bot" target="_blank">
                   <i class="fab fa-twitter"></i>
-                  @ocko_bot
+                  ocko_bot
               </a>
           </li>
         </ul>
