@@ -40,7 +40,7 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na přidělení termínu právě čeká {} zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na přidělení termínu právě čeká {} registrovaných zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
                     filters.format_date(self._end_date))
