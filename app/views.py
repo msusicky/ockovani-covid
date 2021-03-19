@@ -5,7 +5,7 @@ from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky, \
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaciMistoMetriky, \
     KrajMetriky, OkresMetriky
 
 
@@ -287,12 +287,37 @@ def statistiky():
     )).params(import_id=queries.last_import_id()) \
         .all()
 
+    # for graph
+    dodavky = db.session.query("datum", "dodano_pf", "dodano_mo", "dodano_az").from_statement(text(
+        """
+        SELECT datum, 
+            sum(case when vyrobce='Pfizer' then pocet_davek else 0 end) as dodano_pf,
+            sum(case when vyrobce='Moderna' then pocet_davek else 0 end) as dodano_mo,
+            sum(case when vyrobce='AstraZeneca' then pocet_davek else 0 end) as dodano_az
+            FROM public.ockovani_distribuce
+            where akce='Příjem'
+            group by datum order by datum;
+        """
+    )).all()
+
+    ockovano = db.session.query("datum", "ockovano_pf", "ockovano_mo", "ockovano_az").from_statement(text(
+        """
+        select datum, 
+            sum(case when vakcina='Comirnaty' then pocet else 0 end) as ockovano_pf,
+            sum(case when vakcina='COVID-19 Vaccine Moderna' then pocet else 0 end) as ockovano_mo,
+            sum(case when vakcina='COVID-19 Vaccine AstraZeneca' then pocet else 0 end) as ockovano_az
+        from ockovani_lide group by datum order by datum;
+        """
+    )).all()
+
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
                            vacc_storage=vacc_storage,
                            end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
-                           vac_stats=vaccination_stats, vac_age=vaccination_age)
+                           vac_stats=vaccination_stats, vac_age=vaccination_age,
+                           dodavky=dodavky,
+                           ockovani=ockovano)
 
 
 @bp.route("/codelat")
