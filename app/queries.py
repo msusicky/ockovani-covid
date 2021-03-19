@@ -143,7 +143,7 @@ def count_registrations(import_id, filter_column, filter_value):
     df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(14)))
     df['registrace_30'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(30))
     df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(30)))
-    df['cekani'] = (df['datum_rezervace_fix'] - df['datum']).dt.days
+    df['cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
     df['rezervace_7'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= date.today() - timedelta(7)))
     df['rezervace_7_x_cekani'] = df['cekani'] * df['rezervace_7']
 
