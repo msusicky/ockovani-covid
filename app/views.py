@@ -180,11 +180,6 @@ def mapa():
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
-@bp.route("/opendata")
-def opendata():
-    return render_template('opendata.html', last_update=_last_import_modified())
-
-
 @bp.route("/statistiky")
 def statistiky():
     # bad computation :(
@@ -298,6 +293,11 @@ def statistiky():
 @bp.route("/codelat")
 def codelat():
     return render_template('codelat.html', last_update=_last_import_modified(), now=_now())
+
+
+@bp.route("/odkazy")
+def odkazy():
+    return render_template('odkazy.html', last_update=_last_import_modified(), now=_now())
 
 
 def _last_import_modified():
