@@ -80,7 +80,8 @@ class Etl:
             func.coalesce(func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), 0).label('rezervace_celkem'),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici"),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1")
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1"),
+            func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
         ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -91,16 +92,18 @@ class Etl:
                 datum=self._date,
                 rezervace_celkem=reservation.rezervace_celkem,
                 rezervace_cekajici=reservation.rezervace_cekajici,
-                rezervace_kapacita=reservation.rezervace_kapacita
+                rezervace_kapacita=reservation.rezervace_kapacita,
+                rezervace_kapacita_1=reservation.rezervace_kapacita_1,
+                rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
         app.logger.info('Computing vaccination centers metrics - reservations finished.')
 
     def _compute_center_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each vaccination center."""
-        vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')) \
+        vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
+                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
+                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')) \
             .outerjoin(OckovaniLide, and_(OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod, OckovaniLide.datum < self._date)) \
             .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
             .group_by(OckovaciMisto.id) \
@@ -110,9 +113,9 @@ class Etl:
             db.session.merge(OckovaciMistoMetriky(
                 misto_id=vacc.id,
                 datum=self._date,
-                ockovani_pocet=vacc.ockovani_pocet,
-                ockovani_pocet_1=vacc.ockovani_pocet_1,
-                ockovani_pocet_2=vacc.ockovani_pocet_2
+                ockovani_pocet_davek=vacc.ockovani_pocet_davek,
+                ockovani_pocet_castecne=vacc.ockovani_pocet_castecne,
+                ockovani_pocet_plne=vacc.ockovani_pocet_plne
             ))
 
         app.logger.info('Computing vaccination centers metrics - vaccinated people finished.')
@@ -165,7 +168,8 @@ class Etl:
         """Computes metrics derived from the previous metrics for each vaccination center."""
         avg_waiting = db.session.query(
             OckovaciMisto.id,
-            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum)*OckovaniRegistrace.pocet)/func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
+            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
@@ -177,6 +181,23 @@ class Etl:
                 misto_id=wait.id,
                 datum=self._date,
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
+            ))
+
+        avg_queue_waiting = db.session.query(
+            OckovaciMisto.id,
+            (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
+        ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.rezervace == False) \
+            .group_by(OckovaciMisto.id) \
+            .all()
+
+        for queue_wait in avg_queue_waiting:
+            db.session.merge(OckovaciMistoMetriky(
+                misto_id=queue_wait.id,
+                datum=self._date,
+                registrace_fronta_prumer_cekani=queue_wait.registrace_fronta_prumer_cekani
             ))
 
         est_waiting = db.session.query("id", "registrace_odhad_cekani").from_statement(text(
@@ -303,9 +324,10 @@ class Etl:
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
                 registrace_odhad_cekani_zmena_den = t0.registrace_odhad_cekani - t1.registrace_odhad_cekani,
-                ockovani_pocet_zmena_den = t0.ockovani_pocet - t1.ockovani_pocet,
-                ockovani_pocet_1_zmena_den = t0.ockovani_pocet_1 - t1.ockovani_pocet_1,
-                ockovani_pocet_2_zmena_den = t0.ockovani_pocet_2 - t1.ockovani_pocet_2,
+                registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
+                ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
+                ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
+                ockovani_pocet_plne_zmena_den = t0.ockovani_pocet_plne - t1.ockovani_pocet_plne,
                 ockovani_odhad_cekani_zmena_den = t0.ockovani_odhad_cekani - t1.ockovani_odhad_cekani,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
@@ -332,9 +354,10 @@ class Etl:
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
                 registrace_odhad_cekani_zmena_tyden = t0.registrace_odhad_cekani - t7.registrace_odhad_cekani,
-                ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
-                ockovani_pocet_1_zmena_tyden = t0.ockovani_pocet_1 - t7.ockovani_pocet_1,
-                ockovani_pocet_2_zmena_tyden = t0.ockovani_pocet_2 - t7.ockovani_pocet_2,
+                registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
+                ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
+                ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,
+                ockovani_pocet_plne_zmena_tyden = t0.ockovani_pocet_plne - t7.ockovani_pocet_plne,
                 ockovani_odhad_cekani_zmena_tyden = t0.ockovani_odhad_cekani - t7.ockovani_odhad_cekani,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
@@ -394,7 +417,8 @@ class Etl:
             Okres.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita_1")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
+            func.min(OckovaciMistoMetriky.rezervace_nejblizsi_volno).label('rezervace_nejblizsi_volno')
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
             .filter(OckovaciMistoMetriky.datum == self._date) \
@@ -407,7 +431,9 @@ class Etl:
                 datum=self._date,
                 rezervace_celkem=reservation.rezervace_celkem,
                 rezervace_cekajici=reservation.rezervace_cekajici,
-                rezervace_kapacita=reservation.rezervace_kapacita
+                rezervace_kapacita=reservation.rezervace_kapacita,
+                rezervace_kapacita_1=reservation.rezervace_kapacita_1,
+                rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
         app.logger.info('Computing okres metrics - reservations finished.')
@@ -477,7 +503,8 @@ class Etl:
         """Computes metrics derived from the previous metrics for each okres."""
         avg_waiting = db.session.query(
             Okres.id,
-            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum)*OckovaniRegistrace.pocet)/func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
+            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
@@ -490,6 +517,24 @@ class Etl:
                 okres_id=wait.id,
                 datum=self._date,
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
+            ))
+
+        avg_queue_waiting = db.session.query(
+            Okres.id,
+            (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.rezervace == False) \
+            .group_by(Okres.id) \
+            .all()
+
+        for queue_wait in avg_queue_waiting:
+            db.session.merge(OkresMetriky(
+                okres_id=queue_wait.id,
+                datum=self._date,
+                registrace_fronta_prumer_cekani=queue_wait.registrace_fronta_prumer_cekani
             ))
 
         success_ratio_7 = db.session.query(
@@ -563,6 +608,7 @@ class Etl:
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
+                registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet
@@ -586,6 +632,7 @@ class Etl:
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet
@@ -644,7 +691,8 @@ class Etl:
             Kraj.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita_1")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
+            func.min(OckovaciMistoMetriky.rezervace_nejblizsi_volno).label('rezervace_nejblizsi_volno')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
@@ -658,7 +706,9 @@ class Etl:
                 datum=self._date,
                 rezervace_celkem=reservation.rezervace_celkem,
                 rezervace_cekajici=reservation.rezervace_cekajici,
-                rezervace_kapacita=reservation.rezervace_kapacita
+                rezervace_kapacita=reservation.rezervace_kapacita,
+                rezervace_kapacita_1=reservation.rezervace_kapacita_1,
+                rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
         app.logger.info('Computing kraj metrics - reservations finished.')
@@ -666,9 +716,9 @@ class Etl:
     def _compute_kraj_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each kraj."""
         vaccinated = db.session.query(
-            Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_1'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_2')
+            Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_nuts_kod == Kraj.id, OckovaniLide.datum < self._date)) \
             .group_by(Kraj.id) \
             .all()
@@ -677,9 +727,9 @@ class Etl:
             db.session.merge(KrajMetriky(
                 kraj_id=vacc.id,
                 datum=self._date,
-                ockovani_pocet=vacc.ockovani_pocet,
-                ockovani_pocet_1=vacc.ockovani_pocet_1,
-                ockovani_pocet_2=vacc.ockovani_pocet_2
+                ockovani_pocet_davek=vacc.ockovani_pocet_davek,
+                ockovani_pocet_castecne=vacc.ockovani_pocet_castecne,
+                ockovani_pocet_plne=vacc.ockovani_pocet_plne
             ))
 
         app.logger.info('Computing kraj metrics - vaccinated people finished.')
@@ -751,9 +801,8 @@ class Etl:
         """Computes metrics derived from the previous metrics for each kraj."""
         avg_waiting = db.session.query(
             Kraj.id,
-            (func.sum(
-                (OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet) / func.sum(
-                OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
+            (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -767,6 +816,25 @@ class Etl:
                 kraj_id=wait.id,
                 datum=self._date,
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
+            ))
+
+        avg_queue_waiting = db.session.query(
+            Kraj.id,
+            (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
+             / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.rezervace == False) \
+            .group_by(Kraj.id,) \
+            .all()
+
+        for queue_wait in avg_queue_waiting:
+            db.session.merge(KrajMetriky(
+                kraj_id=queue_wait.id,
+                datum=self._date,
+                registrace_fronta_prumer_cekani=queue_wait.registrace_fronta_prumer_cekani
             ))
 
         success_ratio_7 = db.session.query(
@@ -827,11 +895,11 @@ class Etl:
             ))
 
         vacc_skladem = db.session.query(
-            Kraj.id, (KrajMetriky.vakciny_prijate_pocet - KrajMetriky.ockovani_pocet
+            Kraj.id, (KrajMetriky.vakciny_prijate_pocet - KrajMetriky.ockovani_pocet_davek
                       - KrajMetriky.vakciny_znicene_pocet).label('vakciny_skladem_pocet')
         ).join(KrajMetriky, Kraj.id == KrajMetriky.kraj_id) \
             .filter(KrajMetriky.datum == self._date) \
-            .group_by(Kraj.id, KrajMetriky.vakciny_prijate_pocet, KrajMetriky.ockovani_pocet,
+            .group_by(Kraj.id, KrajMetriky.vakciny_prijate_pocet, KrajMetriky.ockovani_pocet_davek,
                       KrajMetriky.vakciny_znicene_pocet) \
             .all()
 
@@ -859,9 +927,10 @@ class Etl:
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
-                ockovani_pocet_zmena_den = t0.ockovani_pocet - t1.ockovani_pocet,
-                ockovani_pocet_1_zmena_den = t0.ockovani_pocet_1 - t1.ockovani_pocet_1,
-                ockovani_pocet_2_zmena_den = t0.ockovani_pocet_2 - t1.ockovani_pocet_2,
+                registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
+                ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
+                ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
+                ockovani_pocet_plne_zmena_den = t0.ockovani_pocet_plne - t1.ockovani_pocet_plne,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
@@ -886,9 +955,10 @@ class Etl:
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
-                ockovani_pocet_zmena_tyden = t0.ockovani_pocet - t7.ockovani_pocet,
-                ockovani_pocet_1_zmena_tyden = t0.ockovani_pocet_1 - t7.ockovani_pocet_1,
-                ockovani_pocet_2_zmena_tyden = t0.ockovani_pocet_2 - t7.ockovani_pocet_2,
+                registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
+                ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
+                ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,
+                ockovani_pocet_plne_zmena_tyden = t0.ockovani_pocet_plne - t7.ockovani_pocet_plne,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,

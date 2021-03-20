@@ -9,11 +9,11 @@ from app.models import KrajMetriky
 
 class TwitterBot():
     def __init__(self):
-        stats = db.session.query(func.sum(KrajMetriky.ockovani_pocet_2).label('ockovani_plne'),
-                                 func.sum(KrajMetriky.ockovani_pocet_2_zmena_den).label('ockovani_plne_zmena_den'),
+        stats = db.session.query(func.sum(KrajMetriky.ockovani_pocet_plne).label('ockovani_plne'),
+                                 func.sum(KrajMetriky.ockovani_pocet_plne_zmena_den).label('ockovani_plne_zmena_den'),
                                  func.sum(KrajMetriky.pocet_obyvatel_dospeli).label('pocet_obyvatel'),
-                                 func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
-                                 func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden"),
+                                 func.sum(KrajMetriky.ockovani_pocet_davek).label("ockovane_davky_celkem"),
+                                 func.sum(KrajMetriky.ockovani_pocet_davek_zmena_tyden).label("ockovane_davky_tyden"),
                                  func.sum(KrajMetriky.registrace_fronta).label('fronta')) \
             .filter(KrajMetriky.datum == queries.last_import_date()) \
             .one_or_none()
