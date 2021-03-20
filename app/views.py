@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta, date, datetime
 
 from flask import render_template
@@ -288,6 +289,66 @@ def statistiky():
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
                            vac_stats=vaccination_stats, vac_age=vaccination_age)
+
+
+@bp.route("/charts")
+def charts():
+    """
+    Obtains source data from database for charts.html and renders this template.
+
+    """
+    charts_ts_prijem = db.session.query("vyrobce", "datum", "prijem").from_statement(text(
+        """
+        select 
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.prijem) as prijem
+        from (
+            select 
+                vyrobce,
+                datum,
+                sum(pocet_davek) as prijem
+            from ockovani_distribuce
+            where akce='Příjem'
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
+    logging.info(f"TimeSeries: {charts_ts_prijem}")
+
+    charts_ts_ockovano = db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
+        """
+        select
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.ockovano) as ockovano 
+        from (
+            select
+                case 
+                    when vakcina='Comirnaty' Then 'Pfizer'
+                    when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
+                    when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca'
+                    else 'ostatni'
+                end as vyrobce,
+                datum,
+                sum(pocet) as ockovano
+            from ockovani_lide
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
+
+    return render_template(
+        'charts.html',
+        last_update=_last_import_modified(),
+        now=_now(),
+        prijem=charts_ts_prijem,
+        ockovano=charts_ts_ockovano
+    )
 
 
 @bp.route("/codelat")
