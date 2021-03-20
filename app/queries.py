@@ -280,29 +280,33 @@ def count_registrations(filter_column, filter_value):
         db.engine
     )
 
+    df['dnes'] = get_import_date()
     df['datum_rezervace_fix'] = df['datum_rezervace'].where(df['datum_rezervace'] != date(1970, 1, 1))
-    df['fronta'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
-    df['registrace_7'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(7))
-    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(7)))
-    df['registrace_14'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(14))
-    df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(14)))
-    df['registrace_30'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(30))
-    df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(30)))
-    df['cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
-    df['rezervace_7'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= date.today() - timedelta(7)))
-    df['rezervace_7_x_cekani'] = df['cekani'] * df['rezervace_7']
+    df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
+    df['fronta_cekani'] = (df['dnes'] - df['datum']).astype('timedelta64[ns]').dt.days
+    df['fronta_pocet_x_cekani'] = df['fronta_pocet'] * df['fronta_cekani']
+    df['registrace_7'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(7))
+    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
+    # df['registrace_14'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(14))
+    # df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(14)))
+    # df['registrace_30'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(30))
+    # df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(30)))
+    df['rezervace_7_cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
+    df['rezervace_7_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(7)))
+    df['rezervace_7_pocet_x_cekani'] = df['rezervace_7_cekani'] * df['rezervace_7_pocet']
 
     df = df.groupby(['vekova_skupina', 'povolani']).sum()
 
     df['uspesnost_7'] = ((df['registrace_7_rez'] / df['registrace_7']) * 100).replace({np.nan: None})
-    df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
-    df['uspesnost_30'] = ((df['registrace_30_rez'] / df['registrace_30']) * 100).replace({np.nan: None})
+    # df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
+    # df['uspesnost_30'] = ((df['registrace_30_rez'] / df['registrace_30']) * 100).replace({np.nan: None})
     df['registrace_7'] = df['registrace_7'].astype('int')
     df['registrace_7_rez'] = df['registrace_7_rez'].astype('int')
-    df['registrace_14'] = df['registrace_14'].astype('int')
-    df['registrace_14_rez'] = df['registrace_14_rez'].astype('int')
-    df['registrace_30'] = df['registrace_30'].astype('int')
-    df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
-    df['prumer_cekani'] = ((df['rezervace_7_x_cekani'] / df['rezervace_7']) / 7).replace({np.nan: None})
+    # df['registrace_14'] = df['registrace_14'].astype('int')
+    # df['registrace_14_rez'] = df['registrace_14_rez'].astype('int')
+    # df['registrace_30'] = df['registrace_30'].astype('int')
+    # df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
+    df['fronta_prumer_cekani'] = ((df['fronta_pocet_x_cekani'] / df['fronta_pocet']) / 7).replace({np.nan: None})
+    df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace({np.nan: None})
 
     return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])

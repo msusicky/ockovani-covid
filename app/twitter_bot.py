@@ -4,6 +4,7 @@ import twitter
 from sqlalchemy import func
 
 from app import db, app, filters, queries
+from app.context import get_import_date
 from app.models import KrajMetriky
 
 
@@ -25,7 +26,7 @@ class TwitterBot():
         self._vaccinated_ratio = (1.0 * stats.ockovani_plne) / stats.pocet_obyvatel
         self._population = stats.pocet_obyvatel
         self._waiting = stats.fronta
-        self._end_date = date.today() + timedelta(remaining_days)
+        self._end_date = get_import_date() + timedelta(remaining_days)
 
     def post_tweet(self):
         text = self._generate_tweet()
