@@ -39,7 +39,6 @@ class Etl:
         self._compute_okres_population()
         self._compute_okres_registrations()
         self._compute_okres_reservations()
-        # # self._compute_okres_vaccinated() # todo
         self._compute_okres_distributed()
         self._compute_okres_used()
         self._compute_okres_derived()
@@ -80,8 +79,8 @@ class Etl:
             OckovaciMisto.id,
             func.coalesce(func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), 0).label('rezervace_celkem'),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita")
-
+            func.coalesce(func.sum(case([(OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita"),
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1")
         ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -296,6 +295,7 @@ class Etl:
             set rezervace_celkem_zmena_den = t0.rezervace_celkem - t1.rezervace_celkem,
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
@@ -324,6 +324,7 @@ class Etl:
             set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
@@ -392,7 +393,8 @@ class Etl:
         reservations = db.session.query(
             Okres.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita_1")
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
             .filter(OckovaciMistoMetriky.datum == self._date) \
@@ -554,6 +556,7 @@ class Etl:
             set rezervace_celkem_zmena_den = t0.rezervace_celkem - t1.rezervace_celkem,
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
@@ -576,6 +579,7 @@ class Etl:
             set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
@@ -639,7 +643,8 @@ class Etl:
         reservations = db.session.query(
             Kraj.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita_1")
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
@@ -847,6 +852,7 @@ class Etl:
             set rezervace_celkem_zmena_den = t0.rezervace_celkem - t1.rezervace_celkem,
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
@@ -873,6 +879,7 @@ class Etl:
             set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
+                rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,

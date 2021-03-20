@@ -234,7 +234,7 @@ def count_vaccines_cr():
                 when vakcina = 'COVID-19 Vaccine AstraZeneca' then 'AstraZeneca'
                 when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
                 when vakcina = 'Comirnaty' then 'Pfizer'
-            else 'ostatní' end vyrobce
+                else 'ostatní' end vyrobce
         from ockovani_lide
         where datum < '{}'
         group by vakcina

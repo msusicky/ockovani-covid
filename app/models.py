@@ -29,6 +29,9 @@ class KrajMetriky(db.Model):
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
     registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
@@ -110,6 +113,9 @@ class OkresMetriky(db.Model):
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
     registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
@@ -212,6 +218,9 @@ class OckovaciMistoMetriky(db.Model):
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
     registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
