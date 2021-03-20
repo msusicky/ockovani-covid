@@ -3,6 +3,7 @@ from datetime import timedelta, date
 from sqlalchemy import func, case, text, or_, and_
 
 from app import db, app, queries
+from app.context import STATUS_FINISHED
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniRezervace, Import, \
     OckovaniLide, OckovaniDistribuce, OckovaniSpotreba, Okres, OkresMetriky, Kraj, KrajMetriky, Populace
 
@@ -270,11 +271,11 @@ class Etl:
             ))
 
         vacc_skladem = db.session.query(
-            OckovaciMisto.id, (OckovaciMistoMetriky.vakciny_prijate_pocet - OckovaciMistoMetriky.ockovani_pocet
+            OckovaciMisto.id, (OckovaciMistoMetriky.vakciny_prijate_pocet - OckovaciMistoMetriky.vakciny_ockovane_pocet
                                - OckovaciMistoMetriky.vakciny_znicene_pocet).label('vakciny_skladem_pocet')
         ).join(OckovaciMistoMetriky, OckovaciMisto.id == OckovaciMistoMetriky.misto_id) \
             .filter(OckovaciMistoMetriky.datum == self._date) \
-            .group_by(OckovaciMisto.id, OckovaciMistoMetriky.vakciny_prijate_pocet, OckovaciMistoMetriky.ockovani_pocet,
+            .group_by(OckovaciMisto.id, OckovaciMistoMetriky.vakciny_prijate_pocet, OckovaciMistoMetriky.vakciny_ockovane_pocet,
                       OckovaciMistoMetriky.vakciny_znicene_pocet) \
             .all()
 
@@ -414,10 +415,26 @@ class Etl:
         distributed = db.session.query("okres_id", "vakciny_prijate_pocet").from_statement(text(
             """
             select m.okres_id okres_id, ( 
-                    coalesce(sum(case when akce = 'Příjem' and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 where m1.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
-                    + coalesce(sum(case when akce = 'Výdej' and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 where m2.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
-                    - coalesce(sum(case when akce = 'Výdej' and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 where m3.okres_id = m.okres_id) then pocet_davek else 0 end), 0) 
-                ) vakciny_prijate_pocet
+                coalesce(sum(case
+                    when akce = 'Příjem' 
+                        and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 where m1.okres_id = m.okres_id) 
+                    then pocet_davek
+                    else 0 end
+                ), 0) 
+                + coalesce(sum(case
+                    when akce = 'Výdej' 
+                        and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 where m2.okres_id = m.okres_id) 
+                    then pocet_davek 
+                    else 0 end
+                ), 0) 
+                - coalesce(sum(case 
+                    when akce = 'Výdej' 
+                        and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 where m3.okres_id = m.okres_id) 
+                        and d.cilove_ockovaci_misto_id != '' 
+                    then pocet_davek 
+                    else 0 end
+                ), 0) 
+            ) vakciny_prijate_pocet
             from ockovaci_mista m
             left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
             group by (m.okres_id)
@@ -667,10 +684,26 @@ class Etl:
         distributed = db.session.query("kraj_id", "vakciny_prijate_pocet").from_statement(text(
             """
             select o.kraj_id kraj_id, ( 
-                    coalesce(sum(case when akce = 'Příjem' and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 join okresy o1 on m1.okres_id = o1.id where o1.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
-                    + coalesce(sum(case when akce = 'Výdej' and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 join okresy o2 on m2.okres_id = o2.id where o2.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
-                    - coalesce(sum(case when akce = 'Výdej' and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 join okresy o3 on m3.okres_id = o3.id where o3.kraj_id = o.kraj_id) then pocet_davek else 0 end), 0) 
-                ) vakciny_prijate_pocet
+                coalesce(sum(case
+                    when akce = 'Příjem' 
+                        and d.ockovaci_misto_id in (select m1.id from ockovaci_mista m1 join okresy o1 on m1.okres_id = o1.id where o1.kraj_id = o.kraj_id)
+                    then pocet_davek 
+                    else 0 end
+                ), 0) 
+                + coalesce(sum(case
+                    when akce = 'Výdej' 
+                        and d.cilove_ockovaci_misto_id in (select m2.id from ockovaci_mista m2 join okresy o2 on m2.okres_id = o2.id where o2.kraj_id = o.kraj_id) 
+                    then pocet_davek 
+                    else 0 end
+                ), 0) 
+                - coalesce(sum(case
+                    when akce = 'Výdej' 
+                        and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 join okresy o3 on m3.okres_id = o3.id where o3.kraj_id = o.kraj_id) 
+                        and d.cilove_ockovaci_misto_id != '' 
+                    then pocet_davek 
+                    else 0 end
+                ), 0) 
+            ) vakciny_prijate_pocet
             from okresy o
             join ockovaci_mista m on (m.okres_id = o.id)
             left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
@@ -864,7 +897,7 @@ class Etl:
 
     def _find_import_id(self):
         id_ = db.session.query(Import.id) \
-            .filter(Import.date == self._date, Import.status == queries.STATUS_FINISHED) \
+            .filter(Import.date == self._date, Import.status == STATUS_FINISHED) \
             .first()
 
         if id_ is None:
