@@ -4,7 +4,7 @@ from datetime import date, timedelta
 import click
 
 from app import app
-from app.etl import Etl
+from app.etl import MetricsEtl
 from app.opendata_fetcher import OpenDataFetcher
 from app.twitter_bot import TwitterBot
 
@@ -46,7 +46,7 @@ def compute_metrics_command(datum):
 
     while start_date <= end_date:
         app.logger.info("Computing metrics for date: '{}'.".format(start_date))
-        etl = Etl(start_date)
+        etl = MetricsEtl(start_date)
         result = etl.compute_all()
         if not result:
             break
