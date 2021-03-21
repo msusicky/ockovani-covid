@@ -60,18 +60,20 @@ Statistiky |
     </div>
 </div>
 
-<div class="row">
+<div class="row mb-3">
     <div class="col">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Počty vakcín</h5>
-                {{ macros.stav_vakcin(vaccines) }}
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
+                {{ macros.stav_ockovani(vaccinated) }}
             </div>
         </div>
     </div>
 </div>
+
 <div class="row">
-    <div class="col-sm-6">
+    <div class="col-md-6">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
@@ -101,6 +103,8 @@ Statistiky |
                 <p class="card-text font-italic">5 dní s největším počtem očkovaných.</p>
             </div>
         </div>
+    </div>
+    <div class="col-md-6">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
@@ -133,12 +137,14 @@ Statistiky |
             </div>
         </div>
     </div>
-    <div class="col-sm-6">
+</div>
+
+<div class="row mb-3">
+    <div class="col">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
-                {{ macros.stav_ockovani(vac_age) }}
+                <h5 class="card-title">Počty vakcín</h5>
+                {{ macros.stav_vakcin(vaccines) }}
             </div>
         </div>
     </div>
