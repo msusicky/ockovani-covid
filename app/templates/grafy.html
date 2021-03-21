@@ -15,10 +15,10 @@
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <div id="prijem"></div>
+                <div id="grafy-prijem"></div>
             </div>
             <div class="card-body">
-                <div id="ockovano"></div>
+                <div id="grafy-ockovano"></div>
             </div>
         </div>
     </div>
@@ -44,7 +44,7 @@
 
     <!-- Prijem -->
     <script>
-        var data = [
+        var prijemData = [
             {% for row in prijem %}
                 {
                     {#x: [{% for item in row.datum %}"{{ item }}",{% endfor %}],#}
@@ -60,7 +60,7 @@
             {% endfor %}
         ]
 
-        var layout = {
+        var prijemLayout = {
             title: "Přijaté vakcíny podle výrobce",
             barmode: "stack",
             autosize: true,
@@ -116,17 +116,17 @@
             height: 700,
         }
 
-        var config = {
+        var prijemConfig = {
             responsive: true,
             displayModeBar: false,
         }
 
-        Plotly.newPlot('prijem', data, layout, config);
+        Plotly.newPlot('grafy-prijem', prijemData, prijemLayout, prijemConfig);
     </script>
 
     <!-- Ockovano -->
     <script>
-        var data = [
+        var ockovanoData = [
             {% for row in ockovano %}
                 {
                     x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
@@ -143,13 +143,13 @@
         ]
 
         // Add buttons to switch between visibility of traces
-        var buttons = [];
-        for (var i = 0; i < data.length; i++) {
-            var traceVisibility = new Array(data.length).fill(false);
+        var ockovaniButtons = [];
+        for (var i = 0; i < ockovanoData.length; i++) {
+            var traceVisibility = new Array(ockovanoData.length).fill(false);
             traceVisibility[i] = true;
 
-            buttons[i] = {
-                label: data[i].name,
+            ockovaniButtons[i] = {
+                label: ockovanoData[i].name,
                 args: [
                     // Update data
                     {
@@ -158,7 +158,7 @@
 
                     // Update layout
                     {
-                        "title": "Počet použitých vakcín od výrobce: " + data[i].name
+                        "title": "Počet použitých vakcín od výrobce: " + ockovanoData[i].name
                     }
                 ],
                 method: "update"
@@ -166,13 +166,16 @@
         }
 
         // Add button to show all traces
-        buttons.push(
+        ockovaniButtons.push(
             {
                 label: "Všichni výrobci",
                 args: [
+                    // Update data
                     {
-                        "visible": new Array(data.length).fill(true),
+                        "visible": new Array(ockovanoData.length).fill(true),
                     },
+
+                    // Update layout
                     {
                         "title": "Počet použitých vakcín všech výrobců",
                     }
@@ -182,16 +185,15 @@
         );
 
         // Activate first button - only visually (action is activated by update of div)
-        buttons[0]["activate"] = true;
+        ockovaniButtons[0]["activate"] = true;
 
-        var layout = {
+        var ockovanoLayout = {
             title: "Počet vakcín použitých pro očkování pro jednotlivé výrobce",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
                 type: "date",
                 tickformat: "%-d.%-m.%Y",
-                //dtick: 1000 * 60 * 60 * 24, // one day as a unit
                 autorange: true,
                 rangeslider: {},
                 rangeselector: {
@@ -246,19 +248,19 @@
                 x: 0.5,
                 type: "buttons",
                 showactive: true,
-                buttons: buttons,
+                buttons: ockovaniButtons,
             }]
         }
 
-        var config = {
+        var ockovanoConfig = {
             responsive: true,
             displayModeBar: false,
         }
 
         // Render original chart
-        Plotly.newPlot("ockovano", data, layout, config);
+        Plotly.newPlot("grafy-ockovano", ockovanoData, ockovanoLayout, ockovanoConfig);
 
         // Activate first button action
-        Plotly.update("ockovano", buttons[0].args[0], buttons[0].args[1]);
+        Plotly.update("grafy-ockovano", ockovaniButtons[0].args[0], ockovaniButtons[0].args[1]);
     </script>
 {% endblock %}

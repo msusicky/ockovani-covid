@@ -264,8 +264,8 @@ def statistiky():
                            vac_stats=vaccination_stats, vac_age=vaccination_age)
 
 
-@bp.route("/charts")
-def charts():
+@bp.route("/grafy")
+def grafy():
     """
     Obtains source data from database for charts.html and renders this template.
 
@@ -316,7 +316,7 @@ def charts():
     )).all()
 
     return render_template(
-        'charts.html',
+        'grafy.html',
         last_update=_last_import_modified(),
         now=_now(),
         prijem=charts_ts_prijem,
