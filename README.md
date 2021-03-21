@@ -109,5 +109,3 @@ _Old manual way, now it's done automatically using GitHub Actions._
 1. publish website
 
     `bash tools/manual_publish.sh`
-
-[]: https://denikn.cz/569269/kde-maji-volna-mista-programatori-po-nocich-vymysleli-aplikaci-ktera-muze-zkratit-cekani-na-vakcinu
