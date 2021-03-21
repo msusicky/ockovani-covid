@@ -3,7 +3,7 @@
     <div class="col">
         {% if centers %}
         <div class="table-responsive">
-            <table id="centers-table" class="table table-bordered table-striped table-sm">
+            <table id="centers-table" class="table table-bordered table-striped table-sm mb-0">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" class="text-center">Název</th>
@@ -75,9 +75,10 @@
 </div>
 {%- endmacro %}
 
+
 {% macro stav_vakcin(vaccines) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm" style="word-break: break-all">
+    <table class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-20 text-center">Výrobce</th>
@@ -148,9 +149,10 @@
 </div>
 {%- endmacro %}
 
+
 {% macro stav_registraci(registrations) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
+    <table class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-15 text-center">Věková<br>skupina</th>
@@ -214,6 +216,60 @@
     </table>
 </div>
 {%- endmacro %}
+
+
+{% macro stav_ockovani(vaccinated) -%}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm mb-0">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="w-20 text-center">Věková skupina</th>
+            <th scope="col" class="w-20 text-center">
+                Ve frontě
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
+                </i>
+            </th>
+            <th scope="col" class="text-center" colspan="2">
+                Částečně očkovaní
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet a podíl očkovaných alespoň jednou dávkou. Podle datasetu vykázaných očkování.">
+                </i>
+            </th>
+            <th scope="col" class="text-center" colspan="2">
+                Plně očkovaní
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet a podíl plně očkovaných (obě dávky). Podle datasetu vykázaných očkování.">
+                </i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for idx, row in vaccinated.iterrows() %}
+        <tr>
+            <td>{{ row['vekova_skupina'] }}</td>
+            <td class="text-right">{{ row['pocet_fronta'] | format_number }}</td>
+            <td class="w-15 text-right">{{ row['pocet_ockovani_castecne'] | format_number }}</td>
+            <td class="w-15 text-right">{% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}</td>
+            <td class="w-15 text-right">{{ row['pocet_ockovani_plne'] | format_number }}</td>
+            <td class="w-15 text-right">{% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot class="font-weight-bold">
+        <tr>
+            <td>Celkem</td>
+            <td class="text-right">{{ vaccinated['pocet_fronta'].sum() | format_number }}</td>
+            <td class="text-right">{{ vaccinated['pocet_ockovani_castecne'].sum() | format_number }}</td>
+            <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
+            <td class="text-right">{{ vaccinated['pocet_ockovani_plne'].sum() | format_number }}</td>
+            <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_plne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+{%- endmacro %}
+
 
 {% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', multiply=1, divide=1, color=None, info=None, warning=None) -%}
 {% if number != None %}
@@ -286,64 +342,6 @@
             {% endif %}
         </div>
     </div>
-</div>
-{% endif %}
-{%- endmacro %}
-
-{% macro stav_ockovani(vac_age) -%}
-{% if vac_age %}
-<div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm">
-        <thead class="thead-dark">
-        <tr>
-            <th scope="col" class="text-center">Věková skupina</th>
-            <th scope="col" class="text-center">
-                Ve frontě
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
-                </i>
-            </th>
-            <th scope="col" class="text-center">
-                1 dávka
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet očkovaných jednou dávkou. Podle datasetu vykázaných očkování.">
-                </i>
-            </th>
-            <th scope="col" class="text-center">
-                2 dávky
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet očkovaných oběma dávkami. Podle datasetu vykázaných očkování.">
-                </i>
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        {% set sum=namespace(fronta = 0, sum_1 = 0, sum_2 = 0) %}
-        {% for item in vac_age %}
-            {% set sum.fronta = sum.fronta + item.fronta %}
-            {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
-            {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
-            <tr>
-                <td>{{ item.vekova_skupina }}</td>
-                <td class="text-right">{{ item.fronta | format_number }}</td>
-                <td class="text-right">{{ item.sum_1 | format_number }}</td>
-                <td class="text-right">{{ item.sum_2 | format_number }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot class="font-weight-bold">
-        <tr>
-            <td>Celkem</td>
-            <td class="text-right">{{ sum.fronta | format_number }}</td>
-            <td class="text-right">{{ sum.sum_1 | format_number }}</td>
-            <td class="text-right">{{ sum.sum_2 | format_number }}</td>
-        </tr>
-        </tfoot>
-    </table>
-</div>
-{% else %}
-<div class="alert alert-warning w-100" role="alert">
-    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
 </div>
 {% endif %}
 {%- endmacro %}

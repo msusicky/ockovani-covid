@@ -27,10 +27,10 @@
                         <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
+                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
+                        <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
                     </li>
                 </ul>
             </div>
@@ -38,9 +38,7 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="centers">
-                        <div class="mb-n3">
-                            {{ macros.prehled_mist(mista, days) }}
-                        </div>
+                        {{ macros.prehled_mist(mista, days) }}
                     </div>
                     <div class="tab-pane" id="stats">
                         <div class="row px-2 mb-n2">
@@ -65,15 +63,11 @@
                     <div class="tab-pane" id="registration">
                         {{ macros.stav_registraci(registrations) }}
                     </div>
-                    <div class="tab-pane" id="vaccines">
-                        <div class="mb-n3">
-                            {{ macros.stav_vakcin(vaccines) }}
-                        </div>
-                    </div>
                     <div class="tab-pane" id="vaccination">
-                        <div class="mb-n3">
-                            {{ macros.stav_ockovani(vac_age) }}
-                        </div>
+                        {{ macros.stav_ockovani(vaccinated) }}
+                    </div>
+                    <div class="tab-pane" id="vaccines">
+                        {{ macros.stav_vakcin(vaccines) }}
                     </div>
                 </div>
             </div>
