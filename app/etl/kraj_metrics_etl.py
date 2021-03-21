@@ -138,10 +138,11 @@ class KrajMetricsEtl:
             ) vakciny_prijate_pocet
             from okresy o
             join ockovaci_mista m on (m.okres_id = o.id)
-            left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
+            left join ockovani_distribuce d on ((d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id) and d.datum < :datum)
             group by (o.kraj_id)
             """
-        )).all()
+        )).params(datum=self._date) \
+            .all()
 
         for dist in distributed:
             db.session.merge(KrajMetriky(
