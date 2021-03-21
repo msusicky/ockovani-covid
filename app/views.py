@@ -6,7 +6,8 @@ from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaniRezervace, OckovaciMistoMetriky, \
+from app.context import get_import_date, get_import_id, STATUS_FINISHED
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaciMistoMetriky, \
     KrajMetriky, OkresMetriky
 
 
@@ -23,7 +24,7 @@ def info_mista():
         .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMistoMetriky.datum == queries.last_import_date()) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
                   OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
@@ -40,7 +41,7 @@ def info_okres(okres_name):
         abort(404)
 
     metriky = db.session.query(OkresMetriky) \
-        .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == queries.last_import_date()) \
+        .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == get_import_date()) \
         .one_or_none()
 
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
@@ -50,19 +51,17 @@ def info_okres(okres_name):
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Okres.nazev == okres_name) \
-        .filter(OckovaciMistoMetriky.datum == queries.last_import_date()) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
                   OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
         .order_by(OckovaciMisto.nazev) \
         .all()
 
-    registrations = queries.count_registrations(queries.last_import_id(), 'okres_id', okres.id)
-
-    vaccines = queries.count_vaccines('okres_id', okres.id)
+    registrations = queries.count_registrations('okres_id', okres.id)
 
     return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations)
+                           mista=mista, registrations=registrations)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -72,7 +71,7 @@ def info_kraj(kraj_name):
         abort(404)
 
     metriky = db.session.query(KrajMetriky) \
-        .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == queries.last_import_date()) \
+        .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == get_import_date()) \
         .one_or_none()
 
     mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
@@ -82,7 +81,7 @@ def info_kraj(kraj_name):
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(Kraj.nazev == kraj_name) \
-        .filter(OckovaciMistoMetriky.datum == queries.last_import_date()) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
                   OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
@@ -108,12 +107,12 @@ def info_kraj(kraj_name):
         ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
         order by t1.vekova_skupina
         """
-    )).params(import_id=queries.last_import_id()).params(kraj_kod=kraj.id) \
+    )).params(import_id=get_import_id()).params(kraj_kod=kraj.id) \
         .all()
 
-    registrations = queries.count_registrations(queries.last_import_id(), 'kraj_id', kraj.id)
+    registrations = queries.count_registrations('kraj_id', kraj.id)
 
-    vaccines = queries.count_vaccines('kraj_id', kraj.id)
+    vaccines = queries.count_vaccines_kraj(kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
                            mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age)
@@ -125,21 +124,19 @@ def info_misto(misto_id):
     if misto is None:
         abort(404)
 
-    import_id = queries.last_import_id()
-
     metriky = db.session.query(OckovaciMistoMetriky) \
-        .filter(OckovaciMistoMetriky.misto_id == misto_id, OckovaciMistoMetriky.datum == queries.last_import_date()) \
+        .filter(OckovaciMistoMetriky.misto_id == misto_id, OckovaciMistoMetriky.datum == get_import_date()) \
         .one_or_none()
 
-    registrations = queries.count_registrations(import_id, 'ockovaci_mista.id', misto_id)
+    registrations = queries.count_registrations('ockovaci_mista.id', misto_id)
 
-    vaccines = queries.count_vaccines('ockovaci_mista.id', misto_id)
+    vaccines = queries.count_vaccines_center(misto_id)
 
     # Source data for plotly graph
     registrace_overview = db.session.query(
         OckovaniRegistrace.datum,
         func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
-        .filter(OckovaniRegistrace.import_id == import_id) \
+        .filter(OckovaniRegistrace.import_id == get_import_id()) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
         .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
         .group_by(OckovaniRegistrace.datum) \
@@ -148,7 +145,7 @@ def info_misto(misto_id):
     registrace_overview_terminy = db.session.query(
         OckovaniRegistrace.datum_rezervace,
         func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
-        .filter(OckovaniRegistrace.import_id == import_id) \
+        .filter(OckovaniRegistrace.import_id == get_import_id()) \
         .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
         .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
         .group_by(OckovaniRegistrace.datum_rezervace) \
@@ -175,7 +172,7 @@ def mapa():
                              OckovaciMistoMetriky.ockovani_odhad_cekani) \
         .join(OckovaciMistoMetriky) \
         .filter(OckovaciMisto.status == True) \
-        .filter(OckovaciMistoMetriky.datum == queries.last_import_date()) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .all()
 
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
@@ -183,30 +180,7 @@ def mapa():
 
 @bp.route("/statistiky")
 def statistiky():
-    # bad computation :(
-    vacc_storage = db.session.query("vyrobce", "prijem", "ockovano", "zniceno", "rozdil").from_statement(text(
-        """
-        select ockovane.vyrobce, prijem, ockovano, zniceno, prijem-ockovano-zniceno as rozdil 
-        from (
-            select vyrobce, sum(pocet_davek) as prijem 
-            from ockovani_distribuce 
-            where akce='Příjem' 
-            group by vyrobce
-        ) as prijate
-        join (        
-            select case when vakcina='Comirnaty' Then 'Pfizer' when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
-                when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca' end as vyrobce, 
-                sum(pocet) as ockovano 
-            from ockovani_lide 
-            group by vyrobce
-        ) as ockovane on (prijate.vyrobce=ockovane.vyrobce)
-        join (
-            select vyrobce, sum(znehodnocene_davky) zniceno
-            from ockovani_spotreba
-            group by vyrobce
-        ) as znicene on (prijate.vyrobce=znicene.vyrobce) 
-        """
-    )).all()
+    vaccines = queries.count_vaccines_cr()
 
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
@@ -242,14 +216,14 @@ def statistiky():
             where datum >= current_date and import_id=:import_id
         ) t3
         """
-    )).params(import_id=queries.last_import_id()) \
+    )).params(import_id=get_import_id()) \
         .all()
 
     estimate_stats = db.session.query(
         func.sum(KrajMetriky.pocet_obyvatel_dospeli).label("pocet_obyvatel"),
         func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
         func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden")
-    ).filter(KrajMetriky.datum == queries.last_import_date()) \
+    ).filter(KrajMetriky.datum == get_import_date()) \
         .one_or_none()
 
     if estimate_stats is not None and estimate_stats.pocet_obyvatel is not None \
@@ -280,12 +254,11 @@ def statistiky():
         ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
         order by t1.vekova_skupina
         """
-    )).params(import_id=queries.last_import_id()) \
+    )).params(import_id=get_import_id()) \
         .all()
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
-                           vacc_storage=vacc_storage,
-                           end_date=end_date,
+                           vaccines=vaccines, end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
                            vac_stats=vaccination_stats, vac_age=vaccination_age)
@@ -366,7 +339,7 @@ def _last_import_modified():
     Returns last successful import.
     """
     last_modified = db.session.query(func.max(Import.last_modified)) \
-        .filter(Import.status == queries.STATUS_FINISHED) \
+        .filter(Import.status == STATUS_FINISHED) \
         .first()[0]
     return 'nikdy' if last_modified is None else filters.format_datetime_short_wd(last_modified)
 

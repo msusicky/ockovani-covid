@@ -2,8 +2,9 @@ import locale
 import logging
 
 from flask import Flask, Blueprint
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
 from config import Config
 
 app = Flask(__name__)
