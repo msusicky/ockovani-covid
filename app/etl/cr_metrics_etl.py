@@ -7,6 +7,8 @@ from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, P
 
 
 class CrMetricsEtl:
+    """Class for computing metrics for whole Czech republic."""
+
     def __init__(self, date_, import_id):
         self._date = date_
         self._import_id = import_id
@@ -79,7 +81,8 @@ class CrMetricsEtl:
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
-        ).one()
+        ).filter(OckovaniLide.datum < self._date) \
+            .one()
 
         db.session.merge(CrMetriky(
             datum=self._date,
@@ -94,7 +97,8 @@ class CrMetricsEtl:
         """Computes metrics based on distributed vaccines dataset for cr."""
         distributed = db.session.query(
             func.sum(case([(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_prijate_pocet')
-        ).one()
+        ).filter(OckovaniDistribuce.datum < self._date) \
+            .one()
 
         db.session.merge(CrMetriky(
             datum=self._date,

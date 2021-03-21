@@ -10,6 +10,8 @@ from app.models import Import
 
 
 class MetricsEtl:
+    """Base class for computing metrics."""
+
     def __init__(self, date_):
         self._date = date_
         self._import_id = self._find_import_id()

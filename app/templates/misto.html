@@ -12,8 +12,8 @@
     </div>
 </div>
 
-<div class="row mb-3">
-    <div class="col-sm-6 py-2">
+<div class="row px-2">
+    <div class="col-sm-6 px-2 mb-3">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">Podrobnosti o očkovacím místě</h5>
@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 py-2">
+    <div class="col-sm-6 px-2 mb-3">
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">Mapa</h5>
@@ -53,7 +53,7 @@
 
 <div class="row">
     <div class="col">
-        <div class="card mb-4">
+        <div class="card">
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
@@ -74,7 +74,7 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="stats">
-                        <div class="row mb-n3">
+                        <div class="row px-2 mb-n2">
                             {{ macros.metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centrum.<br>Dávky vydané mimo očkovací místa (např. praktickým lékařům) jsou odečtené.') }}
                             {{ macros.metrika('Použité dávky', metriky.vakciny_ockovane_pocet, delta_day=metriky.vakciny_ockovane_pocet_zmena_den, delta_week=metriky.vakciny_ockovane_pocet_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacím centrem podle dat o spotřebě vakcín.") }}
                             {{ macros.metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Odhadovaný počet dávek skladem.<br>Údaj je počítán z dat o distribuci a spotřebě vakcín. Jednotlivé datové sady mají různá zpoždění a nepřesnosti, proto údaj berte jako orientační.') }}

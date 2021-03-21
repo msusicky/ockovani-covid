@@ -8,6 +8,8 @@ from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, 
 
 
 class CenterMetricsEtl:
+    """Class for computing metrics for vaccination centers."""
+
     def __init__(self, date_, import_id):
         self._date = date_
         self._import_id = import_id
