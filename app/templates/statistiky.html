@@ -14,14 +14,14 @@ Statistiky |
 
 <div class="row mb-3">
     <div class="col text-justify">
-        {% if vac_stats %}
+        {% if metriky %}
         <p>
             K datu poslední aktualizace ({{ last_update }}) bylo kompletně naočkováno
-            <strong>{{ vac_stats[0].sum_2 | format_number }}</strong> lidí a
-            <strong>{{ (vac_stats[0].sum_1 + vac_stats[0].sum_2) | format_number }}</strong> lidí alespoň jednou dávkou.
-            Celkem bylo podáno <strong>{{ vac_stats[0].sum | format_number }}</strong> dávek.
-            Ve frontě na rezervaci aktuálně čeká <strong>{{ vac_stats[0].fronta | format_number }}</strong> registrovaných
-            zájemců a konkrétní termín má přiděleno dalších <strong>{{ vac_stats[0].termin | format_number }}</strong> lidí.
+            <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí a
+            <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí alespoň jednou dávkou.
+            Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
+            Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong> registrovaných
+            zájemců a konkrétní termín má přiděleno dalších <strong>{{ metriky.rezervace_cekajici | format_number }}</strong> lidí.
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>

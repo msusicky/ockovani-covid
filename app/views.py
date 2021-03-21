@@ -199,42 +199,11 @@ def statistiky():
         """
     )).all()
 
-    vaccination_stats = db.session.query("sum", "sum_1", "sum_2", "fronta", "termin").from_statement(text(
-        """
-        select sum, (sum_1 - sum_2) sum_1, sum_2, fronta, termin
-        from (
-            select sum(pocet) sum, 
-                sum(case when poradi_davky=1 then pocet else 0 end) sum_1,
-                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
-            from ockovani_lide
-        ) t1
-        cross join (
-            select sum(pocet) fronta 
-            from ockovani_registrace 
-            where rezervace=False and import_id=:import_id
-        ) t2 
-        cross join (
-            select sum(maximalni_kapacita - volna_kapacita) termin 
-            from ockovani_rezervace 
-            where datum >= current_date and import_id=:import_id
-        ) t3
-        """
-    )).params(import_id=get_import_id()) \
-        .all()
-
-    estimate_stats = db.session.query(
-        func.sum(KrajMetriky.pocet_obyvatel_dospeli).label("pocet_obyvatel"),
-        func.sum(KrajMetriky.ockovani_pocet_davek).label("ockovane_davky_celkem"),
-        func.sum(KrajMetriky.ockovani_pocet_davek_zmena_tyden).label("ockovane_davky_tyden")
-    ).filter(KrajMetriky.datum == get_import_date()) \
-        .one_or_none()
-
-    if estimate_stats is not None and estimate_stats.pocet_obyvatel is not None \
-            and estimate_stats.ockovane_davky_celkem is not None and estimate_stats.ockovane_davky_tyden is not None:
-        cr_people = estimate_stats.pocet_obyvatel
+    if metriky is not None:
+        cr_people = metriky.pocet_obyvatel_dospeli
         cr_factor = 0.7
         cr_to_vacc = cr_people * cr_factor
-        delka_dny = (7 * (2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem)) / estimate_stats.ockovane_davky_tyden
+        delka_dny = (7 * (2 * cr_to_vacc - metriky.ockovani_pocet_davek)) / metriky.ockovani_pocet_davek_zmena_tyden
         end_date = get_import_date() + timedelta(days=delka_dny)
     else:
         end_date = None
@@ -264,7 +233,7 @@ def statistiky():
                            vaccines=vaccines, end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
-                           vac_stats=vaccination_stats, vac_age=vaccination_age)
+                           vac_age=vaccination_age)
 
 
 @bp.route("/codelat")
