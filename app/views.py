@@ -182,26 +182,6 @@ def statistiky():
         """
     )).all()
 
-    if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
-        cr_people = metriky.pocet_obyvatel_dospeli
-        cr_factor = 0.7
-        cr_to_vacc = cr_people * cr_factor
-        delka_dny = (7 * (2 * cr_to_vacc - metriky.ockovani_pocet_davek)) / metriky.ockovani_pocet_davek_zmena_tyden
-        end_date = get_import_date() + timedelta(days=delka_dny)
-    else:
-        end_date = None
-
-    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
-                           vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
-                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day)
-
-
-@bp.route("/grafy")
-def grafy():
-    """
-    Obtains source data from database for charts.html and renders this template.
-
-    """
     charts_ts_prijem = db.session.query("vyrobce", "datum", "prijem").from_statement(text(
         """
         select 
@@ -247,13 +227,20 @@ def grafy():
         """
     )).all()
 
-    return render_template(
-        'grafy.html',
-        last_update=_last_import_modified(),
-        now=_now(),
-        prijem=charts_ts_prijem,
-        ockovano=charts_ts_ockovano
-    )
+
+    if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
+        cr_people = metriky.pocet_obyvatel_dospeli
+        cr_factor = 0.7
+        cr_to_vacc = cr_people * cr_factor
+        delka_dny = (7 * (2 * cr_to_vacc - metriky.ockovani_pocet_davek)) / metriky.ockovani_pocet_davek_zmena_tyden
+        end_date = get_import_date() + timedelta(days=delka_dny)
+    else:
+        end_date = None
+
+    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
+                           vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
+                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
+                           charts_ts_prijem=charts_ts_prijem, charts_ts_ockovano=charts_ts_ockovano)
 
 
 @bp.route("/codelat")
