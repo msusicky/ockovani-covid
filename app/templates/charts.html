@@ -26,6 +26,22 @@
 {% endblock %}
 
 {% block scripts %}
+    <!-- Color pallete -->
+    <script>
+        var pallete = [
+            '#1f77b4',  // muted blue
+            '#ff7f0e',  // safety orange
+            '#2ca02c',  // cooked asparagus green
+            '#d62728',  // brick red
+            '#9467bd',  // muted purple
+            '#8c564b',  // chestnut brown
+            '#e377c2',  // raspberry yogurt pink
+            '#7f7f7f',  // middle gray
+            '#bcbd22',  // curry yellow-green
+            '#17becf'   // blue-teal
+        ];
+    </script>
+
     <!-- Prijem -->
     <script>
         var data = [
@@ -36,7 +52,10 @@
                     x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
                     y: [{% for value in row.prijem %}{{ value }},{% endfor %}],
                     name: "{{ row.vyrobce }}",
-                    type: "bar"
+                    type: "bar",
+                    marker: {
+                        color: pallete[{{ (loop.index - 1) % 10 }}]
+                    }
                 },
             {% endfor %}
         ]
@@ -51,9 +70,7 @@
                 tickformat: "%-d.%-m.%Y",
                 //dtick: 1000 * 60 * 60 * 24, // one day as a unit
                 autorange: true,
-                rangeslider: {
-                    //    range: ["{{ start_date }}", "{{ end_date }}"],
-                },
+                rangeslider: {},
                 rangeselector: {
                     buttons: [
                         {
@@ -117,9 +134,55 @@
                     name: "{{ row.vyrobce }}",
                     mode: "lines+markers",
                     type: "scatter",
+                    marker: {
+                        // In case index is greater than length of colors list - start from index 0
+                        color: pallete[{{ (loop.index - 1) % 10 }}]
+                    }
                 },
             {% endfor %}
         ]
+
+        // Add buttons to switch between visibility of traces
+        var buttons = [];
+        for (var i = 0; i < data.length; i++) {
+            var traceVisibility = new Array(data.length).fill(false);
+            traceVisibility[i] = true;
+
+            buttons[i] = {
+                label: data[i].name,
+                args: [
+                    // Update data
+                    {
+                        "visible": traceVisibility,
+                    },
+
+                    // Update layout
+                    {
+                        "title": "Počet použitých vakcín od výrobce: " + data[i].name
+                    }
+                ],
+                method: "update"
+            };
+        }
+
+        // Add button to show all traces
+        buttons.push(
+            {
+                label: "Všichni výrobci",
+                args: [
+                    {
+                        "visible": new Array(data.length).fill(true),
+                    },
+                    {
+                        "title": "Počet použitých vakcín všech výrobců",
+                    }
+                ],
+                method: "update"
+            }
+        );
+
+        // Activate first button - only visually (action is activated by update of div)
+        buttons[0]["activate"] = true;
 
         var layout = {
             title: "Počet vakcín použitých pro očkování pro jednotlivé výrobce",
@@ -158,6 +221,7 @@
                     ],
                     xanchor: "center",
                     x: 0.5,
+                    y: 1.1,
                 }
             },
             yaxis: {
@@ -174,6 +238,16 @@
                 y: -0.5,
             },
             height: 700,
+            updatemenus: [{
+                direction: "right",
+                xanchor: "center",
+                yanchor: "center",
+                y: 1.4,
+                x: 0.5,
+                type: "buttons",
+                showactive: true,
+                buttons: buttons,
+            }]
         }
 
         var config = {
@@ -181,6 +255,10 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot('ockovano', data, layout, config);
+        // Render original chart
+        Plotly.newPlot("ockovano", data, layout, config);
+
+        // Activate first button action
+        Plotly.update("ockovano", buttons[0].args[0], buttons[0].args[1]);
     </script>
 {% endblock %}
