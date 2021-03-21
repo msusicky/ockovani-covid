@@ -4,16 +4,17 @@ import twitter
 from sqlalchemy import func
 
 from app import db, app, filters, queries
+from app.context import get_import_date
 from app.models import KrajMetriky
 
 
 class TwitterBot():
     def __init__(self):
-        stats = db.session.query(func.sum(KrajMetriky.ockovani_pocet_2).label('ockovani_plne'),
-                                 func.sum(KrajMetriky.ockovani_pocet_2_zmena_den).label('ockovani_plne_zmena_den'),
+        stats = db.session.query(func.sum(KrajMetriky.ockovani_pocet_plne).label('ockovani_plne'),
+                                 func.sum(KrajMetriky.ockovani_pocet_plne_zmena_den).label('ockovani_plne_zmena_den'),
                                  func.sum(KrajMetriky.pocet_obyvatel_dospeli).label('pocet_obyvatel'),
-                                 func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
-                                 func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden"),
+                                 func.sum(KrajMetriky.ockovani_pocet_davek).label("ockovane_davky_celkem"),
+                                 func.sum(KrajMetriky.ockovani_pocet_davek_zmena_tyden).label("ockovane_davky_tyden"),
                                  func.sum(KrajMetriky.registrace_fronta).label('fronta')) \
             .filter(KrajMetriky.datum == queries.last_import_date()) \
             .one_or_none()
@@ -25,7 +26,7 @@ class TwitterBot():
         self._vaccinated_ratio = (1.0 * stats.ockovani_plne) / stats.pocet_obyvatel
         self._population = stats.pocet_obyvatel
         self._waiting = stats.fronta
-        self._end_date = date.today() + timedelta(remaining_days)
+        self._end_date = get_import_date() + timedelta(remaining_days)
 
     def post_tweet(self):
         text = self._generate_tweet()

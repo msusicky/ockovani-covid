@@ -16,13 +16,13 @@
                         </i>
                     </th>
                     <th scope="col" class="text-center">
-                        Čekání na rezervaci v týdnech
-                        <i class="fas fa-info-circle" data-html="true" data-toggle="tooltip" data-placement="auto"
-                           title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Červená (>2), žlutá (>1), zelená (>0).">
+                        Čekání na rezervaci
+                        <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                           title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání - ověřte si ve stavu registrací konkrétního očkovacího místa čekání pro vaši skupinu.<br>Červená (>2), žlutá (>1), zelená (>0).">
                         </i>
                     </th>
                     <th scope="col" class="text-center">
-                        Týdnů k naočkování registrovaných
+                        Naočkování registrovaných
                         <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
                            data-placement="auto"
                            title="Odhadovaný počet týdnů potřebný k naočkování lidí ve frontě 1. dávkou při rychlostí očkování podle posledních 7 dnů. Data o očkování se doplňují zpětně a u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
@@ -53,12 +53,12 @@
                     </td>
                     <td class="text-center">
                         <span class="badge badge-pill badge-{{ 'light' if item.registrace_prumer_cekani == None else 'success' if item.registrace_prumer_cekani <= 7 else 'warning' if item.registrace_prumer_cekani <= 14 else 'danger' }}">
-                            {{ (None if item.registrace_prumer_cekani == None else (item.registrace_prumer_cekani / 7)) | format_decimal }}
+                            {{ (None if item.registrace_prumer_cekani == None else (item.registrace_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if item.registrace_prumer_cekani != None }}
                         </span>
                     </td>
                     <td class="text-center">
                         <span class="badge badge-pill badge-{{ 'light' if item.ockovani_odhad_cekani == None else 'success' if item.ockovani_odhad_cekani <= 14 else 'warning' if item.ockovani_odhad_cekani <= 28 else 'danger' }}">
-                            {{ (None if item.ockovani_odhad_cekani == None else (item.ockovani_odhad_cekani / 7)) | format_decimal }}
+                            {{ (None if item.ockovani_odhad_cekani == None else (item.ockovani_odhad_cekani / 7)) | format_decimal }} {{ 'týdne' if item.ockovani_odhad_cekani != None }}
                         </span>
                     </td>
                 </tr>
@@ -154,7 +154,7 @@
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-15 text-center">Věková<br>skupina</th>
-            <th scope="col" class="w-40 text-center">Povolání</th>
+            <th scope="col" class="w-25 text-center">Povolání</th>
             <th scope="col" class="w-15 text-center">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
@@ -162,9 +162,15 @@
                 </i>
             </th>
             <th scope="col" class="w-15 text-center">
-                Čekání na rezervaci v týdnech
+                Čekání na rezervaci
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Červená (>2), žlutá (>1), zelená (>0).">
+                </i>
+            </th>
+            <th scope="col" class="w-15 text-center">
+                Doba ve frontě
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.<br>Červená (>2), žlutá (>1), zelená (>0).">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center">
@@ -183,11 +189,16 @@
                 {{ row['povolani'] }}
             </td>
             <td class="text-right">
-                {{ row['fronta'] | format_number }}
+                {{ row['fronta_pocet'] | format_number }}
             </td>
             <td class="text-center">
-                <span class="badge badge-pill badge-{{ 'light' if row['prumer_cekani'] == None else 'danger' if row['prumer_cekani'] > 2 else 'warning' if row['prumer_cekani'] > 1 else 'success' }}">
-                    {{ row['prumer_cekani'] | format_decimal }}
+                <span class="badge badge-pill badge-{{ 'light' if row['rezervace_prumer_cekani'] == None else 'danger' if row['rezervace_prumer_cekani'] > 2 else 'warning' if row['rezervace_prumer_cekani'] > 1 else 'success' }}">
+                    {{ row['rezervace_prumer_cekani'] | format_decimal }} {{ 'týdne' if row['rezervace_prumer_cekani'] != None }}
+                </span>
+            </td>
+            <td class="text-center">
+                <span class="badge badge-pill badge-{{ 'light' if row['fronta_prumer_cekani'] == None else 'danger' if row['fronta_prumer_cekani'] > 2 else 'warning' if row['fronta_prumer_cekani'] > 1 else 'success' }}">
+                    {{ row['fronta_prumer_cekani'] | format_decimal }} {{ 'týdne' if row['fronta_prumer_cekani'] != None }}
                 </span>
             </td>
             <td class="text-center">
@@ -281,53 +292,55 @@
 
 {% macro stav_ockovani(vac_age) -%}
 {% if vac_age %}
-<table class="table table-bordered table-striped table-sm">
-    <thead class="thead-dark">
-    <tr>
-        <th scope="col" class="text-center">Věková skupina</th>
-        <th scope="col" class="text-center">
-            Ve frontě
-            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-               title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
-            </i>
-        </th>
-        <th scope="col" class="text-center">
-            1 dávka
-            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-               title="Počet očkovaných jednou dávkou. Podle datasetu vykázaných očkování.">
-            </i>
-        </th>
-        <th scope="col" class="text-center">
-            2 dávky
-            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-               title="Počet očkovaných oběma dávkami. Podle datasetu vykázaných očkování.">
-            </i>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    {% set sum=namespace(fronta = 0, sum_1 = 0, sum_2 = 0) %}
-    {% for item in vac_age %}
-        {% set sum.fronta = sum.fronta + item.fronta %}
-        {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
-        {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
         <tr>
-            <td>{{ item.vekova_skupina }}</td>
-            <td class="text-right">{{ item.fronta | format_number }}</td>
-            <td class="text-right">{{ item.sum_1 | format_number }}</td>
-            <td class="text-right">{{ item.sum_2 | format_number }}</td>
+            <th scope="col" class="text-center">Věková skupina</th>
+            <th scope="col" class="text-center">
+                Ve frontě
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
+                </i>
+            </th>
+            <th scope="col" class="text-center">
+                1 dávka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet očkovaných jednou dávkou. Podle datasetu vykázaných očkování.">
+                </i>
+            </th>
+            <th scope="col" class="text-center">
+                2 dávky
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet očkovaných oběma dávkami. Podle datasetu vykázaných očkování.">
+                </i>
+            </th>
         </tr>
-    {% endfor %}
-    </tbody>
-    <tfoot class="font-weight-bold">
-    <tr>
-        <td>Celkem</td>
-        <td class="text-right">{{ sum.fronta | format_number }}</td>
-        <td class="text-right">{{ sum.sum_1 | format_number }}</td>
-        <td class="text-right">{{ sum.sum_2 | format_number }}</td>
-    </tr>
-    </tfoot>
-</table>
+        </thead>
+        <tbody>
+        {% set sum=namespace(fronta = 0, sum_1 = 0, sum_2 = 0) %}
+        {% for item in vac_age %}
+            {% set sum.fronta = sum.fronta + item.fronta %}
+            {% set sum.sum_1 = sum.sum_1 + item.sum_1 %}
+            {% set sum.sum_2 = sum.sum_2 + item.sum_2 %}
+            <tr>
+                <td>{{ item.vekova_skupina }}</td>
+                <td class="text-right">{{ item.fronta | format_number }}</td>
+                <td class="text-right">{{ item.sum_1 | format_number }}</td>
+                <td class="text-right">{{ item.sum_2 | format_number }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot class="font-weight-bold">
+        <tr>
+            <td>Celkem</td>
+            <td class="text-right">{{ sum.fronta | format_number }}</td>
+            <td class="text-right">{{ sum.sum_1 | format_number }}</td>
+            <td class="text-right">{{ sum.sum_2 | format_number }}</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
 {% else %}
 <div class="alert alert-warning w-100" role="alert">
     Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.

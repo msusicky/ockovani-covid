@@ -16,12 +16,12 @@ Statistiky |
     <div class="col text-justify">
         {% if vac_stats %}
         <p>
-            K datu poslední aktualizace ({{ last_update }}) bylo naočkováno
-            <strong>{{ vac_stats[0].sum_2 | format_number }}</strong> lidí oběma dávkami a
-            <strong>{{ vac_stats[0].sum_1 | format_number }}</strong> lidí jednou dávkou.
+            K datu poslední aktualizace ({{ last_update }}) bylo kompletně naočkováno
+            <strong>{{ vac_stats[0].sum_2 | format_number }}</strong> lidí a
+            <strong>{{ (vac_stats[0].sum_1 + vac_stats[0].sum_2) | format_number }}</strong> lidí alespoň jednou dávkou.
             Celkem bylo podáno <strong>{{ vac_stats[0].sum | format_number }}</strong> dávek.
-            Ve frontě na rezervaci aktuálně čeká <strong>{{ vac_stats[0].fronta | format_number }}</strong> lidí
-            a konkrétní termín má přiděleno <strong>{{ vac_stats[0].termin | format_number }}</strong> lidí.
+            Ve frontě na rezervaci aktuálně čeká <strong>{{ vac_stats[0].fronta | format_number }}</strong> registrovaných
+            zájemců a konkrétní termín má přiděleno dalších <strong>{{ vac_stats[0].termin | format_number }}</strong> lidí.
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>

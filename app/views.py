@@ -220,8 +220,8 @@ def statistiky():
 
     estimate_stats = db.session.query(
         func.sum(KrajMetriky.pocet_obyvatel_dospeli).label("pocet_obyvatel"),
-        func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
-        func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden")
+        func.sum(KrajMetriky.ockovani_pocet_davek).label("ockovane_davky_celkem"),
+        func.sum(KrajMetriky.ockovani_pocet_davek_zmena_tyden).label("ockovane_davky_tyden")
     ).filter(KrajMetriky.datum == get_import_date()) \
         .one_or_none()
 
@@ -231,7 +231,7 @@ def statistiky():
         cr_factor = 0.7
         cr_to_vacc = cr_people * cr_factor
         delka_dny = (7 * (2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem)) / estimate_stats.ockovane_davky_tyden
-        end_date = date.today() + timedelta(days=delka_dny)
+        end_date = get_import_date() + timedelta(days=delka_dny)
     else:
         end_date = None
 
