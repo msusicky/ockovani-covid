@@ -16,16 +16,23 @@ Během marné snahy zajistit očkovací místa pro příbuzné jsme si všimli t
 Web: https://ockovani.opendatalab.cz
 
 ## Napsali o nás
-* https://denikn.cz/569269/kde-maji-volna-mista-programatori-po-nocich-vymysleli-aplikaci-ktera-muze-zkratit-cekani-na-vakcinu
-* https://www.zive.cz/clanky/kdyz-to-neudelal-stat-poradili-si-programatori-sami-vytvorili-aplikaci-s-prehledem-volnych-mist-pro-ockovani/sc-3-a-208719/default.aspx
-* https://domaci.ihned.cz/c1-66889710-programator-rozjel-web-ktery-ukaze-kde-je-volno-na-ockovani-ve-skladech-lezi-250-tisic-davek-vakcin-rika
-* https://forbes.cz/kde-se-nechat-naockovat-platforma-z-cvut-ukazuje-dostupne-ockovaci-kapacity/
-* https://www.echo24.cz/a/Sqbj5/kde-je-volna-vakcina-web-ukazuje-stav-na-ockovacich-mistech
-* https://zpravy.aktualne.cz/domaci/mladici-marne-hledali-ockovaci-termin-pro-prarodice-vytvoril/r~c7975d9c802511eb9cafac1f6b220ee8/
-* https://prazsky.denik.cz/zpravy_region/ockovani-termin-vakcina-senior-covid-nemocnice-poradi.html
-* https://www.ceskenoviny.cz/zpravy/2007015
-* https://radiozurnal.rozhlas.cz/kde-maji-dostatek-vakcin-vedci-z-cvut-vytvorili-web-ktery-porovnava-jednotliva-8446956
-* https://www.vitalia.cz/clanky/jak-si-ne-vybrat-nejpomalejsi-misto-na-ockovani-proti-covidu/
+* [Deník N: Kde mají volná místa? Programátoři po nocích vymysleli aplikaci, která může zkrátit čekání na vakcínu](https://denikn.cz/569269/kde-maji-volna-mista-programatori-po-nocich-vymysleli-aplikaci-ktera-muze-zkratit-cekani-na-vakcinu)
+* [Živě: Když to neudělal stát, poradili si programátoři sami. Vytvořili aplikaci s přehledem volných míst pro očkování](https://www.zive.cz/clanky/kdyz-to-neudelal-stat-poradili-si-programatori-sami-vytvorili-aplikaci-s-prehledem-volnych-mist-pro-ockovani/sc-3-a-208719/default.aspx)
+* [Hospodářské noviny: Programátor rozjel web, který ukáže, kde je volno na očkování. Ve skladech leží 250 tisíc dávek vakcín, říká](https://domaci.ihned.cz/c1-66889710-programator-rozjel-web-ktery-ukaze-kde-je-volno-na-ockovani-ve-skladech-lezi-250-tisic-davek-vakcin-rika)
+* [Forbes: Kde se nechat naočkovat. Platforma z ČVUT ukazuje dostupné očkovací kapacity](https://forbes.cz/kde-se-nechat-naockovat-platforma-z-cvut-ukazuje-dostupne-ockovaci-kapacity/)
+* [Echo24: Kde je volná vakcína? Web ukazuje stav na očkovacích místech](https://www.echo24.cz/a/Sqbj5/kde-je-volna-vakcina-web-ukazuje-stav-na-ockovacich-mistech)
+* [Aktuálně: Mladí muži marně hledali očkovací termín pro prarodiče. Vytvořili web s volnými místy](https://zpravy.aktualne.cz/domaci/mladici-marne-hledali-ockovaci-termin-pro-prarodice-vytvoril/r~c7975d9c802511eb9cafac1f6b220ee8/)
+* [inSmart: Kde je pro mě vakcína? ČVUT vyvinulo aplikaci s přehledem volných míst na očkování proti Covidu](https://insmart.cz/volna-mista-vakciny-covid/)
+* [Česká věda do světa: Odborníci z ČVUT vytvořili aplikaci pro očkování proti koronaviru](http://ceskavedadosveta.cz/odbornici-z-cvut-vytvorili-aplikaci-pro-ockovani-proti-koronaviru/)
+* [Deník: Vyberte si nejmenší frontu. Pomůže aplikace s vytížeností očkovacích míst](https://www.denik.cz/z_domova/ockovani-termin-vakcina-senior-covid-nemocnice-poradi.html)
+* [ČTK: Počet čekajících na vakcínu na covid je možné si ověřit na webu](https://www.ceskenoviny.cz/zpravy/2007015)
+* [pribram.cz: Počet čekajících na vakcínu na covid je možné si ověřit na webu](https://www.pribram.cz/clanek/pocet-cekajicich-na-vakcinu-na-covid-je-mozne-si-overit-na-webu/18978/)
+* [MoneyMAG: Počet čekajících na vakcínu je možné si ověřit na webu](https://moneymag.cz/aktuality/pocet-cekajicich-na-vakcinu-je-mozne-si-overit-na-webu.f69bad14)
+* [EuroZprávy: Počet čekajících na vakcínu je možné si ověřit na webu](https://eurozpravy.cz/domaci/zdravotnictvi/pocet-cekajicich-na-vakcinu-je-mozne-si-overit-na-webu.a09f5308/)  
+* [Český rozhlas: Kde mají dostatek vakcín? Vědci z ČVUT vytvořili web, který porovnává jednotlivá očkovací místa](https://radiozurnal.rozhlas.cz/kde-maji-dostatek-vakcin-vedci-z-cvut-vytvorili-web-ktery-porovnava-jednotliva-8446956)
+* [Vitalia: Jak si (ne)vybrat nejpomalejší místo na očkování proti covidu](https://www.vitalia.cz/clanky/jak-si-ne-vybrat-nejpomalejsi-misto-na-ockovani-proti-covidu/)
+* [Televize Seznam: Večerní zprávy (15. 3.)](https://www.televizeseznam.cz/video/vecerni-zpravy-porad/kteri-ministri-uz-jsou-naockovani-opatreni-do-velikonoc-a-opakovani-rocniku-64143662)
+* [TV9P: Marta Kloučková Quintet a webová aplikace z FIT](https://www.youtube.com/watch?v=_DcoB_fXfe4)
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
@@ -67,6 +74,14 @@ If you want to fetch recent data please set the FETCH_DATA environment variable:
 1. execute database migrations
     
     `flask db upgrade`
+
+1. fetch data
+    
+    `flask fetch-opendata`
+
+1. compute metrics
+    
+    `flask compute-metrics`
 
 1. start Flask webserver
     

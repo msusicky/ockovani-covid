@@ -14,14 +14,14 @@ Statistiky |
 
 <div class="row mb-3">
     <div class="col text-justify">
-        {% if vac_stats %}
+        {% if metriky %}
         <p>
-            K datu poslední aktualizace ({{ last_update }}) bylo naočkováno
-            <strong>{{ vac_stats[0].sum_2 | format_number }}</strong> lidí oběma dávkami a
-            <strong>{{ vac_stats[0].sum_1 | format_number }}</strong> lidí jednou dávkou.
-            Celkem bylo podáno <strong>{{ vac_stats[0].sum | format_number }}</strong> dávek.
-            Ve frontě na rezervaci aktuálně čeká <strong>{{ vac_stats[0].fronta | format_number }}</strong> lidí
-            a konkrétní termín má přiděleno <strong>{{ vac_stats[0].termin | format_number }}</strong> lidí.
+            K datu poslední aktualizace ({{ last_update }}) bylo kompletně naočkováno
+            <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí a
+            <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí alespoň jednou dávkou.
+            Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
+            Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong> registrovaných
+            zájemců a konkrétní termín má přiděleno dalších <strong>{{ metriky.rezervace_cekajici | format_number }}</strong> lidí.
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>
@@ -33,81 +33,47 @@ Statistiky |
     </div>
 </div>
 
-<div class="row">
+<div class="row mb-3">
     <div class="col">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Počty vakcín</h5>
-                {% if vacc_storage %}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-sm">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col" class="w-20 text-center">Vakcína</th>
-                            <th scope="col" class="w-20 text-center">
-                                Přijato
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                                   title="Počet přijatých vakcín. Podle datasetu distribuce vakcín - akce příjem.">
-                                </i>
-                            </th>
-                            <th scope="col" class="w-20 text-center">
-                                Očkováno
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                                   title="Počet vyočkovaných dávek. Podle datasetu vykázaných očkování.">
-                                </i>
-                            </th>
-                            <th scope="col" class="w-20 text-center">
-                                Zničeno
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                                   title="Počet znehodnocených dávek. Podle datasetu spotřeba vakcín.">
-                                </i>
-                            </th>
-                            <th scope="col" class="w-20 text-center">
-                                Skladem
-                                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
-                                   title="Přibližný počet skladem. Vypočteno jako rozdíl předchozích sloupců, data o vykázaných očkováních a spotřebě ale přicházejí se zpožděním, proto může být reálný počet výrazně nižší.">
-                                </i>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% set sum=namespace(prijem = 0, ockovano = 0, zniceno = 0, rozdil = 0) %}
-                        {% for item in vacc_storage %}
-                        {% set sum.prijem = sum.prijem + item.prijem %}
-                        {% set sum.ockovano = sum.ockovano + item.ockovano %}
-                        {% set sum.zniceno = sum.zniceno + item.zniceno %}
-                        {% set sum.rozdil = sum.rozdil + item.rozdil %}
-                        <tr>
-                            <td>{{ item.vyrobce }}</td>
-                            <td class="text-right">{{ item.prijem | format_number }}</td>
-                            <td class="text-right">{{ item.ockovano | format_number }}</td>
-                            <td class="text-right">{{ item.zniceno | format_number }}</td>
-                            <td class="text-right">{{ item.rozdil | format_number }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                        <tfoot class="font-weight-bold">
-                        <tr>
-                            <td>Celkem</td>
-                            <td class="text-right">{{ sum.prijem | format_number }}</td>
-                            <td class="text-right">{{ sum.ockovano | format_number }}</td>
-                            <td class="text-right">{{ sum.zniceno | format_number }}</td>
-                            <td class="text-right">{{ sum.rozdil | format_number }}</td>
-                        </tr>
-                        </tfoot>
-                    </table>
+                <div class="row px-2 mb-n2">
+                    {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
+                    {{ macros.metrika('Částečně očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
+                    {{ macros.metrika('Podíl částečně očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl alespoň částečně očkovaných dospělých obyvatel.') }}
+                    {{ macros.metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (obě dávky).') }}
+                    {{ macros.metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl plně očkovaných dospělých obyvatel.') }}
+                    {{ macros.metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra.') }}
+                    {{ macros.metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacími centry a praktickými lékaři podle vykázaných očkování.") }}
+                    {{ macros.metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Odhadovaný počet dávek skladem.<br>Údaj je počítán z dat o distribuci, spotřebě vakcín a očkovaných lidech. Jednotlivé datové sady mají různá zpoždění a nepřesnosti, proto údaj berte jako orientační.') }}
+                    {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
+                    {{ macros.metrika('Čekající s rezervací', metriky.rezervace_cekajici, delta_day=metriky.rezervace_cekajici_zmena_den, delta_week=metriky.rezervace_cekajici_zmena_tyden, info='Počet registrovaných s rezervovaným konkrétním termínem na očkování.') }}
+                    {{ macros.metrika('Dnešní kapacita', metriky.rezervace_kapacita, delta_day=metriky.rezervace_kapacita_zmena_den, delta_week=metriky.rezervace_kapacita_zmena_tyden, color='std', info='Dnešní celková kapacita pro očkování.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                    {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2). Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání.') }}
+                    {{ macros.metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
+                    {{ macros.metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
+                    {{ macros.metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
+                    {{ macros.metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
                 </div>
-                {% else %}
-                <div class="alert alert-warning w-100" role="alert">
-                    Zatím nemáme žádná data.
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
+                {{ macros.stav_ockovani(vaccinated) }}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-sm-6">
+    <div class="col-md-6">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
@@ -137,6 +103,8 @@ Statistiky |
                 <p class="card-text font-italic">5 dní s největším počtem očkovaných.</p>
             </div>
         </div>
+    </div>
+    <div class="col-md-6">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
@@ -169,12 +137,14 @@ Statistiky |
             </div>
         </div>
     </div>
-    <div class="col-sm-6">
+</div>
+
+<div class="row mb-3">
+    <div class="col">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
-                {{ macros.stav_ockovani(vac_age) }}
+                <h5 class="card-title">Počty vakcín</h5>
+                {{ macros.stav_vakcin(vaccines) }}
             </div>
         </div>
     </div>

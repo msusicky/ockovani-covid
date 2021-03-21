@@ -217,14 +217,18 @@ class OpenDataFetcher:
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
         missing_ids = []
+        missing_count = 0
+        missing_sum = 0
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
             if misto_id not in mista_ids:
+                missing_count += 1
+                missing_sum += row[7]
                 if misto_id not in missing_ids:
                     missing_ids.append(misto_id)
-                    app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
+                    app.logger.warn("Center: '{0}' doesn't exist.".format(misto_id))
                 continue
 
             db.session.add(OckovaniRegistrace(
@@ -238,6 +242,9 @@ class OpenDataFetcher:
                 pocet=row[7],
                 import_=self._import
             ))
+
+        if missing_count > 0:
+            app.logger.warn("Some centers doesn't exist - {} rows ({} registrations) skipped.".format(missing_count, missing_sum))
 
         app.logger.info('Fetching opendata - registrations finished.')
 
@@ -254,14 +261,16 @@ class OpenDataFetcher:
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = [id for id, in mista_result]
         missing_ids = []
+        missing_count = 0
 
         for row in df.itertuples(index=False):
             misto_id = row[1]
 
             if misto_id not in mista_ids:
+                missing_count += 1
                 if misto_id not in missing_ids:
                     missing_ids.append(misto_id)
-                    app.logger.warn("Center: '{0}' doesn't exist".format(misto_id))
+                    app.logger.warn("Center: '{0}' doesn't exist.".format(misto_id))
                 continue
 
             db.session.add(OckovaniRezervace(
@@ -272,6 +281,9 @@ class OpenDataFetcher:
                 kalendar_ockovani=row[4],
                 import_=self._import
             ))
+
+        if missing_count > 0:
+            app.logger.warn("Some centers doesn't exist - {} rows skipped.".format(missing_count))
 
         app.logger.info('Fetching opendata - reservations finished.')
 

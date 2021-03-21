@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, JSON, Sequence, ForeignKey
+
+from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app import db
@@ -10,71 +11,6 @@ class Kraj(db.Model):
 
     id = Column(Unicode, primary_key=True)
     nazev = Column(Unicode)
-
-
-class KrajMetriky(db.Model):
-    __tablename__ = 'kraje_metriky'
-
-    kraj_id = Column(Unicode, ForeignKey('kraje.id'), primary_key=True)
-    datum = Column(DateTime, primary_key=True)
-    pocet_obyvatel_celkem = Column(Integer)
-    pocet_obyvatel_dospeli = Column(Integer)
-    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
-    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
-    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
-    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
-    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
-    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
-    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
-    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
-    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
-    registrace_celkem = Column(Integer)                         # pocet vsech registraci
-    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
-    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
-    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
-    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
-    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
-    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
-    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
-    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
-    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
-    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
-    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
-    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
-    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
-    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
-    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
-    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
-    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
-    ockovani_pocet = Column(Integer)                            # pocet ockovanych
-    ockovani_pocet_zmena_den = Column(Integer)                  # pocet ockovanych - zmena za den
-    ockovani_pocet_zmena_tyden = Column(Integer)                # pocet ockovanych - zmena za tyden
-    ockovani_pocet_1 = Column(Integer)                          # pocet ockovanych alespon prvni davkou
-    ockovani_pocet_1_zmena_den = Column(Integer)                # pocet ockovanych alespon prvni davkou - zmena za den
-    ockovani_pocet_1_zmena_tyden = Column(Integer)              # pocet ockovanych alespon prvni davkou - zmena za tyden
-    ockovani_pocet_2 = Column(Integer)                          # pocet ockovanych obema davkami
-    ockovani_pocet_2_zmena_den = Column(Integer)                # pocet ockovanych obema davkami - zmena za den
-    ockovani_pocet_2_zmena_tyden = Column(Integer)              # pocet ockovanych obema davkami - zmena za tyden
-    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
-    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
-    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
-    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
-    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
-    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
-    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
-    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
-    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
-    vakciny_skladem_pocet = Column(Integer)                     # odhad vakcin skladem
-    vakciny_skladem_pocet_zmena_den = Column(Integer)           # odhad vakcin skladem - zmena za den
-    vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
-
-    kraj = relationship("Kraj", back_populates="metriky")
-
-    def __repr__(self):
-        return "<KrajMetriky(id='%s', datum='%s')>" % (self.kraj_id, self.datum)
-
-
-Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
 
 
 class Okres(db.Model):
@@ -91,59 +27,6 @@ class Okres(db.Model):
 
 
 Kraj.okresy = relationship("Okres", back_populates="kraj")
-
-
-class OkresMetriky(db.Model):
-    __tablename__ = 'okresy_metriky'
-
-    okres_id = Column(Unicode, ForeignKey('okresy.id'), primary_key=True)
-    datum = Column(DateTime, primary_key=True)
-    pocet_obyvatel_celkem = Column(Integer)
-    pocet_obyvatel_dospeli = Column(Integer)
-    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
-    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
-    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
-    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
-    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
-    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
-    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
-    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
-    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
-    registrace_celkem = Column(Integer)                         # pocet vsech registraci
-    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
-    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
-    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
-    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
-    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
-    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
-    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
-    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
-    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
-    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
-    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
-    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
-    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
-    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
-    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
-    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
-    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
-    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
-    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
-    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
-    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
-    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
-    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
-    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
-    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
-    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
-
-    okres = relationship("Okres", back_populates="metriky")
-
-    def __repr__(self):
-        return "<OkresMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
-
-
-Okres.metriky = relationship("OkresMetriky", back_populates="okres")
 
 
 class Populace(db.Model):
@@ -195,75 +78,6 @@ class OckovaciMisto(db.Model):
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
-
-
-class OckovaciMistoMetriky(db.Model):
-    __tablename__ = 'ockovaci_mista_metriky'
-
-    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    datum = Column(DateTime, primary_key=True)
-    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
-    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
-    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
-    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
-    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
-    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
-    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
-    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
-    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
-    registrace_celkem = Column(Integer)                         # pocet vsech registraci
-    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
-    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
-    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
-    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
-    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
-    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
-    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
-    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
-    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
-    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
-    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
-    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
-    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
-    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
-    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
-    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
-    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
-    registrace_odhad_cekani = Column(Float)                     # odhadovana doba cekani na rezervaci
-    registrace_odhad_cekani_zmena_den = Column(Float)           # odhadovana doba cekani na rezervaci - zmena za den
-    registrace_odhad_cekani_zmena_tyden = Column(Float)         # odhadovana doba cekani na rezervaci - zmena za tyden
-    ockovani_pocet = Column(Integer)                            # pocet ockovanych
-    ockovani_pocet_zmena_den = Column(Integer)                  # pocet ockovanych - zmena za den
-    ockovani_pocet_zmena_tyden = Column(Integer)                # pocet ockovanych - zmena za tyden
-    ockovani_pocet_1 = Column(Integer)                          # pocet ockovanych alespon prvni davkou
-    ockovani_pocet_1_zmena_den = Column(Integer)                # pocet ockovanych alespon prvni davkou - zmena za den
-    ockovani_pocet_1_zmena_tyden = Column(Integer)              # pocet ockovanych alespon prvni davkou - zmena za tyden
-    ockovani_pocet_2 = Column(Integer)                          # pocet ockovanych obema davkami
-    ockovani_pocet_2_zmena_den = Column(Integer)                # pocet ockovanych obema davkami - zmena za den
-    ockovani_pocet_2_zmena_tyden = Column(Integer)              # pocet ockovanych obema davkami - zmena za tyden
-    ockovani_odhad_cekani = Column(Float)                       # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
-    ockovani_odhad_cekani_zmena_den = Column(Float)             # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
-    ockovani_odhad_cekani_zmena_tyden = Column(Float)           # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za tyden
-    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
-    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
-    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
-    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
-    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
-    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
-    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
-    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
-    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
-    vakciny_skladem_pocet = Column(Integer)                     # odhad vakcin skladem
-    vakciny_skladem_pocet_zmena_den = Column(Integer)           # odhad vakcin skladem - zmena za den
-    vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
-
-    misto = relationship("OckovaciMisto", back_populates="metriky")
-
-    def __repr__(self):
-        return "<OckovaciMistoMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
-
-
-OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
 
 
 class Import(db.Model):
@@ -412,3 +226,276 @@ class ZdravotnickeStredisko(db.Model):
     okres = Column(Unicode)
     okres_kod = Column(Unicode)
     nrpzs_kod = Column(Unicode)
+
+
+class KrajMetriky(db.Model):
+    __tablename__ = 'kraje_metriky'
+
+    kraj_id = Column(Unicode, ForeignKey('kraje.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    pocet_obyvatel_celkem = Column(Integer)
+    pocet_obyvatel_dospeli = Column(Integer)
+    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
+    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
+    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
+    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
+    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
+    rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
+    registrace_celkem = Column(Integer)                         # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
+    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
+    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
+    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
+    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
+    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
+    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
+    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
+    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
+    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
+    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
+    registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
+    registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
+    ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
+    ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
+    ockovani_pocet_castecne = Column(Integer)                   # pocet ockovanych alespon castecne
+    ockovani_pocet_castecne_zmena_den = Column(Integer)         # pocet ockovanych alespon castecne - zmena za den
+    ockovani_pocet_castecne_zmena_tyden = Column(Integer)       # pocet ockovanych alespon castecne - zmena za tyden
+    ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
+    ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
+    ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
+    vakciny_skladem_pocet = Column(Integer)                     # odhad vakcin skladem
+    vakciny_skladem_pocet_zmena_den = Column(Integer)           # odhad vakcin skladem - zmena za den
+    vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
+
+    kraj = relationship("Kraj", back_populates="metriky")
+
+    def __repr__(self):
+        return "<KrajMetriky(id='%s', datum='%s')>" % (self.kraj_id, self.datum)
+
+
+Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
+
+
+class OkresMetriky(db.Model):
+    __tablename__ = 'okresy_metriky'
+
+    okres_id = Column(Unicode, ForeignKey('okresy.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    pocet_obyvatel_celkem = Column(Integer)
+    pocet_obyvatel_dospeli = Column(Integer)
+    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
+    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
+    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
+    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
+    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
+    rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
+    registrace_celkem = Column(Integer)                         # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
+    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
+    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
+    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
+    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
+    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
+    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
+    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
+    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
+    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
+    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
+    registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
+    registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
+
+    okres = relationship("Okres", back_populates="metriky")
+
+    def __repr__(self):
+        return "<OkresMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
+
+
+Okres.metriky = relationship("OkresMetriky", back_populates="okres")
+
+
+class OckovaciMistoMetriky(db.Model):
+    __tablename__ = 'ockovaci_mista_metriky'
+
+    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
+    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
+    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
+    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
+    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
+    rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
+    registrace_celkem = Column(Integer)                         # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
+    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
+    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
+    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
+    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
+    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
+    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
+    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
+    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
+    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
+    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_odhad_cekani = Column(Float)                     # odhadovana doba cekani na rezervaci
+    registrace_odhad_cekani_zmena_den = Column(Float)           # odhadovana doba cekani na rezervaci - zmena za den
+    registrace_odhad_cekani_zmena_tyden = Column(Float)         # odhadovana doba cekani na rezervaci - zmena za tyden
+    registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
+    registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
+    registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
+    ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
+    ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
+    ockovani_pocet_castecne = Column(Integer)                   # pocet ockovanych alespon castecne
+    ockovani_pocet_castecne_zmena_den = Column(Integer)         # pocet ockovanych alespon castecne - zmena za den
+    ockovani_pocet_castecne_zmena_tyden = Column(Integer)       # pocet ockovanych alespon castecne - zmena za tyden
+    ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
+    ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
+    ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    ockovani_odhad_cekani = Column(Float)                       # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
+    ockovani_odhad_cekani_zmena_den = Column(Float)             # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
+    ockovani_odhad_cekani_zmena_tyden = Column(Float)           # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za tyden
+    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
+    vakciny_skladem_pocet = Column(Integer)                     # odhad vakcin skladem
+    vakciny_skladem_pocet_zmena_den = Column(Integer)           # odhad vakcin skladem - zmena za den
+    vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
+
+    misto = relationship("OckovaciMisto", back_populates="metriky")
+
+    def __repr__(self):
+        return "<OckovaciMistoMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
+
+
+OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
+
+
+class CrMetriky(db.Model):
+    __tablename__ = 'cr_metriky'
+
+    datum = Column(DateTime, primary_key=True)
+    pocet_obyvatel_celkem = Column(Integer)
+    pocet_obyvatel_dospeli = Column(Integer)
+    rezervace_celkem = Column(Integer)                          # pocet vsech rezervaci (vsechny kalendare)
+    rezervace_celkem_zmena_den = Column(Integer)                # pocet vsech rezervaci (vsechny kalendare) - zmena za den
+    rezervace_celkem_zmena_tyden = Column(Integer)              # pocet vsech rezervaci (vsechny kalendare) - zmena za tyden
+    rezervace_cekajici = Column(Integer)                        # pocet rezervaci cekajicich na ockovani (vsechny kalendare)
+    rezervace_cekajici_zmena_den = Column(Integer)              # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za den
+    rezervace_cekajici_zmena_tyden = Column(Integer)            # pocet rezervaci cekajicich na ockovani (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
+    rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
+    rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
+    rezervace_kapacita_1 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 1. davky)
+    rezervace_kapacita_1_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 1. davky) - zmena za den
+    rezervace_kapacita_1_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 1. davky) - zmena za tyden
+    registrace_celkem = Column(Integer)                         # pocet vsech registraci
+    registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
+    registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden
+    registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
+    registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
+    registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
+    registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
+    registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
+    registrace_14denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 14 dni
+    registrace_14denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 14 dni - zmena za den
+    registrace_14denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 14 dni - zmena za tyden
+    registrace_30denni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 30 dni
+    registrace_30denni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 30 dni - zmena za den
+    registrace_30denni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 30 dni - zmena za tyden
+    registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
+    registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
+    registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
+    registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
+    ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
+    ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
+    ockovani_pocet_castecne = Column(Integer)                   # pocet ockovanych alespon castecne
+    ockovani_pocet_castecne_zmena_den = Column(Integer)         # pocet ockovanych alespon castecne - zmena za den
+    ockovani_pocet_castecne_zmena_tyden = Column(Integer)       # pocet ockovanych alespon castecne - zmena za tyden
+    ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
+    ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
+    ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
+    vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
+    vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
+    vakciny_ockovane_pocet = Column(Integer)                    # pocet ockovanych vakcin
+    vakciny_ockovane_pocet_zmena_den = Column(Integer)          # pocet ockovanych vakcin - zmena za den
+    vakciny_ockovane_pocet_zmena_tyden = Column(Integer)        # pocet ockovanych vakcin - zmena za tyden
+    vakciny_znicene_pocet = Column(Integer)                     # pocet znicenych vakcin
+    vakciny_znicene_pocet_zmena_den = Column(Integer)           # pocet znicenych vakcin - zmena za den
+    vakciny_znicene_pocet_zmena_tyden = Column(Integer)         # pocet znicenych vakcin - zmena za tyden
+    vakciny_skladem_pocet = Column(Integer)                     # odhad vakcin skladem
+    vakciny_skladem_pocet_zmena_den = Column(Integer)           # odhad vakcin skladem - zmena za den
+    vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
+
+    def __repr__(self):
+        return "<CrMetriky(datum='%s')>" % (self.datum)
