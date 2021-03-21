@@ -7,6 +7,8 @@ from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, 
 
 
 class OkresMetricsEtl:
+    """Class for computing metrics for okres."""
+
     def __init__(self, date_, import_id):
         self._date = date_
         self._import_id = import_id

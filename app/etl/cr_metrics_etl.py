@@ -7,6 +7,8 @@ from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, P
 
 
 class CrMetricsEtl:
+    """Class for computing metrics for whole Czech republic."""
+
     def __init__(self, date_, import_id):
         self._date = date_
         self._import_id = import_id
