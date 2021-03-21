@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaciMistoMetriky, \
-    KrajMetriky, OkresMetriky
+    KrajMetriky, OkresMetriky, CrMetriky
 
 
 @bp.route('/')
@@ -181,6 +181,10 @@ def mapa():
 def statistiky():
     vaccines = queries.count_vaccines_cr()
 
+    metriky = db.session.query(CrMetriky) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one_or_none()
+
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
         select datum, sum(pocet) from ockovani_lide 
@@ -256,7 +260,7 @@ def statistiky():
     )).params(import_id=get_import_id()) \
         .all()
 
-    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
+    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            vaccines=vaccines, end_date=end_date,
                            top5=top5_vaccination_day,
                            top5_place=top5_vaccination_place_day,
