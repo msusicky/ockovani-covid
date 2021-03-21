@@ -181,7 +181,7 @@ def statistiky():
         """
     )).all()
 
-    if metriky is not None:
+    if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
         cr_people = metriky.pocet_obyvatel_dospeli
         cr_factor = 0.7
         cr_to_vacc = cr_people * cr_factor

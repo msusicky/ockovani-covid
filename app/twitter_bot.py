@@ -1,31 +1,27 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import twitter
-from sqlalchemy import func
 
-from app import db, app, filters, queries
+from app import db, app, filters
 from app.context import get_import_date
-from app.models import KrajMetriky
+from app.models import CrMetriky
 
 
 class TwitterBot():
     def __init__(self):
-        stats = db.session.query(func.sum(KrajMetriky.ockovani_pocet_plne).label('ockovani_plne'),
-                                 func.sum(KrajMetriky.ockovani_pocet_plne_zmena_den).label('ockovani_plne_zmena_den'),
-                                 func.sum(KrajMetriky.pocet_obyvatel_dospeli).label('pocet_obyvatel'),
-                                 func.sum(KrajMetriky.ockovani_pocet_davek).label("ockovane_davky_celkem"),
-                                 func.sum(KrajMetriky.ockovani_pocet_davek_zmena_tyden).label("ockovane_davky_tyden"),
-                                 func.sum(KrajMetriky.registrace_fronta).label('fronta')) \
-            .filter(KrajMetriky.datum == queries.last_import_date()) \
-            .one_or_none()
+        stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
+                                 CrMetriky.pocet_obyvatel_dospeli, CrMetriky.ockovani_pocet_davek,
+                                 CrMetriky.ockovani_pocet_davek_zmena_tyden,
+                                 CrMetriky.registrace_fronta) \
+            .filter(CrMetriky.datum == get_import_date()) \
+            .one()
 
-        remaining_days = (7 * (2 * 0.7 * stats.pocet_obyvatel - stats.ockovane_davky_celkem)) / stats.ockovane_davky_tyden
+        remaining_days = (7 * (2 * 0.7 * stats.pocet_obyvatel_dospeli - stats.ockovani_pocet_davek)) / stats.ockovani_pocet_davek_zmena_tyden
 
-        self._vaccinated = stats.ockovani_plne
-        self._vaccinated_diff = stats.ockovani_plne_zmena_den
-        self._vaccinated_ratio = (1.0 * stats.ockovani_plne) / stats.pocet_obyvatel
-        self._population = stats.pocet_obyvatel
-        self._waiting = stats.fronta
+        self._vaccinated = stats.ockovani_pocet_plne
+        self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
+        self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_dospeli
+        self._waiting = stats.registrace_fronta
         self._end_date = get_import_date() + timedelta(remaining_days)
 
     def post_tweet(self):
