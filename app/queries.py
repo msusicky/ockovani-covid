@@ -234,7 +234,7 @@ def count_vaccines_cr():
                 when vakcina = 'COVID-19 Vaccine AstraZeneca' then 'AstraZeneca'
                 when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
                 when vakcina = 'Comirnaty' then 'Pfizer'
-            else 'ostatní' end vyrobce
+                else 'ostatní' end vyrobce
         from ockovani_lide
         where datum < '{}'
         group by vakcina
@@ -280,29 +280,91 @@ def count_registrations(filter_column, filter_value):
         db.engine
     )
 
+    df['dnes'] = get_import_date()
     df['datum_rezervace_fix'] = df['datum_rezervace'].where(df['datum_rezervace'] != date(1970, 1, 1))
-    df['fronta'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
-    df['registrace_7'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(7))
-    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(7)))
-    df['registrace_14'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(14))
-    df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(14)))
-    df['registrace_30'] = df[['pocet']].where(df['datum'] >= date.today() - timedelta(30))
-    df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= date.today() - timedelta(30)))
-    df['cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
-    df['rezervace_7'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= date.today() - timedelta(7)))
-    df['rezervace_7_x_cekani'] = df['cekani'] * df['rezervace_7']
+    df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
+    df['fronta_cekani'] = (df['dnes'] - df['datum']).astype('timedelta64[ns]').dt.days
+    df['fronta_pocet_x_cekani'] = df['fronta_pocet'] * df['fronta_cekani']
+    df['registrace_7'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(7))
+    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
+    # df['registrace_14'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(14))
+    # df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(14)))
+    # df['registrace_30'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(30))
+    # df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(30)))
+    df['rezervace_7_cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
+    df['rezervace_7_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(7)))
+    df['rezervace_7_pocet_x_cekani'] = df['rezervace_7_cekani'] * df['rezervace_7_pocet']
 
     df = df.groupby(['vekova_skupina', 'povolani']).sum()
 
     df['uspesnost_7'] = ((df['registrace_7_rez'] / df['registrace_7']) * 100).replace({np.nan: None})
-    df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
-    df['uspesnost_30'] = ((df['registrace_30_rez'] / df['registrace_30']) * 100).replace({np.nan: None})
+    # df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
+    # df['uspesnost_30'] = ((df['registrace_30_rez'] / df['registrace_30']) * 100).replace({np.nan: None})
     df['registrace_7'] = df['registrace_7'].astype('int')
     df['registrace_7_rez'] = df['registrace_7_rez'].astype('int')
-    df['registrace_14'] = df['registrace_14'].astype('int')
-    df['registrace_14_rez'] = df['registrace_14_rez'].astype('int')
-    df['registrace_30'] = df['registrace_30'].astype('int')
-    df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
-    df['prumer_cekani'] = ((df['rezervace_7_x_cekani'] / df['rezervace_7']) / 7).replace({np.nan: None})
+    # df['registrace_14'] = df['registrace_14'].astype('int')
+    # df['registrace_14_rez'] = df['registrace_14_rez'].astype('int')
+    # df['registrace_30'] = df['registrace_30'].astype('int')
+    # df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
+    df['fronta_prumer_cekani'] = ((df['fronta_pocet_x_cekani'] / df['fronta_pocet']) / 7).replace({np.nan: None})
+    df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace({np.nan: None})
 
     return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])
+
+
+def count_vaccinated(kraj_id=None):
+    ockovani = pd.read_sql_query(
+        """
+        select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani
+        from ockovani_lide
+        where datum < '{}' and (kraj_nuts_kod = '{}' or {})
+        group by vekova_skupina, vakcina, poradi_davky
+        """.format(get_import_date(), kraj_id, kraj_id is None),
+        db.engine
+    )
+
+    if kraj_id is not None:
+        mista = pd.read_sql_query(
+            """
+            select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
+            where kraj_id='{}';
+            """.format(kraj_id),
+            db.engine
+        )
+        mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
+    else:
+        mista_ids = "''"
+
+    registrace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) pocet_fronta
+        from ockovani_registrace
+        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {})
+        group by vekova_skupina
+        """.format(get_import_id(), mista_ids, kraj_id is None),
+        db.engine
+    )
+
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) pocet_vek
+        from populace p 
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+        where orp_kod = '{}'
+        group by vekova_skupina
+        """.format('CZ0' if kraj_id is None else kraj_id),
+        db.engine
+    )
+
+    ockovani['vekova_skupina'] = ockovani['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
+    ockovani['pocet_ockovani_castecne'] = ockovani['pocet_ockovani'].where(ockovani['poradi_davky'] == 1).fillna(0).astype('int')
+    ockovani['pocet_ockovani_plne'] = ockovani['pocet_ockovani'].where((ockovani['poradi_davky'] == 2) | (ockovani['vakcina'].isin([]))).fillna(0).astype('int')
+    ockovani_grp = ockovani.groupby(['vekova_skupina']).sum().drop('poradi_davky', axis=1).reset_index()
+
+    merged = pd.merge(ockovani_grp, registrace, how="left")
+    merged = pd.merge(merged, populace, how="left")
+
+    merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
+    merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
+
+    return merged

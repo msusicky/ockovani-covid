@@ -8,7 +8,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaciMistoMetriky, \
-    KrajMetriky, OkresMetriky
+    KrajMetriky, OkresMetriky, CrMetriky
 
 
 @bp.route('/')
@@ -88,34 +88,14 @@ def info_kraj(kraj_name):
         .order_by(Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
-    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
-        """
-        select t1.vekova_skupina, coalesce(sum_1 - sum_2, 0) sum_1, coalesce(sum_2, 0) sum_2, coalesce(fronta, 0) fronta
-        from (
-            select replace(vekova_skupina, 'nezařazeno', 'neuvedeno') vekova_skupina, 
-                sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
-                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
-            from ockovani_lide
-            where kraj_nuts_kod=:kraj_kod
-            group by vekova_skupina 
-        ) t1
-        full join (
-            select vekova_skupina, sum(pocet) fronta 
-            from ockovani_registrace ocr join ockovaci_mista om on (ocr.ockovaci_misto_id=om.id)
-            where rezervace=False and import_id=:import_id and substr(om.okres_id, 0 ,6)=:kraj_kod
-            group by vekova_skupina
-        ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
-        order by t1.vekova_skupina
-        """
-    )).params(import_id=get_import_id()).params(kraj_kod=kraj.id) \
-        .all()
-
     registrations = queries.count_registrations('kraj_id', kraj.id)
 
     vaccines = queries.count_vaccines_kraj(kraj.id)
 
+    vaccinated = queries.count_vaccinated(kraj.id)
+
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations, vac_age=vaccination_age)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated)
 
 
 @bp.route("/misto/<misto_id>")
@@ -180,7 +160,13 @@ def mapa():
 
 @bp.route("/statistiky")
 def statistiky():
+    metriky = db.session.query(CrMetriky) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one_or_none()
+
     vaccines = queries.count_vaccines_cr()
+
+    vaccinated = queries.count_vaccinated()
 
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
@@ -196,72 +182,18 @@ def statistiky():
         """
     )).all()
 
-    vaccination_stats = db.session.query("sum", "sum_1", "sum_2", "fronta", "termin").from_statement(text(
-        """
-        select sum, (sum_1 - sum_2) sum_1, sum_2, fronta, termin
-        from (
-            select sum(pocet) sum, 
-                sum(case when poradi_davky=1 then pocet else 0 end) sum_1,
-                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
-            from ockovani_lide
-        ) t1
-        cross join (
-            select sum(pocet) fronta 
-            from ockovani_registrace 
-            where rezervace=False and import_id=:import_id
-        ) t2 
-        cross join (
-            select sum(maximalni_kapacita - volna_kapacita) termin 
-            from ockovani_rezervace 
-            where datum >= current_date and import_id=:import_id
-        ) t3
-        """
-    )).params(import_id=get_import_id()) \
-        .all()
-
-    estimate_stats = db.session.query(
-        func.sum(KrajMetriky.pocet_obyvatel_dospeli).label("pocet_obyvatel"),
-        func.sum(KrajMetriky.ockovani_pocet).label("ockovane_davky_celkem"),
-        func.sum(KrajMetriky.ockovani_pocet_zmena_tyden).label("ockovane_davky_tyden")
-    ).filter(KrajMetriky.datum == get_import_date()) \
-        .one_or_none()
-
-    if estimate_stats is not None and estimate_stats.pocet_obyvatel is not None \
-            and estimate_stats.ockovane_davky_celkem is not None and estimate_stats.ockovane_davky_tyden is not None:
-        cr_people = estimate_stats.pocet_obyvatel
+    if metriky is not None:
+        cr_people = metriky.pocet_obyvatel_dospeli
         cr_factor = 0.7
         cr_to_vacc = cr_people * cr_factor
-        delka_dny = (7 * (2 * cr_to_vacc - estimate_stats.ockovane_davky_celkem)) / estimate_stats.ockovane_davky_tyden
-        end_date = date.today() + timedelta(days=delka_dny)
+        delka_dny = (7 * (2 * cr_to_vacc - metriky.ockovani_pocet_davek)) / metriky.ockovani_pocet_davek_zmena_tyden
+        end_date = get_import_date() + timedelta(days=delka_dny)
     else:
         end_date = None
 
-    vaccination_age = db.session.query("vekova_skupina", "sum_1", "sum_2", "fronta").from_statement(text(
-        """
-        select t1.vekova_skupina, coalesce(sum_1 - sum_2, 0) sum_1, coalesce(sum_2, 0) sum_2, coalesce(fronta, 0) fronta
-        from (
-            select replace(vekova_skupina, 'nezařazeno', 'neuvedeno') vekova_skupina, 
-                sum(case when poradi_davky=1 then pocet else 0 end) sum_1, 
-                sum(case when poradi_davky=2 then pocet else 0 end) sum_2 
-            from ockovani_lide
-            group by vekova_skupina 
-        ) t1
-        full join (
-            select vekova_skupina, sum(pocet) fronta 
-            from ockovani_registrace 
-            where rezervace=False and import_id=:import_id
-            group by vekova_skupina
-        ) t2 on (t1.vekova_skupina = t2.vekova_skupina)
-        order by t1.vekova_skupina
-        """
-    )).params(import_id=get_import_id()) \
-        .all()
-
-    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(),
-                           vaccines=vaccines, end_date=end_date,
-                           top5=top5_vaccination_day,
-                           top5_place=top5_vaccination_place_day,
-                           vac_stats=vaccination_stats, vac_age=vaccination_age)
+    return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
+                           vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
+                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day)
 
 
 @bp.route("/grafy")
