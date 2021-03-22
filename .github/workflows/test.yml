@@ -1,4 +1,4 @@
-name: update-web
+name: test
 
 on:
   workflow_run:
