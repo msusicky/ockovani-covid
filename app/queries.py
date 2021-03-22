@@ -2,11 +2,11 @@ from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky
 
 
 def unique_nrpzs_subquery():
@@ -15,6 +15,26 @@ def unique_nrpzs_subquery():
         .group_by(OckovaciMisto.nrpzs_kod) \
         .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
         .subquery()
+
+
+def find_centers(filter_column, filter_value):
+    centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
+                             Kraj.nazev.label("kraj"), OckovaciMisto.status, OckovaciMistoMetriky.registrace_fronta,
+                             OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
+        .join(OckovaciMistoMetriky) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(filter_column == filter_value) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
+        .filter(or_(OckovaciMisto.status == True, OckovaciMistoMetriky.registrace_fronta > 0,
+                    OckovaciMistoMetriky.rezervace_cekajici > 0)) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.status,
+                  OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
+                  OckovaciMistoMetriky.ockovani_odhad_cekani) \
+        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .all()
+
+    return centers
 
 
 def count_vaccines_center(center_id):

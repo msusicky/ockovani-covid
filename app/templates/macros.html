@@ -3,7 +3,7 @@
     <div class="col">
         {% if centers %}
         <div class="table-responsive">
-            <table id="centers-table" class="table table-bordered table-striped table-sm mb-0">
+            <table id="centers-table" class="table table-bordered table-striped table-sm">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" class="text-center">Název</th>
@@ -32,7 +32,7 @@
                 </thead>
                 <tbody>
                 {% for item in centers %}
-                <tr>
+                <tr class="{{ 'table-warning' if not item.status }}">
                     <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
                     <td>
                         {% if request.path.startswith('/okres') %}
@@ -66,6 +66,9 @@
                 </tbody>
             </table>
         </div>
+        <p class="font-italic">
+            Oranžově jsou vyznačena očkovací místa, která jsou v&nbsp;současnosti skryta v rezervačním systému, ale zároveň jsou na nich čekající ve frontě nebo s&nbsp;rezervací.
+        </p>
         {% else %}
         <div class="alert alert-warning w-100" role="alert">
             Zatím nemáme žádná data.
