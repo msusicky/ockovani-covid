@@ -307,7 +307,7 @@
                 {% set delta_day_mult = (delta_day * multiply) / divide %}
                 <span class="{{ (delta_day_mult | number_color) if color == 'std' else ((delta_day_mult | number_color_rev) if color == 'rev' else '') }}"
                       data-toggle="tooltip" data-placement="auto" data-html="true"
-                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné).">
+                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné)">
                     {{ delta_day_mult | format_decimal_delta }}
                 </span>
                 {% endif %}
@@ -316,7 +316,7 @@
                 /
                 <span class="{{ (delta_week_mult | number_color) if color == 'std' else ((delta_week_mult | number_color_rev) if color == 'rev' else '') }}"
                       data-toggle="tooltip" data-placement="auto" data-html="true"
-                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné).">
+                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné)">
                     {{ delta_week_mult | format_decimal_delta }}
                 </span>
                 {% endif %}
@@ -330,7 +330,7 @@
                 {% if delta_day != None %}
                 <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else '') }}"
                       data-toggle="tooltip" data-placement="auto" data-html="true"
-                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné).">
+                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné)">
                     {{ delta_day | format_number_delta }}
                 </span>
                 {% endif %}
@@ -338,7 +338,7 @@
                 /
                 <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else '') }}"
                       data-toggle="tooltip" data-placement="auto" data-html="true"
-                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné).">
+                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné)">
                     {{ delta_week | format_number_delta }}
                 </span>
                 {% endif %}
