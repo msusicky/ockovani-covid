@@ -332,6 +332,8 @@ def count_registrations(filter_column, filter_value):
     df['fronta_prumer_cekani'] = ((df['fronta_pocet_x_cekani'] / df['fronta_pocet']) / 7).replace({np.nan: None})
     df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace({np.nan: None})
 
+    df = df[(df['fronta_pocet'] > 0) | df['fronta_prumer_cekani'].notnull() | df['rezervace_prumer_cekani'].notnull() | df['uspesnost_7'].notnull()]
+
     return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])
 
 
@@ -389,6 +391,6 @@ def count_vaccinated(kraj_id=None):
 
     merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
     merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
-    merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0)
+    merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
 
     return merged
