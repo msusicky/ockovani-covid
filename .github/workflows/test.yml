@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Test create static pages
+    name: Acceptance tests
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: acceptance
     runs-on: ubuntu-18.04
