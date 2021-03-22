@@ -44,12 +44,14 @@
                         </span>
                     </dd>
                 </dl>
+                {% if misto.status %}
                 <a href="https://cfa.uzis.cz/vaccination-centers/{{misto.id}}" class="btn btn-primary" target="_blank">
                     Oficiální stránka místa
                 </a>
                 <a href="https://registrace.mzcr.cz/" class="btn btn-primary" target="_blank">
                     Registrace
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>
