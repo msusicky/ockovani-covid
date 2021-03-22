@@ -366,5 +366,6 @@ def count_vaccinated(kraj_id=None):
 
     merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
     merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
+    merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0)
 
     return merged
