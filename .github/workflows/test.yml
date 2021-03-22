@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Update static pages
+    name: Test create static pages
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: acceptance
     runs-on: ubuntu-18.04
@@ -31,5 +31,5 @@ jobs:
           echo "Public IP: ${{ steps.ip.outputs.ipv4 }}"
       - name: Check if webserver is running
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "systemctl status ockovani-acc.service"
-      - name: Create static pages
+      - name: Test create static pages
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && bash scripts/test_pages.sh"
