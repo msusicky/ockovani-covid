@@ -64,8 +64,11 @@ class CenterMetricsEtl:
                 datum=self._date,
                 rezervace_celkem=reservation.rezervace_celkem,
                 rezervace_cekajici=reservation.rezervace_cekajici,
+                rezervace_cekajici_1=reservation.rezervace_cekajici_1,
+                rezervace_cekajici_2=reservation.rezervace_cekajici_2,
                 rezervace_kapacita=reservation.rezervace_kapacita,
                 rezervace_kapacita_1=reservation.rezervace_kapacita_1,
+                rezervace_kapacita_2=reservation.rezervace_kapacita_2,
                 rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 

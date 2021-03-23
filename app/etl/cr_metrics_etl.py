@@ -72,8 +72,11 @@ class CrMetricsEtl:
             datum=self._date,
             rezervace_celkem=reservations.rezervace_celkem,
             rezervace_cekajici=reservations.rezervace_cekajici,
+            rezervace_cekajici_1=reservations.rezervace_cekajici_1,
+            rezervace_cekajici_2=reservations.rezervace_cekajici_2,
             rezervace_kapacita=reservations.rezervace_kapacita,
-            rezervace_kapacita_1=reservations.rezervace_kapacita_1
+            rezervace_kapacita_1=reservations.rezervace_kapacita_1,
+            rezervace_kapacita_2=reservations.rezervace_kapacita_2
         ))
 
         app.logger.info('Computing cr metrics - reservations finished.')
