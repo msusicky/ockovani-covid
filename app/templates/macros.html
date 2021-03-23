@@ -215,6 +215,11 @@
             </td>
         </tr>
         {% endfor %}
+        {% if registrations.empty %}
+        <tr>
+            <td colspan="6" class="font-italic">Toto očkovací místo zatím nemá žádné registrace nebo rezervace.</td>
+        </tr>
+        {% endif %}
         </tbody>
     </table>
 </div>
