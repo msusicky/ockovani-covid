@@ -303,6 +303,9 @@ def count_registrations(filter_column, filter_value):
         db.engine
     )
 
+    if df.empty:
+        return df
+
     df['dnes'] = get_import_date()
     df['datum_rezervace_fix'] = df['datum_rezervace'].where(df['datum_rezervace'] != date(1970, 1, 1))
     df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
