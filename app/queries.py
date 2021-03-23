@@ -2,11 +2,11 @@ from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky
 
 
 def unique_nrpzs_subquery():
@@ -15,6 +15,29 @@ def unique_nrpzs_subquery():
         .group_by(OckovaciMisto.nrpzs_kod) \
         .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
         .subquery()
+
+
+def find_centers(filter_column, filter_value):
+    centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
+                               Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
+                               OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMistoMetriky.registrace_fronta,
+                               OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
+                               OckovaciMistoMetriky.registrace_fronta_prumer_cekani) \
+        .join(OckovaciMistoMetriky) \
+        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
+        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .filter(filter_column == filter_value) \
+        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
+        .filter(or_(OckovaciMisto.status == True, OckovaciMistoMetriky.registrace_fronta > 0,
+                    OckovaciMistoMetriky.rezervace_cekajici > 0)) \
+        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.longitude,
+                  OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
+                  OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
+                  OckovaciMistoMetriky.ockovani_odhad_cekani, OckovaciMistoMetriky.registrace_fronta_prumer_cekani) \
+        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .all()
+
+    return centers
 
 
 def count_vaccines_center(center_id):
@@ -309,6 +332,8 @@ def count_registrations(filter_column, filter_value):
     df['fronta_prumer_cekani'] = ((df['fronta_pocet_x_cekani'] / df['fronta_pocet']) / 7).replace({np.nan: None})
     df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace({np.nan: None})
 
+    df = df[(df['fronta_pocet'] > 0) | df['fronta_prumer_cekani'].notnull() | df['rezervace_prumer_cekani'].notnull() | df['uspesnost_7'].notnull()]
+
     return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])
 
 
@@ -366,6 +391,6 @@ def count_vaccinated(kraj_id=None):
 
     merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
     merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
-    merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0)
+    merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
 
     return merged

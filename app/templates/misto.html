@@ -12,6 +12,18 @@
     </div>
 </div>
 
+{% if not misto.status %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-warning" role="alert">
+            <p class="mb-0">
+                Toto očkovací místo je v současnosti skryto v rezervačním systému a nepřijímá nové registrace.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row px-2">
     <div class="col-md-6 px-2 mb-3">
         <div class="card h-100">
@@ -32,12 +44,14 @@
                         </span>
                     </dd>
                 </dl>
+                {% if misto.status %}
                 <a href="https://cfa.uzis.cz/vaccination-centers/{{misto.id}}" class="btn btn-primary" target="_blank">
                     Oficiální stránka místa
                 </a>
                 <a href="https://registrace.mzcr.cz/" class="btn btn-primary" target="_blank">
                     Registrace
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>

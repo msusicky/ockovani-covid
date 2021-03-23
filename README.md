@@ -1,4 +1,5 @@
 [![deploy-acceptance](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml)
+[![test](https://github.com/msusicky/ockovani-covid/actions/workflows/test.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/test.yml)
 [![deploy-production](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml)
 [![update-data](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml)
 [![update-web](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml)
