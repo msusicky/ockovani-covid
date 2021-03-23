@@ -26,14 +26,14 @@ def upgrade():
     sa.Column('poradi_davky', sa.Integer(), nullable=False),
     sa.Column('vekova_skupina', sa.Unicode(), nullable=False),
     sa.Column('pohlavi', sa.Unicode(), nullable=False),
-    sa.Column('orp_kod_bydliste', sa.Unicode(), nullable=False),
-    sa.Column('indikace_zdravotnik', sa.Unicode(), nullable=False),
-    sa.Column('indikace_socialni_sluzby', sa.Unicode(), nullable=False),
-    sa.Column('indikace_ostatni', sa.Unicode(), nullable=False),
-    sa.Column('indikace_pedagog', sa.Unicode(), nullable=False),
-    sa.Column('indikace_skolstvi_ostatni', sa.Unicode(), nullable=False),
+    sa.Column('okres_bydliste_kod', sa.Unicode(), nullable=False),
+    sa.Column('indikace_zdravotnik', sa.Boolean(), nullable=False),
+    sa.Column('indikace_socialni_sluzby', sa.Boolean(), nullable=False),
+    sa.Column('indikace_ostatni', sa.Boolean(), nullable=False),
+    sa.Column('indikace_pedagog', sa.Boolean(), nullable=False),
+    sa.Column('indikace_skolstvi_ostatni', sa.Boolean(), nullable=False),
     sa.Column('pocet', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('datum', 'vakcina', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'pohlavi', 'orp_kod_bydliste', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni')
+    sa.PrimaryKeyConstraint('datum', 'vakcina', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'pohlavi', 'okres_bydliste_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni')
     )
     # ### end Alembic commands ###
 

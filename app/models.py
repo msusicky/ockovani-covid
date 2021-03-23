@@ -167,12 +167,12 @@ class OckovaniLideEnh(db.Model):
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
     pohlavi = Column(Unicode, primary_key=True)
-    orp_kod_bydliste= Column(Unicode, primary_key=True)
-    indikace_zdravotnik= Column(Unicode, primary_key=True)
-    indikace_socialni_sluzby= Column(Unicode, primary_key=True)
-    indikace_ostatni= Column(Unicode, primary_key=True)
-    indikace_pedagog= Column(Unicode, primary_key=True)
-    indikace_skolstvi_ostatni= Column(Unicode, primary_key=True)
+    okres_bydliste_kod= Column(Unicode, primary_key=True)
+    indikace_zdravotnik= Column(Boolean, primary_key=True)
+    indikace_socialni_sluzby= Column(Boolean, primary_key=True)
+    indikace_ostatni= Column(Boolean, primary_key=True)
+    indikace_pedagog= Column(Boolean, primary_key=True)
+    indikace_skolstvi_ostatni= Column(Boolean, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):

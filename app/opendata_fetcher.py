@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from datetime import datetime, date
 
 import requests
@@ -37,6 +37,12 @@ class OpenDataFetcher:
             self._fetch_used()
             self._fetch_distributed()
             self._fetch_vaccinated()
+            # Test if we have an scraped dataset or not
+            if os.environ.get('ODL_VACCINATED_ENH') is not None and os.path.exists(
+                    os.environ.get('ODL_VACCINATED_ENH')):
+                self._fetch_vaccinated_enh(os.environ.get('ODL_VACCINATED_ENH'))
+            else:
+                self._fetch_vaccinated_enh()
             self._fetch_registrations()
             self._fetch_reservations()
 
@@ -206,12 +212,10 @@ class OpenDataFetcher:
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-profese.csv
         @return:
         """
-        data = self._load_csv_data(self.VACCINATED_ENH_CSV)
+        data = self._load_csv_data(self.VACCINATED_ENH_CSV).fillna(0)
 
-        df = data[["datum", "vakcina", "kraj_nuts_kod", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
-                   "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
-                   "indikace_skolstvi_ostatni"]].groupby(
-            ["datum", "vakcina", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
+        df = data.groupby(
+            ["datum", "vakcina", "kraj_nuts_kod", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
              "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
              "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
 
@@ -222,20 +226,58 @@ class OpenDataFetcher:
                 datum=row[0],
                 vakcina=row[1],
                 kraj_nuts_kod=row[2],
-                zarizeni_kod=format(row[4], '011d'),
-                poradi_davky=row[6],
+                zarizeni_kod=format(int(row[3]), '011d'),
+                poradi_davky=row[4],
                 vekova_skupina='N/A',
                 pohlavi='N/A',
-                orp_kod_bydliste='N/A',
-                indikace_zdravotnik=row[7],
-                indikace_socialni_sluzby=row[8],
-                indikace_ostatni=row[9],
-                indikace_pedagog=row[10],
-                indikace_skolstvi_ostatni=row[11],
-                pocet=row[12]
+                okres_bydliste_kod='N/A',
+                indikace_zdravotnik=row[5],
+                indikace_socialni_sluzby=row[6],
+                indikace_ostatni=row[7],
+                indikace_pedagog=row[8],
+                indikace_skolstvi_ostatni=row[9],
+                pocet=row[10]
             ))
 
         app.logger.info('Fetching opendata - vaccinated people enhanced finished.')
+
+    def _fetch_vaccinated_enh(self, path):
+        """
+        For the future if there will be any better source - from scraping for example.
+        @return:
+        """
+        data = pd.read_csv(path)
+        data['orp_bydliste_kod'] = data['orp_bydliste_kod'].astype(str).str[:3]
+        data['cz'] = 'CZ0'
+        data['okres_bydliste_kod'] = data['cz'] + data['orp_bydliste_kod']
+
+        df = data.groupby(
+            ["datum_vakcinace", "vakcina", "kraj_kod", "zarizeni_kod", "poradi_davky", "vekova_skupina", "pohlavi",
+             "okres_bydliste_kod", "indikace_zdravotnik",
+             "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
+             "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
+
+        db.session.query(OckovaniLideEnh).delete()
+
+        for row in df.itertuples(index=False):
+            db.session.add(OckovaniLideEnh(
+                datum=row[0],
+                vakcina=row[1],
+                kraj_nuts_kod=row[2],
+                zarizeni_kod=format(int(row[3]), '011d'),
+                poradi_davky=row[4],
+                vekova_skupina=row[5],
+                pohlavi=row[6],
+                okres_bydliste_kod=row[7],
+                indikace_zdravotnik=row[8],
+                indikace_socialni_sluzby=row[9],
+                indikace_ostatni=row[10],
+                indikace_pedagog=row[11],
+                indikace_skolstvi_ostatni=row[12],
+                pocet=row[13]
+            ))
+
+        app.logger.info('Fetching data - vaccinated people enhanced finished.')
 
     def _fetch_registrations(self):
         """
@@ -376,6 +418,9 @@ if __name__ == '__main__':
         fetcher._fetch_vaccinated()
     elif argument == 'vaccinated_enh':
         fetcher._fetch_vaccinated_enh()
+    elif argument == 'vaccinated_enh_tmp':
+        if os.environ.get('ODL_VACCINATED_ENH') is not None:
+            fetcher._fetch_vaccinated_enh(os.environ.get('ODL_VACCINATED_ENH'))
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)
