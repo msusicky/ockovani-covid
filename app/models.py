@@ -157,6 +157,30 @@ class OckovaniLide(db.Model):
             self.pocet)
 
 
+class OckovaniLideEnh(db.Model):
+    __tablename__ = 'ockovani_lide_enh'
+
+    datum = Column(Date, primary_key=True)
+    vakcina = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode)
+    zarizeni_kod = Column(Unicode, primary_key=True)
+    poradi_davky = Column(Integer, primary_key=True)
+    vekova_skupina = Column(Unicode, primary_key=True)
+    pohlavi = Column(Unicode, primary_key=True)
+    orp_kod_bydliste= Column(Unicode, primary_key=True)
+    indikace_zdravotnik= Column(Unicode, primary_key=True)
+    indikace_socialni_sluzby= Column(Unicode, primary_key=True)
+    indikace_ostatni= Column(Unicode, primary_key=True)
+    indikace_pedagog= Column(Unicode, primary_key=True)
+    indikace_skolstvi_ostatni= Column(Unicode, primary_key=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return "<OckovaniLideEnh(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
+            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
+            self.pocet)
+
+
 class OckovaniRegistrace(db.Model):
     __tablename__ = 'ockovani_registrace'
 

@@ -5,16 +5,18 @@ import requests
 import pandas as pd
 
 from app import db, app
-from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
-    OckovaniRegistrace
+from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniLideEnh, \
+    OckovaniRezervace, OckovaniRegistrace
 
 from email import utils as eut
+
 
 class OpenDataFetcher:
     CENTERS_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/prehled-ockovacich-mist.json'
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
     VACCINATED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
+    VACCINATED_ENH_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-profese.csv'
     REGISTRATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
     RESERVATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
@@ -22,7 +24,7 @@ class OpenDataFetcher:
     _import = None
     _last_modified = None
 
-    def __init__(self, check_dates = True):
+    def __init__(self, check_dates=True):
         self._check_dates = check_dates
 
     def fetch_all(self):
@@ -179,7 +181,7 @@ class OpenDataFetcher:
         data = self._load_csv_data(self.VACCINATED_CSV)
 
         df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
-                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
+                           "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
 
         db.session.query(OckovaniLide).delete()
 
@@ -197,6 +199,43 @@ class OpenDataFetcher:
             ))
 
         app.logger.info('Fetching opendata - vaccinated people finished.')
+
+    def _fetch_vaccinated_enh(self):
+        """
+        Fetch distribution files from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-profese.csv
+        @return:
+        """
+        data = self._load_csv_data(self.VACCINATED_ENH_CSV)
+
+        df = data[["datum", "vakcina", "kraj_nuts_kod", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
+                   "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
+                   "indikace_skolstvi_ostatni"]].groupby(
+            ["datum", "vakcina", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
+             "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
+             "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
+
+        db.session.query(OckovaniLideEnh).delete()
+
+        for row in df.itertuples(index=False):
+            db.session.add(OckovaniLideEnh(
+                datum=row[0],
+                vakcina=row[1],
+                kraj_nuts_kod=row[2],
+                zarizeni_kod=format(row[4], '011d'),
+                poradi_davky=row[6],
+                vekova_skupina='N/A',
+                pohlavi='N/A',
+                orp_kod_bydliste='N/A',
+                indikace_zdravotnik=row[7],
+                indikace_socialni_sluzby=row[8],
+                indikace_ostatni=row[9],
+                indikace_pedagog=row[10],
+                indikace_skolstvi_ostatni=row[11],
+                pocet=row[12]
+            ))
+
+        app.logger.info('Fetching opendata - vaccinated people enhanced finished.')
 
     def _fetch_registrations(self):
         """
@@ -244,7 +283,8 @@ class OpenDataFetcher:
             ))
 
         if missing_count > 0:
-            app.logger.warn("Some centers doesn't exist - {} rows ({} registrations) skipped.".format(missing_count, missing_sum))
+            app.logger.warn(
+                "Some centers doesn't exist - {} rows ({} registrations) skipped.".format(missing_count, missing_sum))
 
         app.logger.info('Fetching opendata - registrations finished.')
 
@@ -334,6 +374,8 @@ if __name__ == '__main__':
         fetcher._fetch_distributed()
     elif argument == 'vaccinated':
         fetcher._fetch_vaccinated()
+    elif argument == 'vaccinated_enh':
+        fetcher._fetch_vaccinated_enh()
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)
