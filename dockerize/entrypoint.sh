@@ -6,6 +6,6 @@ venv3/bin/flask db upgrade
 if [ "$FETCH_DATA" = "true" ]; then
     echo "Fetching fresh data"
     venv3/bin/flask fetch-opendata
-    venv3/bin/flask compute-metrics
+    venv3/bin/flask compute-metrics all
 fi
 venv3/bin/flask run --host 0.0.0.0 --port 5000

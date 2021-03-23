@@ -13,16 +13,31 @@ class OkresMetricsEtl:
         self._date = date_
         self._import_id = import_id
 
-    def compute_all(self):
-        self._compute_okres_population()
-        self._compute_okres_registrations()
-        self._compute_okres_reservations()
-        self._compute_okres_distributed()
-        self._compute_okres_used()
-        self._compute_okres_derived()
-        self._compute_okres_deltas()
+    def compute(self, metric):
+        if metric == 'all':
+            self._compute_population()
+            self._compute_registrations()
+            self._compute_reservations()
+            self._compute_distributed()
+            self._compute_used()
+            self._compute_derived()
+            self._compute_deltas()
+        elif metric == 'registrations':
+            self._compute_registrations()
+        elif metric == 'reservations':
+            self._compute_reservations()
+        elif metric == 'distributed':
+            self._compute_distributed()
+        elif metric == 'used':
+            self._compute_used()
+        elif metric == 'derived':
+            self._compute_derived()
+        elif metric == 'deltas':
+            self._compute_deltas()
+        else:
+            raise Exception("Invalid metric argument.")
 
-    def _compute_okres_population(self):
+    def _compute_population(self):
         """Computes metrics based on population for each okres."""
         population = db.session.query(
             Okres.id, func.sum(Populace.pocet).label('pocet_obyvatel_celkem'),
@@ -40,7 +55,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - population finished.')
 
-    def _compute_okres_registrations(self):
+    def _compute_registrations(self):
         """Computes metrics based on registrations dataset for each okres."""
         registrations = db.session.query(
             Okres.id, func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
@@ -61,7 +76,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - registrations finished.')
 
-    def _compute_okres_reservations(self):
+    def _compute_reservations(self):
         """Computes metrics based on reservations dataset for each okres."""
         reservations = db.session.query(
             Okres.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
@@ -94,7 +109,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - reservations finished.')
 
-    def _compute_okres_distributed(self):
+    def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each okres."""
         distributed = db.session.query("okres_id", "vakciny_prijate_pocet").from_statement(text(
             """
@@ -134,7 +149,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - distributed vaccines finished.')
 
-    def _compute_okres_used(self):
+    def _compute_used(self):
         """Computes metrics based on used vaccines dataset for each okres."""
         used = db.session.query(
             Okres.id, func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
@@ -155,7 +170,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - used vaccines finished.')
 
-    def _compute_okres_derived(self):
+    def _compute_derived(self):
         """Computes metrics derived from the previous metrics for each okres."""
         avg_waiting = db.session.query(
             Okres.id,
@@ -249,7 +264,7 @@ class OkresMetricsEtl:
 
         app.logger.info('Computing okres metrics - derived metrics finished.')
 
-    def _compute_okres_deltas(self):
+    def _compute_deltas(self):
         """Computes deltas for previous metrics for each okres."""
         db.session.execute(text(
             """

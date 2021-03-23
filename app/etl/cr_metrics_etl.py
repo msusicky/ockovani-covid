@@ -13,17 +13,34 @@ class CrMetricsEtl:
         self._date = date_
         self._import_id = import_id
 
-    def compute_all(self):
-        self._compute_cr_population()
-        self._compute_cr_registrations()
-        self._compute_cr_reservations()
-        self._compute_cr_vaccinated()
-        self._compute_cr_distributed()
-        self._compute_cr_used()
-        self._compute_cr_derived()
-        self._compute_cr_deltas()
+    def compute(self, metric):
+        if metric == 'all':
+            self._compute_population()
+            self._compute_registrations()
+            self._compute_reservations()
+            self._compute_vaccinated()
+            self._compute_distributed()
+            self._compute_used()
+            self._compute_derived()
+            self._compute_deltas()
+        elif metric == 'registrations':
+            self._compute_registrations()
+        elif metric == 'reservations':
+            self._compute_reservations()
+        elif metric == 'vaccinated':
+            self._compute_vaccinated()
+        elif metric == 'distributed':
+            self._compute_distributed()
+        elif metric == 'used':
+            self._compute_used()
+        elif metric == 'derived':
+            self._compute_derived()
+        elif metric == 'deltas':
+            self._compute_deltas()
+        else:
+            raise Exception("Invalid metric argument.")
 
-    def _compute_cr_population(self):
+    def _compute_population(self):
         """Computes metrics based on population for cr."""
         population = db.session.query(
             func.sum(Populace.pocet).label('pocet_obyvatel_celkem'),
@@ -39,7 +56,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - population finished.')
 
-    def _compute_cr_registrations(self):
+    def _compute_registrations(self):
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
             func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
@@ -55,7 +72,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - registrations finished.')
 
-    def _compute_cr_reservations(self):
+    def _compute_reservations(self):
         """Computes metrics based on reservations dataset for cr."""
         reservations = db.session.query(
             func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
@@ -81,7 +98,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - reservations finished.')
 
-    def _compute_cr_vaccinated(self):
+    def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for cr."""
         vaccinated = db.session.query(
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
@@ -99,7 +116,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - vaccinated people finished.')
 
-    def _compute_cr_distributed(self):
+    def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for cr."""
         distributed = db.session.query(
             func.sum(case([(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_prijate_pocet')
@@ -113,7 +130,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - distributed vaccines finished.')
 
-    def _compute_cr_used(self):
+    def _compute_used(self):
         """Computes metrics based on used vaccines dataset for cr."""
         used = db.session.query(
             func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
@@ -129,7 +146,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - used vaccines finished.')
 
-    def _compute_cr_derived(self):
+    def _compute_derived(self):
         """Computes metrics derived from the previous metrics for cr."""
         avg_waiting = db.session.query(
             (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
@@ -203,7 +220,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - derived metrics finished.')
 
-    def _compute_cr_deltas(self):
+    def _compute_deltas(self):
         """Computes deltas for previous metrics for cr."""
         db.session.execute(text(
             """

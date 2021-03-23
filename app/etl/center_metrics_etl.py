@@ -14,16 +14,33 @@ class CenterMetricsEtl:
         self._date = date_
         self._import_id = import_id
 
-    def compute_all(self):
-        self._compute_center_registrations()
-        self._compute_center_reservations()
-        self._compute_center_vaccinated()
-        self._compute_center_distributed()
-        self._compute_center_used()
-        self._compute_center_derived()
-        self._compute_center_deltas()
+    def compute(self, metric):
+        if metric == 'all':
+            self._compute_registrations()
+            self._compute_reservations()
+            self._compute_vaccinated()
+            self._compute_distributed()
+            self._compute_used()
+            self._compute_derived()
+            self._compute_deltas()
+        elif metric == 'registrations':
+            self._compute_registrations()
+        elif metric == 'reservations':
+            self._compute_reservations()
+        elif metric == 'vaccinated':
+            self._compute_vaccinated()
+        elif metric == 'distributed':
+            self._compute_distributed()
+        elif metric == 'used':
+            self._compute_used()
+        elif metric == 'derived':
+            self._compute_derived()
+        elif metric == 'deltas':
+            self._compute_deltas()
+        else:
+            raise Exception("Invalid metric argument.")
 
-    def _compute_center_registrations(self):
+    def _compute_registrations(self):
         """Computes metrics based on registrations dataset for each vaccination center."""
         registrations = db.session.query(
             OckovaciMisto.id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
@@ -42,7 +59,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - registrations finished.')
 
-    def _compute_center_reservations(self):
+    def _compute_reservations(self):
         """Computes metrics based on reservations dataset for each vaccination center."""
         reservations = db.session.query(
             OckovaciMisto.id,
@@ -74,7 +91,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - reservations finished.')
 
-    def _compute_center_vaccinated(self):
+    def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each vaccination center."""
         vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
@@ -95,7 +112,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - vaccinated people finished.')
 
-    def _compute_center_distributed(self):
+    def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each vaccination center."""
         distributed = db.session.query(
             OckovaciMisto.id, (
@@ -119,7 +136,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - distributed vaccines finished.')
 
-    def _compute_center_used(self):
+    def _compute_used(self):
         """Computes metrics based on used vaccines dataset for each vaccination center."""
         used = db.session.query(
             OckovaciMisto.id,
@@ -139,7 +156,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - used vaccines finished.')
 
-    def _compute_center_derived(self):
+    def _compute_derived(self):
         """Computes metrics derived from the previous metrics for each vaccination center."""
         avg_waiting = db.session.query(
             OckovaciMisto.id,
@@ -283,7 +300,7 @@ class CenterMetricsEtl:
 
         app.logger.info('Computing vaccination centers metrics - derived metrics finished.')
 
-    def _compute_center_deltas(self):
+    def _compute_deltas(self):
         """Computes deltas for previous metrics for each vaccination center."""
         db.session.execute(text(
             """
