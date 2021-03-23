@@ -256,7 +256,7 @@
                 {% if not kraj %}
                 {{ row['pocet_ockovani_castecne'] | format_number }}
                 {% else %}
-                <p data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_castecne'] | format_number }}</p>
+                <span data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_castecne'] | format_number }}</span>
                 {% endif %}
             </td>
             {% if not kraj %}
@@ -266,7 +266,7 @@
                 {% if not kraj %}
                 {{ row['pocet_ockovani_plne'] | format_number }}
                 {% else %}
-                <p data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_plne'] | format_number }}</p>
+                <span data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_plne'] | format_number }}</span>
                 {% endif %}
             </td>
             {% if not kraj %}
