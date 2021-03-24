@@ -181,7 +181,6 @@ class OpenDataFetcher:
         df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
                           "poradi_davky", "vekova_skupina"]).size().reset_index(name='pocet')
 
-        df['datum'] = df['datum'].astype('datetime64[ns]')
         df['poradi_davky'] = df['poradi_davky'].astype('int')
 
         db.session.query(OckovaniLide).delete()
