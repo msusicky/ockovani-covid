@@ -87,8 +87,8 @@
             <th scope="col" class="w-20 text-center">Výrobce</th>
             <th scope="col" class="w-20 text-center">
                 Přijato
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="Počet dávek přijatých na dané místo.<br>V případě přehledu kraje předpokládáme, že dávky vydané mimo očkovací místa (např. praktickým lékařům) zůstaly ve stejném kraji. Vakcíny, které jsou praktickým lékařům distribuovány přímo, v celkovém počtu chybí.">
+                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet dávek přijatých na dané místo.<br>V případě přehledu kraje předpokládáme, že dávky vydané mimo očkovací místa (např. praktickým lékařům) zůstaly ve stejném kraji. Data neobsahují dávky distribuované praktickým lékařům přímo.">
                 </i>
             </th>
             {% if 'pouzito' in vaccines %}
@@ -215,6 +215,11 @@
             </td>
         </tr>
         {% endfor %}
+        {% if registrations.empty %}
+        <tr>
+            <td colspan="6" class="font-italic">Toto očkovací místo zatím nemá žádné registrace nebo rezervace.</td>
+        </tr>
+        {% endif %}
         </tbody>
     </table>
 </div>
