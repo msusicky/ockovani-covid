@@ -14,17 +14,34 @@ class KrajMetricsEtl:
         self._date = date_
         self._import_id = import_id
 
-    def compute_all(self):
-        self._compute_kraj_population()
-        self._compute_kraj_registrations()
-        self._compute_kraj_reservations()
-        self._compute_kraj_vaccinated()
-        self._compute_kraj_distributed()
-        self._compute_kraj_used()
-        self._compute_kraj_derived()
-        self._compute_kraj_deltas()
+    def compute(self, metric):
+        if metric == 'all':
+            self._compute_population()
+            self._compute_registrations()
+            self._compute_reservations()
+            self._compute_vaccinated()
+            self._compute_distributed()
+            self._compute_used()
+            self._compute_derived()
+            self._compute_deltas()
+        elif metric == 'registrations':
+            self._compute_registrations()
+        elif metric == 'reservations':
+            self._compute_reservations()
+        elif metric == 'vaccinated':
+            self._compute_vaccinated()
+        elif metric == 'distributed':
+            self._compute_distributed()
+        elif metric == 'used':
+            self._compute_used()
+        elif metric == 'derived':
+            self._compute_derived()
+        elif metric == 'deltas':
+            self._compute_deltas()
+        else:
+            raise Exception("Invalid metric argument.")
 
-    def _compute_kraj_population(self):
+    def _compute_population(self):
         """Computes metrics based on population for each kraj."""
         population = db.session.query(
             Kraj.id, func.sum(Populace.pocet).label('pocet_obyvatel_celkem'),
@@ -42,7 +59,7 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - population finished.')
 
-    def _compute_kraj_registrations(self):
+    def _compute_registrations(self):
         """Computes metrics based on registrations dataset for each kraj."""
         registrations = db.session.query(
             Kraj.id, func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
@@ -64,13 +81,16 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - registrations finished.')
 
-    def _compute_kraj_reservations(self):
+    def _compute_reservations(self):
         """Computes metrics based on reservations dataset for each kraj."""
         reservations = db.session.query(
             Kraj.id, func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_1).label("rezervace_cekajici_1"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_2).label("rezervace_cekajici_2"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2"),
             func.min(OckovaciMistoMetriky.rezervace_nejblizsi_volno).label('rezervace_nejblizsi_volno')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -85,14 +105,17 @@ class KrajMetricsEtl:
                 datum=self._date,
                 rezervace_celkem=reservation.rezervace_celkem,
                 rezervace_cekajici=reservation.rezervace_cekajici,
+                rezervace_cekajici_1=reservation.rezervace_cekajici_1,
+                rezervace_cekajici_2=reservation.rezervace_cekajici_2,
                 rezervace_kapacita=reservation.rezervace_kapacita,
                 rezervace_kapacita_1=reservation.rezervace_kapacita_1,
+                rezervace_kapacita_2=reservation.rezervace_kapacita_2,
                 rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
         app.logger.info('Computing kraj metrics - reservations finished.')
 
-    def _compute_kraj_vaccinated(self):
+    def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each kraj."""
         vaccinated = db.session.query(
             Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
@@ -113,7 +136,7 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - vaccinated people finished.')
 
-    def _compute_kraj_distributed(self):
+    def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each kraj."""
         distributed = db.session.query("kraj_id", "vakciny_prijate_pocet").from_statement(text(
             """
@@ -155,7 +178,7 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - distributed vaccines finished.')
 
-    def _compute_kraj_used(self):
+    def _compute_used(self):
         """Computes metrics based on used vaccines dataset for each kraj."""
         used = db.session.query(
             Kraj.id, func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
@@ -177,7 +200,7 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - used vaccines finished.')
 
-    def _compute_kraj_derived(self):
+    def _compute_derived(self):
         """Computes metrics derived from the previous metrics for each kraj."""
         avg_waiting = db.session.query(
             Kraj.id,
@@ -292,15 +315,18 @@ class KrajMetricsEtl:
 
         app.logger.info('Computing kraj metrics - derived metrics finished.')
 
-    def _compute_kraj_deltas(self):
+    def _compute_deltas(self):
         """Computes deltas for previous metrics for each kraj."""
         db.session.execute(text(
             """
             update kraje_metriky t
             set rezervace_celkem_zmena_den = t0.rezervace_celkem - t1.rezervace_celkem,
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
+                rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
+                rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
+                rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
@@ -327,8 +353,11 @@ class KrajMetricsEtl:
             update kraje_metriky t
             set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
+                rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
+                rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
+                rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,

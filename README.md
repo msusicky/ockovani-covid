@@ -82,7 +82,7 @@ If you want to fetch recent data please set the FETCH_DATA environment variable:
 
 1. compute metrics
     
-    `flask compute-metrics`
+    `flask compute-metrics all`
 
 1. start Flask webserver
     

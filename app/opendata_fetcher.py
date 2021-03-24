@@ -179,21 +179,23 @@ class OpenDataFetcher:
         data = self._load_csv_data(self.VACCINATED_CSV)
 
         df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
-                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='counts')
+                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='pocet')
+
+        df['poradi_davky'] = df['poradi_davky'].astype('int')
 
         db.session.query(OckovaniLide).delete()
 
-        for row in df.itertuples(index=False):
+        for idx, row in df.iterrows():
             db.session.add(OckovaniLide(
-                datum=row[0],
-                vakcina=row[1],
-                kraj_nuts_kod=row[2],
-                kraj_nazev=row[3],
-                zarizeni_kod=format(row[4], '011d'),
-                zarizeni_nazev=row[5],
-                poradi_davky=row[6],
-                vekova_skupina=row[7],
-                pocet=row[8]
+                datum=row['datum'],
+                vakcina=row['vakcina'],
+                kraj_nuts_kod=row['kraj_nuts_kod'],
+                kraj_nazev=row['kraj_nazev'],
+                zarizeni_kod=row['zarizeni_kod'],
+                zarizeni_nazev=row['zarizeni_nazev'],
+                poradi_davky=row['poradi_davky'],
+                vekova_skupina=row['vekova_skupina'],
+                pocet=row['pocet']
             ))
 
         app.logger.info('Fetching opendata - vaccinated people finished.')
@@ -207,39 +209,42 @@ class OpenDataFetcher:
         data = self._load_csv_data(self.REGISTRATION_CSV)
 
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
-        df['rezervace'] = df['rezervace'].fillna(False)
-        df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
+
         df = df.groupby(
             ["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace", "datum_rezervace"]) \
             .size() \
-            .reset_index(name='counts')
+            .reset_index(name='pocet')
+
+        df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
+        df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
         mista_result = db.session.query(OckovaciMisto.id).all()
-        mista_ids = [id for id, in mista_result]
+        mista_ids = {id for id, in mista_result}
         missing_ids = []
         missing_count = 0
         missing_sum = 0
 
-        for row in df.itertuples(index=False):
-            misto_id = row[1]
+        for idx, row in df.iterrows():
+            misto_id = row['ockovaci_misto_id']
+            pocet = row['pocet']
 
             if misto_id not in mista_ids:
                 missing_count += 1
-                missing_sum += row[7]
+                missing_sum += pocet
                 if misto_id not in missing_ids:
                     missing_ids.append(misto_id)
                     app.logger.warn("Center: '{0}' doesn't exist.".format(misto_id))
                 continue
 
             db.session.add(OckovaniRegistrace(
-                datum=row[0],
+                datum=row['datum'],
                 ockovaci_misto_id=misto_id,
-                vekova_skupina=row[2],
-                povolani=row[3],
-                stat=row[4],
-                rezervace=row[5],
-                datum_rezervace=row[6],
-                pocet=row[7],
+                vekova_skupina=row['vekova_skupina'],
+                povolani=row['povolani'],
+                stat=row['stat'],
+                rezervace=row['rezervace'],
+                datum_rezervace=row['datum_rezervace'],
+                pocet=pocet,
                 import_=self._import
             ))
 
@@ -258,13 +263,16 @@ class OpenDataFetcher:
 
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
 
+        df['volna_kapacita'] = df['volna_kapacita'].astype('int')
+        df['maximalni_kapacita'] = df['maximalni_kapacita'].astype('int')
+
         mista_result = db.session.query(OckovaciMisto.id).all()
-        mista_ids = [id for id, in mista_result]
+        mista_ids = {id for id, in mista_result}
         missing_ids = []
         missing_count = 0
 
-        for row in df.itertuples(index=False):
-            misto_id = row[1]
+        for idx, row in df.iterrows():
+            misto_id = row['ockovaci_misto_id']
 
             if misto_id not in mista_ids:
                 missing_count += 1
@@ -274,11 +282,11 @@ class OpenDataFetcher:
                 continue
 
             db.session.add(OckovaniRezervace(
-                datum=row[0],
+                datum=row['datum'],
                 ockovaci_misto_id=misto_id,
-                volna_kapacita=row[2],
-                maximalni_kapacita=row[3],
-                kalendar_ockovani=row[4],
+                volna_kapacita=row['volna_kapacita'],
+                maximalni_kapacita=row['maximalni_kapacita'],
+                kalendar_ockovani=row['kalendar_ockovani'],
                 import_=self._import
             ))
 
@@ -304,7 +312,7 @@ class OpenDataFetcher:
             modified_timestamp = eut.mktime_tz(modified_tuple)
             modified = datetime.fromtimestamp(modified_timestamp)
             self._check_modified_date(modified)
-            return pd.read_csv(url)
+            return pd.read_csv(url, dtype=object)
         except Exception as e:
             raise Exception(e, "Fetching CSV file '{0}' failed.".format(url))
 
