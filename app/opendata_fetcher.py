@@ -179,7 +179,9 @@ class OpenDataFetcher:
         data = self._load_csv_data(self.VACCINATED_CSV)
 
         df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
-                          "poradi_davky", "vekova_skupina"]).size().reset_index(name='pocet')
+                          "poradi_davky", "vekova_skupina"]) \
+            .size() \
+            .reset_index(name='pocet')
 
         df['poradi_davky'] = df['poradi_davky'].astype('int')
 
@@ -210,13 +212,13 @@ class OpenDataFetcher:
 
         df = data.drop(["ockovaci_misto_nazev", "kraj_nuts_kod", "kraj_nazev"], axis=1)
 
-        df = df.groupby(
-            ["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace", "datum_rezervace"]) \
+        df['rezervace'] = df['rezervace'] == '1'
+        df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
+
+        df = df.groupby(["datum", "ockovaci_misto_id", "vekova_skupina", "povolani", "stat", "rezervace",
+                         "datum_rezervace"]) \
             .size() \
             .reset_index(name='pocet')
-
-        df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
-        df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
         mista_result = db.session.query(OckovaciMisto.id).all()
         mista_ids = {id for id, in mista_result}
