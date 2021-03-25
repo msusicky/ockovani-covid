@@ -20,7 +20,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Počet nově registrovaných",
+            name: "Nové registrace",
         }
 
         const rezervace = {
@@ -28,7 +28,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Počet s nově rezervovaným termínem",
+            name: "Nově rezervace",
         }
 
         const layout = {
