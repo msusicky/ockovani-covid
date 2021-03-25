@@ -20,7 +20,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for item in data %}{{ item.registrace_fronta }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Počet registrovaných čekajících na možnost rezervace termínu",
+            name: "Počet čekajících na rezervaci termínu",
         }
 
         const rezervace_1 = {
@@ -28,7 +28,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for item in data %}{{ item.rezervace_cekajici_1 }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Počet lidí čekajících na očkování 1. dávkou",
+            name: "Počet čekajících na očkování 1. dávkou",
         }
 
         const rezervace_2 = {
@@ -36,7 +36,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for item in data %}{{ item.rezervace_cekajici_2 }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Počet lidí čekajících na očkování 2. dávkou",
+            name: "Počet čekajících na očkování 2. dávkou",
         }
 
         const layout = {
