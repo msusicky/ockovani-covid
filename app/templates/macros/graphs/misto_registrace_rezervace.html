@@ -1,0 +1,104 @@
+{% macro graf_registrace_rezervace(registrace_overview, registrace_overview_terminy) -%}
+<div id="graf-registrace-rezervace"></div>
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <ul>
+        <li>15. 1. 2021 - otevření registrace pro starší 80 let</li>
+        <li>27. 2. 2021 - otevření registrace pro zaměstnance škol a školských zařízení</li>
+        <li>1. 3. 2021 - otevření registrace pro starší 70 let</li>
+        <li>24. 3. 2021 - otevření registrace pro chronicky nemocné či s vysokým rizikem těžkého průběhu</li>
+    </ul>
+</div>
+
+<script>
+$(function() {
+    const registrace = {
+        x: [{% for item in registrace_overview %}"{{ item.datum }}",{% endfor %}],
+        y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Nové registrace (počet nově registrovaných, včetně těch, kteří již mají vybraný termín očkování)",
+    }
+
+    const rezervace = {
+        x: [{% for item in registrace_overview_terminy %}"{{ item.datum_rezervace }}",{% endfor %}],
+        y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
+        mode: "lines+markers",
+        type: "scatter",
+        name: "Nové rezervace (počet lidí, kteří ten den získali termín očkování)",
+    }
+
+    const layout = {
+        title: "Počet nových registrací a rezervací",
+        autosize: true,
+        xaxis: {
+            title: "Datum [den]",
+            type: "date",
+            tickformat: "%-d.%-m.%Y",
+            autorange: true,
+            rangeslider: {
+                range: ["{{ start_date }}", "{{ end_date }}"]
+            },
+            rangeselector: {
+                buttons: [
+                    {
+                        count: 7,
+                        label: "1 týden",
+                        step: "day",
+                        stepmode: "backward"
+                    },
+                    {
+                        count: 14,
+                        label: "2 týdny",
+                        step: "day",
+                        stepmode: "backward"
+                    },
+                    {
+                        count: 1,
+                        label: "1 měsíc",
+                        step: "month",
+                        stepmode: "backward",
+                    },
+                    {
+                        label: "všechna data",
+                        step: "all"
+                    }
+                ],
+                xanchor: "center",
+                x: 0.5,
+            }
+        },
+        yaxis: {
+            title: "Počet osob",
+            automargin: true
+        },
+        showlegend: true,
+        legend: {
+            orientation: "h",
+            xanchor: "center",
+            x: 0.5,
+            yanchor: "bottom",
+            y: -0.5,
+        },
+        height: 700,
+    }
+
+    const data = [registrace, rezervace];
+
+    const config = {
+        responsive: true,
+        displayModeBar: false,
+    }
+
+    // fix autosizing when tab turns to be active
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href") // activated tab
+        if(target==="#registrations_reservations")
+        {
+            // call the corresponding function which generates that plot
+            Plotly.newPlot("graf-registrace-rezervace", data, layout, config);
+        }
+    });
+});
+</script>
+{%- endmacro %}

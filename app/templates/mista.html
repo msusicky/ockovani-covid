@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% import 'macros.html' as macros %}
+{% from 'macros/tables/prehled_mist.html' import prehled_mist %}
 
 {% block title %}
 Očkovací místa |
@@ -23,7 +23,7 @@ Očkovací místa |
     </div>
 </div>
 
-{{ macros.prehled_mist(mista, days) }}
+{{ prehled_mist(mista, days) }}
 {% endblock %}
 
 {% block scripts %}
