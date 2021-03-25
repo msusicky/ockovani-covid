@@ -21,12 +21,12 @@ class MetricsEtl:
         self._kraj_metrics_etl = KrajMetricsEtl(self._date, self._import_id)
         self._cr_metrics_etl = CrMetricsEtl(self._date, self._import_id)
 
-    def compute_all(self):
+    def compute(self, metric):
         try:
-            self._center_metrics_etl.compute_all()
-            self._okres_metrics_etl.compute_all()
-            self._kraj_metrics_etl.compute_all()
-            self._cr_metrics_etl.compute_all()
+            self._center_metrics_etl.compute(metric)
+            self._okres_metrics_etl.compute(metric)
+            self._kraj_metrics_etl.compute(metric)
+            self._cr_metrics_etl.compute(metric)
         except Exception as e:
             app.logger.error(e)
             db.session.rollback()
@@ -48,4 +48,4 @@ class MetricsEtl:
 
 if __name__ == '__main__':
     etl = MetricsEtl(date.today())
-    etl.compute_all()
+    etl.compute()

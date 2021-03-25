@@ -25,7 +25,7 @@
                         Naočkování registrovaných
                         <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
                            data-placement="auto"
-                           title="Odhadovaný počet týdnů potřebný k naočkování lidí ve frontě 1. dávkou při rychlostí očkování podle posledních 7 dnů. Data o očkování se doplňují zpětně a u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
+                           title="Odhadovaný počet týdnů potřebný k naočkování lidí s rezervací a lidí ve frontě 1. dávkou při rychlostí očkování podle posledních 7 dnů. Data o očkování se doplňují zpětně a u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
                         </i>
                     </th>
                 </tr>
@@ -87,8 +87,8 @@
             <th scope="col" class="w-20 text-center">Výrobce</th>
             <th scope="col" class="w-20 text-center">
                 Přijato
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="Počet dávek přijatých na dané místo.<br>V případě přehledu kraje předpokládáme, že dávky vydané mimo očkovací místa (např. praktickým lékařům) zůstaly ve stejném kraji. Vakcíny, které jsou praktickým lékařům distribuovány přímo, v celkovém počtu chybí.">
+                <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet dávek přijatých na dané místo.<br>V případě přehledu kraje předpokládáme, že dávky vydané mimo očkovací místa (např. praktickým lékařům) zůstaly ve stejném kraji. Data neobsahují dávky distribuované praktickým lékařům přímo.">
                 </i>
             </th>
             {% if 'pouzito' in vaccines %}
@@ -215,6 +215,11 @@
             </td>
         </tr>
         {% endfor %}
+        {% if registrations.empty %}
+        <tr>
+            <td colspan="6" class="font-italic">Toto očkovací místo zatím nemá žádné registrace nebo rezervace.</td>
+        </tr>
+        {% endif %}
         </tbody>
     </table>
 </div>
@@ -252,11 +257,23 @@
         <tr>
             <td>{{ row['vekova_skupina'] }}</td>
             <td class="text-right">{{ row['pocet_fronta'] | format_number }}</td>
-            <td class="w-15 text-right">{{ row['pocet_ockovani_castecne'] | format_number }}</td>
+            <td class="w-15 text-right">
+                {% if not kraj %}
+                {{ row['pocet_ockovani_castecne'] | format_number }}
+                {% else %}
+                <span data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_castecne'] | format_number }}</span>
+                {% endif %}
+            </td>
             {% if not kraj %}
             <td class="w-15 text-right">{% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}</td>
             {% endif %}
-            <td class="w-15 text-right">{{ row['pocet_ockovani_plne'] | format_number }}</td>
+            <td class="w-15 text-right">
+                {% if not kraj %}
+                {{ row['pocet_ockovani_plne'] | format_number }}
+                {% else %}
+                <span data-toggle="tooltip" data-placement="auto" data-html="true" title="Poměr k trvale bydlícím: {% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %} <br />10-20% lidí se očkuje mimo svůj kraj.">{{ row['pocet_ockovani_plne'] | format_number }}</span>
+                {% endif %}
+            </td>
             {% if not kraj %}
             <td class="w-15 text-right">{% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %}</td>
             {% endif %}

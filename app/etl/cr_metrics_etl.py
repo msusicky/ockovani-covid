@@ -13,17 +13,34 @@ class CrMetricsEtl:
         self._date = date_
         self._import_id = import_id
 
-    def compute_all(self):
-        self._compute_cr_population()
-        self._compute_cr_registrations()
-        self._compute_cr_reservations()
-        self._compute_cr_vaccinated()
-        self._compute_cr_distributed()
-        self._compute_cr_used()
-        self._compute_cr_derived()
-        self._compute_cr_deltas()
+    def compute(self, metric):
+        if metric == 'all':
+            self._compute_population()
+            self._compute_registrations()
+            self._compute_reservations()
+            self._compute_vaccinated()
+            self._compute_distributed()
+            self._compute_used()
+            self._compute_derived()
+            self._compute_deltas()
+        elif metric == 'registrations':
+            self._compute_registrations()
+        elif metric == 'reservations':
+            self._compute_reservations()
+        elif metric == 'vaccinated':
+            self._compute_vaccinated()
+        elif metric == 'distributed':
+            self._compute_distributed()
+        elif metric == 'used':
+            self._compute_used()
+        elif metric == 'derived':
+            self._compute_derived()
+        elif metric == 'deltas':
+            self._compute_deltas()
+        else:
+            raise Exception("Invalid metric argument.")
 
-    def _compute_cr_population(self):
+    def _compute_population(self):
         """Computes metrics based on population for cr."""
         population = db.session.query(
             func.sum(Populace.pocet).label('pocet_obyvatel_celkem'),
@@ -39,7 +56,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - population finished.')
 
-    def _compute_cr_registrations(self):
+    def _compute_registrations(self):
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
             func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
@@ -55,13 +72,16 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - registrations finished.')
 
-    def _compute_cr_reservations(self):
+    def _compute_reservations(self):
         """Computes metrics based on reservations dataset for cr."""
         reservations = db.session.query(
             func.sum(OckovaciMistoMetriky.rezervace_celkem).label('rezervace_celkem'),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_1).label("rezervace_cekajici_1"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_2).label("rezervace_cekajici_2"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2")
         ).filter(OckovaciMistoMetriky.datum == self._date) \
             .one()
 
@@ -69,13 +89,16 @@ class CrMetricsEtl:
             datum=self._date,
             rezervace_celkem=reservations.rezervace_celkem,
             rezervace_cekajici=reservations.rezervace_cekajici,
+            rezervace_cekajici_1=reservations.rezervace_cekajici_1,
+            rezervace_cekajici_2=reservations.rezervace_cekajici_2,
             rezervace_kapacita=reservations.rezervace_kapacita,
-            rezervace_kapacita_1=reservations.rezervace_kapacita_1
+            rezervace_kapacita_1=reservations.rezervace_kapacita_1,
+            rezervace_kapacita_2=reservations.rezervace_kapacita_2
         ))
 
         app.logger.info('Computing cr metrics - reservations finished.')
 
-    def _compute_cr_vaccinated(self):
+    def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for cr."""
         vaccinated = db.session.query(
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
@@ -93,7 +116,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - vaccinated people finished.')
 
-    def _compute_cr_distributed(self):
+    def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for cr."""
         distributed = db.session.query(
             func.sum(case([(OckovaniDistribuce.akce == 'Příjem', OckovaniDistribuce.pocet_davek)], else_=0)).label('vakciny_prijate_pocet')
@@ -107,7 +130,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - distributed vaccines finished.')
 
-    def _compute_cr_used(self):
+    def _compute_used(self):
         """Computes metrics based on used vaccines dataset for cr."""
         used = db.session.query(
             func.sum(OckovaciMistoMetriky.vakciny_ockovane_pocet).label('vakciny_ockovane_pocet'),
@@ -123,7 +146,7 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - used vaccines finished.')
 
-    def _compute_cr_derived(self):
+    def _compute_derived(self):
         """Computes metrics derived from the previous metrics for cr."""
         avg_waiting = db.session.query(
             (func.sum((OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
@@ -197,15 +220,18 @@ class CrMetricsEtl:
 
         app.logger.info('Computing cr metrics - derived metrics finished.')
 
-    def _compute_cr_deltas(self):
+    def _compute_deltas(self):
         """Computes deltas for previous metrics for cr."""
         db.session.execute(text(
             """
             update cr_metriky t
             set rezervace_celkem_zmena_den = t0.rezervace_celkem - t1.rezervace_celkem,
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
+                rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
+                rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
+                rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
@@ -231,8 +257,11 @@ class CrMetricsEtl:
             update cr_metriky t
             set rezervace_celkem_zmena_tyden = t0.rezervace_celkem - t7.rezervace_celkem,
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
+                rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
+                rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
+                rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,

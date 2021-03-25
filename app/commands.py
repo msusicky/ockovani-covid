@@ -26,8 +26,9 @@ def fetch_opendata_command():
 
 
 @app.cli.command('compute-metrics')
+@click.argument("metric")
 @click.argument("datum", nargs=-1)
-def compute_metrics_command(datum):
+def compute_metrics_command(metric, datum):
     """Compute metrics."""
     start = time.time()
     app.logger.info("Computing metrics started.")
@@ -47,7 +48,7 @@ def compute_metrics_command(datum):
     while start_date <= end_date:
         app.logger.info("Computing metrics for date: '{}'.".format(start_date))
         etl = MetricsEtl(start_date)
-        result = etl.compute_all()
+        result = etl.compute(metric)
         if not result:
             break
         start_date += timedelta(1)
