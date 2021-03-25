@@ -3,7 +3,8 @@
 {% from 'macros/common.html' import switch_tab_script %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/graphs/registrace_rezervace.html' import graf_registrace_rezervace %}
+{% from 'macros/graphs/registrace.html' import graf_registrace %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
 
 {% block title %}
 {{ misto.nazev }} |
@@ -84,6 +85,9 @@
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#queue">Vývoj fronty</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#registrations_reservations">Vývoj registrací a rezervací</a>
                     </li>
                 </ul>
@@ -115,8 +119,11 @@
                     <div class="tab-pane" id="vaccination">
                         {{ stav_vakcin(vaccines) }}
                     </div>
+                    <div class="tab-pane" id="queue">
+                        {{ graf_fronta(queue_graph_data) }}
+                    </div>
                     <div class="tab-pane" id="registrations_reservations">
-                        {{ graf_registrace_rezervace(registrace_overview, registrace_overview_terminy) }}
+                        {{ graf_registrace(registrace_overview, registrace_overview_terminy) }}
                     </div>
                 </div>
             </div>
