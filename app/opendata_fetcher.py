@@ -40,7 +40,7 @@ class OpenDataFetcher:
             # Test if we have an scraped dataset or not
             if os.environ.get('ODL_VACCINATED_ENH') is not None and os.path.exists(
                     os.environ.get('ODL_VACCINATED_ENH')):
-                self._fetch_vaccinated_enh(os.environ.get('ODL_VACCINATED_ENH'))
+                self._fetch_vaccinated_enh_path(os.environ.get('ODL_VACCINATED_ENH'))
             else:
                 self._fetch_vaccinated_enh()
             self._fetch_registrations()
@@ -241,19 +241,17 @@ class OpenDataFetcher:
 
         app.logger.info('Fetching opendata - vaccinated people enhanced finished.')
 
-    def _fetch_vaccinated_enh(self, path):
+    def _fetch_vaccinated_enh_path(self, path):
         """
         For the future if there will be any better source - from scraping for example.
         @return:
         """
         data = pd.read_csv(path)
-        data['orp_bydliste_kod'] = data['orp_bydliste_kod'].astype(str).str[:3]
-        data['cz'] = 'CZ0'
-        data['okres_bydliste_kod'] = data['cz'] + data['orp_bydliste_kod']
+        data['orp_bydl_kod'] = data['orp_bydliste_kod'].astype(str).str[:4]
 
         df = data.groupby(
             ["datum_vakcinace", "vakcina", "kraj_kod", "zarizeni_kod", "poradi_davky", "vekova_skupina", "pohlavi",
-             "okres_bydliste_kod", "indikace_zdravotnik",
+             "orp_bydl_kod", "indikace_zdravotnik",
              "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
              "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
 
@@ -420,7 +418,7 @@ if __name__ == '__main__':
         fetcher._fetch_vaccinated_enh()
     elif argument == 'vaccinated_enh_tmp':
         if os.environ.get('ODL_VACCINATED_ENH') is not None:
-            fetcher._fetch_vaccinated_enh(os.environ.get('ODL_VACCINATED_ENH'))
+            fetcher._fetch_vaccinated_enh_path(os.environ.get('ODL_VACCINATED_ENH'))
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)

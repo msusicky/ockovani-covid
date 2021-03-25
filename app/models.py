@@ -29,6 +29,27 @@ class Okres(db.Model):
 Kraj.okresy = relationship("Okres", back_populates="kraj")
 
 
+class ObceORP(db.Model):
+    __tablename__ = 'obce_orp'
+
+    kod_obce_orp = Column(Unicode, primary_key=True)
+    nazev_obce = Column(Unicode)
+    okres_nuts = Column(Unicode)
+    kraj_nuts = Column(Unicode, ForeignKey('kraje.id'))
+    aken = Column(Unicode, ForeignKey('okresy.id'))
+    uzis_orp = Column(Unicode)
+
+    kraj = relationship("Kraj", back_populates="kraje")
+    okres = relationship("Okres", back_populates="okresy")
+
+    def __repr__(self):
+        return "<ObceORP(kod_obce_orp='%s', nazev_obce='%s')>" % self.kod_obce_orp, self.nazev_obce
+
+
+Kraj.obce_orp = relationship("ObceORP", back_populates="kraj")
+Okres.obce_orp = relationship("ObceORP", back_populates="okres")
+
+
 class Populace(db.Model):
     __tablename__ = 'populace'
 
@@ -167,12 +188,12 @@ class OckovaniLideEnh(db.Model):
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
     pohlavi = Column(Unicode, primary_key=True)
-    okres_bydliste_kod= Column(Unicode, primary_key=True)
-    indikace_zdravotnik= Column(Boolean, primary_key=True)
-    indikace_socialni_sluzby= Column(Boolean, primary_key=True)
-    indikace_ostatni= Column(Boolean, primary_key=True)
-    indikace_pedagog= Column(Boolean, primary_key=True)
-    indikace_skolstvi_ostatni= Column(Boolean, primary_key=True)
+    obec_orp_kod = Column(Unicode, primary_key=True)
+    indikace_zdravotnik = Column(Boolean, primary_key=True)
+    indikace_socialni_sluzby = Column(Boolean, primary_key=True)
+    indikace_ostatni = Column(Boolean, primary_key=True)
+    indikace_pedagog = Column(Boolean, primary_key=True)
+    indikace_skolstvi_ostatni = Column(Boolean, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
