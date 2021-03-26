@@ -221,6 +221,11 @@ class OpenDataFetcher:
             ["datum", "vakcina", "kraj_nuts_kod", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
              "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
              "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
+        df['indikace_zdravotnik'] = df['indikace_zdravotnik'].astype('bool')
+        df['indikace_socialni_sluzby'] = df['indikace_socialni_sluzby'].astype('bool')
+        df['indikace_ostatni'] = df['indikace_ostatni'].astype('bool')
+        df['indikace_pedagog'] = df['indikace_pedagog'].astype('bool')
+        df['indikace_skolstvi_ostatni'] = df['indikace_skolstvi_ostatni'].astype('bool')
 
         db.session.query(OckovaniLideEnh).delete()
 

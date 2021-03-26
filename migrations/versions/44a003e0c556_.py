@@ -13,7 +13,7 @@ from app.models import ObceORP
 
 # revision identifiers, used by Alembic.
 revision = '44a003e0c556'
-down_revision = 'b3623a352bec'
+down_revision = 'ce339c4a95d0'
 branch_labels = None
 depends_on = None
 
@@ -28,14 +28,14 @@ def upgrade():
     sa.Column('poradi_davky', sa.Integer(), nullable=False),
     sa.Column('vekova_skupina', sa.Unicode(), nullable=False),
     sa.Column('pohlavi', sa.Unicode(), nullable=False),
-    sa.Column('obec_orp_kod', sa.Unicode(), nullable=False),
+    sa.Column('okres_bydliste_kod', sa.Unicode(), nullable=False),
     sa.Column('indikace_zdravotnik', sa.Boolean(), nullable=False),
     sa.Column('indikace_socialni_sluzby', sa.Boolean(), nullable=False),
     sa.Column('indikace_ostatni', sa.Boolean(), nullable=False),
     sa.Column('indikace_pedagog', sa.Boolean(), nullable=False),
     sa.Column('indikace_skolstvi_ostatni', sa.Boolean(), nullable=False),
     sa.Column('pocet', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('datum', 'vakcina', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'pohlavi', 'obec_orp_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni')
+    sa.PrimaryKeyConstraint('datum', 'vakcina', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'pohlavi', 'okres_bydliste_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni')
     )
     op.create_table('obce_orp',
     sa.Column('kod_obce_orp', sa.Unicode(), nullable=False),
