@@ -1,7 +1,7 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -95,16 +95,18 @@ def info_misto(misto_id):
         .group_by(OckovaniRegistrace.datum_rezervace) \
         .order_by(OckovaniRegistrace.datum_rezervace).all()
 
-    # Compute boundary dates for rangeslider in time series chart
-    dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
-    start_date = None if len(dates) == 0 else min(dates)
-    end_date = None if len(dates) == 0 else max(dates)
+    queue_graph_data = db.session.query(OckovaciMistoMetriky.datum, OckovaciMistoMetriky.registrace_fronta,
+                             OckovaciMistoMetriky.rezervace_cekajici_1, OckovaciMistoMetriky.rezervace_cekajici_2) \
+        .filter(OckovaciMistoMetriky.misto_id == misto.id) \
+        .filter(or_(OckovaciMistoMetriky.registrace_fronta > 0, OckovaciMistoMetriky.rezervace_cekajici_1 > 0,
+                    OckovaciMistoMetriky.rezervace_cekajici_2 > 0)) \
+        .order_by(OckovaciMistoMetriky.datum) \
+        .all()
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
-                           vaccines=vaccines, registrations=registrations,
+                           vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
                            registrace_overview=registrace_overview,
-                           registrace_overview_terminy=registrace_overview_terminy,
-                           start_date=start_date, end_date=end_date)
+                           registrace_overview_terminy=registrace_overview_terminy)
 
 
 @bp.route("/mapa")
