@@ -422,6 +422,9 @@ def get_registrations_graph_data(center_id):
 
     merged = pd.merge(registrace, rezervace, how='outer')
 
+    if merged.empty:
+        return merged
+
     return merged.set_index('datum').asfreq('D').fillna(0).sort_values('datum')
 
 
