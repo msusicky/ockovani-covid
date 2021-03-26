@@ -1,4 +1,4 @@
-{% macro graf_registrace(registrace_overview, registrace_overview_terminy) -%}
+{% macro graf_registrace(data) -%}
 <div id="graf-registrace"></div>
 <div class="font-italic">
     <h6>Poznámky</h6>
@@ -16,16 +16,16 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
     if(target==="#registrations_reservations") {
         const registrace = {
-            x: [{% for item in registrace_overview %}"{{ item.datum }}",{% endfor %}],
-            y: [{% for item in registrace_overview %}{{ item.pocet_registrovanych }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['pocet_registrace'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Nové registrace",
         }
 
         const rezervace = {
-            x: [{% for item in registrace_overview_terminy %}"{{ item.datum_rezervace }}",{% endfor %}],
-            y: [{% for item in registrace_overview_terminy %}{{ item.pocet_terminu }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['pocet_rezervace'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Nové rezervace",
