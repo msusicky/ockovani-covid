@@ -76,37 +76,13 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    # Source data for plotly graph
-    registrace_overview = db.session.query(
-        OckovaniRegistrace.datum,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
-        .group_by(OckovaniRegistrace.datum) \
-        .order_by(OckovaniRegistrace.datum).all()
+    queue_graph_data = queries.get_queue_graph_data(misto_id)
 
-    registrace_overview_terminy = db.session.query(
-        OckovaniRegistrace.datum_rezervace,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
-        .group_by(OckovaniRegistrace.datum_rezervace) \
-        .order_by(OckovaniRegistrace.datum_rezervace).all()
-
-    queue_graph_data = db.session.query(OckovaciMistoMetriky.datum, OckovaciMistoMetriky.registrace_fronta,
-                             OckovaciMistoMetriky.rezervace_cekajici_1, OckovaciMistoMetriky.rezervace_cekajici_2) \
-        .filter(OckovaciMistoMetriky.misto_id == misto.id) \
-        .filter(or_(OckovaciMistoMetriky.registrace_fronta > 0, OckovaciMistoMetriky.rezervace_cekajici_1 > 0,
-                    OckovaciMistoMetriky.rezervace_cekajici_2 > 0)) \
-        .order_by(OckovaciMistoMetriky.datum) \
-        .all()
+    registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
                            vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
-                           registrace_overview=registrace_overview,
-                           registrace_overview_terminy=registrace_overview_terminy)
+                           registrations_graph_data=registrations_graph_data)
 
 
 @bp.route("/mapa")

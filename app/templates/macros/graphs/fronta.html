@@ -16,24 +16,24 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
     if(target==="#queue") {
         const fronta = {
-            x: [{% for item in data %}"{{ item.datum }}",{% endfor %}],
-            y: [{% for item in data %}{{ item.registrace_fronta }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Čekající na rezervaci termínu",
         }
 
         const rezervace_1 = {
-            x: [{% for item in data %}"{{ item.datum }}",{% endfor %}],
-            y: [{% for item in data %}{{ item.rezervace_cekajici_1 }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_cekajici_1'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Čekající na očkování 1. dávkou",
         }
 
         const rezervace_2 = {
-            x: [{% for item in data %}"{{ item.datum }}",{% endfor %}],
-            y: [{% for item in data %}{{ item.rezervace_cekajici_2 }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_cekajici_2'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Čekající na očkování 2. dávkou",
