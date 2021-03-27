@@ -32,11 +32,12 @@
                         <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
+                    </li>
+
                 </ul>
             </div>
 
@@ -69,11 +70,11 @@
                     <div class="tab-pane" id="registration">
                         {{ stav_registraci(registrations) }}
                     </div>
-                    <div class="tab-pane" id="vaccination">
-                        {{ stav_ockovani(vaccinated, True) }}
-                    </div>
                     <div class="tab-pane" id="vaccines">
                         {{ stav_vakcin(vaccines) }}
+                    </div>
+                    <div class="tab-pane" id="vaccination">
+                        {{ stav_ockovani(vaccinated, True) }}
                     </div>
                 </div>
             </div>
