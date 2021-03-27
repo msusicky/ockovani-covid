@@ -352,6 +352,16 @@ def count_vaccinated(kraj_id=None):
     )
 
     if kraj_id is not None:
+        ockovani_v_kraji = pd.read_sql_query(
+            """
+            select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani_v_kraji
+            from ockovani_lide_enh
+            where datum < '{}' and (kraj_nuts_kod = '{}')
+            group by vekova_skupina, vakcina, poradi_davky
+            """.format(get_import_date(), kraj_id),
+            db.engine
+        )
+
         mista = pd.read_sql_query(
             """
             select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
@@ -361,6 +371,7 @@ def count_vaccinated(kraj_id=None):
         )
         mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
     else:
+        ockovani_v_kraji = None
         mista_ids = "''"
 
     registrace = pd.read_sql_query(
@@ -391,6 +402,23 @@ def count_vaccinated(kraj_id=None):
 
     merged = pd.merge(ockovani_grp, registrace, how="left")
     merged = pd.merge(merged, populace, how="left")
+
+    if kraj_id is not None:
+        # Kraj stats
+        #TODO: test if there are enhanced statistics !
+        ockovani_v_kraji['vekova_skupina'] = ockovani_v_kraji['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
+        ockovani_v_kraji['pocet_ockovani_v_kraji_castecne'] = ockovani_v_kraji['pocet_ockovani_v_kraji'].where(
+            ockovani_v_kraji['poradi_davky'] == 1).fillna(0).astype('int')
+        ockovani_v_kraji['pocet_ockovani_v_kraji_plne'] = ockovani_v_kraji['pocet_ockovani_v_kraji'].where(
+            (ockovani_v_kraji['poradi_davky'] == 2) | (ockovani_v_kraji['vakcina'].isin([])))
+        ockovani_v_kraji_grp = ockovani_v_kraji.groupby(['vekova_skupina']).sum().drop('poradi_davky', axis=1).reset_index()
+
+        merged = pd.merge(merged, ockovani_v_kraji_grp, how="left")
+        merged['podil_ockovani_v_kraji_castecne'] = (
+                    merged['pocet_ockovani_v_kraji_castecne'] / merged['pocet_vek']).replace(
+            {np.nan: None})
+        merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']).replace(
+            {np.nan: None})
 
     merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
     merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
