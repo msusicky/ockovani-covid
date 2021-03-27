@@ -425,7 +425,11 @@ def get_registrations_graph_data(center_id):
     if merged.empty:
         return merged
 
-    return merged.set_index('datum').asfreq('D').fillna(0).sort_values('datum')
+    merged = merged.set_index('datum')
+
+    idx = pd.date_range(merged.index.min(), get_import_date())
+
+    return merged.reindex(idx).fillna(0)
 
 
 def get_queue_graph_data(center_id):
