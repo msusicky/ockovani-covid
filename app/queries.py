@@ -427,7 +427,7 @@ def get_registrations_graph_data(center_id):
 
     merged = merged.set_index('datum')
 
-    idx = pd.date_range(merged.index.min(), merged.index.max())
+    idx = pd.date_range(merged.index.min(), get_import_date())
 
     return merged.reindex(idx).fillna(0)
 
