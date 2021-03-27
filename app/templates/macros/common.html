@@ -1,0 +1,135 @@
+{% macro metrika(name, number, delta_day=None, delta_week=None, decimal=False, unit='', multiply=1, divide=1, color=None, info=None, warning=None) -%}
+{% if number != None %}
+<div class="col-sm-6 col-md-4 col-lg-3 px-1 pt-0 pb-2">
+    <div class="card h-100">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-9 col-xl-10 pr-0">
+                    <h6 class="card-title ellipsis mb-1">
+                        <span data-toggle="tooltip" data-placement="auto" title="{{ name }}">
+                            {{ name }}
+                        </span>
+                    </h6>
+                </div>
+                <div class="col-3 col-xl-2 pl-0 text-right">
+                    <h6 class="card-title mb-1">
+                        {% if info %}
+                        <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                           title="{{ info }}"></i>
+                        {% endif %}
+                        {% if warning %}
+                        <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                           data-html="true" title="{{ warning }}"></i>
+                        {% endif %}
+                    </h6>
+                </div>
+            </div>
+            {% if decimal %}
+            <p class="card-text text-right metrics-number">{{ ((number * multiply) / divide) | format_decimal }} {{ unit }}</p>
+            <p class="card-text text-right metrics-delta">
+                {% if delta_day != None %}
+                {% set delta_day_mult = (delta_day * multiply) / divide %}
+                <span class="{{ (delta_day_mult | number_color) if color == 'std' else ((delta_day_mult | number_color_rev) if color == 'rev' else '') }}"
+                      data-toggle="tooltip" data-placement="auto" data-html="true"
+                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné)">
+                    {{ delta_day_mult | format_decimal_delta }}
+                </span>
+                {% endif %}
+                {% if delta_week != None %}
+                {% set delta_week_mult = (delta_week * multiply) / divide %}
+                /
+                <span class="{{ (delta_week_mult | number_color) if color == 'std' else ((delta_week_mult | number_color_rev) if color == 'rev' else '') }}"
+                      data-toggle="tooltip" data-placement="auto" data-html="true"
+                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné)">
+                    {{ delta_week_mult | format_decimal_delta }}
+                </span>
+                {% endif %}
+                {% if delta_day != None or delta_week != None %}
+                {{ unit }}
+                {% endif %}
+            </p>
+            {% else %}
+            <p class="card-text text-right metrics-number">{{ number | format_number }} {{ unit }}</p>
+            <p class="card-text text-right metrics-delta">
+                {% if delta_day != None %}
+                <span class="{{ (delta_day | number_color) if color == 'std' else ((delta_day | number_color_rev) if color == 'rev' else '') }}"
+                      data-toggle="tooltip" data-placement="auto" data-html="true"
+                      title="Změna za 1 den<br>(rozdíl od včerejší hodnoty - zahrnuje i zpětně doplněné)">
+                    {{ delta_day | format_number_delta }}
+                </span>
+                {% endif %}
+                {% if delta_week != None %}
+                /
+                <span class="{{ (delta_week | number_color) if color == 'std' else ((delta_week | number_color_rev) if color == 'rev' else '') }}"
+                      data-toggle="tooltip" data-placement="auto" data-html="true"
+                      title="Změna za 7 dní<br>(rozdíl od hodnoty před týdnem - zahrnuje i zpětně doplněné)">
+                    {{ delta_week | format_number_delta }}
+                </span>
+                {% endif %}
+                {% if delta_day != None or delta_week != None %}
+                {{ unit }}
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro stitek(number, decimal=False, unit='', unit_short=None, multiply=1, divide=1, rev_color=False, limits=(1, 2), title='') -%}
+{% if number != None %}
+{% set number = (number * multiply) / divide %}
+{% if rev_color %}
+<span class="badge badge-pill badge-{{ 'danger' if number > limits[1] else 'warning' if number > limits[0] else 'success' }}"
+      data-toggle="tooltip" data-placement="auto" title="{{ title }}">
+{% else %}
+<span class="badge badge-pill badge-{{ 'success' if number > limits[1] else 'warning' if number > limits[0] else 'danger' }}"
+      data-toggle="tooltip" data-placement="auto" title="{{ title }}">
+{% endif %}
+    {% if decimal %}
+    {{ number | format_decimal }}
+    {% else %}
+    {{ number | format_number }}
+    {% endif %}
+    <span class="d-none d-sm-inline">{{ unit }}</span>
+    <span class="d-inline d-sm-none">{{ unit if unit_short == None else unit_short }}</span>
+</span>
+{% else %}
+<span class="badge badge-pill badge-light" data-toggle="tooltip" data-placement="auto" title="{{ title }}">
+    <span class="d-none d-sm-inline">bez dat</span>
+    <span class="d-inline d-sm-none">n/a</span>
+</span>
+{% endif %}
+{%- endmacro %}
+
+{% macro switch_tab_script() -%}
+<script>
+<!-- To have the possibility to send links with opened tab -->
+  $(document).ready(() => {
+  let url = location.href.replace(/\/$/, "");
+
+  if (location.hash) {
+    const hash = url.split("#");
+    $('#cards a[href="#'+hash[1]+'"]').tab("show");
+    url = location.href.replace(/\/#/, "#");
+    history.replaceState(null, null, url);
+    setTimeout(() => {
+      $(window).scrollTop(0);
+    }, 400);
+  }
+
+  $('a[data-toggle="tab"]').on("click", function() {
+    let newUrl;
+    const hash = $(this).attr("href");
+    if(hash == "#") {
+      newUrl = url.split("#")[0];
+    } else {
+      newUrl = url.split("#")[0] + hash;
+    }
+    newUrl += "";
+    history.replaceState(null, null, newUrl);
+  });
+});
+</script>
+{%- endmacro %}

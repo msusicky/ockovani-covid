@@ -1,0 +1,65 @@
+{% from 'macros/common.html' import stitek %}
+
+{% macro stav_registraci(registrations) -%}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="w-15 text-center">Věková<br>skupina</th>
+            <th scope="col" class="w-25 text-center">Povolání</th>
+            <th scope="col" class="w-15 text-center">
+                Ve frontě
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).">
+                </i>
+            </th>
+            <th scope="col" class="w-15 text-center">
+                Čekání na rezervaci
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Červená (>2), žlutá (>1), zelená (>0).">
+                </i>
+            </th>
+            <th scope="col" class="w-15 text-center">
+                Doba ve frontě
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.<br>Červená (>2), žlutá (>1), zelená (>0).">
+                </i>
+            </th>
+            <th scope="col" class="w-15 text-center">
+                7denní úspěšnost
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.<br>Zelená (>50 %), žlutá (>5 %), červená (>0 %).">
+                </i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for idx, row in registrations.iterrows() %}
+        <tr>
+            <td>{{ row['vekova_skupina'] }}</td>
+            <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ row['povolani'] }}">
+                {{ row['povolani'] }}
+            </td>
+            <td class="text-right">
+                {{ row['fronta_pocet'] | format_number }}
+            </td>
+            <td class="text-center">
+                {{ stitek(row['rezervace_prumer_cekani'], decimal=True, unit='týdne', unit_short='t', rev_color=True, limits=(1, 2)) }}
+            </td>
+            <td class="text-center">
+                {{ stitek(row['fronta_prumer_cekani'], decimal=True, unit='týdne', unit_short='t', rev_color=True, limits=(1, 2)) }}
+            </td>
+            <td class="text-center">
+                {{ stitek(row['uspesnost_7'], unit='%', limits=(5, 50), title=(row['registrace_7_rez'] | string) + '/' + (row['registrace_7'] | string)) }}
+            </td>
+        </tr>
+        {% endfor %}
+        {% if registrations.empty %}
+        <tr>
+            <td colspan="6" class="font-italic">Toto očkovací místo zatím nemá žádné registrace nebo rezervace.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro %}

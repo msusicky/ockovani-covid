@@ -1,7 +1,7 @@
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -76,35 +76,13 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    # Source data for plotly graph
-    registrace_overview = db.session.query(
-        OckovaniRegistrace.datum,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
-        .group_by(OckovaniRegistrace.datum) \
-        .order_by(OckovaniRegistrace.datum).all()
+    queue_graph_data = queries.get_queue_graph_data(misto_id)
 
-    registrace_overview_terminy = db.session.query(
-        OckovaniRegistrace.datum_rezervace,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
-        .group_by(OckovaniRegistrace.datum_rezervace) \
-        .order_by(OckovaniRegistrace.datum_rezervace).all()
-
-    # Compute boundary dates for rangeslider in time series chart
-    dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
-    start_date = None if len(dates) == 0 else min(dates)
-    end_date = None if len(dates) == 0 else max(dates)
+    registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
-                           vaccines=vaccines, registrations=registrations,
-                           registrace_overview=registrace_overview,
-                           registrace_overview_terminy=registrace_overview_terminy,
-                           start_date=start_date, end_date=end_date)
+                           vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
+                           registrations_graph_data=registrations_graph_data)
 
 
 @bp.route("/mapa")

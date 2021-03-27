@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
-{% import 'macros.html' as macros %}
+{% from 'macros/common.html' import metrika %}
+{% from 'macros/common.html' import switch_tab_script %}
+{% from 'macros/tables/prehled_mist.html' import prehled_mist %}
+{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
+{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
+{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 
 {% block title %}
 {{ kraj.nazev }} |
@@ -27,48 +32,49 @@
                         <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
+                    </li>
+
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="centers">
-                        {{ macros.prehled_mist(mista, days) }}
+                        {{ prehled_mist(mista, days) }}
                     </div>
                     <div class="tab-pane" id="stats">
                         <div class="row px-2 mb-n2">
-                            {{ macros.metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
-                            {{ macros.metrika('Částečně očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
-                            {{ macros.metrika('Podíl částečně očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, warning='Podíl alespoň částečně očkovaných dospělých obyvatel.<br>Počet očkovaných se vztahuje k místu, kde očkování proběhlo, zatímco počet obyvatel se řídí trvalým bydlištěm!') }}
-                            {{ macros.metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (obě dávky).') }}
-                            {{ macros.metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, warning='Podíl plně očkovaných dospělých obyvatel.<br>Počet očkovaných se vztahuje k místu, kde očkování proběhlo, zatímco počet obyvatel se řídí trvalým bydlištěm!') }}
-                            {{ macros.metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', warning='Počet dávek přijatých na očkovací centra v kraji.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném kraji. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
-                            {{ macros.metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacími centry a praktickými lékaři v kraji podle vykázaných očkování.") }}
-                            {{ macros.metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
-                            {{ macros.metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.') }}
-                            {{ macros.metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.') }}
-                            {{ macros.metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
-                            {{ macros.metrika('Dnešní kapacita 2. dávky', metriky.rezervace_kapacita_2, delta_day=metriky.rezervace_kapacita_2_zmena_den, delta_week=metriky.rezervace_kapacita_2_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 2.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
-                            {{ macros.metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2). Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání.') }}
-                            {{ macros.metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
-                            {{ macros.metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
-                            {{ macros.metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
-                            {{ macros.metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
+                            {{ metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
+                            {{ metrika('Částečně očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
+                            {{ metrika('Podíl částečně očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, warning='Podíl alespoň částečně očkovaných dospělých obyvatel.<br>Počet očkovaných se vztahuje k místu, kde očkování proběhlo, zatímco počet obyvatel se řídí trvalým bydlištěm!') }}
+                            {{ metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (obě dávky).') }}
+                            {{ metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, warning='Podíl plně očkovaných dospělých obyvatel.<br>Počet očkovaných se vztahuje k místu, kde očkování proběhlo, zatímco počet obyvatel se řídí trvalým bydlištěm!') }}
+                            {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', warning='Počet dávek přijatých na očkovací centra v kraji.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném kraji. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
+                            {{ metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacími centry a praktickými lékaři v kraji podle vykázaných očkování.") }}
+                            {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
+                            {{ metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.') }}
+                            {{ metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.') }}
+                            {{ metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                            {{ metrika('Dnešní kapacita 2. dávky', metriky.rezervace_kapacita_2, delta_day=metriky.rezervace_kapacita_2_zmena_den, delta_week=metriky.rezervace_kapacita_2_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 2.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                            {{ metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2). Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání.') }}
+                            {{ metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
+                            {{ metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
+                            {{ metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
+                            {{ metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
                         </div>
                     </div>
                     <div class="tab-pane" id="registration">
-                        {{ macros.stav_registraci(registrations) }}
-                    </div>
-                    <div class="tab-pane" id="vaccination">
-                        {{ macros.stav_ockovani(vaccinated, True) }}
+                        {{ stav_registraci(registrations) }}
                     </div>
                     <div class="tab-pane" id="vaccines">
-                        {{ macros.stav_vakcin(vaccines) }}
+                        {{ stav_vakcin(vaccines) }}
+                    </div>
+                    <div class="tab-pane" id="vaccination">
+                        {{ stav_ockovani(vaccinated, True) }}
                     </div>
                 </div>
             </div>
@@ -78,34 +84,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-<!-- To have the possibility to send links with opened tab -->
-  $(document).ready(() => {
-  let url = location.href.replace(/\/$/, "");
-
-  if (location.hash) {
-    const hash = url.split("#");
-    $('#cards a[href="#'+hash[1]+'"]').tab("show");
-    url = location.href.replace(/\/#/, "#");
-    history.replaceState(null, null, url);
-    setTimeout(() => {
-      $(window).scrollTop(0);
-    }, 400);
-  }
-
-  $('a[data-toggle="tab"]').on("click", function() {
-    let newUrl;
-    const hash = $(this).attr("href");
-    if(hash == "#") {
-      newUrl = url.split("#")[0];
-    } else {
-      newUrl = url.split("#")[0] + hash;
-    }
-    newUrl += "";
-    history.replaceState(null, null, newUrl);
-  });
-});
-</script>
+{{ switch_tab_script() }}
 {% endblock %}
 
 

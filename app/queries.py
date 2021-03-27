@@ -397,3 +397,57 @@ def count_vaccinated(kraj_id=None):
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
 
     return merged
+
+
+def get_registrations_graph_data(center_id):
+    registrace = pd.read_sql_query(
+        """
+        select datum, sum(pocet) pocet_registrace
+        from ockovani_registrace  
+        where ockovaci_misto_id = '{}' and import_id = {}
+        group by datum
+        """.format(center_id, get_import_id()),
+        db.engine
+    )
+
+    rezervace = pd.read_sql_query(
+        """
+        select datum_rezervace datum, sum(pocet) pocet_rezervace
+        from ockovani_registrace  
+        where ockovaci_misto_id = '{}' and import_id = {} and rezervace = true
+        group by datum_rezervace
+        """.format(center_id, get_import_id()),
+        db.engine
+    )
+
+    merged = pd.merge(registrace, rezervace, how='outer')
+
+    if merged.empty:
+        return merged
+
+    merged = merged.set_index('datum')
+
+    idx = pd.date_range(merged.index.min(), get_import_date())
+
+    return merged.reindex(idx).fillna(0)
+
+
+def get_queue_graph_data(center_id):
+    fronta = pd.read_sql_query(
+        """
+        select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+        from ockovaci_mista_metriky
+        where misto_id = '{}'
+        """.format(center_id),
+        db.engine
+    )
+
+    fronta = fronta.set_index('datum').fillna(0).sort_values('datum')
+
+    for idx, row in fronta.iterrows():
+        if row['registrace_fronta'] == 0 and row['rezervace_cekajici_1'] == 0 and row['rezervace_cekajici_2'] == 0:
+            fronta.drop(idx, inplace=True)
+        else:
+            break
+
+    return fronta
