@@ -1,3 +1,5 @@
+{% from 'macros/common.html' import stitek %}
+
 {% macro prehled_mist(centers, days) -%}
 <div class="row">
     <div class="col">
@@ -52,14 +54,10 @@
                         {{ item.registrace_fronta | format_number }}
                     </td>
                     <td class="text-center">
-                        <span class="badge badge-pill badge-{{ 'light' if item.registrace_prumer_cekani == None else 'success' if item.registrace_prumer_cekani <= 7 else 'warning' if item.registrace_prumer_cekani <= 14 else 'danger' }}">
-                            {{ (None if item.registrace_prumer_cekani == None else (item.registrace_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if item.registrace_prumer_cekani != None }}
-                        </span>
+                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(1, 2)) }}
                     </td>
                     <td class="text-center">
-                        <span class="badge badge-pill badge-{{ 'light' if item.ockovani_odhad_cekani == None else 'success' if item.ockovani_odhad_cekani <= 14 else 'warning' if item.ockovani_odhad_cekani <= 28 else 'danger' }}">
-                            {{ (None if item.ockovani_odhad_cekani == None else (item.ockovani_odhad_cekani / 7)) | format_decimal }} {{ 'týdne' if item.ockovani_odhad_cekani != None }}
-                        </span>
+                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(2, 4)) }}
                     </td>
                 </tr>
                 {% endfor %}
