@@ -1,5 +1,14 @@
 {% macro graf_ockovani(data) -%}
 <div id="graf-ockovani"></div>
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <p class="font-italic mb-0">
+        U očkovacích míst, která patří pod zdravotnická zařízení s více očkovacími místy, není možné jednoznačně určit,
+        ve kterém z nich byli lidé očkováni. V&nbsp;tomto případě si můžete zobrazit alespoň počet očkovaných dávek,
+        který ale nemusí být tak přesný.
+    </p>
+</div>
+
 
 <script>
 $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
@@ -11,7 +20,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovane'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "ockovane",
+            name: "Očkováno",
         }
 
         const ockovane_1 = {
@@ -19,7 +28,8 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_1'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "ockovane 1",
+            name: "Očkováno 1. dávkou",
+            visible: "legendonly",
         }
 
         const ockovane_2 = {
@@ -27,31 +37,8 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_2'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "ockovane 2",
-        }
-
-        const rezervace = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace'] }},{% endfor %}],
-            mode: "lines+markers",
-            type: "scatter",
-            name: "rezervace",
-        }
-
-        const rezervace_1 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_1'] }},{% endfor %}],
-            mode: "lines+markers",
-            type: "scatter",
-            name: "rezervace 1",
-        }
-
-        const rezervace_2 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_2'] }},{% endfor %}],
-            mode: "lines+markers",
-            type: "scatter",
-            name: "rezervace 2",
+            name: "Očkováno 2. dávkou",
+            visible: "legendonly",
         }
 
         const pouzite = {
@@ -59,7 +46,34 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data.iterrows() %}{{ row['pouzite'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "pouzite",
+            name: "Použito dávek",
+            visible: "legendonly",
+        }
+
+        const rezervace = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace",
+        }
+
+        const rezervace_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace na 1. dávku",
+            visible: "legendonly",
+        }
+
+        const rezervace_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace na 2. dávku",
+            visible: "legendonly",
         }
 
         const kapacita = {
@@ -67,11 +81,29 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data.iterrows() %}{{ row['kapacita'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "kapacita",
+            name: "Maximální kapacita",
+        }
+
+        const kapacita_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Maximální kapacita pro 1. dávky",
+            visible: "legendonly",
+        }
+
+        const kapacita_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Maximální kapacita pro 2. dávky",
+            visible: "legendonly",
         }
 
         const layout = {
-            title: "Počet rezervací, očkovaných a spotřebovaných dávek",
+            title: "Počet očkovaných, rezervací a maximální kapacita",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
@@ -109,7 +141,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
                 }
             },
             yaxis: {
-                title: "Počet dávek",
+                title: "Počet osob",
                 automargin: true
             },
             showlegend: true,
@@ -122,7 +154,8 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             height: 700,
         }
 
-        const data = [ockovane, ockovane_1, ockovane_2, rezervace, rezervace_1, rezervace_2, pouzite, kapacita];
+        const data = [ockovane, pouzite, rezervace, kapacita, ockovane_1, rezervace_1, kapacita_1, ockovane_2,
+            rezervace_2, kapacita_2];
 
         const config = {
             responsive: true,
