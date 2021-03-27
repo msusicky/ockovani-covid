@@ -1,46 +1,77 @@
-{% macro graf_fronta(data) -%}
-<div id="graf-fronta"></div>
-<div class="font-italic">
-    <h6>Poznámky</h6>
-    <ul>
-        <li>15. 1. 2021 - otevření registrace pro starší 80 let</li>
-        <li>27. 2. 2021 - otevření registrace pro zaměstnance škol a školských zařízení</li>
-        <li>1. 3. 2021 - otevření registrace pro starší 70 let</li>
-        <li>24. 3. 2021 - otevření registrace pro chronicky nemocné či s vysokým rizikem těžkého průběhu</li>
-    </ul>
-</div>
+{% macro graf_ockovani(data) -%}
+<div id="graf-ockovani"></div>
 
 <script>
 $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
     var target = $(e.target).attr("href")
 
-    if(target==="#queue_graph") {
-        const fronta = {
+    if(target==="#vaccination_graph") {
+        const ockovane = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Čekající na rezervaci termínu",
+            name: "ockovane",
+        }
+
+        const ockovane_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "ockovane 1",
+        }
+
+        const ockovane_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "ockovane 2",
+        }
+
+        const rezervace = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "rezervace",
         }
 
         const rezervace_1 = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_cekajici_1'] }},{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_1'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Čekající na očkování 1. dávkou",
+            name: "rezervace 1",
         }
 
         const rezervace_2 = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_cekajici_2'] }},{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_2'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Čekající na očkování 2. dávkou",
+            name: "rezervace 2",
+        }
+
+        const pouzite = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['pouzite'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "pouzite",
+        }
+
+        const kapacita = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "kapacita",
         }
 
         const layout = {
-            title: "Počet čekajících ve frontě a s rezervací",
+            title: "Počet rezervací, očkovaných a spotřebovaných dávek",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
@@ -78,7 +109,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
                 }
             },
             yaxis: {
-                title: "Počet osob",
+                title: "Počet dávek",
                 automargin: true
             },
             showlegend: true,
@@ -91,14 +122,14 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             height: 700,
         }
 
-        const data = [fronta, rezervace_1, rezervace_2];
+        const data = [ockovane, ockovane_1, ockovane_2, rezervace, rezervace_1, rezervace_2, pouzite, kapacita];
 
         const config = {
             responsive: true,
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-fronta", data, layout, config);
+        Plotly.newPlot("graf-ockovani", data, layout, config);
     }
 });
 </script>

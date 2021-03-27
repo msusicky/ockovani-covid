@@ -12,9 +12,9 @@
 
 <script>
 $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-    var target = $(e.target).attr("href") // activated tab
+    var target = $(e.target).attr("href")
 
-    if(target==="#registrations_reservations") {
+    if(target==="#registrations_graph") {
         const registrace = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
             y: [{% for idx, row in data.iterrows() %}{{ row['pocet_registrace'] }},{% endfor %}],

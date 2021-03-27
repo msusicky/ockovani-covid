@@ -80,9 +80,12 @@ def info_misto(misto_id):
 
     registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
+    vaccination_graph_data = queries.get_vaccination_graph_data(misto_id)
+
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
                            vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
-                           registrations_graph_data=registrations_graph_data)
+                           registrations_graph_data=registrations_graph_data,
+                           vaccination_graph_data=vaccination_graph_data)
 
 
 @bp.route("/mapa")
