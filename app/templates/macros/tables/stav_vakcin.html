@@ -31,12 +31,12 @@
                    title="Počet zničených dávek podle spotřeby vakcín.<br>Dataset spotřeba vakcín vykazuje velké zpoždění a nepřesnosti!">
                 </i>
             </th>
-            <th scope="col" class="w-20 text-center">
+            <!--<th scope="col" class="w-20 text-center">
                 Skladem
                 <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Odhadovaný počet dávek skladem.<br>Údaj je počítán z předchozích sloupců a může vykazovat velké nepřesnosti způsobené zpožděním v datech! U vakcín, které jsou distribuovány praktickým lékařům přímo, může být dokonce záporný.">
                 </i>
-            </th>
+            </th>-->
         </tr>
         </thead>
         <tbody>
@@ -50,7 +50,7 @@
             <td class="text-right">{{ row['ockovano'] | format_number }}</td>
             {% endif %}
             <td class="text-right">{{ row['znehodnoceno'] | format_number }}</td>
-            <td class="text-right">{{ row['skladem'] | format_number }}</td>
+            <!--<td class="text-right">{{ row['skladem'] | format_number }}</td>-->
         </tr>
         {% endfor %}
         </tbody>
@@ -64,7 +64,7 @@
             <td class="text-right">{{ vaccines['ockovano'].sum() | format_number }}</td>
             {% endif %}
             <td class="text-right">{{ vaccines['znehodnoceno'].sum() | format_number }}</td>
-            <td class="text-right">{{ vaccines['skladem'].sum() | format_number }}</td>
+            <!--<td class="text-right">{{ vaccines['skladem'].sum() | format_number }}</td>-->
         </tr>
         </tfoot>
     </table>
