@@ -97,7 +97,8 @@ class CenterMetricsEtl:
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')) \
             .outerjoin(OckovaniLide, and_(OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod, OckovaniLide.datum < self._date)) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
+            .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_active_subquery())),
+                        and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())))) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -270,7 +271,8 @@ class CenterMetricsEtl:
         ).join(OckovaciMistoMetriky, OckovaciMisto.id == OckovaciMistoMetriky.misto_id) \
             .join(OckovaniLide, OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod) \
             .filter(OckovaciMistoMetriky.datum == self._date) \
-            .filter(OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())) \
+            .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_active_subquery())),
+                        and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())))) \
             .filter(OckovaniLide.datum < self._date, OckovaniLide.datum >= self._date - timedelta(7)) \
             .group_by(OckovaciMisto.id, OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.rezervace_cekajici) \
             .all()

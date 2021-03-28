@@ -2,10 +2,15 @@
 <div id="graf-ockovani"></div>
 <div class="font-italic">
     <h6>Poznámky</h6>
-    <p class="font-italic mb-0">
-        U očkovacích míst, která patří pod zdravotnická zařízení s více očkovacími místy, není možné jednoznačně určit,
-        ve kterém z nich byli lidé očkováni. V&nbsp;tomto případě si můžete zobrazit alespoň počet očkovaných dávek,
-        který ale nemusí být tak přesný.
+    <p class="font-italic text-justify">
+        U očkovacích míst, která patří pod zdravotnická zařízení s více aktivními očkovacími místy, není možné
+        jednoznačně určit, ve kterém z nich byli lidé očkováni.
+        V&nbsp;tomto případě se zobrazuje alespoň počet použitých dávek, který ale nemusí být tak přesný.
+        Pokud pod zdravotnické zařízení spadají další očkovací místa, která již nejsou aktivní (např. očkovací místo
+        v nemocnici nahrazené novým velkokapacitním), zobrazujeme počet očkovaných ze všech těchto míst.
+    </p>
+    <p class="font-italic text-justify mb-0">
+        Kliknutím na popisek v legendě si můžete zobrazit nebo skrýt další údaje.
     </p>
 </div>
 
@@ -15,6 +20,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
     var target = $(e.target).attr("href")
 
     if(target==="#vaccination_graph") {
+        {% if 'ockovane' in data %}
         const ockovane = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovane'] }},{% endfor %}],
@@ -40,6 +46,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             name: "Očkováno 2. dávkou",
             visible: "legendonly",
         }
+        {% endif %}
 
         const pouzite = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
@@ -47,7 +54,9 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             mode: "lines+markers",
             type: "scatter",
             name: "Použito dávek",
+            {% if 'ockovane' in data %}
             visible: "legendonly",
+            {% endif %}
         }
 
         const rezervace = {
@@ -154,8 +163,12 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             height: 700,
         }
 
+        {% if 'ockovane' in data %}
         const data = [ockovane, pouzite, rezervace, kapacita, ockovane_1, rezervace_1, kapacita_1, ockovane_2,
             rezervace_2, kapacita_2];
+        {% else %}
+        const data = [pouzite, rezervace, kapacita, rezervace_1, kapacita_1, rezervace_2, kapacita_2];
+        {% endif %}
 
         const config = {
             responsive: true,
