@@ -156,10 +156,10 @@ Statistiky |
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijem">Příjem vakcín</a>
+                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijem">Dodávky vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Přehled použitých vakcín</a>
+                        <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
                     </li>
                 </ul>
             </div>
@@ -201,8 +201,6 @@ Statistiky |
         var prijemData = [
             {% for row in charts_ts_prijem %}
                 {
-                    {#x: [{% for item in row.datum %}"{{ item }}",{% endfor %}],#}
-                    {#y: [{% for item in row.prijem %}"{{ item }}",{% endfor %}],#}
                     x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
                     y: [{% for value in row.prijem %}{{ value }},{% endfor %}],
                     name: "{{ row.vyrobce }}",
@@ -215,15 +213,20 @@ Statistiky |
         ]
 
         var prijemLayout = {
-            title: "Přijaté vakcíny podle výrobce",
+            title: "Dodávky vakcín",
             barmode: "stack",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
                 type: "date",
+
+                // Tune ticks
                 tickformat: "%-d.%-m.%Y",
-                //dtick: 1000 * 60 * 60 * 24, // one day as a unit
-                autorange: true,
+                tickangle: -90,
+                nticks: 15,
+
+                // Set range to one month by default
+                range: [new Date(new Date().setMonth(new Date().getMonth()-1)), new Date()],
                 rangeslider: {},
                 rangeselector: {
                     buttons: [
@@ -255,7 +258,7 @@ Statistiky |
                 }
             },
             yaxis: {
-                title: "Počet přijatých vakcín",
+                title: "Počet dodaných vakcín",
                 automargin: true,
                 tickformat: ",f",
             },
@@ -265,7 +268,7 @@ Statistiky |
                 xanchor: "center",
                 x: 0.5,
                 yanchor: "bottom",
-                y: -0.5,
+                y: -0.8,
             },
             height: 700,
         }
@@ -312,7 +315,7 @@ Statistiky |
 
                     // Update layout
                     {
-                        "title": "Počet použitých vakcín od výrobce: " + ockovanoData[i].name
+                        "title": "Očkované dávky výrobce: " + ockovanoData[i].name
                     }
                 ],
                 method: "update"
@@ -331,7 +334,7 @@ Statistiky |
 
                     // Update layout
                     {
-                        "title": "Počet použitých vakcín všech výrobců",
+                        "title": "Očkované dávky všech výrobců",
                     }
                 ],
                 method: "update"
@@ -342,7 +345,6 @@ Statistiky |
         ockovaniButtons[0]["activate"] = true;
 
         var ockovanoLayout = {
-            title: "Počet vakcín použitých pro očkování pro jednotlivé výrobce",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
@@ -381,7 +383,7 @@ Statistiky |
                 }
             },
             yaxis: {
-                title: "Počet vakcín použitých pro očkování",
+                title: "Počet očkovaných dávek",
                 automargin: true,
                 tickformat: ",f",
             },
