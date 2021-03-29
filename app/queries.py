@@ -355,7 +355,7 @@ def count_vaccinated(kraj_id=None):
         ockovani_v_kraji = pd.read_sql_query(
             """
             select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani_v_kraji
-            from ockovani_lide_enh
+            from ockovani_lide_profese
             where datum < '{}' and (kraj_nuts_kod = '{}')
             group by vekova_skupina, vakcina, poradi_davky
             """.format(get_import_date(), kraj_id),
@@ -403,9 +403,8 @@ def count_vaccinated(kraj_id=None):
     merged = pd.merge(ockovani_grp, registrace, how="left")
     merged = pd.merge(merged, populace, how="left")
 
-    if kraj_id is not None:
+    if kraj_id is not None and ockovani_v_kraji['vekova_skupina'][0]!='N/A':
         # Kraj stats
-        #TODO: test if there are enhanced statistics !
         ockovani_v_kraji['vekova_skupina'] = ockovani_v_kraji['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
         ockovani_v_kraji['pocet_ockovani_v_kraji_castecne'] = ockovani_v_kraji['pocet_ockovani_v_kraji'].where(
             ockovani_v_kraji['poradi_davky'] == 1).fillna(0).astype('int')
