@@ -178,8 +178,8 @@ class OckovaniLide(db.Model):
             self.pocet)
 
 
-class OckovaniLideEnh(db.Model):
-    __tablename__ = 'ockovani_lide_enh'
+class OckovaniLideProfese(db.Model):
+    __tablename__ = 'ockovani_lide_profese'
 
     datum = Column(Date, primary_key=True)
     vakcina = Column(Unicode, primary_key=True)
@@ -187,8 +187,7 @@ class OckovaniLideEnh(db.Model):
     zarizeni_kod = Column(Unicode, primary_key=True)
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
-    pohlavi = Column(Unicode, primary_key=True)
-    okres_bydliste_kod = Column(Unicode, primary_key=True)
+    kraj_bydl_nuts = Column(Unicode, primary_key=True)
     indikace_zdravotnik = Column(Boolean, primary_key=True)
     indikace_socialni_sluzby = Column(Boolean, primary_key=True)
     indikace_ostatni = Column(Boolean, primary_key=True)
@@ -197,7 +196,7 @@ class OckovaniLideEnh(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLideEnh(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
+        return "<OckovaniLideProfese(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
             self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
             self.pocet)
 
