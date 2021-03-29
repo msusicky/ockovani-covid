@@ -1,0 +1,182 @@
+{% macro graf_ockovani(data) -%}
+<div id="graf-ockovani"></div>
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <p class="font-italic text-justify">
+        U očkovacích míst, která patří pod zdravotnická zařízení s více aktivními očkovacími místy, není možné
+        jednoznačně určit, ve kterém z nich byli lidé očkováni.
+        V&nbsp;tomto případě se zobrazuje alespoň počet použitých dávek, který ale nemusí být tak přesný.
+        Pokud pod zdravotnické zařízení spadají další očkovací místa, která již nejsou aktivní (např. očkovací místo
+        v nemocnici nahrazené novým velkokapacitním), zobrazujeme počet očkovaných ze všech těchto míst.
+    </p>
+    <p class="font-italic text-justify mb-0">
+        Kliknutím na popisek v legendě si můžete zobrazit nebo skrýt další údaje.
+    </p>
+</div>
+
+
+<script>
+$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+    var target = $(e.target).attr("href")
+
+    if(target==="#vaccination_graph") {
+        {% if 'ockovane' in data %}
+        const ockovane = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Očkováno",
+        }
+
+        const ockovane_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Očkováno 1. dávkou",
+            visible: "legendonly",
+        }
+
+        const ockovane_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Očkováno 2. dávkou",
+            visible: "legendonly",
+        }
+        {% endif %}
+
+        const pouzite = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['pouzite'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Použito dávek",
+            {% if 'ockovane' in data %}
+            visible: "legendonly",
+            {% endif %}
+        }
+
+        const rezervace = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace",
+        }
+
+        const rezervace_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace na 1. dávku",
+            visible: "legendonly",
+        }
+
+        const rezervace_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Rezervace na 2. dávku",
+            visible: "legendonly",
+        }
+
+        const kapacita = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Maximální kapacita",
+        }
+
+        const kapacita_1 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_1'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Maximální kapacita pro 1. dávky",
+            visible: "legendonly",
+        }
+
+        const kapacita_2 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_2'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Maximální kapacita pro 2. dávky",
+            visible: "legendonly",
+        }
+
+        const layout = {
+            title: "Počet očkovaných, rezervací a maximální kapacita",
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "date",
+                tickformat: "%-d.%-m.%Y",
+                range: [new Date().setMonth(new Date().getMonth()-1), new Date()],
+                rangeslider: true,
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 7,
+                            label: "1 týden",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 14,
+                            label: "2 týdny",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 1,
+                            label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                }
+            },
+            yaxis: {
+                title: "Počet osob",
+                automargin: true
+            },
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                y: -0.4,
+            },
+            height: 700,
+        }
+
+        {% if 'ockovane' in data %}
+        const data = [ockovane, pouzite, rezervace, kapacita, ockovane_1, rezervace_1, kapacita_1, ockovane_2,
+            rezervace_2, kapacita_2];
+        {% else %}
+        const data = [pouzite, rezervace, kapacita, rezervace_1, kapacita_1, rezervace_2, kapacita_2];
+        {% endif %}
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        Plotly.newPlot("graf-ockovani", data, layout, config);
+    }
+});
+</script>
+{%- endmacro %}
