@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta, date, datetime
 
 from flask import render_template
-from sqlalchemy import func, text
+from sqlalchemy import func, text, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -18,18 +18,7 @@ def index():
 
 @bp.route("/mista")
 def info_mista():
-    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
-                             OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
-        .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
-                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
-        .all()
+    mista = queries.find_centers(True, True)
 
     return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now())
 
@@ -40,23 +29,11 @@ def info_okres(okres_name):
     if okres is None:
         abort(404)
 
+    mista = queries.find_centers(Okres.id, okres.id)
+
     metriky = db.session.query(OkresMetriky) \
         .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == get_import_date()) \
         .one_or_none()
-
-    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
-                             OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(Okres.nazev == okres_name) \
-        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
-        .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
-                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .order_by(OckovaciMisto.nazev) \
-        .all()
 
     registrations = queries.count_registrations('okres_id', okres.id)
 
@@ -70,23 +47,11 @@ def info_kraj(kraj_name):
     if kraj is None:
         abort(404)
 
+    mista = queries.find_centers(Kraj.id, kraj.id)
+
     metriky = db.session.query(KrajMetriky) \
         .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == get_import_date()) \
         .one_or_none()
-
-    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                             Kraj.nazev.label("kraj"), OckovaciMistoMetriky.registrace_fronta,
-                             OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
-        .filter(Kraj.nazev == kraj_name) \
-        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
-        .filter(OckovaciMisto.status == True) \
-        .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMistoMetriky.registrace_fronta,
-                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .order_by(Okres.nazev, OckovaciMisto.nazev) \
-        .all()
 
     registrations = queries.count_registrations('kraj_id', kraj.id)
 
@@ -112,48 +77,21 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    # Source data for plotly graph
-    registrace_overview = db.session.query(
-        OckovaniRegistrace.datum,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_registrovanych")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum.between(date.today() - timedelta(days=365), date.today())) \
-        .group_by(OckovaniRegistrace.datum) \
-        .order_by(OckovaniRegistrace.datum).all()
+    queue_graph_data = queries.get_queue_graph_data(misto_id)
 
-    registrace_overview_terminy = db.session.query(
-        OckovaniRegistrace.datum_rezervace,
-        func.sum(OckovaniRegistrace.pocet).label("pocet_terminu")) \
-        .filter(OckovaniRegistrace.import_id == get_import_id()) \
-        .filter(OckovaniRegistrace.ockovaci_misto_id == misto.id) \
-        .filter(OckovaniRegistrace.datum_rezervace > date.today() - timedelta(days=365)) \
-        .group_by(OckovaniRegistrace.datum_rezervace) \
-        .order_by(OckovaniRegistrace.datum_rezervace).all()
+    registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
-    # Compute boundary dates for rangeslider in time series chart
-    dates = [i.datum for i in registrace_overview] + [j.datum_rezervace for j in registrace_overview_terminy]
-    start_date = None if len(dates) == 0 else min(dates)
-    end_date = None if len(dates) == 0 else max(dates)
+    vaccination_graph_data = queries.get_vaccination_graph_data(misto_id)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
-                           vaccines=vaccines, registrations=registrations,
-                           registrace_overview=registrace_overview,
-                           registrace_overview_terminy=registrace_overview_terminy,
-                           start_date=start_date, end_date=end_date)
+                           vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
+                           registrations_graph_data=registrations_graph_data,
+                           vaccination_graph_data=vaccination_graph_data)
 
 
 @bp.route("/mapa")
 def mapa():
-    mista = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, OckovaciMisto.adresa,
-                             OckovaciMisto.latitude, OckovaciMisto.longitude,
-                             OckovaciMisto.bezbarierovy_pristup,
-                             OckovaciMistoMetriky.registrace_prumer_cekani,
-                             OckovaciMistoMetriky.ockovani_odhad_cekani) \
-        .join(OckovaciMistoMetriky) \
-        .filter(OckovaciMisto.status == True) \
-        .filter(OckovaciMistoMetriky.datum == get_import_date()) \
-        .all()
+    mista = queries.find_centers(OckovaciMisto.status, True)
 
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
