@@ -23,12 +23,12 @@ class OpenDataFetcher:
     _check_dates = None
     _import = None
     _last_modified = None
-    _vaccinated_profese = None
+    _vaccinated_professions = None
 
     def __init__(self, check_dates=True):
         self._check_dates = check_dates
         if os.environ.get('ODL_VACCINATED_ENH') is not None:
-            OpenDataFetcher._vaccinated_profese = os.environ.get('ODL_VACCINATED_ENH')
+            self._vaccinated_professions = os.environ.get('ODL_VACCINATED_ENH')
 
     def fetch_all(self):
         self._import = Import(status='RUNNING')
@@ -43,8 +43,8 @@ class OpenDataFetcher:
             self._fetch_registrations()
             self._fetch_reservations()
             # Test if we have an scraped dataset or not
-            if os.path.exists(self._vaccinated_profese):
-                self._fetch_vaccinated_profese_path(self._vaccinated_profese)
+            if os.path.exists(self._vaccinated_professions):
+                self._fetch_vaccinated_professions_path(self._vaccinated_professions)
             else:
                 self._fetch_vaccinated_profese()
 
@@ -251,7 +251,7 @@ class OpenDataFetcher:
 
         app.logger.info('Fetching opendata - vaccinated people enhanced finished.')
 
-    def _fetch_vaccinated_profese_path(self, path):
+    def _fetch_vaccinated_professions_path(self, path):
         """
         For the future if there will be any better source - from scraping for example.
         @return:
@@ -441,8 +441,8 @@ if __name__ == '__main__':
     elif argument == 'vaccinated_profese':
         fetcher._fetch_vaccinated_profese()
     elif argument == 'vaccinated_profese_tmp':
-        if OpenDataFetcher._vaccinated_profese is not None:
-            fetcher._fetch_vaccinated_profese_path(OpenDataFetcher._vaccinated_profese)
+        if OpenDataFetcher._vaccinated_professions is not None:
+            fetcher._fetch_vaccinated_professions_path(OpenDataFetcher._vaccinated_professions)
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)
