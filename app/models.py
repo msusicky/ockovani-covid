@@ -29,6 +29,27 @@ class Okres(db.Model):
 Kraj.okresy = relationship("Okres", back_populates="kraj")
 
 
+class ObceORP(db.Model):
+    __tablename__ = 'obce_orp'
+
+    kod_obce_orp = Column(Unicode, primary_key=True)
+    nazev_obce = Column(Unicode)
+    okres_nuts = Column(Unicode)
+    kraj_nuts = Column(Unicode, ForeignKey('kraje.id'))
+    aken = Column(Unicode, ForeignKey('okresy.id'))
+    uzis_orp = Column(Unicode)
+
+    kraj = relationship("Kraj", back_populates="kraje_orp")
+    okres = relationship("Okres", back_populates="okresy_orp")
+
+    def __repr__(self):
+        return "<ObceORP(kod_obce_orp='%s', nazev_obce='%s')>" % self.kod_obce_orp, self.nazev_obce
+
+
+Kraj.kraje_orp = relationship("ObceORP", back_populates="kraj")
+Okres.okresy_orp = relationship("ObceORP", back_populates="okres")
+
+
 class Populace(db.Model):
     __tablename__ = 'populace'
 
@@ -153,6 +174,29 @@ class OckovaniLide(db.Model):
 
     def __repr__(self):
         return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
+            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
+            self.pocet)
+
+
+class OckovaniLideProfese(db.Model):
+    __tablename__ = 'ockovani_lide_profese'
+
+    datum = Column(Date, primary_key=True)
+    vakcina = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode)
+    zarizeni_kod = Column(Unicode, primary_key=True)
+    poradi_davky = Column(Integer, primary_key=True)
+    vekova_skupina = Column(Unicode, primary_key=True)
+    kraj_bydl_nuts = Column(Unicode, primary_key=True)
+    indikace_zdravotnik = Column(Boolean, primary_key=True)
+    indikace_socialni_sluzby = Column(Boolean, primary_key=True)
+    indikace_ostatni = Column(Boolean, primary_key=True)
+    indikace_pedagog = Column(Boolean, primary_key=True)
+    indikace_skolstvi_ostatni = Column(Boolean, primary_key=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return "<OckovaniLideProfese(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
             self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
             self.pocet)
 
