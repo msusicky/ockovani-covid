@@ -1,29 +1,34 @@
-import sys
+import sys, os
 from datetime import datetime, date
 
 import requests
 import pandas as pd
 
 from app import db, app
-from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniRezervace, \
-    OckovaniRegistrace
+from app.models import Import, OckovaciMisto, OckovaniSpotreba, OckovaniDistribuce, OckovaniLide, OckovaniLideProfese, \
+    OckovaniRezervace, OckovaniRegistrace
 
 from email import utils as eut
+
 
 class OpenDataFetcher:
     CENTERS_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/prehled-ockovacich-mist.json'
     USED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-spotreba.json'
     DISTRIBUTED_API = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.json'
     VACCINATED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
+    VACCINATED_ENH_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-profese.csv'
     REGISTRATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
     RESERVATION_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
     _check_dates = None
     _import = None
     _last_modified = None
+    _vaccinated_professions = None
 
-    def __init__(self, check_dates = True):
+    def __init__(self, check_dates=True):
         self._check_dates = check_dates
+        if os.environ.get('ODL_VACCINATED_ENH') is not None:
+            self._vaccinated_professions = os.environ.get('ODL_VACCINATED_ENH')
 
     def fetch_all(self):
         self._import = Import(status='RUNNING')
@@ -37,6 +42,11 @@ class OpenDataFetcher:
             self._fetch_vaccinated()
             self._fetch_registrations()
             self._fetch_reservations()
+            # Test if we have an scraped dataset or not
+            if os.path.exists(self._vaccinated_professions):
+                self._fetch_vaccinated_professions_path(self._vaccinated_professions)
+            else:
+                self._fetch_vaccinated_profese()
 
             # delete older data delivery from the same day
             db.session.query(Import).filter(Import.date == date.today()).delete()
@@ -179,7 +189,7 @@ class OpenDataFetcher:
         data = self._load_csv_data(self.VACCINATED_CSV)
 
         df = data.groupby(["datum", "vakcina", "kraj_nuts_kod", "kraj_nazev", "zarizeni_kod", "zarizeni_nazev",
-                          "poradi_davky", "vekova_skupina"]) \
+                           "poradi_davky", "vekova_skupina"]) \
             .size() \
             .reset_index(name='pocet')
 
@@ -201,6 +211,89 @@ class OpenDataFetcher:
             ))
 
         app.logger.info('Fetching opendata - vaccinated people finished.')
+
+    def _fetch_vaccinated_profese(self):
+        """
+        Fetch distribution files from opendata.
+        https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-profese.csv
+        @return:
+        """
+        data = self._load_csv_data(self.VACCINATED_ENH_CSV).fillna(0)
+
+        df = data.groupby(
+            ["datum", "vakcina", "kraj_nuts_kod", "zarizeni_kod", "poradi_davky", "indikace_zdravotnik",
+             "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
+             "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
+        df['indikace_zdravotnik'] = df['indikace_zdravotnik'].astype('bool')
+        df['indikace_socialni_sluzby'] = df['indikace_socialni_sluzby'].astype('bool')
+        df['indikace_ostatni'] = df['indikace_ostatni'].astype('bool')
+        df['indikace_pedagog'] = df['indikace_pedagog'].astype('bool')
+        df['indikace_skolstvi_ostatni'] = df['indikace_skolstvi_ostatni'].astype('bool')
+
+        db.session.query(OckovaniLideProfese).delete()
+
+        for idx, row in df.iterrows():
+            db.session.add(OckovaniLideProfese(
+                datum=row['datum'],
+                vakcina=row['vakcina'],
+                kraj_nuts_kod=row['kraj_nuts_kod'],
+                zarizeni_kod=row['zarizeni_kod'],
+                poradi_davky=row['poradi_davky'],
+                vekova_skupina='N/A',
+                kraj_bydl_nuts='N/A',
+                indikace_zdravotnik=row['indikace_zdravotnik'],
+                indikace_socialni_sluzby=row['indikace_socialni_sluzby'],
+                indikace_ostatni=row['indikace_ostatni'],
+                indikace_pedagog=row['indikace_pedagog'],
+                indikace_skolstvi_ostatni=row['indikace_skolstvi_ostatni'],
+                pocet=row['pocet']
+            ))
+
+        app.logger.info('Fetching opendata - vaccinated people enhanced finished.')
+
+    def _fetch_vaccinated_professions_path(self, path):
+        """
+        For the future if there will be any better source - from scraping for example.
+        @return:
+        """
+        data = pd.read_csv(path)
+        data['orp_bydl_kod'] = data['orp_bydliste_kod'].astype(str).str[:4]
+
+        orp_kraj = pd.read_sql_query(
+            """
+            select uzis_orp orp_bydl_kod, kraj_nuts kraj_bydl_nuts from obce_orp
+            """,
+            db.engine
+        )
+
+        merged = pd.merge(data, orp_kraj, how="left")
+
+        df = merged.groupby(
+            ["datum_vakcinace", "vakcina", "kraj_kod", "zarizeni_kod", "poradi_davky", "vekova_skupina",
+             "kraj_bydl_nuts", "indikace_zdravotnik",
+             "indikace_socialni_sluzby", "indikace_ostatni", "indikace_pedagog",
+             "indikace_skolstvi_ostatni"]).size().reset_index(name='pocet')
+
+        db.session.query(OckovaniLideProfese).delete()
+
+        for idx, row in df.iterrows():
+            db.session.add(OckovaniLideProfese(
+                datum=row['datum_vakcinace'],
+                vakcina=row['vakcina'],
+                kraj_nuts_kod=row['kraj_kod'],
+                zarizeni_kod=row['zarizeni_kod'],
+                poradi_davky=row['poradi_davky'],
+                vekova_skupina=row['vekova_skupina'],
+                kraj_bydl_nuts=row['kraj_bydl_nuts'],
+                indikace_zdravotnik=row['indikace_zdravotnik'],
+                indikace_socialni_sluzby=row['indikace_socialni_sluzby'],
+                indikace_ostatni=row['indikace_ostatni'],
+                indikace_pedagog=row['indikace_pedagog'],
+                indikace_skolstvi_ostatni=row['indikace_skolstvi_ostatni'],
+                pocet=row['pocet']
+            ))
+
+        app.logger.info('Fetching data - vaccinated people enhanced finished.')
 
     def _fetch_registrations(self):
         """
@@ -251,7 +344,8 @@ class OpenDataFetcher:
             ))
 
         if missing_count > 0:
-            app.logger.warn("Some centers doesn't exist - {} rows ({} registrations) skipped.".format(missing_count, missing_sum))
+            app.logger.warn(
+                "Some centers doesn't exist - {} rows ({} registrations) skipped.".format(missing_count, missing_sum))
 
         app.logger.info('Fetching opendata - registrations finished.')
 
@@ -344,6 +438,11 @@ if __name__ == '__main__':
         fetcher._fetch_distributed()
     elif argument == 'vaccinated':
         fetcher._fetch_vaccinated()
+    elif argument == 'vaccinated_profese':
+        fetcher._fetch_vaccinated_profese()
+    elif argument == 'vaccinated_profese_tmp':
+        if OpenDataFetcher._vaccinated_professions is not None:
+            fetcher._fetch_vaccinated_professions_path(OpenDataFetcher._vaccinated_professions)
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)
