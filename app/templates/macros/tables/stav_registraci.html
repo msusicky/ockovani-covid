@@ -2,7 +2,7 @@
 
 {% macro stav_registraci(registrations) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
+    <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-15 text-center">Věková<br>skupina</th>
@@ -35,7 +35,7 @@
         </thead>
         <tbody>
         {% for idx, row in registrations.iterrows() %}
-        <tr>
+        <tr class="{{ 'table-warning' if row['rezervace_14_pocet'] == 0 }}">
             <td>{{ row['vekova_skupina'] }}</td>
             <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ row['povolani'] }}">
                 {{ row['povolani'] }}
@@ -61,5 +61,8 @@
         {% endif %}
         </tbody>
     </table>
+    <p class="card-text font-italic">
+        Oranžově jsou vyznačeny kategorie, kterým nebyla za posledních 14 dní umožněna žádná rezervace.
+    </p>
 </div>
 {%- endmacro %}

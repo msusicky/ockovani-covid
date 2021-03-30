@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_
 
 from app import db
 from app.context import get_import_date, get_import_id
@@ -10,11 +10,29 @@ from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky
 
 
 def unique_nrpzs_subquery():
+    """Returns unique NRPZS within all centers."""
+    return db.session.query(OckovaciMisto.nrpzs_kod) \
+        .group_by(OckovaciMisto.nrpzs_kod) \
+        .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
+        .subquery()
+
+
+def unique_nrpzs_active_subquery():
+    """Returns unique NRPZS within active centers."""
     return db.session.query(OckovaciMisto.nrpzs_kod) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.nrpzs_kod) \
         .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
         .subquery()
+
+
+def has_unique_nrpzs(center_id):
+    res = db.session.query(func.count(OckovaciMisto.id)) \
+        .filter(OckovaciMisto.id == center_id)\
+        .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(unique_nrpzs_active_subquery())),
+                    and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(unique_nrpzs_subquery())))) \
+        .one()
+    return res[0] == 1
 
 
 def find_centers(filter_column, filter_value):
@@ -320,6 +338,7 @@ def count_registrations(filter_column, filter_value):
     df['rezervace_7_cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
     df['rezervace_7_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(7)))
     df['rezervace_7_pocet_x_cekani'] = df['rezervace_7_cekani'] * df['rezervace_7_pocet']
+    df['rezervace_14_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(14)))
 
     df = df.groupby(['vekova_skupina', 'povolani']).sum()
 
@@ -356,7 +375,7 @@ def count_vaccinated(kraj_id=None):
             """
             select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani_v_kraji
             from ockovani_lide_profese
-            where datum < '{}' and (kraj_nuts_kod = '{}')
+            where datum < '{}' and (kraj_bydl_nuts = '{}')
             group by vekova_skupina, vakcina, poradi_davky
             """.format(get_import_date(), kraj_id),
             db.engine
@@ -478,3 +497,50 @@ def get_queue_graph_data(center_id):
             break
 
     return fronta
+
+
+def get_vaccination_graph_data(center_id):
+    rezervace = pd.read_sql_query(
+        """
+        select datum, sum(maximalni_kapacita) kapacita, sum(maximalni_kapacita-volna_kapacita) rezervace,
+            sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V1') kapacita_1, 
+            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V1') rezervace_1, 
+            sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V2') kapacita_2,
+            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V2') rezervace_2
+        from ockovani_rezervace  
+        where ockovaci_misto_id = '{}' and import_id = {} and datum <= '{}'
+        group by datum
+        """.format(center_id, get_import_id(), get_import_date()),
+        db.engine
+    )
+
+    spotreba = pd.read_sql_query(
+        """
+        select datum, sum(pouzite_davky) pouzite
+        from ockovani_spotreba  
+        where ockovaci_misto_id = '{}' 
+        group by datum
+        """.format(center_id),
+        db.engine
+    )
+
+    merged = pd.merge(rezervace, spotreba, how='outer')
+
+    if has_unique_nrpzs(center_id):
+        ockovani = pd.read_sql_query(
+            """
+            select datum, sum(pocet) ockovane, sum(pocet) filter(where poradi_davky = 1) ockovane_1, 
+                sum(pocet) filter(where poradi_davky = 2) ockovane_2
+            from ockovani_lide o
+            join ockovaci_mista m on m.nrpzs_kod = o.zarizeni_kod
+            where m.id = '{}'
+            group by datum
+            """.format(center_id),
+            db.engine
+        )
+
+        merged = pd.merge(merged, ockovani, how='outer')
+
+    merged = merged.set_index('datum').fillna(0).sort_values('datum')
+
+    return merged
