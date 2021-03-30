@@ -422,7 +422,7 @@ def count_vaccinated(kraj_id=None):
     merged = pd.merge(ockovani_grp, registrace, how="left")
     merged = pd.merge(merged, populace, how="left")
 
-    if kraj_id is not None and ockovani_v_kraji['vekova_skupina'][0]!='N/A':
+    if ockovani_v_kraji is not None and not ockovani_v_kraji.empty:
         # Kraj stats
         ockovani_v_kraji['vekova_skupina'] = ockovani_v_kraji['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
         ockovani_v_kraji['pocet_ockovani_v_kraji_castecne'] = ockovani_v_kraji['pocet_ockovani_v_kraji'].where(
