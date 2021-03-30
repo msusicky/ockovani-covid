@@ -139,7 +139,6 @@ def statistiky():
         group by vyrobce
         """
     )).all()
-    logging.info(f"TimeSeries: {charts_ts_prijem}")
 
     charts_ts_ockovano = db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
         """

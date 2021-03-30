@@ -3,6 +3,8 @@
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
+{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 
 {% block title %}
 Statistiky |
@@ -161,7 +163,7 @@ Statistiky |
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijem">Dodávky vakcín</a>
+                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijato">Dodávky vakcín</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
@@ -170,266 +172,15 @@ Statistiky |
             </div>
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="charts-tab-prijem">
-                        <div id="chart-prijem"></div>
+                    <div class="tab-pane active" id="charts-tab-prijato">
+                        {{ graf_prijatych_davek(charts_ts_prijem) }}
                     </div>
                     <div class="tab-pane" id="charts-tab-ockovano">
-                        <div id="chart-ockovano"></div>
+                        {{ graf_ockovanych_davek(charts_ts_ockovano) }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-
-{% block scripts %}
-    <!-- Color pallete -->
-    <script>
-        var pallete = [
-            '#1f77b4',  // muted blue
-            '#ff7f0e',  // safety orange
-            '#2ca02c',  // cooked asparagus green
-            '#d62728',  // brick red
-            '#9467bd',  // muted purple
-            '#8c564b',  // chestnut brown
-            '#e377c2',  // raspberry yogurt pink
-            '#7f7f7f',  // middle gray
-            '#bcbd22',  // curry yellow-green
-            '#17becf'   // blue-teal
-        ];
-    </script>
-
-    <!-- Prijem -->
-    <script>
-        var prijemData = [
-            {% for row in charts_ts_prijem %}
-                {
-                    x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
-                    y: [{% for value in row.prijem %}{{ value }},{% endfor %}],
-                    name: "{{ row.vyrobce }}",
-                    type: "bar",
-                    marker: {
-                        color: pallete[{{ (loop.index - 1) % 10 }}]
-                    }
-                },
-            {% endfor %}
-        ]
-
-        var prijemLayout = {
-            title: "Dodávky vakcín",
-            barmode: "stack",
-            autosize: true,
-            xaxis: {
-                title: "Datum [den]",
-                type: "date",
-
-                // Tune ticks
-                tickformat: "%-d.%-m.%Y",
-                tickangle: -90,
-                nticks: 15,
-
-                // Set range to one month by default
-                range: [new Date(new Date().setMonth(new Date().getMonth()-1)), new Date()],
-                rangeslider: {},
-                rangeselector: {
-                    buttons: [
-                        {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 1,
-                            label: "1 měsíc",
-                            step: "month",
-                            stepmode: "backward",
-                        },
-                        {
-                            label: "všechna data",
-                            step: "all"
-                        }
-                    ],
-                    xanchor: "center",
-                    x: 0.5,
-                }
-            },
-            yaxis: {
-                title: "Počet dodaných vakcín",
-                automargin: true,
-                tickformat: ",f",
-            },
-            showlegend: true,
-            legend: {
-                orientation: "h",
-                xanchor: "center",
-                x: 0.5,
-                yanchor: "bottom",
-                y: -0.8,
-            },
-            height: 700,
-        }
-
-        var prijemConfig = {
-            responsive: true,
-            displayModeBar: false,
-        }
-
-        Plotly.newPlot('chart-prijem', prijemData, prijemLayout, prijemConfig);
-    </script>
-
-    <!-- Ockovano -->
-    <script>
-        var ockovanoData = [
-            {% for row in charts_ts_ockovano %}
-                {
-                    x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
-                    y: [{% for value in row.ockovano %}{{ value }},{% endfor %}],
-                    name: "{{ row.vyrobce }}",
-                    mode: "lines+markers",
-                    type: "scatter",
-                    marker: {
-                        // In case index is greater than length of colors list - start from index 0
-                        color: pallete[{{ (loop.index - 1) % 10 }}]
-                    }
-                },
-            {% endfor %}
-        ]
-
-        // Add buttons to switch between visibility of traces
-        var ockovaniButtons = [];
-        for (var i = 0; i < ockovanoData.length; i++) {
-            var traceVisibility = new Array(ockovanoData.length).fill(false);
-            traceVisibility[i] = true;
-
-            ockovaniButtons[i] = {
-                label: ockovanoData[i].name,
-                args: [
-                    // Update data
-                    {
-                        "visible": traceVisibility,
-                    },
-
-                    // Update layout
-                    {
-                        "title": "Očkované dávky výrobce: " + ockovanoData[i].name
-                    }
-                ],
-                method: "update"
-            };
-        }
-
-        // Add button to show all traces
-        ockovaniButtons.push(
-            {
-                label: "Všichni výrobci",
-                args: [
-                    // Update data
-                    {
-                        "visible": new Array(ockovanoData.length).fill(true),
-                    },
-
-                    // Update layout
-                    {
-                        "title": "Očkované dávky všech výrobců",
-                    }
-                ],
-                method: "update"
-            }
-        );
-
-        // Activate first button - only visually (action is activated by update of div)
-        ockovaniButtons[0]["activate"] = true;
-
-        var ockovanoLayout = {
-            autosize: true,
-            xaxis: {
-                title: "Datum [den]",
-                type: "date",
-                tickformat: "%-d.%-m.%Y",
-                autorange: true,
-                rangeslider: {},
-                rangeselector: {
-                    buttons: [
-                        {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 1,
-                            label: "1 měsíc",
-                            step: "month",
-                            stepmode: "backward",
-                        },
-                        {
-                            label: "všechna data",
-                            step: "all"
-                        }
-                    ],
-                    xanchor: "center",
-                    x: 0.5,
-                    y: 1.1,
-                }
-            },
-            yaxis: {
-                title: "Počet očkovaných dávek",
-                automargin: true,
-                tickformat: ",f",
-            },
-            showlegend: true,
-            legend: {
-                orientation: "h",
-                xanchor: "center",
-                x: 0.5,
-                yanchor: "bottom",
-                y: -0.5,
-            },
-            height: 700,
-            updatemenus: [{
-                direction: "right",
-                xanchor: "center",
-                yanchor: "center",
-                y: 1.4,
-                x: 0.5,
-                type: "buttons",
-                showactive: true,
-                buttons: ockovaniButtons,
-            }]
-        }
-
-        var ockovanoConfig = {
-            responsive: true,
-            displayModeBar: false,
-        }
-
-        // Render original chart
-        Plotly.newPlot("chart-ockovano", ockovanoData, ockovanoLayout, ockovanoConfig);
-
-        // Fix autosizing when tab turns to be active
-        $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-
-            var target = $(e.target).attr("href") // activated tab
-            if(target==="#charts-tab-ockovano")
-            {
-                // Activate first button action
-                Plotly.update("chart-ockovano", ockovaniButtons[0].args[0], ockovaniButtons[0].args[1]);
-            }
-        });
-    </script>
 {% endblock %}
