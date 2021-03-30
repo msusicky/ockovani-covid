@@ -43,11 +43,13 @@ class OpenDataFetcher:
             self._fetch_registrations()
             self._fetch_reservations()
             # Test if we have an scraped dataset or not
-            if os.path.exists(self._vaccinated_professions):
-                self._fetch_vaccinated_professions_path(self._vaccinated_professions)
+            if self._vaccinated_professions is not None:
+                if os.path.exists(self._vaccinated_professions):
+                    self._fetch_vaccinated_professions_path(self._vaccinated_professions)
+                else:
+                    self._fetch_vaccinated_professions()
             else:
                 self._fetch_vaccinated_professions()
-
             # delete older data delivery from the same day
             db.session.query(Import).filter(Import.date == date.today()).delete()
 
