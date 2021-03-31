@@ -5,6 +5,7 @@
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
 
 {% block title %}
 Statistiky |
@@ -168,15 +169,21 @@ Statistiky |
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
+                    </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="charts-tab-prijato">
-                        {{ graf_prijatych_davek(charts_ts_prijem) }}
+                        {{ graf_prijatych_davek(received_vaccine_graph_data) }}
                     </div>
                     <div class="tab-pane" id="charts-tab-ockovano">
-                        {{ graf_ockovanych_davek(charts_ts_ockovano) }}
+                        {{ graf_ockovanych_davek(used_vaccine_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="queue_graph">
+                        {{ graf_fronta(queue_graph_data) }}
                     </div>
                 </div>
             </div>

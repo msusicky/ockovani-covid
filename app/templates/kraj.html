@@ -4,6 +4,7 @@
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
 
 {% block title %}
 {{ kraj.nazev }} |
@@ -36,7 +37,9 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
+                    </li>
                 </ul>
             </div>
 
@@ -74,6 +77,9 @@
                     </div>
                     <div class="tab-pane" id="vaccination">
                         {{ stav_ockovani(vaccinated, True) }}
+                    </div>
+                    <div class="tab-pane" id="queue_graph">
+                        {{ graf_fronta(queue_graph_data) }}
                     </div>
                 </div>
             </div>

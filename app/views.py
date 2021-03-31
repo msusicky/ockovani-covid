@@ -57,8 +57,11 @@ def info_kraj(kraj_name):
 
     vaccinated = queries.count_vaccinated(kraj.id)
 
+    queue_graph_data = queries.get_queue_graph_data(kraj=kraj_name)
+
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/misto/<misto_id>")
@@ -75,7 +78,7 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    queue_graph_data = queries.get_queue_graph_data(misto_id)
+    queue_graph_data = queries.get_queue_graph_data(misto=misto_id)
 
     registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
@@ -119,10 +122,13 @@ def statistiky():
     )).all()
 
     # Source data for graph of received vaccines of the manufacturers
-    charts_ts_prijem = queries.get_received_vaccine_graph_data()
+    received_vaccine_graph_data = queries.get_received_vaccine_graph_data()
 
     # Source data for graph of used vaccines based on the manufacturers
-    charts_ts_ockovano = queries.get_used_vaccine_graph_data()
+    used_vaccine_graph_data = queries.get_used_vaccine_graph_data()
+
+    # Source data for graph of people in queue for the whole republic
+    queue_graph_data = queries.get_queue_graph_data()
 
     if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
         cr_people = metriky.pocet_obyvatel_dospeli
@@ -136,7 +142,9 @@ def statistiky():
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
                            top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
-                           charts_ts_prijem=charts_ts_prijem, charts_ts_ockovano=charts_ts_ockovano)
+                           received_vaccine_graph_data=received_vaccine_graph_data,
+                           used_vaccine_graph_data=used_vaccine_graph_data,
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/codelat")
