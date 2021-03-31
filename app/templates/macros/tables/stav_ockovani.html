@@ -17,10 +17,10 @@
                 </i>
             </th>
             <th scope="col" class="w-30 text-center" colspan="{{'2' if show_ratio else '1'}}">
-                Částečně očkovaní
+                Očkovaní
                 {% if not show_ratio %}
                     <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                       title="TODO - počet očkovaných alespoň 1. dávkou">
+                       title="Počet lidí, kterým byla aplikována alespoň jedna dávka (zahrnuje i plně očkované)">
                     </i>
                 {% endif %}
             </th>
@@ -28,7 +28,7 @@
                 Plně očkovaní
                 {% if not show_ratio %}
                     <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                       title="TODO - počet očkovaných všemi potřebnými dávkami">
+                       title="Počet očkovaných všemi potřebnými dávkami (typicky 2)">
                     </i>
                 {% endif %}
             </th>
@@ -38,25 +38,25 @@
             <th scope="col" class="w-15 text-center">
                 Počet
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="TODO - počet očkovaných alespoň 1. dávkou">
+                   title="Počet lidí, kterým byla na daném místě aplikována alespoň jedna dávka (zahrnuje i plně očkované). <br /> Není rozlišeno trvalé bydliště.">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center">
-                Podíl
+                Proočkovanost
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="TODO - podíl obyvatel žijících na daném území očkovaných alespoň 1. dávkou">
+                   title="Podíl obyvatel žijících na daném území očkovaných alespoň 1. dávkou">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center">
                 Počet
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="TODO - počet očkovaných všemi potřebnými dávkami">
+                   title="Počet očkovaných všemi potřebnými dávkami na daném místě. <br /> Není rozlišeno trvalé bydliště.">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center">
-                Podíl
+                Proočkovanost
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="TODO - podíl obyvatel žijících na daném území očkovaných všemi potřebnými dávkami">
+                   title="Podíl obyvatel žijících na daném území očkovaných všemi potřebnými dávkami">
                 </i>
             </th>
         </tr>
@@ -69,15 +69,17 @@
             <td class="text-right">{{ row['pocet_fronta'] | format_number }}</td>
             <td class="text-right">{{ row['pocet_ockovani_castecne'] | format_number }}</td>
             {% if 'podil_ockovani_castecne' in vaccinated %}
-                <td class="text-right">{% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}</td>
+            <td class="text-right">{% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}</td>
             {% elif 'podil_ockovani_v_kraji_castecne' in vaccinated  %}
-                <td class="text-right">{% if row['podil_ockovani_v_kraji_castecne'] %} {{ (100 * row['podil_ockovani_v_kraji_castecne']) | format_decimal }} % {% endif %}</td>
+                <td class="text-right">{% if row['podil_ockovani_v_kraji_castecne'] %} <span data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet očkovaných s trvalým bydlištěm v kraji: {{ row['pocet_ockovani_v_kraji_castecne'] | format_number}}">{{ (100 * row['podil_ockovani_v_kraji_castecne']) | format_decimal }} %</span> {% endif %}</td>
             {% endif %}
             <td class="text-right">{{ row['pocet_ockovani_plne'] | format_number }}</td>
             {% if 'podil_ockovani_plne' in vaccinated %}
                 <td class="text-right">{% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %}</td>
             {% elif 'podil_ockovani_v_kraji_plne' in vaccinated  %}
-                <td class="text-right">{% if row['podil_ockovani_v_kraji_plne'] %} {{ (100 * row['podil_ockovani_v_kraji_plne']) | format_decimal }} % {% endif %}</td>
+                <td class="text-right">{% if row['podil_ockovani_v_kraji_plne'] %} <span data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet očkovaných s trvalým bydlištěm v kraji: {{ row['pocet_ockovani_v_kraji_plne'] | format_number}}">{{ (100 * row['podil_ockovani_v_kraji_plne']) | format_decimal }} %</span> {% endif %}</td>
             {% endif %}
         </tr>
         {% endfor %}
