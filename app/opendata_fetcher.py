@@ -43,11 +43,13 @@ class OpenDataFetcher:
             self._fetch_registrations()
             self._fetch_reservations()
             # Test if we have an scraped dataset or not
-            if os.path.exists(self._vaccinated_professions):
-                self._fetch_vaccinated_professions_path(self._vaccinated_professions)
+            if self._vaccinated_professions is not None:
+                if os.path.exists(self._vaccinated_professions):
+                    self._fetch_vaccinated_professions_path(self._vaccinated_professions)
+                else:
+                    self._fetch_vaccinated_professions()
             else:
-                self._fetch_vaccinated_profese()
-
+                self._fetch_vaccinated_professions()
             # delete older data delivery from the same day
             db.session.query(Import).filter(Import.date == date.today()).delete()
 
@@ -212,7 +214,7 @@ class OpenDataFetcher:
 
         app.logger.info('Fetching opendata - vaccinated people finished.')
 
-    def _fetch_vaccinated_profese(self):
+    def _fetch_vaccinated_professions(self):
         """
         Fetch distribution files from opendata.
         https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-profese.csv
@@ -438,11 +440,11 @@ if __name__ == '__main__':
         fetcher._fetch_distributed()
     elif argument == 'vaccinated':
         fetcher._fetch_vaccinated()
-    elif argument == 'vaccinated_profese':
-        fetcher._fetch_vaccinated_profese()
-    elif argument == 'vaccinated_profese_tmp':
-        if OpenDataFetcher._vaccinated_professions is not None:
-            fetcher._fetch_vaccinated_professions_path(OpenDataFetcher._vaccinated_professions)
+    elif argument == 'vaccinated_professions':
+        fetcher._fetch_vaccinated_professions()
+    elif argument == 'vaccinated_professions_tmp':
+        if fetcher._vaccinated_professions is not None:
+            fetcher._fetch_vaccinated_professions_path(fetcher._vaccinated_professions)
     elif argument == 'registrations_reservations':
         fetcher._import = Import(status='RUNNING')
         db.session.add(fetcher._import)
