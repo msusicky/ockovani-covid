@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
-{% from 'macros/common.html' import switch_tab_script %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/graphs/registrace.html' import graf_registrace %}
@@ -159,8 +158,4 @@
     var marker = new SMap.Marker(center, "marker", options);
     layer.addMarker(marker);
 </script>
-
-{{ switch_tab_script() }}
 {% endblock %}
-
-

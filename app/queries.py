@@ -371,6 +371,16 @@ def count_vaccinated(kraj_id=None):
     )
 
     if kraj_id is not None:
+        ockovani_kraj = pd.read_sql_query(
+            """
+            select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani_v_kraji
+            from ockovani_lide_profese
+            where datum < '{}' and (kraj_bydl_nuts = '{}')
+            group by vekova_skupina, vakcina, poradi_davky
+            """.format(get_import_date(), kraj_id),
+            db.engine
+        )
+
         mista = pd.read_sql_query(
             """
             select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
@@ -380,6 +390,7 @@ def count_vaccinated(kraj_id=None):
         )
         mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
     else:
+        ockovani_kraj = None
         mista_ids = "''"
 
     registrace = pd.read_sql_query(
@@ -404,16 +415,47 @@ def count_vaccinated(kraj_id=None):
     )
 
     ockovani['vekova_skupina'] = ockovani['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
-    ockovani['pocet_ockovani_castecne'] = ockovani['pocet_ockovani'].where(ockovani['poradi_davky'] == 1).fillna(0).astype('int')
-    ockovani['pocet_ockovani_plne'] = ockovani['pocet_ockovani'].where((ockovani['poradi_davky'] == 2) | (ockovani['vakcina'].isin([]))).fillna(0).astype('int')
+    ockovani['pocet_ockovani_castecne'] = ockovani['pocet_ockovani'] \
+        .where(ockovani['poradi_davky'] == 1) \
+        .fillna(0) \
+        .astype('int')
+    ockovani['pocet_ockovani_plne'] = ockovani['pocet_ockovani'] \
+        .where((ockovani['poradi_davky'] == 2) | (ockovani['vakcina'].isin([]))) \
+        .fillna(0) \
+        .astype('int')
     ockovani_grp = ockovani.groupby(['vekova_skupina']).sum().drop('poradi_davky', axis=1).reset_index()
 
     merged = pd.merge(ockovani_grp, registrace, how="left")
     merged = pd.merge(merged, populace, how="left")
 
-    merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).replace({np.nan: None})
-    merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).replace({np.nan: None})
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
+
+    if kraj_id is not None:
+        if ockovani_kraj is not None and not ockovani_kraj.empty:
+            ockovani_kraj['vekova_skupina'] = ockovani_kraj['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
+            ockovani_kraj['pocet_ockovani_v_kraji_castecne'] = ockovani_kraj['pocet_ockovani_v_kraji'] \
+                .where(ockovani_kraj['poradi_davky'] == 1) \
+                .fillna(0) \
+                .astype('int')
+            ockovani_kraj['pocet_ockovani_v_kraji_plne'] = ockovani_kraj['pocet_ockovani_v_kraji'] \
+                .where((ockovani_kraj['poradi_davky'] == 2) | (ockovani_kraj['vakcina'].isin([]))) \
+                .fillna(0) \
+                .astype('int')
+            ockovani_kraj_grp = ockovani_kraj.groupby(['vekova_skupina']) \
+                .sum() \
+                .drop('poradi_davky', axis=1) \
+                .reset_index()
+
+            merged = pd.merge(merged, ockovani_kraj_grp, how="left")
+            merged['podil_ockovani_v_kraji_castecne'] = (merged['pocet_ockovani_v_kraji_castecne'] / merged['pocet_vek']) \
+                .replace({np.nan: None})
+            merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']) \
+                .replace({np.nan: None})
+    else:
+        merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']) \
+            .replace({np.nan: None})
+        merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
+            .replace({np.nan: None})
 
     return merged
 

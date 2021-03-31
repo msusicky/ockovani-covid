@@ -2,7 +2,7 @@ name: update-data
 
 on:
   schedule:
-    - cron:  '30 6 * * *'
+    - cron:  '00 7 * * *'
 
 jobs:
   deploy:

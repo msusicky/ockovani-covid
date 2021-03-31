@@ -3,6 +3,8 @@
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
+{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 
 {% block title %}
 Statistiky |
@@ -42,10 +44,10 @@ Statistiky |
             <div class="card-body">
                 <div class="row px-2 mb-n2">
                     {{ metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
-                    {{ metrika('Částečně očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
-                    {{ metrika('Podíl částečně očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl alespoň částečně očkovaných dospělých obyvatel.') }}
+                    {{ metrika('Očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
+                    {{ metrika('Podíl očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl očkovaných dospělých lidí, kteří dostali alespoň jednu dávku.') }}
                     {{ metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (obě dávky).') }}
-                    {{ metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl plně očkovaných dospělých obyvatel.') }}
+                    {{ metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl plně očkovaných dospělých lidí.') }}
                     {{ metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacími centry a praktickými lékaři podle vykázaných očkování.") }}
                     {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
                     {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
@@ -155,6 +157,30 @@ Statistiky |
     </div>
 </div>
 
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijato">Dodávky vakcín</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="charts-tab-prijato">
+                        {{ graf_prijatych_davek(charts_ts_prijem) }}
+                    </div>
+                    <div class="tab-pane" id="charts-tab-ockovano">
+                        {{ graf_ockovanych_davek(charts_ts_ockovano) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
-
