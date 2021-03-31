@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta, date, datetime
 
 from flask import render_template
@@ -119,6 +120,51 @@ def statistiky():
         """
     )).all()
 
+    charts_ts_prijem = db.session.query("vyrobce", "datum", "prijem").from_statement(text(
+        """
+        select 
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.prijem) as prijem
+        from (
+            select 
+                vyrobce,
+                datum,
+                sum(pocet_davek) as prijem
+            from ockovani_distribuce
+            where akce='Příjem'
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
+
+    charts_ts_ockovano = db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
+        """
+        select
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.ockovano) as ockovano 
+        from (
+            select
+                case 
+                    when vakcina='Comirnaty' Then 'Pfizer'
+                    when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
+                    when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca'
+                    else 'ostatni'
+                end as vyrobce,
+                datum,
+                sum(pocet) as ockovano
+            from ockovani_lide
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
+
+
     if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
         cr_people = metriky.pocet_obyvatel_dospeli
         cr_factor = 0.7
@@ -130,7 +176,8 @@ def statistiky():
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
-                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day)
+                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
+                           charts_ts_prijem=charts_ts_prijem, charts_ts_ockovano=charts_ts_ockovano)
 
 
 @bp.route("/codelat")

@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
-{% from 'macros/common.html' import switch_tab_script %}
 {% from 'macros/tables/prehled_mist.html' import prehled_mist %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 
@@ -62,9 +61,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block scripts %}
-{{ switch_tab_script() }}
-{% endblock %}
-
-

@@ -3,6 +3,8 @@
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
+{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 
 {% block title %}
 Statistiky |
@@ -155,6 +157,30 @@ Statistiky |
     </div>
 </div>
 
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijato">Dodávky vakcín</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="charts-tab-prijato">
+                        {{ graf_prijatych_davek(charts_ts_prijem) }}
+                    </div>
+                    <div class="tab-pane" id="charts-tab-ockovano">
+                        {{ graf_ockovanych_davek(charts_ts_ockovano) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
-

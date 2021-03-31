@@ -1,0 +1,158 @@
+{% macro graf_ockovanych_davek(data) -%}
+{% from 'macros/graphs/colors.html' import palette  %}
+<div id="graf-ockovano"></div>
+
+<script>
+    function grafOckovanychDavek() {
+        // Import colors schema
+        {{ palette() }}
+
+        const traces = [
+            {% for row in data %}
+                {
+                    x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
+                    y: [{% for value in row.ockovano %}{{ value }}, {% endfor %}],
+                    name: "{{ row.vyrobce }}",
+                    mode: "lines+markers",
+                    type: "scatter",
+                    marker: {
+                        // In case index is greater than length of colors list - start from index 0
+                        color: palette[{{ (loop.index - 1) % 10 }}]
+                    }
+                },
+            {% endfor %}
+        ]
+
+        // Add buttons to switch between visibility of traces
+        const buttons = [];
+        for (let i = 0; i < traces.length; i++) {
+            let traceVisibility = new Array(traces.length).fill(false);
+            traceVisibility[i] = true;
+
+            buttons[i] = {
+                label: traces[i].name,
+                args: [
+                    // Update data
+                    {
+                        "visible": traceVisibility,
+                    },
+
+                    // Update layout
+                    {
+                        "title": "Očkované dávky výrobce: " + traces[i].name
+                    }
+                ],
+                method: "update"
+            };
+        }
+
+        // Add button to show all traces
+        buttons.push(
+            {
+                label: "Všichni výrobci",
+                args: [
+                    // Update data
+                    {
+                        "visible": new Array(traces.length).fill(true),
+                    },
+
+                    // Update layout
+                    {
+                        "title": "Očkované dávky všech výrobců",
+                    }
+                ],
+                method: "update"
+            }
+        );
+
+        // Activate first button - only visually (action is activated by update of div)
+        buttons[0]["activate"] = true;
+
+        const layout = {
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "date",
+                tickformat: "%-d.%-m.%Y",
+
+                // Set range to one month by default
+                range: [new Date(new Date().setMonth(new Date().getMonth() - 1)), new Date()],
+                rangeslider: {},
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 7,
+                            label: "1 týden",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 14,
+                            label: "2 týdny",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 1,
+                            label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                    y: 1.1,
+                }
+            },
+            yaxis: {
+                title: "Počet očkovaných dávek",
+                automargin: true,
+                tickformat: ",f",
+            },
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                yanchor: "bottom",
+                y: -0.5,
+            },
+            height: 700,
+            updatemenus: [{
+                direction: "right",
+                xanchor: "center",
+                yanchor: "center",
+                y: 1.4,
+                x: 0.5,
+                type: "buttons",
+                showactive: true,
+                buttons: buttons,
+            }]
+        }
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        // Render original chart
+        Plotly.newPlot("graf-ockovano", traces, layout, config);
+
+        // Activate first button action
+        Plotly.update("graf-ockovano", buttons[0].args[0], buttons[0].args[1]);
+    }
+
+    // Fix autosizing when tab turns to be active
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+
+        let target = $(e.target).attr("href") // activated tab
+        if(target==="#charts-tab-ockovano") {
+            grafOckovanychDavek();
+        }
+    });
+</script>
+{%- endmacro %}
