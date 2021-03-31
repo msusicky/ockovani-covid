@@ -1,5 +1,4 @@
 {% macro graf_prijatych_davek(data) -%}
-{% from 'macros/graphs/colors.html' import palette  %}
 <div id="graf-prijato"></div>
 <div class="font-italic">
     <h6>Poznámky</h6>
@@ -10,9 +9,6 @@
 
 <script>
     function grafPrijatychDavek() {
-        // Import colors schema
-        {{ palette() }}
-
         const traces = [
             {% for row in data %}
                 {
