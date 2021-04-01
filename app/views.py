@@ -151,7 +151,7 @@ def statistiky():
                 case 
                     when vakcina='Comirnaty' Then 'Pfizer'
                     when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
-                    when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca'
+                    when vakcina='VAXZEVRIA' Then 'AstraZeneca'
                     else 'ostatni'
                 end as vyrobce,
                 datum,
