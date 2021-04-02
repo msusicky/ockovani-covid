@@ -177,7 +177,7 @@ def count_vaccines_kraj(kraj_id):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) vydano
         from ockovani_distribuce 
-        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({}) and cilove_ockovaci_misto_id != '' and datum < '{}'  
+        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({}) and cilove_ockovaci_misto_id != '-' and datum < '{}'  
         group by (ockovaci_misto_id, vyrobce);
         """.format(mista_ids, mista_ids, get_import_date()),
         db.engine

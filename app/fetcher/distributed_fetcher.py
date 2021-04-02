@@ -18,6 +18,8 @@ class DistributedFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
 
+        df['cilove_ockovaci_misto_id'] = df['cilove_ockovaci_misto_id'].fillna('-')
+
         df = df.groupby(['datum', 'ockovaci_misto_id', 'cilove_ockovaci_misto_id', 'ockovaci_latka', 'vyrobce',
                          'akce']) \
             .sum() \
