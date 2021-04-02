@@ -493,24 +493,24 @@ def get_registrations_graph_data(center_id):
     return merged.reindex(idx).fillna(0)
 
 
-def get_queue_graph_data(kraj=None, misto=None):
-    if kraj and misto:
+def get_queue_graph_data(center_id=None, kraj_id=None):
+    if center_id and kraj_id:
         return
-    elif misto:
+    elif center_id:
         fronta = pd.read_sql_query(
             f"""
                 select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
                 from ockovaci_mista_metriky
-                where misto_id = '{misto}'
+                where misto_id = '{center_id}'
             """,
             db.engine
         )
-    elif kraj:
+    elif kraj_id:
         fronta = pd.read_sql_query(
             f"""
                 select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
                 from kraje_metriky
-                where kraj_id = '{kraj}'
+                where kraj_id = '{kraj_id}'
             """,
             db.engine
         )

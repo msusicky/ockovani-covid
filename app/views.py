@@ -57,7 +57,7 @@ def info_kraj(kraj_name):
 
     vaccinated = queries.count_vaccinated(kraj.id)
 
-    queue_graph_data = queries.get_queue_graph_data(kraj=kraj_name)
+    queue_graph_data = queries.get_queue_graph_data(kraj_id=kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
                            mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
@@ -78,7 +78,7 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    queue_graph_data = queries.get_queue_graph_data(misto=misto_id)
+    queue_graph_data = queries.get_queue_graph_data(center_id=misto_id)
 
     registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
