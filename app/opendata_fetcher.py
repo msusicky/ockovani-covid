@@ -1,4 +1,5 @@
 import sys, os
+import time
 from datetime import datetime, date
 
 import requests
@@ -432,6 +433,8 @@ if __name__ == '__main__':
 
     fetcher = OpenDataFetcher(False)
 
+    start = time.time()
+
     if argument == 'centers':
         fetcher._fetch_centers()
     elif argument == 'used':
@@ -457,3 +460,5 @@ if __name__ == '__main__':
         exit(1)
 
     db.session.commit()
+
+    app.logger.info("Fetching data finished successfully in {:.1f} s.".format(time.time() - start))

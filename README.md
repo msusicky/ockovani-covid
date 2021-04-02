@@ -78,7 +78,7 @@ If you want to fetch recent data please set the FETCH_DATA environment variable:
 
 1. fetch data
     
-    `flask fetch-opendata`
+    `flask fetch-data`
 
 1. compute metrics
     
@@ -101,7 +101,7 @@ _Old manual way, now it's done automatically using GitHub Actions._
 
 1. fetch data
     
-    `flask fetch-opendata`
+    `flask fetch-data`
 
 1. restart or start webserver if needed
 
