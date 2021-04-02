@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from app import db
@@ -18,8 +19,11 @@ class CentersFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url, dtype={'nrpzs_kod': 'object'})
 
-        df['operacni_status'] = df['operacni_status'].fillna(False)
-        df['bezbarierovy_pristup'] = df['bezbarierovy_pristup'].fillna(False)
+        df['operacni_status'] = df['operacni_status'].fillna(False).astype('bool')
+        df['bezbarierovy_pristup'] = df['bezbarierovy_pristup'].fillna(False).astype('bool')
+        df['latitude'] = df['latitude'].replace({np.nan: None})
+        df['longitude'] = df['longitude'].replace({np.nan: None})
+        df['nrpzs_kod'] = df['nrpzs_kod'].str.zfill(11)
 
         for idx, row in df.iterrows():
             db.session.merge(OckovaciMisto(

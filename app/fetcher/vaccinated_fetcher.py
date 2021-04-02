@@ -18,10 +18,9 @@ class VaccinatedFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'})
 
-        df = df.groupby(['datum', 'vakcina', 'kraj_nuts_kod', 'kraj_nazev', 'zarizeni_kod', 'zarizeni_nazev',
-                         'poradi_davky', 'vekova_skupina']) \
-            .size() \
-            .reset_index(name='pocet')
+        df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
+
+        df = df.groupby(df.columns.tolist()).size().reset_index(name='pocet')
 
         self._truncate()
 

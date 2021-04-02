@@ -19,6 +19,7 @@ class ReservationsFetcher(Fetcher):
         df = pd.read_csv(self._url)
 
         df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
+
         df['import_id'] = import_id
 
         # filter out missing centers

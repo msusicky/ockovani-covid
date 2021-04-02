@@ -20,13 +20,10 @@ class RegistrationsFetcher(Fetcher):
 
         df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
 
-        df['rezervace'] = df['rezervace'].fillna(True)
+        df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
-        df = df.groupby(['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace',
-                         'datum_rezervace']) \
-            .size() \
-            .reset_index(name='pocet')
+        df = df.groupby(df.columns.tolist()).size().reset_index(name='pocet')
 
         df['import_id'] = import_id
 
