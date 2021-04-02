@@ -57,6 +57,8 @@ class FetcherLauncher:
             self._fetchers.append(VaccinatedFetcher())
         elif dataset == 'vaccinated_professions':
             self._fetchers.append(VaccinatedProfessionsFetcher())
+        else:
+            raise Exception('Invalid dataset argument.')
 
     def _check_modified_dates(self) -> None:
         modified_dates = []
