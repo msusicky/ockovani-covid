@@ -15,7 +15,7 @@ bp = Blueprint('view', __name__, template_folder="templates")
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s')
 
 locale.setlocale(locale.LC_TIME, "cs_CZ")
 
