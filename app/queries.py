@@ -197,7 +197,7 @@ def count_vaccines_kraj(kraj_id):
         """
         select kraj_nuts_kod kraj_id, sum(pocet) ockovano,
             case 
-                when vakcina = 'COVID-19 Vaccine AstraZeneca' then 'AstraZeneca'
+                when vakcina = 'VAXZEVRIA' then 'AstraZeneca'
                 when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
                 when vakcina = 'Comirnaty' then 'Pfizer'
             else 'ostatní' end vyrobce
@@ -272,7 +272,7 @@ def count_vaccines_cr():
         """
         select sum(pocet) ockovano,
             case 
-                when vakcina = 'COVID-19 Vaccine AstraZeneca' then 'AstraZeneca'
+                when vakcina = 'VAXZEVRIA' then 'AstraZeneca'
                 when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
                 when vakcina = 'Comirnaty' then 'Pfizer'
                 else 'ostatní' end vyrobce

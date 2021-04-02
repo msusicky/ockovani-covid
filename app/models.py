@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey, Index
 from sqlalchemy.orm import relationship
 
 from app import db
@@ -84,7 +84,7 @@ class OckovaciMisto(db.Model):
     adresa = Column(Unicode)
     latitude = Column(Float)
     longitude = Column(Float)
-    nrpzs_kod = Column(Unicode)
+    nrpzs_kod = Column(Unicode, index=True)
     minimalni_kapacita = Column(Integer)
     bezbarierovy_pristup = Column(Boolean)
     service_id = Column(Integer)
@@ -141,8 +141,8 @@ class OckovaniDistribuce(db.Model):
     __tablename__ = 'ockovani_distribuce'
 
     datum = Column(Date, primary_key=True)
-    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    cilove_ockovaci_misto_id = Column(Unicode, primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True, index=True)
+    cilove_ockovaci_misto_id = Column(Unicode, primary_key=True, index=True)
     ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode)
     akce = Column(Unicode, primary_key=True)
@@ -164,9 +164,9 @@ class OckovaniLide(db.Model):
 
     datum = Column(Date, primary_key=True)
     vakcina = Column(Unicode, primary_key=True)
-    kraj_nuts_kod = Column(Unicode)
+    kraj_nuts_kod = Column(Unicode, index=True)
     kraj_nazev = Column(Unicode)
-    zarizeni_kod = Column(Unicode, primary_key=True)
+    zarizeni_kod = Column(Unicode, primary_key=True, index=True)
     zarizeni_nazev = Column(Unicode)
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
@@ -174,8 +174,7 @@ class OckovaniLide(db.Model):
 
     def __repr__(self):
         return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
-            self.pocet)
+            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
 
 
 class OckovaniLideProfese(db.Model):
@@ -183,11 +182,11 @@ class OckovaniLideProfese(db.Model):
 
     datum = Column(Date, primary_key=True)
     vakcina = Column(Unicode, primary_key=True)
-    kraj_nuts_kod = Column(Unicode)
-    zarizeni_kod = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode, index=True)
+    zarizeni_kod = Column(Unicode, primary_key=True, index=True)
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
-    kraj_bydl_nuts = Column(Unicode, primary_key=True)
+    kraj_bydl_nuts = Column(Unicode, primary_key=True, index=True)
     indikace_zdravotnik = Column(Boolean, primary_key=True)
     indikace_socialni_sluzby = Column(Boolean, primary_key=True)
     indikace_ostatni = Column(Boolean, primary_key=True)
@@ -196,9 +195,8 @@ class OckovaniLideProfese(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLideProfese(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
-            self.pocet)
+        return "<OckovaniLideProfese(zarizeni_kod='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
+            self.zarizeni_kod, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
 
 
 class OckovaniRegistrace(db.Model):
@@ -213,7 +211,6 @@ class OckovaniRegistrace(db.Model):
     datum_rezervace = Column(Date, primary_key=True)
     pocet = Column(Integer)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
-    pocet_zmena = Column(Integer)
 
     import_ = relationship('Import', back_populates='ockovani_registrace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
@@ -236,8 +233,6 @@ class OckovaniRezervace(db.Model):
     maximalni_kapacita = Column(Integer)
     kalendar_ockovani = Column(Unicode, primary_key=True)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
-    volna_kapacita_zmena = Column(Integer)
-    maximalni_kapacita_zmena = Column(Integer)
 
     import_ = relationship('Import', back_populates='ockovani_rezervace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
@@ -351,7 +346,7 @@ class KrajMetriky(db.Model):
 
 
 Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
-
+Index('idx_kraj_id_datum', KrajMetriky.kraj_id, KrajMetriky.datum)
 
 class OkresMetriky(db.Model):
     __tablename__ = 'okresy_metriky'
@@ -420,7 +415,7 @@ class OkresMetriky(db.Model):
 
 
 Okres.metriky = relationship("OkresMetriky", back_populates="okres")
-
+Index('idx_okres_id_datum', OkresMetriky.okres_id, OkresMetriky.datum)
 
 class OckovaciMistoMetriky(db.Model):
     __tablename__ = 'ockovaci_mista_metriky'

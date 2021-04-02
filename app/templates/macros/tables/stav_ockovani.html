@@ -92,13 +92,13 @@
             {% if 'podil_ockovani_castecne' in vaccinated %}
                 <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% elif 'podil_ockovani_v_kraji_castecne' in vaccinated  %}
-                <td class="text-right">{{ (100 * vaccinated['podil_ockovani_v_kraji_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
+                <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_v_kraji_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% endif %}
             <td class="text-right">{{ vaccinated['pocet_ockovani_plne'].sum() | format_number }}</td>
             {% if 'podil_ockovani_plne' in vaccinated %}
                 <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_plne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% elif 'podil_ockovani_v_kraji_plne' in vaccinated  %}
-                <td class="text-right">{{ (100 * vaccinated['podil_ockovani_v_kraji_plne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
+                <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_v_kraji_plne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% endif %}
         </tr>
         </tfoot>

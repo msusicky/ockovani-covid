@@ -48,4 +48,4 @@ class MetricsEtl:
 
 if __name__ == '__main__':
     etl = MetricsEtl(date.today())
-    etl.compute()
+    etl.compute('all')
