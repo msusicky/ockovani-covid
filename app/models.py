@@ -174,8 +174,7 @@ class OckovaniLide(db.Model):
 
     def __repr__(self):
         return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
-            self.pocet)
+            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
 
 
 class OckovaniLideProfese(db.Model):
@@ -196,9 +195,8 @@ class OckovaniLideProfese(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLideProfese(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina,
-            self.pocet)
+        return "<OckovaniLideProfese(zarizeni_kod='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
+            self.zarizeni_kod, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
 
 
 class OckovaniRegistrace(db.Model):
