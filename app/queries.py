@@ -627,3 +627,101 @@ def get_used_vaccine_graph_data():
         group by vyrobce
         """
     )).all()
+
+
+def get_infected_graph_data():
+    nakazeni = pd.read_sql_query(
+        """
+        select datum, vekova_skupina, sum(pocet) pocet_nakazeni
+        from nakazeni  
+        group by datum, vekova_skupina
+        """,
+        db.engine
+    )
+
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) pocet_vek
+        from populace p 
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+        where orp_kod = 'CZ0'
+        group by vekova_skupina
+        """,
+        db.engine
+    )
+
+    df = pd.date_range(nakazeni['datum'].min(), nakazeni['datum'].max(), name='datum').to_frame().reset_index(drop=True)
+    df['datum'] = df['datum'].dt.date
+    df['join'] = 0
+
+    populace['join'] = 0
+    df = pd.merge(df, populace, how='outer')
+    df = df.drop('join', axis=1)
+
+    df = pd.merge(df, nakazeni, how='left')
+
+    df = df.fillna(0)
+
+    df['datum'] = pd.to_datetime(df['datum'])
+    df['vekova_skupina_grp'] = np.select(
+        [df['vekova_skupina'] == '80+',
+         (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
+         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69')],
+        ['80+', '70-79', '60-69'], default='ostatni')
+
+    df = df.groupby(['vekova_skupina_grp', pd.Grouper(key='datum', freq='W')]).sum()
+
+    df = df[df.index.get_level_values(1) < str(get_import_date())]
+
+    df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000).round(1)
+
+    return df
+
+
+def get_deaths_graph_data():
+    umrti = pd.read_sql_query(
+        """
+        select datum, vekova_skupina, sum(pocet) pocet_umrti
+        from umrti  
+        group by datum, vekova_skupina
+        """,
+        db.engine
+    )
+
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) pocet_vek
+        from populace p 
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+        where orp_kod = 'CZ0'
+        group by vekova_skupina
+        """,
+        db.engine
+    )
+
+    df = pd.date_range(umrti['datum'].min(), umrti['datum'].max(), name='datum').to_frame().reset_index(drop=True)
+    df['datum'] = df['datum'].dt.date
+    df['join'] = 0
+
+    populace['join'] = 0
+    df = pd.merge(df, populace, how='outer')
+    df = df.drop('join', axis=1)
+
+    df = pd.merge(df, umrti, how='left')
+
+    df = df.fillna(0)
+
+    df['datum'] = pd.to_datetime(df['datum'])
+    df['vekova_skupina_grp'] = np.select(
+        [df['vekova_skupina'] == '80+',
+         (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
+         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69')],
+        ['80+', '70-79', '60-69'], default='ostatni')
+
+    df = df.groupby(['vekova_skupina_grp', pd.Grouper(key='datum', freq='W')]).sum()
+
+    df = df[df.index.get_level_values(1) < str(get_import_date())]
+
+    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
+
+    return df
