@@ -9,20 +9,21 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
     {% set data_80 = data.filter(like = '80+', axis=0) %}
     {% set data_70 = data.filter(like = '70-79', axis=0) %}
     {% set data_60 = data.filter(like = '60-69', axis=0) %}
+    {% set data_0 = data.filter(like = '0-17', axis=0) %}
 
     if(target==="#infected_graph") {
         const nakazeni = {
             x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
-            name: "Ostatní",
+            name: "18-59",
         }
 
         const nakazeni_80 = {
             x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "80+",
         }
@@ -30,7 +31,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const nakazeni_70 = {
             x: [{% for idx, row in data_70.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_70.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "70-79",
         }
@@ -38,9 +39,17 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const nakazeni_60 = {
             x: [{% for idx, row in data_60.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_60.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "60-69",
+        }
+
+        const nakazeni_0 = {
+            x: [{% for idx, row in data_0.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_0.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "0-17",
         }
 
         const layout = {
@@ -48,7 +57,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             autosize: true,
             xaxis: {
                 title: "Datum [týden]",
-                type: "week",
+                type: "day",
                 tickformat: "%-d.%-m.%Y",
                 range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
                 rangeslider: true,
@@ -89,7 +98,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             height: 700,
         }
 
-        const data = [nakazeni_80, nakazeni_70, nakazeni_60, nakazeni];
+        const data = [nakazeni_0, nakazeni, nakazeni_60, nakazeni_70, nakazeni_80];
 
         const config = {
             responsive: true,

@@ -662,16 +662,15 @@ def get_infected_graph_data():
 
     df = df.fillna(0)
 
-    df['datum'] = pd.to_datetime(df['datum'])
     df['vekova_skupina_grp'] = np.select(
         [df['vekova_skupina'] == '80+',
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
-         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69')],
-        ['80+', '70-79', '60-69'], default='ostatni')
+         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
+         df['vekova_skupina'] == '0-17'],
+        ['80+', '70-79', '60-69', '0-17'], default='ostatni')
 
-    df = df.groupby(['vekova_skupina_grp', pd.Grouper(key='datum', freq='W')]).sum()
-
-    df = df[df.index.get_level_values(1) < str(get_import_date())]
+    df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
+    df = df.rolling(7).sum().dropna()
 
     df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000).round(1)
 
@@ -711,16 +710,14 @@ def get_deaths_graph_data():
 
     df = df.fillna(0)
 
-    df['datum'] = pd.to_datetime(df['datum'])
     df['vekova_skupina_grp'] = np.select(
         [df['vekova_skupina'] == '80+',
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
          (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69')],
         ['80+', '70-79', '60-69'], default='ostatni')
 
-    df = df.groupby(['vekova_skupina_grp', pd.Grouper(key='datum', freq='W')]).sum()
-
-    df = df[df.index.get_level_values(1) < str(get_import_date())]
+    df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
+    df = df.rolling(7).sum().dropna()
 
     df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
 

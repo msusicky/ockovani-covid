@@ -14,7 +14,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const umrti = {
             x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "Ostatní",
         }
@@ -22,7 +22,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const umrti_80 = {
             x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "80+",
         }
@@ -30,7 +30,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const umrti_70 = {
             x: [{% for idx, row in data_70.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_70.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "70-79",
         }
@@ -38,7 +38,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         const umrti_60 = {
             x: [{% for idx, row in data_60.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_60.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines+markers",
+            mode: "lines",
             type: "scatter",
             name: "60-69",
         }
@@ -48,7 +48,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             autosize: true,
             xaxis: {
                 title: "Datum [týden]",
-                type: "week",
+                type: "day",
                 tickformat: "%-d.%-m.%Y",
                 range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
                 rangeslider: true,
