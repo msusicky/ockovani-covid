@@ -2,15 +2,12 @@
 <div id="graf-umrti"></div>
 
 <script>
-$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-    var target = $(e.target).attr("href")
+    function grafUmrti() {
+        {% set data_ostatni = data.filter(like = 'ostatni', axis=0) %}
+        {% set data_80 = data.filter(like = '80+', axis=0) %}
+        {% set data_70 = data.filter(like = '70-79', axis=0) %}
+        {% set data_60 = data.filter(like = '60-69', axis=0) %}
 
-    {% set data_ostatni = data.filter(like = 'ostatni', axis=0) %}
-    {% set data_80 = data.filter(like = '80+', axis=0) %}
-    {% set data_70 = data.filter(like = '70-79', axis=0) %}
-    {% set data_60 = data.filter(like = '60-69', axis=0) %}
-
-    if(target==="#deaths_graph") {
         const umrti = {
             x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
@@ -98,6 +95,14 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         Plotly.newPlot("graf-umrti", data, layout, config);
     }
-});
+
+    grafUmrti();
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#deaths_graph") {
+            grafUmrti();
+        }
+    });
 </script>
 {%- endmacro %}
