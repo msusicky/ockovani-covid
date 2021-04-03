@@ -9,9 +9,10 @@ from app import db
 
 
 class Fetcher:
-    def __init__(self, table: str, url: str):
+    def __init__(self, table: str, url: str, check_date=True):
         self._table = table
         self._url = url
+        self.check_date = check_date
 
     def get_modified_date(self) -> datetime:
         headers = requests.head(url=self._url).headers
