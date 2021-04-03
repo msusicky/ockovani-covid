@@ -156,7 +156,7 @@ class KrajMetricsEtl:
                 - coalesce(sum(case
                     when akce = 'Výdej' 
                         and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 join okresy o3 on m3.okres_id = o3.id where o3.kraj_id = o.kraj_id) 
-                        and d.cilove_ockovaci_misto_id != '' 
+                        and d.cilove_ockovaci_misto_id != '-' 
                     then pocet_davek 
                     else 0 end
                 ), 0) 

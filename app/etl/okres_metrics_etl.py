@@ -129,7 +129,7 @@ class OkresMetricsEtl:
                 - coalesce(sum(case 
                     when akce = 'Výdej' 
                         and d.ockovaci_misto_id in (select m3.id from ockovaci_mista m3 where m3.okres_id = m.okres_id) 
-                        and d.cilove_ockovaci_misto_id != '' 
+                        and d.cilove_ockovaci_misto_id != '-' 
                     then pocet_davek 
                     else 0 end
                 ), 0) 
