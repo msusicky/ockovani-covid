@@ -58,7 +58,7 @@ class Populace(db.Model):
 
     orp_kod = Column(Unicode, primary_key=True)
     vek = Column(Integer, primary_key=True)
-    pocet = Column(Integer)
+    pocet = Column(Integer, nullable=False)
 
     def __repr__(self):
         return f"<Populace(orp_kod='{self.orp_kod}', vek={self.vek})>"
