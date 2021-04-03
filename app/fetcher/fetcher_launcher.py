@@ -94,7 +94,12 @@ class FetcherLauncher:
             app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
 
     def _init_import(self) -> None:
+        # delete previous today's import if exists
+        db.session.query(Import).filter(Import.date == self._last_modified_date.date()).delete()
+
         self._import = Import(status='RUNNING')
+        self._import.last_modified = self._last_modified_date
+        self._import.date = self._last_modified_date.date()
         db.session.add(self._import)
         db.session.commit()
 
@@ -104,13 +109,8 @@ class FetcherLauncher:
         db.session.commit()
 
     def _set_import_finished(self) -> None:
-        # delete previous today's import if exists
-        db.session.query(Import).filter(Import.date == self._last_modified_date.date()).delete()
-
         self._import.status = 'FINISHED'
         self._import.end = datetime.now()
-        self._import.last_modified = self._last_modified_date
-        self._import.date = self._last_modified_date.date()
         db.session.commit()
 
 

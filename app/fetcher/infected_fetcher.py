@@ -18,6 +18,8 @@ class InfectedFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
 
+        df['kraj_nuts_kod'] = df['kraj_nuts_kod'].fillna('-')
+
         df = df[['datum', 'vek', 'kraj_nuts_kod']]
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')

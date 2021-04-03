@@ -20,6 +20,8 @@ class RegistrationsFetcher(Fetcher):
 
         df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
 
+        df['vekova_skupina'] = df['vekova_skupina'].fillna('neuvedeno')
+        df['stat'] = df['stat'].fillna('neuvedeno')
         df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
