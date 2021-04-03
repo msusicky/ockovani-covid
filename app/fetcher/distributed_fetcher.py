@@ -21,7 +21,7 @@ class DistributedFetcher(Fetcher):
         df['cilove_ockovaci_misto_id'] = df['cilove_ockovaci_misto_id'].fillna('-')
 
         df = df.groupby(['datum', 'ockovaci_misto_id', 'cilove_ockovaci_misto_id', 'ockovaci_latka', 'vyrobce',
-                         'akce']) \
+                         'akce'], dropna=False) \
             .sum() \
             .reset_index()
 

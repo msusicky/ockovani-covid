@@ -4,7 +4,9 @@ from datetime import date, datetime
 
 from app import app, db
 from app.fetcher.centers_fetcher import CentersFetcher
+from app.fetcher.deaths_fetcher import DeathsFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
+from app.fetcher.infected_fetcher import InfectedFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.used_fetcher import UsedFetcher
@@ -25,6 +27,11 @@ class FetcherLauncher:
             self._init_fetchers(dataset)
             self._check_modified_dates()
             self._init_import()
+        except Exception as e:
+            app.logger.error(e)
+            return False
+
+        try:
             self._fetch()
         except Exception as e:
             app.logger.error(e)
@@ -43,6 +50,8 @@ class FetcherLauncher:
             self._fetchers.append(ReservationsFetcher())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(VaccinatedProfessionsFetcher())
+            self._fetchers.append(InfectedFetcher())
+            self._fetchers.append(DeathsFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'distributed':
@@ -57,6 +66,10 @@ class FetcherLauncher:
             self._fetchers.append(VaccinatedFetcher())
         elif dataset == 'vaccinated_professions':
             self._fetchers.append(VaccinatedProfessionsFetcher())
+        elif dataset == 'infected':
+            self._fetchers.append(InfectedFetcher())
+        elif dataset == 'deaths':
+            self._fetchers.append(DeathsFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
@@ -65,9 +78,9 @@ class FetcherLauncher:
 
         for fetcher in self._fetchers:
             modified_date = fetcher.get_modified_date()
-            app.logger.info("Fetcher '{}' modified date: '{}'.".format(type(fetcher).__name__, modified_date))
-            if modified_date.date() < date.today():
-                raise Exception("Fetcher '{}' returned modified date older than today.", type(fetcher).__name__)
+            app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified date: '{modified_date}'.")
+            if fetcher.check_date and modified_date.date() < date.today():
+                raise Exception(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
 
             modified_dates.append(modified_date)
 
@@ -76,9 +89,9 @@ class FetcherLauncher:
     def _fetch(self) -> None:
         for fetcher in self._fetchers:
             start = time.time()
-            app.logger.info("Fetcher '{}' started.".format(type(fetcher).__name__))
+            app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
             fetcher.fetch(self._import.id)
-            app.logger.info("Fetcher '{}' finished in {:.1f} s.".format(type(fetcher).__name__, time.time() - start))
+            app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
 
     def _init_import(self) -> None:
         self._import = Import(status='RUNNING')

@@ -18,7 +18,7 @@ class UsedFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
 
-        df = df.groupby(['datum', 'ockovaci_misto_id', 'ockovaci_latka', 'vyrobce']).sum().reset_index()
+        df = df.groupby(['datum', 'ockovaci_misto_id', 'ockovaci_latka', 'vyrobce'], dropna=False).sum().reset_index()
 
         self._truncate()
 

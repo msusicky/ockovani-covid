@@ -251,7 +251,7 @@ OckovaciMisto.ockovani_rezervace = relationship("OckovaniRezervace", back_popula
 class ZdravotnickeStredisko(db.Model):
     __tablename__ = 'zdravotnicke_stredisko'
 
-    zdravotnicke_zarizeni_id = Column(Integer, primary_key=True)
+    zdravotnicke_zarizeni_id = Column(Integer, primary_key=True, autoincrement=False)
     pcz = Column(Integer)
     pcdp = Column(Integer)
     nazev_cely = Column(Unicode)
@@ -277,7 +277,7 @@ class Umrti(db.Model):
 
     datum = Column(Date, primary_key=True)
     vek = Column(Integer, primary_key=True)
-    kraj_nuts_kod = Column(Unicode, index=True)
+    kraj_nuts_kod = Column(Unicode, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
@@ -289,7 +289,7 @@ class Nakazeni(db.Model):
 
     datum = Column(Date, primary_key=True)
     vek = Column(Integer, primary_key=True)
-    kraj_nuts_kod = Column(Unicode, index=True)
+    kraj_nuts_kod = Column(Unicode, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):

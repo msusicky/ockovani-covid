@@ -44,7 +44,7 @@ class VaccinatedProfessionsFetcher(Fetcher):
                  'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
                  'indikace_pedagog', 'indikace_skolstvi_ostatni']]
 
-        df = df.groupby(df.columns.tolist()).size().reset_index(name='pocet')
+        df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
         self._truncate()
 

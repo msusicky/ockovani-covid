@@ -20,7 +20,7 @@ class VaccinatedFetcher(Fetcher):
 
         df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
 
-        df = df.groupby(df.columns.tolist()).size().reset_index(name='pocet')
+        df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
         self._truncate()
 

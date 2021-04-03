@@ -23,7 +23,7 @@ class RegistrationsFetcher(Fetcher):
         df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
-        df = df.groupby(df.columns.tolist()).size().reset_index(name='pocet')
+        df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
         df['import_id'] = import_id
 
