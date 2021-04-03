@@ -16,7 +16,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
-            name: "Ostatní",
+            name: "0-59",
         }
 
         const umrti_80 = {
@@ -44,10 +44,10 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         }
 
         const layout = {
-            title: "Počet úmrtí za týden",
+            title: "Týdenní průměr počtu úmrtí na 100 tisíc obyvatel",
             autosize: true,
             xaxis: {
-                title: "Datum [týden]",
+                title: "Datum [den]",
                 type: "day",
                 tickformat: "%-d.%-m.%Y",
                 range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
@@ -76,7 +76,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
                 }
             },
             yaxis: {
-                title: "Počet na 100 000 obyvatel",
+                title: "Počet na 100 tisíc obyvatel",
                 automargin: true
             },
             showlegend: true,
@@ -89,7 +89,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
             height: 700,
         }
 
-        const data = [umrti_80, umrti_70, umrti_60, umrti];
+        const data = [umrti, umrti_60, umrti_70, umrti_80];
 
         const config = {
             responsive: true,

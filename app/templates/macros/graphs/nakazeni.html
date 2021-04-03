@@ -53,10 +53,10 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         }
 
         const layout = {
-            title: "Počet nově nakažených za týden",
+            title: "Týdenní průměr počtu nově nakažených na 100 tisíc obyvatel",
             autosize: true,
             xaxis: {
-                title: "Datum [týden]",
+                title: "Datum [den]",
                 type: "day",
                 tickformat: "%-d.%-m.%Y",
                 range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
@@ -85,7 +85,7 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
                 }
             },
             yaxis: {
-                title: "Počet na 100 000 obyvatel",
+                title: "Počet na 100 tisíc obyvatel",
                 automargin: true
             },
             showlegend: true,

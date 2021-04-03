@@ -670,7 +670,9 @@ def get_infected_graph_data():
         ['80+', '70-79', '60-69', '0-17'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df = df.rolling(7).sum().dropna()
+    df = df.rolling(7).sum()
+
+    df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
     df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000).round(1)
 
@@ -717,7 +719,9 @@ def get_deaths_graph_data():
         ['80+', '70-79', '60-69'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df = df.rolling(7).sum().dropna()
+    df = df.rolling(7).sum()
+
+    df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
     df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
 
