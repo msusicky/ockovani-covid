@@ -5,23 +5,24 @@ import click
 
 from app import app
 from app.etl import MetricsEtl
-from app.opendata_fetcher import OpenDataFetcher
+from app.fetcher import FetcherLauncher
 from app.twitter_bot import TwitterBot
 
 
-@app.cli.command('fetch-opendata')
-def fetch_opendata_command():
+@app.cli.command('fetch-data')
+@click.argument('dataset')
+def fetch_data_command(dataset):
     """Fetch opendata from UZIS."""
     start = time.time()
-    app.logger.info("Fetching opendata started.")
-    fetcher = OpenDataFetcher()
-    result = fetcher.fetch_all()
+    app.logger.info("Fetching data started.")
+    fetcher = FetcherLauncher()
+    result = fetcher.fetch(dataset)
+
     if result:
-        end = time.time()
-        app.logger.info("Fetching opendata finished successfully in {:.1f} s.".format(end - start))
+        app.logger.info("Fetching data finished successfully in {:.1f} s.".format(time.time() - start))
         exit(0)
     else:
-        app.logger.error("Fetching opendata failed.")
+        app.logger.error("Fetching data failed.")
         exit(1)
 
 
@@ -54,8 +55,7 @@ def compute_metrics_command(metric, datum):
         start_date += timedelta(1)
 
     if result:
-        end = time.time()
-        app.logger.info("Computing metrics finished successfully in {:.1f} s.".format(end - start))
+        app.logger.info("Computing metrics finished successfully in {:.1f} s.".format(time.time() - start))
         exit(0)
     else:
         app.logger.error("Computing metrics failed.")

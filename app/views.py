@@ -1,14 +1,12 @@
-import logging
-from datetime import timedelta, date, datetime
+from datetime import timedelta, datetime
 
 from flask import render_template
-from sqlalchemy import func, text, or_
+from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.context import get_import_date, get_import_id, STATUS_FINISHED
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaniRegistrace, OckovaciMistoMetriky, \
-    KrajMetriky, OkresMetriky, CrMetriky
+from app.context import get_import_date, STATUS_FINISHED
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky
 
 
 @bp.route('/')
@@ -59,8 +57,11 @@ def info_kraj(kraj_name):
 
     vaccinated = queries.count_vaccinated(kraj.id)
 
+    queue_graph_data = queries.get_queue_graph_data(kraj_id=kraj.id)
+
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated)
+                           mista=mista, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/misto/<misto_id>")
@@ -77,7 +78,7 @@ def info_misto(misto_id):
 
     vaccines = queries.count_vaccines_center(misto_id)
 
-    queue_graph_data = queries.get_queue_graph_data(misto_id)
+    queue_graph_data = queries.get_queue_graph_data(center_id=misto_id)
 
     registrations_graph_data = queries.get_registrations_graph_data(misto_id)
 
@@ -120,50 +121,14 @@ def statistiky():
         """
     )).all()
 
-    charts_ts_prijem = db.session.query("vyrobce", "datum", "prijem").from_statement(text(
-        """
-        select 
-            vyrobce,
-            array_agg(base.datum) as datum,
-            array_agg(base.prijem) as prijem
-        from (
-            select 
-                vyrobce,
-                datum,
-                sum(pocet_davek) as prijem
-            from ockovani_distribuce
-            where akce='Příjem'
-            group by datum, vyrobce
-            order by vyrobce, datum
-        ) base
-        group by vyrobce
-        """
-    )).all()
+    # Source data for graph of received vaccines of the manufacturers
+    received_vaccine_graph_data = queries.get_received_vaccine_graph_data()
 
-    charts_ts_ockovano = db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
-        """
-        select
-            vyrobce,
-            array_agg(base.datum) as datum,
-            array_agg(base.ockovano) as ockovano 
-        from (
-            select
-                case 
-                    when vakcina='Comirnaty' Then 'Pfizer'
-                    when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
-                    when vakcina='VAXZEVRIA' Then 'AstraZeneca'
-                    else 'ostatni'
-                end as vyrobce,
-                datum,
-                sum(pocet) as ockovano
-            from ockovani_lide
-            group by datum, vyrobce
-            order by vyrobce, datum
-        ) base
-        group by vyrobce
-        """
-    )).all()
+    # Source data for graph of used vaccines based on the manufacturers
+    used_vaccine_graph_data = queries.get_used_vaccine_graph_data()
 
+    # Source data for graph of people in queue for the whole republic
+    queue_graph_data = queries.get_queue_graph_data()
 
     if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
         cr_people = metriky.pocet_obyvatel_dospeli
@@ -177,7 +142,9 @@ def statistiky():
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
                            top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
-                           charts_ts_prijem=charts_ts_prijem, charts_ts_ockovano=charts_ts_ockovano)
+                           received_vaccine_graph_data=received_vaccine_graph_data,
+                           used_vaccine_graph_data=used_vaccine_graph_data,
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/codelat")

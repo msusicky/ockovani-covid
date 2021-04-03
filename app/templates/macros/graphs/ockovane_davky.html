@@ -1,12 +1,8 @@
 {% macro graf_ockovanych_davek(data) -%}
-{% from 'macros/graphs/colors.html' import palette  %}
 <div id="graf-ockovano"></div>
 
 <script>
     function grafOckovanychDavek() {
-        // Import colors schema
-        {{ palette() }}
-
         const traces = [
             {% for row in data %}
                 {

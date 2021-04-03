@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func, or_, and_
+from sqlalchemy import func, or_, and_, text
 
 from app import db
 from app.context import get_import_date, get_import_id
@@ -177,7 +177,7 @@ def count_vaccines_kraj(kraj_id):
         """
         select ockovaci_misto_id, vyrobce, sum(pocet_davek) vydano
         from ockovani_distribuce 
-        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({}) and cilove_ockovaci_misto_id != '' and datum < '{}'  
+        where akce = 'Výdej' and ockovaci_misto_id in ({}) and cilove_ockovaci_misto_id not in({}) and cilove_ockovaci_misto_id != '-' and datum < '{}'  
         group by (ockovaci_misto_id, vyrobce);
         """.format(mista_ids, mista_ids, get_import_date()),
         db.engine
@@ -493,15 +493,35 @@ def get_registrations_graph_data(center_id):
     return merged.reindex(idx).fillna(0)
 
 
-def get_queue_graph_data(center_id):
-    fronta = pd.read_sql_query(
-        """
-        select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
-        from ockovaci_mista_metriky
-        where misto_id = '{}'
-        """.format(center_id),
-        db.engine
-    )
+def get_queue_graph_data(center_id=None, kraj_id=None):
+    if center_id and kraj_id:
+        return
+    elif center_id:
+        fronta = pd.read_sql_query(
+            f"""
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                from ockovaci_mista_metriky
+                where misto_id = '{center_id}'
+            """,
+            db.engine
+        )
+    elif kraj_id:
+        fronta = pd.read_sql_query(
+            f"""
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                from kraje_metriky
+                where kraj_id = '{kraj_id}'
+            """,
+            db.engine
+        )
+    else:
+        fronta = pd.read_sql_query(
+            """
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                from cr_metriky
+            """,
+            db.engine
+        )
 
     fronta = fronta.set_index('datum').fillna(0).sort_values('datum')
 
@@ -559,3 +579,51 @@ def get_vaccination_graph_data(center_id):
     merged = merged.set_index('datum').fillna(0).sort_values('datum')
 
     return merged
+
+
+def get_received_vaccine_graph_data():
+    return db.session.query("vyrobce", "datum", "prijem").from_statement(text(
+        """
+        select 
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.prijem) as prijem
+        from (
+            select 
+                vyrobce,
+                datum,
+                sum(pocet_davek) as prijem
+            from ockovani_distribuce
+            where akce='Příjem'
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
+
+
+def get_used_vaccine_graph_data():
+    return db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
+        """
+        select
+            vyrobce,
+            array_agg(base.datum) as datum,
+            array_agg(base.ockovano) as ockovano 
+        from (
+            select
+                case 
+                    when vakcina='Comirnaty' Then 'Pfizer'
+                    when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
+                    when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca'
+                    else 'ostatni'
+                end as vyrobce,
+                datum,
+                sum(pocet) as ockovano
+            from ockovani_lide
+            group by datum, vyrobce
+            order by vyrobce, datum
+        ) base
+        group by vyrobce
+        """
+    )).all()
