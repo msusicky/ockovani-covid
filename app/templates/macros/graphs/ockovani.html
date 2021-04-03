@@ -14,12 +14,8 @@
     </p>
 </div>
 
-
 <script>
-$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-    var target = $(e.target).attr("href")
-
-    if(target==="#vaccination_graph") {
+    function grafOckovani() {
         {% if 'ockovane' in data %}
         const ockovane = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
@@ -177,6 +173,14 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         Plotly.newPlot("graf-ockovani", data, layout, config);
     }
-});
+
+    grafOckovani();
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#vaccination_graph") {
+            grafOckovani();
+        }
+    });
 </script>
 {%- endmacro %}
