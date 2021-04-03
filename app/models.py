@@ -12,6 +12,9 @@ class Kraj(db.Model):
     id = Column(Unicode, primary_key=True)
     nazev = Column(Unicode)
 
+    def __repr__(self):
+        return f"<Kraj(nazev='{self.nazev}')>"
+
 
 class Okres(db.Model):
     __tablename__ = 'okresy'
@@ -23,7 +26,7 @@ class Okres(db.Model):
     kraj = relationship("Kraj", back_populates="okresy")
 
     def __repr__(self):
-        return "<Okres(nazev='%s')>" % self.nazev
+        return f"<Okres(nazev='{self.nazev}')>"
 
 
 Kraj.okresy = relationship("Okres", back_populates="kraj")
@@ -43,7 +46,7 @@ class ObceORP(db.Model):
     okres = relationship("Okres", back_populates="okresy_orp")
 
     def __repr__(self):
-        return "<ObceORP(kod_obce_orp='%s', nazev_obce='%s')>" % self.kod_obce_orp, self.nazev_obce
+        return f"<ObceORP(kod_obce_orp='{self.kod_obce_orp}', nazev_obce='{self.nazev_obce}')>"
 
 
 Kraj.kraje_orp = relationship("ObceORP", back_populates="kraj")
@@ -54,12 +57,11 @@ class Populace(db.Model):
     __tablename__ = 'populace'
 
     orp_kod = Column(Unicode, primary_key=True)
-    pocet = Column(Integer, primary_key=True)
     vek = Column(Integer, primary_key=True)
+    pocet = Column(Integer)
 
     def __repr__(self):
-        return "<Populace(orp_kod='%s', pocet=%s, vek=%s)>" % (
-            self.orp_kod, self.pocet, self.vek)
+        return f"<Populace(orp_kod='{self.orp_kod}', vek={self.vek})>"
 
 
 class PopulaceKategorie(db.Model):
@@ -70,8 +72,7 @@ class PopulaceKategorie(db.Model):
     max_vek = Column(Integer)
 
     def __repr__(self):
-        return "<PopulaceKategorie(vekova_skupina='%s', min_vek=%s, max_vek=%s)>" % (
-            self.vekova_skupina, self.min_vek, self.max_vek)
+        return f"<PopulaceKategorie(vekova_skupina='{self.vekova_skupina}')>"
 
 
 class OckovaciMisto(db.Model):
@@ -87,15 +88,11 @@ class OckovaciMisto(db.Model):
     nrpzs_kod = Column(Unicode, index=True)
     minimalni_kapacita = Column(Integer)
     bezbarierovy_pristup = Column(Boolean)
-    service_id = Column(Integer)
-    operation_id = Column(Integer)
-    odkaz = Column(Unicode)
 
     okres = relationship("Okres", back_populates="ockovaci_mista")
 
     def __repr__(self):
-        return "<OckovaciMisto(nazev='%s', service_id=%s, operation_id=%s)>" % (
-            self.nazev, self.service_id, self.operation_id)
+        return f"<OckovaciMisto(nazev='{self.nazev}')>"
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
@@ -112,7 +109,7 @@ class Import(db.Model):
     status = Column(Unicode)
 
     def __repr__(self):
-        return "<Import(id=%s, start='%s', status='%s')>" % (self.id, self.start, self.status)
+        return f"<Import(id={self.id}, start='{self.start}', status='{self.status}')>"
 
 
 class OckovaniSpotreba(db.Model):
@@ -130,8 +127,8 @@ class OckovaniSpotreba(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_spotreba')
 
     def __repr__(self):
-        return "<OckovaniSpotreba(ockovaci_misto_id='%s', datum='%s', ockovaci_latka=%s, pouzite_ampulky=%s)>" % (
-            self.ockovaci_misto_id, self.datum, self.ockovaci_latka, self.pouzite_ampulky)
+        return f"<OckovaniSpotreba(ockovaci_misto_id='{self.ockovaci_misto_id}', datum='{self.datum}', " \
+               f"ockovaci_latka='{self.ockovaci_latka}')>"
 
 
 OckovaciMisto.ockovani_spotreba = relationship("OckovaniSpotreba", back_populates="misto")
@@ -152,8 +149,9 @@ class OckovaniDistribuce(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_distribuce')
 
     def __repr__(self):
-        return "<OckovaniDistribuce(ockovaci_misto_id='%s', cilove_ockovaci_misto_id='%s', datum='%s', ockovaci_latka='%s', pocet_ampulek=%s)>" % (
-            self.ockovaci_misto_id, self.cilove_ockovaci_misto_id, self.datum, self.ockovaci_latka, self.pocet_ampulek)
+        return f"<OckovaniDistribuce(ockovaci_misto_id='{self.ockovaci_misto_id}', " \
+               f"cilove_ockovaci_misto_id='{self.cilove_ockovaci_misto_id}', datum='{self.datum}', " \
+               f"ockovaci_latka='{self.ockovaci_latka}', akce='{self.akce}')>"
 
 
 OckovaciMisto.ockovani_distribuce = relationship("OckovaniDistribuce", back_populates="misto")
@@ -173,8 +171,9 @@ class OckovaniLide(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLide(zarizeni_nazev='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_nazev, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
+        return f"<OckovaniLide(zarizeni_nazev='{self.zarizeni_nazev}', vakcina='{self.vakcina}', " \
+               f"datum='{self.datum}', poradi_davky={self.poradi_davky}, vekova_skupina='{self.vekova_skupina,}', " \
+               f"pocet={self.pocet})>"
 
 
 class OckovaniLideProfese(db.Model):
@@ -195,8 +194,9 @@ class OckovaniLideProfese(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return "<OckovaniLideProfese(zarizeni_kod='%s', vakcina='%s', datum='%s', poradi_davky=%s, vekova_skupina='%s', pocet=%s)>" % (
-            self.zarizeni_kod, self.vakcina, self.datum, self.poradi_davky, self.vekova_skupina, self.pocet)
+        return f"<OckovaniLideProfese(zarizeni_kod='{self.zarizeni_kod}', vakcina='{self.vakcina}', " \
+               f"datum='{self.datum}', poradi_davky={self.poradi_davky}, vekova_skupina='{self.vekova_skupina}', " \
+               f"pocet={self.pocet})>"
 
 
 class OckovaniRegistrace(db.Model):
@@ -216,8 +216,9 @@ class OckovaniRegistrace(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_registrace')
 
     def __repr__(self):
-        return "<OckovaniRegistrace(ockovaci_misto_id='%s', datum='%s', povolani='%s', vekova_skupina='%s', datum_rezervace='%s', pocet=%s)>" % (
-            self.ockovaci_misto_id, self.datum, self.povolani, self.vekova_skupina, self.datum_rezervace, self.pocet)
+        return f"<OckovaniRegistrace(ockovaci_misto_id='{self.ockovaci_misto_id}', datum='{self.datum}', " \
+               f"povolani='{self.povolani}', vekova_skupina='{self.vekova_skupina}', " \
+               f"datum_rezervace='{self.datum_rezervace}', pocet={self.pocet})>"
 
 
 Import.ockovani_registrace = relationship("OckovaniRegistrace", back_populates="import_", cascade="delete")
@@ -238,8 +239,9 @@ class OckovaniRezervace(db.Model):
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
 
     def __repr__(self):
-        return "<OckovaniRezervace(ockovaci_misto_id='%s', datum='%s', volna_kapacita='%s', kalendar_ockovani='%s')>" % (
-            self.ockovaci_misto_id, self.datum, self.volna_kapacita, self.kalendar_ockovani)
+        return f"<OckovaniRezervace(ockovaci_misto_id='{self.ockovaci_misto_id}', datum='{self.datum}', " \
+               f"volna_kapacita='{self.volna_kapacita}', maximalni_kapacita='{self.maximalni_kapacita}', " \
+               f"kalendar_ockovani='{self.kalendar_ockovani}')>"
 
 
 Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_", cascade="delete")
@@ -265,6 +267,33 @@ class ZdravotnickeStredisko(db.Model):
     okres = Column(Unicode)
     okres_kod = Column(Unicode)
     nrpzs_kod = Column(Unicode)
+
+    def __repr__(self):
+        return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
+
+
+class Umrti(db.Model):
+    __tablename__ = 'umrti'
+
+    datum = Column(Date, primary_key=True)
+    vek = Column(Integer, primary_key=True)
+    kraj_nuts_kod = Column(Unicode, index=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return f"<Umrti(datum='{self.datum}', vek={self.vek}, kraj_nuts_kod='{self.kraj_nuts_kod}')>"
+
+
+class Nakazeni(db.Model):
+    __tablename__ = 'nakazeni'
+
+    datum = Column(Date, primary_key=True)
+    vek = Column(Integer, primary_key=True)
+    kraj_nuts_kod = Column(Unicode, index=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return f"<Nakazeni(datum='{self.datum}', vek={self.vek}, kraj_nuts_kod='{self.kraj_nuts_kod}')>"
 
 
 class KrajMetriky(db.Model):
@@ -342,11 +371,12 @@ class KrajMetriky(db.Model):
     kraj = relationship("Kraj", back_populates="metriky")
 
     def __repr__(self):
-        return "<KrajMetriky(id='%s', datum='%s')>" % (self.kraj_id, self.datum)
+        return f"<KrajMetriky(kraj_id='{self.kraj_id}', datum='{self.datum}')>"
 
 
 Kraj.metriky = relationship("KrajMetriky", back_populates="kraj")
 Index('idx_kraj_id_datum', KrajMetriky.kraj_id, KrajMetriky.datum)
+
 
 class OkresMetriky(db.Model):
     __tablename__ = 'okresy_metriky'
@@ -411,11 +441,12 @@ class OkresMetriky(db.Model):
     okres = relationship("Okres", back_populates="metriky")
 
     def __repr__(self):
-        return "<OkresMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
+        return f"<OkresMetriky(okres_id='{self.okres_id}', datum='{self.datum}')>"
 
 
 Okres.metriky = relationship("OkresMetriky", back_populates="okres")
 Index('idx_okres_id_datum', OkresMetriky.okres_id, OkresMetriky.datum)
+
 
 class OckovaciMistoMetriky(db.Model):
     __tablename__ = 'ockovaci_mista_metriky'
@@ -496,7 +527,7 @@ class OckovaciMistoMetriky(db.Model):
     misto = relationship("OckovaciMisto", back_populates="metriky")
 
     def __repr__(self):
-        return "<OckovaciMistoMetriky(id='%s', datum='%s')>" % (self.id, self.datum)
+        return f"<OckovaciMistoMetriky(misto_id='{self.misto_id}', datum='{self.datum}')>"
 
 
 OckovaciMisto.metriky = relationship("OckovaciMistoMetriky", back_populates="misto")
@@ -573,4 +604,4 @@ class CrMetriky(db.Model):
     vakciny_skladem_pocet_zmena_tyden = Column(Integer)         # odhad vakcin skladem - zmena za tyden
 
     def __repr__(self):
-        return "<CrMetriky(datum='%s')>" % (self.datum)
+        return f"<CrMetriky(datum='{self.datum}')>"
