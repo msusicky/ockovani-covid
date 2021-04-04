@@ -1,0 +1,29 @@
+{% macro stav_ockovani_praktici(vac_doctor_age) -%}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm mb-0">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" class="text-center">Název zařízení (nrpzs kód)</th>
+                <th scope="col" class="text-center">Očkováno</th>
+                <th scope="col" class="text-center">Očkováno za posledních 7 dní</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idx, row in vac_doctor_age.iterrows() %}
+            <tr>
+                <td>{{ row['nazev'] }} ({{ row['zarizeni_kod'] }})</td>
+                <td class="text-right">{{ row['sum_1'] | format_number }}</td>
+                <td class="text-right">{{ row['sum_2'] | format_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="font-weight-bold">
+            <tr>
+                <td>Celkem</td>
+                <td class="text-right">{{ vac_doctor_age['sum_1'].sum() | format_number }}</td>
+                <td class="text-right">{{ vac_doctor_age['sum_2'].sum() | format_number }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{%- endmacro %}
