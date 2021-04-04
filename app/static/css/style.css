@@ -19,6 +19,14 @@
     font-size: 120%;
 }
 
+.col-sortable {
+    cursor: pointer;
+}
+
+.col-sortable:hover {
+    text-decoration: underline;
+}
+
 .w-10 {
   width: 10% !important;
 }

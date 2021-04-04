@@ -1,0 +1,117 @@
+{% macro graf_nakazeni(data) -%}
+<div id="graf-nakazeni"></div>
+
+<script>
+    function grafNakazeni() {
+        {% set data_ostatni = data.filter(like = 'ostatni', axis=0) %}
+        {% set data_80 = data.filter(like = '80+', axis=0) %}
+        {% set data_70 = data.filter(like = '70-79', axis=0) %}
+        {% set data_60 = data.filter(like = '60-69', axis=0) %}
+        {% set data_0 = data.filter(like = '0-17', axis=0) %}
+
+        const nakazeni = {
+            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "18-59",
+        }
+
+        const nakazeni_80 = {
+            x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "80+",
+        }
+
+        const nakazeni_70 = {
+            x: [{% for idx, row in data_70.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_70.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "70-79",
+        }
+
+        const nakazeni_60 = {
+            x: [{% for idx, row in data_60.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_60.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "60-69",
+        }
+
+        const nakazeni_0 = {
+            x: [{% for idx, row in data_0.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_0.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "0-17",
+        }
+
+        const layout = {
+            title: "Týdenní průměr počtu nově nakažených na 100 tisíc obyvatel",
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "day",
+                tickformat: "%-d.%-m.%Y",
+                range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
+                rangeslider: true,
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 6,
+                            label: "6 měsíců",
+                            step: "month",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 1,
+                            label: "1 rok",
+                            step: "year",
+                            stepmode: "backward"
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                }
+            },
+            yaxis: {
+                title: "Počet na 100 tisíc obyvatel",
+                automargin: true
+            },
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                y: -0.4,
+            },
+            height: 700,
+        }
+
+        const data = [nakazeni_0, nakazeni, nakazeni_60, nakazeni_70, nakazeni_80];
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        Plotly.newPlot("graf-nakazeni", data, layout, config);
+    }
+
+    grafNakazeni();
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#infected_graph") {
+            grafNakazeni();
+        }
+    });
+</script>
+{%- endmacro %}

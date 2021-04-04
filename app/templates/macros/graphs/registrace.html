@@ -12,10 +12,7 @@
 </div>
 
 <script>
-$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-    var target = $(e.target).attr("href")
-
-    if(target==="#registrations_graph") {
+    function grafRegistrace() {
         const registrace = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
             y: [{% for idx, row in data.iterrows() %}{{ row['pocet_registrace'] }},{% endfor %}],
@@ -93,6 +90,14 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         Plotly.newPlot("graf-registrace", data, layout, config);
     }
-});
+
+    grafRegistrace();
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#registrations_graph") {
+            grafRegistrace();
+        }
+    });
 </script>
 {%- endmacro %}

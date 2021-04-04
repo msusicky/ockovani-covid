@@ -12,10 +12,7 @@
 </div>
 
 <script>
-$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-    var target = $(e.target).attr("href")
-
-    if(target==="#queue_graph") {
+    function grafFronta() {
         const fronta = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
             y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
@@ -101,6 +98,14 @@ $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
 
         Plotly.newPlot("graf-fronta", data, layout, config);
     }
-});
+
+    grafFronta()
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#queue_graph") {
+            grafFronta()
+        }
+    });
 </script>
 {%- endmacro %}
