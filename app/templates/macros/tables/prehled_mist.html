@@ -8,22 +8,22 @@
             <table id="centers-table" class="table table-bordered table-striped table-sm">
                 <thead class="thead-dark">
                 <tr>
-                    <th scope="col" class="text-center">Název</th>
-                    <th scope="col" class="text-center">Okres</th>
-                    <th scope="col" class="text-center">Kraj</th>
-                    <th scope="col" class="text-center">
+                    <th scope="col" class="text-center col-sortable">Název</th>
+                    <th scope="col" class="text-center col-sortable">Okres</th>
+                    <th scope="col" class="text-center col-sortable">Kraj</th>
+                    <th scope="col" class="text-center col-sortable">
                         Ve frontě
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                            title="Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).">
                         </i>
                     </th>
-                    <th scope="col" class="text-center">
+                    <th scope="col" class="text-center col-sortable">
                         Čekání na rezervaci
                         <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
                            title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání - ověřte si ve stavu registrací konkrétního očkovacího místa čekání pro vaši skupinu.<br>Červená (>2), žlutá (>1), zelená (>0).">
                         </i>
                     </th>
-                    <th scope="col" class="text-center">
+                    <th scope="col" class="text-center col-sortable">
                         Naočkování registrovaných
                         <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
                            data-placement="auto"
@@ -35,28 +35,30 @@
                 <tbody>
                 {% for item in centers %}
                 <tr class="{{ 'table-warning' if not item.status }}">
-                    <td><a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a></td>
-                    <td>
+                    <td data-value="{{ item.nazev }}">
+                        <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
+                    </td>
+                    <td data-value="{{ item.okres }}">
                         {% if request.path.startswith('/okres') %}
                         {{ item.okres }}
                         {% else %}
                         <a href="{{ url_for('view.info_okres', okres_name=item.okres) }}">{{ item.okres }}</a>
                         {% endif %}
                     </td>
-                    <td>
+                    <td data-value="{{ item.kraj }}">
                         {% if request.path.startswith('/kraj') %}
                         {{ item.kraj }}
                         {% else %}
                         <a href="{{ url_for('view.info_kraj', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
                         {% endif %}
                     </td>
-                    <td class="text-right">
+                    <td class="text-right" data-value="{{ item.registrace_fronta }}">
                         {{ item.registrace_fronta | format_number }}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" data-value="{{ item.registrace_prumer_cekani }}">
                         {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(1, 2)) }}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" data-value="{{ item.ockovani_odhad_cekani }}">
                         {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(2, 4)) }}
                     </td>
                 </tr>
