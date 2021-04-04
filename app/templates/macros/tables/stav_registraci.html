@@ -5,27 +5,27 @@
     <table class="table table-bordered table-striped table-sm" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="w-15 text-center">Věková<br>skupina</th>
-            <th scope="col" class="w-25 text-center">Povolání</th>
-            <th scope="col" class="w-15 text-center">
+            <th scope="col" class="w-15 text-center col-sortable">Věková<br>skupina</th>
+            <th scope="col" class="w-25 text-center col-sortable">Povolání</th>
+            <th scope="col" class="w-15 text-center col-sortable">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).">
                 </i>
             </th>
-            <th scope="col" class="w-15 text-center">
+            <th scope="col" class="w-15 text-center col-sortable">
                 Čekání na rezervaci
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Červená (>2), žlutá (>1), zelená (>0).">
                 </i>
             </th>
-            <th scope="col" class="w-15 text-center">
+            <th scope="col" class="w-15 text-center col-sortable">
                 Doba ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.<br>Červená (>2), žlutá (>1), zelená (>0).">
                 </i>
             </th>
-            <th scope="col" class="w-15 text-center">
+            <th scope="col" class="w-15 text-center col-sortable">
                 7denní úspěšnost
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.<br>Zelená (>50 %), žlutá (>5 %), červená (>0 %).">
@@ -36,20 +36,23 @@
         <tbody>
         {% for idx, row in registrations.iterrows() %}
         <tr class="{{ 'table-warning' if row['rezervace_14_pocet'] == 0 }}">
-            <td>{{ row['vekova_skupina'] }}</td>
-            <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ row['povolani'] }}">
+            <td data-value="{{ row['vekova_skupina'] }}">
+                {{ row['vekova_skupina'] }}
+            </td>
+            <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ row['povolani'] }}"
+                data-value="{{ row['povolani'] }}">
                 {{ row['povolani'] }}
             </td>
-            <td class="text-right">
+            <td class="text-right" data-value="{{ row['fronta_pocet'] }}">
                 {{ row['fronta_pocet'] | format_number }}
             </td>
-            <td class="text-center">
+            <td class="text-center" data-value="{{ row['rezervace_prumer_cekani'] }}">
                 {{ stitek(row['rezervace_prumer_cekani'], decimal=True, unit='týdne', unit_short='t', rev_color=True, limits=(1, 2)) }}
             </td>
-            <td class="text-center">
+            <td class="text-center" data-value="{{ row['fronta_prumer_cekani'] }}">
                 {{ stitek(row['fronta_prumer_cekani'], decimal=True, unit='týdne', unit_short='t', rev_color=True, limits=(1, 2)) }}
             </td>
-            <td class="text-center">
+            <td class="text-center" data-value="{{ row['uspesnost_7'] }}">
                 {{ stitek(row['uspesnost_7'], unit='%', limits=(5, 50), title=(row['registrace_7_rez'] | string) + '/' + (row['registrace_7'] | string)) }}
             </td>
         </tr>
