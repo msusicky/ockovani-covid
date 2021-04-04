@@ -142,9 +142,10 @@
         Plotly.update("graf-ockovano", buttons[0].args[0], buttons[0].args[1]);
     }
 
+    grafOckovanychDavek();
+
     // Fix autosizing when tab turns to be active
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-
         let target = $(e.target).attr("href") // activated tab
         if(target==="#charts-tab-ockovano") {
             grafOckovanychDavek();
