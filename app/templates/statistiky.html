@@ -6,6 +6,8 @@
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
+{% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
+{% from 'macros/graphs/umrti.html' import graf_umrti %}
 
 {% block title %}
 Statistiky |
@@ -172,6 +174,12 @@ Statistiky |
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#infected_graph">Vývoj počtu nakažených</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#deaths_graph">Vývoj počtu úmrtí</a>
+                    </li>
                 </ul>
             </div>
             <div class="card-body">
@@ -184,6 +192,12 @@ Statistiky |
                     </div>
                     <div class="tab-pane" id="queue_graph">
                         {{ graf_fronta(queue_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="infected_graph">
+                        {{ graf_nakazeni(infected_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="deaths_graph">
+                        {{ graf_umrti(deaths_graph_data) }}
                     </div>
                 </div>
             </div>

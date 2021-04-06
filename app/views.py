@@ -133,6 +133,10 @@ def statistiky():
     # Source data for graph of people in queue for the whole republic
     queue_graph_data = queries.get_queue_graph_data()
 
+    infected_graph_data = queries.get_infected_graph_data()
+
+    deaths_graph_data = queries.get_deaths_graph_data()
+
     if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
         cr_people = metriky.pocet_obyvatel_dospeli
         cr_factor = 0.7
@@ -147,7 +151,8 @@ def statistiky():
                            top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data,
-                           queue_graph_data=queue_graph_data)
+                           queue_graph_data=queue_graph_data, infected_graph_data=infected_graph_data,
+                           deaths_graph_data=deaths_graph_data)
 
 
 @bp.route("/codelat")
