@@ -464,7 +464,7 @@ def count_vaccinated_doctors(kraj_id=None):
     ockovani_doktori = pd.read_sql_query(
         """
         select nazev_cely as nazev, zarizeni_kod, sum(pocet) as sum_1, 
-            sum(case when ol.datum>=current_date -'7 days'::interval then pocet else 0 end)  as sum_2
+            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end)  as sum_2
             from ockovani_lide ol join 
             (SELECT max(nazev_cely) nazev_cely,nrpzs_kod from zdravotnicke_stredisko zs 
             where zs.zdravotnicke_zarizeni_kod in 
@@ -472,7 +472,7 @@ def count_vaccinated_doctors(kraj_id=None):
               zs on (ol.zarizeni_kod=zs.nrpzs_kod)
 	        where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and kraj_nuts_kod='{}'
 	        group by nazev_cely, zarizeni_kod order by  sum(pocet) desc
-        """.format(kraj_id),
+        """.format(get_import_date(), kraj_id),
         db.engine
     )
     return ockovani_doktori
