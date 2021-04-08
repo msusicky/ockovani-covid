@@ -460,6 +460,24 @@ def count_vaccinated(kraj_id=None):
     return merged
 
 
+def count_vaccinated_doctors(kraj_id=None):
+    ockovani_doktori = pd.read_sql_query(
+        """
+        select nazev_cely as nazev, zarizeni_kod, sum(pocet) as sum_1, 
+            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end)  as sum_2
+            from ockovani_lide ol join 
+            (SELECT max(nazev_cely) nazev_cely,nrpzs_kod from zdravotnicke_stredisko zs 
+            where zs.zdravotnicke_zarizeni_kod in 
+            (select min(zs1.zdravotnicke_zarizeni_kod) from zdravotnicke_stredisko zs1 group by zs1.nrpzs_kod) group by nrpzs_kod)
+              zs on (ol.zarizeni_kod=zs.nrpzs_kod)
+	        where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and kraj_nuts_kod='{}'
+	        group by nazev_cely, zarizeni_kod order by  sum(pocet) desc
+        """.format(get_import_date(), kraj_id),
+        db.engine
+    )
+    return ockovani_doktori
+
+
 def get_registrations_graph_data(center_id):
     registrace = pd.read_sql_query(
         """
