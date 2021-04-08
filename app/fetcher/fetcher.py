@@ -16,8 +16,11 @@ class Fetcher:
 
     def get_modified_date(self) -> datetime:
         headers = requests.head(url=self._url).headers
-        modified_tuple = eut.parsedate_tz(headers['last-modified'])
-        modified_timestamp = eut.mktime_tz(modified_tuple)
+        if 'last-modified' in headers:
+            modified_tuple = eut.parsedate_tz(headers['last-modified'])
+            modified_timestamp = eut.mktime_tz(modified_tuple)
+        else:
+            modified_timestamp = 0
         return datetime.fromtimestamp(modified_timestamp)
 
     def fetch(self, import_id: int) -> None:
