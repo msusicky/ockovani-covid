@@ -633,7 +633,7 @@ def get_used_vaccine_graph_data():
                 case 
                     when vakcina='Comirnaty' Then 'Pfizer'
                     when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
-                    when vakcina='COVID-19 Vaccine AstraZeneca' Then 'AstraZeneca'
+                    when vakcina='VAXZEVRIA' Then 'AstraZeneca'
                     else 'ostatni'
                 end as vyrobce,
                 datum,
