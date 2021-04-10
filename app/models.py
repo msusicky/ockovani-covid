@@ -116,6 +116,17 @@ class AnalyzaHospitalizaci(db.Model):
     datum_umrti = Column(Date)
 
 
+class Vakcina(db.Model):
+    __tablename__ = 'vakciny'
+
+    vyrobce = Column(Unicode, primary_key=True)
+    vakcina = Column(Unicode, unique=True, nullable=False)
+    davky = Column(Integer)
+
+    def __repr__(self):
+        return f"<Vakcina(vyrobce='{self.vyrobce}')>"
+
+
 class OckovaciMisto(db.Model):
     __tablename__ = 'ockovaci_mista'
 
@@ -159,7 +170,7 @@ class OckovaniSpotreba(db.Model):
     datum = Column(Date, primary_key=True)
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     ockovaci_latka = Column(Unicode, primary_key=True)
-    vyrobce = Column(Unicode)
+    vyrobce = Column(Unicode, ForeignKey('vakciny.vyrobce'))
     pouzite_ampulky = Column(Integer)
     znehodnocene_ampulky = Column(Integer)
     pouzite_davky = Column(Integer)
@@ -182,7 +193,7 @@ class OckovaniDistribuce(db.Model):
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True, index=True)
     cilove_ockovaci_misto_id = Column(Unicode, primary_key=True, index=True)
     ockovaci_latka = Column(Unicode, primary_key=True)
-    vyrobce = Column(Unicode)
+    vyrobce = Column(Unicode, ForeignKey('vakciny.vyrobce'))
     akce = Column(Unicode, primary_key=True)
     pocet_ampulek = Column(Integer)
     pocet_davek = Column(Integer)
@@ -202,7 +213,7 @@ class OckovaniLide(db.Model):
     __tablename__ = 'ockovani_lide'
 
     datum = Column(Date, primary_key=True)
-    vakcina = Column(Unicode, primary_key=True)
+    vakcina = Column(Unicode, ForeignKey('vakciny.vakcina'), primary_key=True)
     kraj_nuts_kod = Column(Unicode, index=True)
     kraj_nazev = Column(Unicode)
     zarizeni_kod = Column(Unicode, primary_key=True, index=True)
@@ -335,6 +346,17 @@ class Nakazeni(db.Model):
 
     def __repr__(self):
         return f"<Nakazeni(datum='{self.datum}', vekova_skupina='{self.vekova_skupina}', kraj_nuts_kod='{self.kraj_nuts_kod}')>"
+
+
+class DodavkaVakcin(db.Model):
+    __tablename__ = 'dodavky_vakcin'
+
+    datum = Column(Date, primary_key=True)
+    vyrobce = Column(Unicode, ForeignKey('vakciny.vyrobce'), primary_key=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return f"<DodavkaVakcin(datum='{self.datum}', vyrobce='{self.vyrobce}')>"
 
 
 class KrajMetriky(db.Model):

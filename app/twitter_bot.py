@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import twitter
 
-from app import db, app, filters
+from app import db, app, filters, queries
 from app.context import get_import_date
 from app.models import CrMetriky
 
@@ -10,19 +10,15 @@ from app.models import CrMetriky
 class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
-                                 CrMetriky.pocet_obyvatel_dospeli, CrMetriky.ockovani_pocet_davek,
-                                 CrMetriky.ockovani_pocet_davek_zmena_tyden,
-                                 CrMetriky.registrace_fronta) \
+                                 CrMetriky.pocet_obyvatel_dospeli, CrMetriky.registrace_fronta) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
-
-        remaining_days = (7 * (2 * 0.7 * stats.pocet_obyvatel_dospeli - stats.ockovani_pocet_davek)) / stats.ockovani_pocet_davek_zmena_tyden
 
         self._vaccinated = stats.ockovani_pocet_plne
         self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
         self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_dospeli
         self._waiting = stats.registrace_fronta
-        self._end_date = get_import_date() + timedelta(remaining_days)
+        self._end_date = queries.count_end_date_vaccinated()
 
     def post_tweet(self):
         text = self._generate_tweet()

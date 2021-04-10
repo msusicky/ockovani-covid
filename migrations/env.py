@@ -36,7 +36,7 @@ def include_object(object, name, type_, *args, **kwargs):
     if type_ == 'table' and name in exclude_tables:
         return False
     else:
-        if "_part_" in name or "_old" in name:
+        if name is not None and ("_part_" in name or "_old" in name):
             return False
         else:
             return True
