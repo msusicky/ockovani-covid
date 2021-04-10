@@ -6,7 +6,7 @@ from sqlalchemy import func, or_, and_, text
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky
 
 
 def unique_nrpzs_subquery():
@@ -476,6 +476,57 @@ def count_vaccinated_doctors(kraj_id=None):
         db.engine
     )
     return ockovani_doktori
+
+
+def count_end_date_vaccinated():
+    metrics = db.session.query(CrMetriky.ockovani_pocet_davek_zmena_tyden, CrMetriky.ockovani_pocet_davek,
+                               CrMetriky.pocet_obyvatel_dospeli) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one()
+
+    if metrics is None or metrics.ockovani_pocet_davek_zmena_tyden is None:
+        return None
+
+    population = metrics.pocet_obyvatel_dospeli
+    population_to_vaccinate = population * 0.7
+    days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_davek)) / metrics.ockovani_pocet_davek_zmena_tyden
+    return get_import_date() + timedelta(days=days)
+
+
+def count_end_date_supplies():
+    metrics = db.session.query(CrMetriky.pocet_obyvatel_dospeli) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one()
+
+    if metrics is None:
+        return None
+
+    population_to_vaccinate = metrics.pocet_obyvatel_dospeli * 0.7
+
+    end_date = db.session.query("datum").from_statement(text(
+        f"""
+        select datum from (
+            select datum, sum(pocet) over (order by datum rows between unbounded preceding and current row) as celkem_lidi 
+            from (
+                select datum, sum(pocet / davky) as pocet 
+                from dodavky_vakcin d 
+                join vakciny v on (d.vyrobce = v.vyrobce)
+                group by datum
+            ) t1
+        ) t2
+        where celkem_lidi > {population_to_vaccinate}
+        order by datum
+        limit 1
+        """
+    )).one_or_none()
+
+    if end_date is None:
+        return None
+
+    months = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října',
+              'listopadu', 'prosince']
+
+    return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
 def get_registrations_graph_data(center_id):
