@@ -110,6 +110,10 @@ def statistiky():
 
     vaccinated = queries.count_vaccinated()
 
+    vaccinated_category = queries.count_vaccinated_category()
+
+    reservations_category = queries.count_reservations_category()
+
     top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
         """
         select datum, sum(pocet) from ockovani_lide 
@@ -147,7 +151,8 @@ def statistiky():
         end_date = None
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
-                           vaccines=vaccines, vaccinated=vaccinated, end_date=end_date,
+                           vaccines=vaccines, vaccinated=vaccinated, vaccinated_category=vaccinated_category,
+                           reservations_category=reservations_category, end_date=end_date,
                            top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data,

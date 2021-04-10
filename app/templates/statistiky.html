@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
+{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
@@ -28,8 +29,10 @@ Statistiky |
             <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí a
             <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí alespoň jednou dávkou.
             Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
-            Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong> registrovaných
-            zájemců a konkrétní termín má přiděleno dalších <strong>{{ metriky.rezervace_cekajici | format_number }}</strong> lidí.
+            Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong>
+            registrovaných
+            zájemců a konkrétní termín má přiděleno dalších <strong>{{ metriky.rezervace_cekajici | format_number
+            }}</strong> lidí.
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>
@@ -75,8 +78,33 @@ Statistiky |
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných</h5>
+                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle věku</h5>
                 {{ stav_ockovani(vaccinated) }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                        title="Dataset očkování, data se postupně doplňují.">Stav registrací dle kategorií</h5>
+                    {{ stav_registraci_kategorie(reservations_category) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                        title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle indikací</h5>
+                    {{ stav_ockovani(vaccinated_category) }}
+                    <p class="card-text font-italic">Lidé s více kategoriemi jsou započteni v každé.</p>
+                </div>
             </div>
         </div>
     </div>
