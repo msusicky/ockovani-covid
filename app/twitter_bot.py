@@ -19,6 +19,7 @@ class TwitterBot():
         self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_dospeli
         self._waiting = stats.registrace_fronta
         self._end_date = queries.count_end_date_vaccinated()
+        self._end_date_supplies = queries.count_end_date_supplies()
 
     def post_tweet(self):
         text = self._generate_tweet()
@@ -33,10 +34,10 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na přidělení termínu právě čeká {} registrovaných zájemců. Aktuální rychlostí bude 70 % dospělé populace naočkováno přibližně {}. #COVID19 https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na termín čeká {} zájemců. Aktuální rychlostí bude 70 % dospělých naočkováno cca {}, potřebné vakcíny by měly dorazit do konce {}. https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
-                    filters.format_date(self._end_date))
+                    filters.format_date(self._end_date).replace(' ', ''), self._end_date_supplies)
         return text
 
     def _generate_progressbar(self):
@@ -51,7 +52,7 @@ class TwitterBot():
             else:
                 progressbar += '░'
 
-        return progressbar + ' ' + filters.format_decimal(vaccinated_percent, 2) + ' %'
+        return progressbar + ' ' + filters.format_decimal(vaccinated_percent, 1) + ' %'
 
     def _post_tweet(self, text):
         api = twitter.Api(consumer_key=app.config['TWITTER_CONSUMER_KEY'],
