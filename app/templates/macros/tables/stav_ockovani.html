@@ -16,7 +16,7 @@
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-20 text-center" rowspan="{{'2' if show_ratio else '1'}}">
-                {% if kategorie %} Kategorie {% else %} Věková skupina {% endif %}</th>
+                {% if kategorie %} Indikace {% else %} Věková skupina {% endif %}</th>
             {% if not kategorie %}
             <th scope="col" class="w-20 text-center" rowspan="{{'2' if show_ratio else '1'}}">
                 Ve frontě
@@ -97,12 +97,11 @@
         </tr>
         {% endfor %}
         </tbody>
+        {% if not kategorie %}
         <tfoot class="font-weight-bold">
         <tr>
             <td>Celkem</td>
-            {% if not kategorie %}
             <td class="text-right">{{ vaccinated['pocet_fronta'].sum() | format_number }}</td>
-            {% endif %}
             <td class="text-right">{{ vaccinated['pocet_ockovani_castecne'].sum() | format_number }}</td>
             {% if 'podil_ockovani_castecne' in vaccinated %}
                 <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
@@ -117,6 +116,7 @@
             {% endif %}
         </tr>
         </tfoot>
+        {% endif %}
     </table>
 </div>
 {%- endmacro %}

@@ -90,7 +90,7 @@ Statistiky |
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                        title="Dataset očkování, data se postupně doplňují.">Stav registrací dle kategorií</h5>
+                        title="Dataset registrovaných dle profesí.">Stav registrací dle prioritních skupin</h5>
                     {{ stav_registraci_kategorie(reservations_category) }}
                 </div>
             </div>
@@ -103,6 +103,7 @@ Statistiky |
                     <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
                         title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle indikací</h5>
                     {{ stav_ockovani(vaccinated_category) }}
+                    <br />
                     <p class="card-text font-italic">Lidé s více kategoriemi jsou započteni v každé.</p>
                 </div>
             </div>

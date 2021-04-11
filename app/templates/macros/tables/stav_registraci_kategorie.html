@@ -4,7 +4,7 @@
     <table class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="w-20 text-center" rowspan="1">Kategorie</th>
+            <th scope="col" class="w-20 text-center" rowspan="1">Skupina</th>
             <th scope="col" class="w-20 text-center" rowspan="1">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
@@ -28,7 +28,8 @@
         <tbody>
         {% for idx, row in reservations_category.iterrows() %}
         <tr>
-            <td class="ellipsis">{{ row['kategorie'] }}</td>
+            <td class="ellipsis" data-toggle="tooltip" data-placement="auto" title="{{ row['kategorie'] }}"
+                data-value="{{ row['kategorie'] }}">{{ row['kategorie'] }}</td>
             <td class="text-right">{{ row['cekajici'] | format_number }}</td>
             <td class="text-right">{{ row['s_terminem'] | format_number }}</td>
             <td class="text-right">{{ row['celkem'] | format_number }}</td>
