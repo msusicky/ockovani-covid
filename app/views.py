@@ -106,6 +106,10 @@ def statistiky():
         .filter(CrMetriky.datum == get_import_date()) \
         .one_or_none()
 
+    end_date = queries.count_end_date_vaccinated()
+
+    end_date_supplies = queries.count_end_date_supplies()
+
     vaccines = queries.count_vaccines_cr()
 
     vaccinated = queries.count_vaccinated()
@@ -151,9 +155,9 @@ def statistiky():
         end_date = None
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
-                           vaccines=vaccines, vaccinated=vaccinated, vaccinated_category=vaccinated_category,
-                           reservations_category=reservations_category, end_date=end_date,
-                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
+                           vaccines=vaccines, vaccinated=vaccinated, end_date=end_date, vaccinated_category=vaccinated_category,
+                           reservations_category=reservations_category, end_date_supplies=end_date_supplies, top5=top5_vaccination_day,
+                           top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data,
                            queue_graph_data=queue_graph_data, infected_graph_data=infected_graph_data,

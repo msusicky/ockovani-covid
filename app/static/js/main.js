@@ -15,14 +15,14 @@ $(function(){
 // Sortable tables
 $(document).ready(function() {
     $('.col-sortable').click(function () {
-        var table = $(this).parents('table').eq(0)
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+        var tbody = $(this).parents('table').eq(0).find('tbody').eq(0)
+        var rows = tbody.find('tr').toArray().sort(comparer($(this).index()))
         this.asc = !this.asc
         if (!this.asc) {
             rows = rows.reverse()
         }
         for (var i = 0; i < rows.length; i++) {
-            table.append(rows[i])
+            tbody.append(rows[i])
         }
     })
 
