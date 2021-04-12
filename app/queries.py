@@ -514,7 +514,7 @@ def count_vaccinated_doctors(kraj_id=None):
         select nazev_cely as nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
             sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end)  as sum_2
         from ockovani_lide ol join (
-            SELECT min(nazev_cely) nazev_cely, nrpzs_kod, string_agg(distinct obec, ' / ') obec 
+            SELECT min(nazev_cely) nazev_cely, nrpzs_kod, string_agg(distinct obec, ', ') obec 
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
         ) zs on (ol.zarizeni_kod=zs.nrpzs_kod)
