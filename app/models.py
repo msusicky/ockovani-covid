@@ -409,6 +409,9 @@ class KrajMetriky(db.Model):
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    registrace_rezervace_prumer = Column(Float)                 # prumerny pocet novych rezervaci za posledni tyden
+    registrace_rezervace_prumer_zmena_den = Column(Float)       # prumerny pocet novych rezervaci za posledni tyden - zmena za den
+    registrace_rezervace_prumer_zmena_tyden = Column(Float)     # prumerny pocet novych rezervaci za posledni tyden - zmena za tyden
     ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
     ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
     ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
@@ -491,6 +494,9 @@ class OkresMetriky(db.Model):
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    registrace_rezervace_prumer = Column(Float)                 # prumerny pocet novych rezervaci za posledni tyden
+    registrace_rezervace_prumer_zmena_den = Column(Float)       # prumerny pocet novych rezervaci za posledni tyden - zmena za den
+    registrace_rezervace_prumer_zmena_tyden = Column(Float)     # prumerny pocet novych rezervaci za posledni tyden - zmena za tyden
     vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
@@ -562,6 +568,9 @@ class OckovaciMistoMetriky(db.Model):
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    registrace_rezervace_prumer = Column(Float)                 # prumerny pocet novych rezervaci za posledni tyden
+    registrace_rezervace_prumer_zmena_den = Column(Float)       # prumerny pocet novych rezervaci za posledni tyden - zmena za den
+    registrace_rezervace_prumer_zmena_tyden = Column(Float)     # prumerny pocet novych rezervaci za posledni tyden - zmena za tyden
     ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
     ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
     ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
@@ -644,6 +653,9 @@ class CrMetriky(db.Model):
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
+    registrace_rezervace_prumer = Column(Float)                 # prumerny pocet novych rezervaci za posledni tyden
+    registrace_rezervace_prumer_zmena_den = Column(Float)       # prumerny pocet novych rezervaci za posledni tyden - zmena za den
+    registrace_rezervace_prumer_zmena_tyden = Column(Float)     # prumerny pocet novych rezervaci za posledni tyden - zmena za tyden
     ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
     ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
     ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
