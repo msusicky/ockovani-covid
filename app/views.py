@@ -164,9 +164,9 @@ def statistiky():
                            deaths_graph_data=deaths_graph_data)
 
 
-@bp.route("/codelat")
-def codelat():
-    return render_template('codelat.html', last_update=_last_import_modified(), now=_now())
+@bp.route("/napoveda")
+def napoveda():
+    return render_template('napoveda.html', last_update=_last_import_modified(), now=_now())
 
 
 @bp.route("/odkazy")
