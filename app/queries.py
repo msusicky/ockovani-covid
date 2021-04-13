@@ -482,7 +482,7 @@ def count_vaccinated_category():
             from ockovani_lide_profese where indikace_pedagog is true
             group by kategorie
             union
-            select 'Školstní ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
+            select 'Školství ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
             sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
             from ockovani_lide_profese where indikace_skolstvi_ostatni is true
             group by kategorie    
