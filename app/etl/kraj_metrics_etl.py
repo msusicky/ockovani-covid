@@ -62,21 +62,21 @@ class KrajMetricsEtl:
     def _compute_registrations(self):
         """Computes metrics based on registrations dataset for each kraj."""
         registrations = db.session.query(
-            Kraj.id, func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
-            func.sum(OckovaciMistoMetriky.registrace_fronta).label("registrace_fronta")
-        ).join(Okres, Okres.kraj_id == Kraj.id) \
-            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
-            .join(OckovaciMistoMetriky, OckovaciMistoMetriky.misto_id == OckovaciMisto.id) \
-            .filter(OckovaciMistoMetriky.datum == self._date) \
-            .group_by(Kraj.id) \
+            Okres.kraj_id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
+            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
+        ).join(OckovaciMisto, OckovaciMisto.okres_id == Okres.id) \
+            .outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
+            .group_by(Okres.kraj_id) \
             .all()
 
         for registration in registrations:
             db.session.merge(KrajMetriky(
-                kraj_id=registration.id,
+                kraj_id=registration.kraj_id,
                 datum=self._date,
                 registrace_celkem=registration.registrace_celkem,
-                registrace_fronta=registration.registrace_fronta
+                registrace_fronta=registration.registrace_fronta,
+                registrace_rezervace_prumer=registration.registrace_rezervace_prumer
             ))
 
         app.logger.info('Computing kraj metrics - registrations finished.')
@@ -329,6 +329,7 @@ class KrajMetricsEtl:
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
+                registrace_rezervace_prumer_zmena_den = t0.registrace_rezervace_prumer - t1.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
@@ -360,6 +361,7 @@ class KrajMetricsEtl:
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_rezervace_prumer_zmena_tyden = t0.registrace_rezervace_prumer - t7.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
