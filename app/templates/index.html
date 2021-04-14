@@ -6,16 +6,21 @@
         <div class="jumbotron text-justify">
             <h2>COVID-19 data o očkování</h2>
             <p>
-                Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst. <strong>Systém je komplikovaný
-                a pro správná rozhodnutí je nezbytné si přečíst, jak funguje (na této stránce níže).</strong> Nezávazně
+                Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst. <strong>Systém je
+                komplikovaný
+                a pro správná rozhodnutí je nezbytné si přečíst, jak funguje (<a href="napoveda">ZDE - Jak to
+                    funguje</a>).</strong> Nezávazně
                 doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají termín, kolik je
-                obsazených slotů na očkování a kolik vakcín přibližně dostává dané místo. <strong>Nedává smysl měnit často
-                registraci, změnou registrace se dostáváte na poslední místo lidí stejného věku v dané kategorii na novém
+                obsazených slotů na očkování a kolik vakcín přibližně dostává dané místo. <strong>Nedává smysl měnit
+                často
+                registraci, změnou registrace se dostáváte na poslední místo lidí stejného věku v dané kategorii na
+                novém
                 místě.</strong>
             </p>
             <p>
                 Navštivte repozitář <a href="https://github.com/msusicky/ockovani-covid" target="_blank">
-                https://github.com/msusicky/ockovani-covid</a> a napište náměty pro rozšíření nebo se přidejte k vývoji. Za
+                https://github.com/msusicky/ockovani-covid</a> a napište náměty pro rozšíření nebo se přidejte k vývoji.
+                Za
                 systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří
                 poskytli cenné připomínky.
             </p>
@@ -25,18 +30,21 @@
 
 <div class="row mb-4">
     <div class="col text-center">
-        <svg id="map" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 215 120">
+        <svg id="map" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 215 120">
             <style>
                 .kraj:hover {
-                    fill: rgba(0,0,0, 0.2);
+                    fill: rgba(0, 0, 0, 0.2);
                     cursor: pointer;
                 }
+
                 .kraj {
                     stroke: #343A40;
                     fill: #e9ecef;
                     stroke-width: 1;
                     transition: all 0.2s;
                 }
+
                 #map {
                     width: 80%;
                 }
@@ -105,66 +113,37 @@
 </div>
 
 <div class="row">
-    <div class="col text-justify">
-        <h3>A jak to celé funguje? (snad - z ústního popisu, komentáře a korekce vítány)</h3>
-        <p>
-            Na následujících řádcích se pokusíme popsat proces od registrace po očkování.
-        </p>
-        <p>
-            Na začátku se člověk registruje na adrese
-            <a href="https://registrace.mzcr.cz" target="_blank">https://registrace.mzcr.cz</a> a zadá svůj telefon k
-            ověření. Po zadání kontrolní SMS zadá osobní údaje, zvolí si očkovací místo a tím dokončí registraci.
-        </p>
-        <p>
-            Tím se dostává na konkrétní očkovací místo, které disponuje tzv. "závorou". Ta určuje oblast lidí, kteří
-            mají právo vybrat si termín očkování. Se závorou je většinou manipulováno tak, aby nedocházelo k přeplnění,
-            tzn.
-            jakmile člověk dostane PIN2/zvací SMS, tak pro něj existuje termín v místě, které si vybral.<br/>
-            POZOR!!! Např. v Praze toto ale neplatí a pro 100 volných míst se rozesílá 110-120 SMS. Pak je systém o tom,
-            kdo se
-            první zaregistruje, v okamžiku naplnění kapacit ostatním přijde SMS, že jejich vstup zanikl. Toto nám přijde
-            jako lepší varianta, protože se rychleji zvyšuje zaplněnost jednotlivých míst. Na druhou stranu mrtvé duše
-            zůstanou v systému.
-            <i>V tuto chvíli nedisponujeme informací o hodnotě těchto závěr, ale je možné vidět velikost front na
-                jednotlivých očkovacích místech.</i>
-        </p>
-        <p>
-            V ideálním světě by vše fungovalo, ale bohužel ne každý reaguje na SMS zprávu okamžitě a systém nyní nabízí
-            3 dny (časové okno), po které je dané místo rezervováno a nemůže být přiděleno jiným. Následně přijde
-            upozornění na konec časového okna a poté o jeho konci. Informaci, kterou
-            my na webu zobrazujeme, je bez zohlednění těchto skutečností, neboť na ně nemáme data. Dalším faktorem je
-            to, že očkovací místa si mohou vybrat, jaké skupiny lidí pustí k výběru očkovacích časů, tj. lidé dle věku,
-            zdravotníky, učitele, vše ale striktně dle věku. Proto informace na tomto webu jsou orientační,
-            aktualizované jednou denně a bez dalších
-            dodatečných informací ze
-            strany státu není možné zjistit opravdu "volná" místa.<br/>
-            <b>Pokud do tří dnů nedojde k výběru místa, okno zaniká. Zvací SMS přijde nejvýše 3x, pokud vyprší i třetí
-                časové okno, registrace zaniká a je třeba se registrovat znovu.(**)</b>
-        </p>
-        <p>
-            POZOR! pokud dojde k přeregistraci, tak se člověk dostane na čekací listinu daného místa na konec lidí
-            stejného věku v dané kategorii a záleží, jak
-            často a jak se nastaví závora. Může se tak stát, že se člověk přeregistruje na místo, které deklaruje více
-            volných míst, ale bude na něm ve frontě více zájemců. Proto také sledujte počty čekajících a jejich
-            úspěšnost.
-        </p>
-
-        <h3>Zdroje, ze kterých čerpáme data</h3>
-        <ul>
-            <li>Oficiální data o očkovaných (*)</li>
-            <li>Oficiální data o distribuci vakcín (*)</li>
-            <li>Oficiální informace o rezervacích a registracích (*)</li>
-        </ul>
-        (*) Komenda M., Karolyi M., Bulhart V., Žofka J., Brauner T., Hak J., Jarkovský J., Mužík J., Blaha M., Kubát
-        J., Klimeš D., Langhammer P., Daňková Š., Májek O., Bartůňková M., Dušek L. COVID‑19: Přehled aktuální situace v
-        ČR. Onemocnění aktuálně [online]. Praha: Ministerstvo zdravotnictví ČR, 2020 [cit. 28.02.2021]. Dostupné z:
-        <a href="https://onemocneni-aktualne.mzcr.cz/covid-19" target="_blank">https://onemocneni-aktualne.mzcr.cz/covid-19</a>.
-        Vývoj: společné pracoviště ÚZIS ČR a IBA LF MU. ISSN 2694-9423.
-        <br/>
-        (**) <a href="https://covid.gov.cz/situace/registrace-na-ockovani/zaregistrovala-jsem-se-na-ockovani-ale-nemam-kam-zadat-pin2-nebo-mi">https://covid.gov.cz/situace/registrace-na-ockovani/zaregistrovala-jsem-se-na-ockovani-ale-nemam-kam-zadat-pin2-nebo-mi</a>
+    <div class="col">
+        <div class="jumbotron text-justify bg-blue">
+            <h3>Aktuality - Důležité informace</h3>
+            <p>
+                <b>12.4.2021 - mezi 10.4 a 11.4. se zmenšil dataset rezervací z 907588 na 347967 řádků. Nahlášeno na
+                    UZIS, dopad neznámý.</b>
+            </p>
+            <p>
+                <b>9.4.2021 - dataset rezervací stále oříznutý, což je v souvislosti s prodloužením intervalu na 42 dní
+                    a dlouhým intervalem u AZ devastující. Poslední informace: "Rezervační systém nezvládá vyšší počet
+                    dotazů pro získání dat. Pokusíme se prodloužit na 60 dní."</b>
+            </p>
+            <p>
+                8.4.2021 - prosba o sdělení zdrojových dat k reportu očekávaných dodávek - <a href="https://ockovani.jmk.cz/">https://ockovani.jmk.cz/</a> Poslední informace: žádná
+            </p>
+            <p>
+                4.4.2021 - pozorujeme větší odchylky mezi ockoreport a opendaty. Reklamováno. Ke dni 13.4. jsou odchylky menší.
+            </p>
+            <p>
+                1.4.2021 - neočekávané přejmenování vakcíny AstraZeneca na VAXZEVRIA
+            </p>
+            <p>
+                22.3.2021 - zjištění a oznámení, že dataset rezervací je od 5.3. oříznutý na jeden měsíc dopředně.
+            </p>
+            <p>
+                21.3.2021 - prosba o dataset s aktuálním stavem vakcín na jednotlivých místech. Oprava chybějících
+                očkovacích míst.
+            </p>
+        </div>
     </div>
 </div>
-
 {% endblock %}
 
 
