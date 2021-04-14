@@ -64,11 +64,6 @@
                 </a>
             </li>
             <li class="nav-item col-lg-auto ml-auto">
-                <a class="nav-link {{ 'active' if request.path == '/codelat' else '' }}"
-                   href="{{ url_for('view.codelat') }}">Co dělat, když…
-                </a>
-            </li>
-            <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link {{ 'active' if request.path == '/statistiky' else '' }}"
                    href="{{ url_for('view.statistiky') }}">Statistiky
                 </a>
@@ -76,6 +71,11 @@
             <li class="nav-item col-lg-auto ml-auto">
                 <a class="nav-link {{ 'active' if request.path == '/odkazy' else '' }}"
                    href="{{ url_for('view.odkazy') }}">Odkazy
+                </a>
+            </li>
+            <li class="nav-item col-lg-auto ml-auto">
+                <a class="nav-link {{ 'active' if request.path == '/napoveda' else '' }}"
+                   href="{{ url_for('view.napoveda') }}">Nápověda
                 </a>
             </li>
         </ul>
