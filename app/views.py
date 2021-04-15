@@ -100,6 +100,14 @@ def mapa():
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
+@bp.route("/praktici")
+def praktici():
+    vaccination_doctors = queries.count_vaccinated_doctors()
+
+    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
+                           vaccination_doctors=vaccination_doctors)
+
+
 @bp.route("/statistiky")
 def statistiky():
     metriky = db.session.query(CrMetriky) \
