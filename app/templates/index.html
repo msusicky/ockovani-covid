@@ -6,29 +6,29 @@
         <div class="jumbotron text-justify">
             <h2>COVID-19 data o očkování</h2>
             <p>
-                Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst. <strong>Systém je
-                komplikovaný
-                a pro správná rozhodnutí je nezbytné si přečíst, jak funguje (<a href="napoveda">ZDE - Jak to
-                    funguje</a>).</strong> Nezávazně
-                doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají termín, kolik je
-                obsazených slotů na očkování a kolik vakcín přibližně dostává dané místo. <strong>Nedává smysl měnit
-                často
-                registraci, změnou registrace se dostáváte na poslední místo lidí stejného věku v dané kategorii na
-                novém
-                místě.</strong>
+                Tento web poskytuje data, která zobrazují statistiky jednotlivých očkovacích míst.
+                <strong>
+                    Systém je komplikovaný a pro správná rozhodnutí je nezbytné si přečíst, jak funguje
+                    (<a href="napoveda">Nápověda - Jak to celé funguje?</a>).
+                </strong>
+                Nezávazně doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají
+                termín, kolik je obsazených slotů na očkování a kolik vakcín přibližně dostává dané místo.
+                <strong>
+                    Nedává smysl měnit často registraci, změnou registrace se dostáváte na poslední místo lidí stejného
+                    věku v dané kategorii na novém místě.
+                </strong>
             </p>
             <p>
                 Navštivte repozitář <a href="https://github.com/msusicky/ockovani-covid" target="_blank">
                 https://github.com/msusicky/ockovani-covid</a> a napište náměty pro rozšíření nebo se přidejte k vývoji.
-                Za
-                systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří
+                Za systémem stojí Jan Staněk (http://jstanek.cz/), Marek Sušický (marek(at)susicky.net) a přátele, kteří
                 poskytli cenné připomínky.
             </p>
         </div>
     </div>
 </div>
 
-<div class="row mb-4">
+<div class="row mb-5">
     <div class="col text-center">
         <svg id="map" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
              viewBox="0 0 215 120">
@@ -114,34 +114,106 @@
 
 <div class="row">
     <div class="col">
-        <div class="jumbotron text-justify bg-blue">
-            <h3>Aktuality - Důležité informace</h3>
-            <p>
-                <b>12.4.2021 - mezi 10.4 a 11.4. se zmenšil dataset rezervací z 907588 na 347967 řádků. Nahlášeno na
-                    UZIS, dopad neznámý.</b>
-            </p>
-            <p>
-                <b>9.4.2021 - dataset rezervací stále oříznutý, což je v souvislosti s prodloužením intervalu na 42 dní
-                    a dlouhým intervalem u AZ devastující. Poslední informace: "Rezervační systém nezvládá vyšší počet
-                    dotazů pro získání dat. Pokusíme se prodloužit na 60 dní."</b>
-            </p>
-            <p>
-                8.4.2021 - prosba o sdělení zdrojových dat k reportu očekávaných dodávek - <a href="https://ockovani.jmk.cz/">https://ockovani.jmk.cz/</a> Poslední informace: žádná
-            </p>
-            <p>
-                4.4.2021 - pozorujeme větší odchylky mezi ockoreport a opendaty. Reklamováno. Ke dni 13.4. jsou odchylky menší.
-            </p>
-            <p>
-                1.4.2021 - neočekávané přejmenování vakcíny AstraZeneca na VAXZEVRIA
-            </p>
-            <p>
-                22.3.2021 - zjištění a oznámení, že dataset rezervací je od 5.3. oříznutý na jeden měsíc dopředně.
-            </p>
-            <p>
-                21.3.2021 - prosba o dataset s aktuálním stavem vakcín na jednotlivých místech. Oprava chybějících
-                očkovacích míst.
-            </p>
-        </div>
+        <h3>Aktuality a důležité informace</h3>
+        <ul class="timeline text-justify">
+            <li>
+                <strong>Chybějící data v datasetu registrací</strong>
+                <strong class="float-right">12. 4. 2021</strong>
+                <p>
+                    Mezi 10. 4. a 11. 4. se zmenšil dataset registrací z 907&nbsp;588 na 347&nbsp;967 řádků. Nahlášeno
+                    na ÚZIS, dopad neznámý.
+                </p>
+            </li>
+            <li>
+                <strong>Ořezávání datasetu rezervací na jeden měsíc dopředu</strong>
+                <strong class="float-right">9. 4. 2021</strong>
+                <p>
+                    Dataset rezervací je stále oříznutý, což je v souvislosti s prodloužením intervalu mezi 1. a 2.
+                    dávkou na 42 dní a dlouhým intervalem u AZ devastující. Poslední informace:
+                    <i>
+                        "Rezervační systém nezvládá vyšší počet dotazů pro získání dat. Pokusíme se prodloužit na 60 dní."
+                    </i>
+                </p>
+            </li>
+            <li>
+                <strong>Data o dodávkách vakcín</strong>
+                <strong class="float-right">8. 4. 2021</strong>
+                <p>
+                    Prosba o sdělení zdrojových dat k reportu očekávaných dodávek
+                    (<a href="https://ockovani.jmk.cz/" target="_blank">https://ockovani.jmk.cz</a>).
+                    Poslední informace: žádná.
+                </p>
+            </li>
+            <li>
+                <strong>Odchylky mezi reportem vytíženosti očkovacích míst a otevřenými daty</strong>
+                <strong class="float-right">4. 4. 2021</strong>
+                <p>
+                    Pozorujeme větší odchylky mezi otevřenými daty a
+                    <a href="https://ockoreport.uzis.cz/" target="_blank">https://ockoreport.uzis.cz</a>.
+                    Reklamováno, ke dni 13. 4. jsou odchylky menší.
+                </p>
+            </li>
+            <li>
+                <strong>Přejmenování vakcíny AstraZeneca na VAXZEVRIA</strong>
+                <strong class="float-right">1. 4. 2021</strong>
+                <p>
+                    Vakcína AstraZeneca byla v datech neočekávaně přejmenována na VAXZEVRIA.
+                </p>
+            </li>
+            <li>
+                <strong>Ořezávání datasetu rezervací na jeden měsíc dopředu</strong>
+                <strong class="float-right">22. 3. 2021</strong>
+                <p>
+                    Zjištění a nahlášení, že dataset rezervací je od 5. 3. oříznutý na jeden měsíc dopředu.
+                </p>
+            </li>
+            <li>
+                <strong>Prosba o nová data a opravy chyb</strong>
+                <strong class="float-right">21. 3. 2021</strong>
+                <p>
+                    Prosba o dataset s aktuálním stavem vakcín na jednotlivých očkovacích místech a doplnění
+                    odstraněných očkovacích míst, ke kterým stále existují registrace a rezervace.
+                </p>
+            </li>
+            <li>
+                <strong>Zveřejnění oficiálních datasetů registrací a rezervací</strong>
+                <strong class="float-right">2. 3. 2021</strong>
+                <p>
+                    ÚZIS zveřejnil data o registracích a rezervacích. Data začínáme používat už stejný den po jejich
+                    zveřejnění.
+                </p>
+            </li>
+            <li>
+                <strong>Spuštění webu</strong>
+                <strong class="float-right">20. 2. 2021</strong>
+                <p>
+                    Po změnách v registračním systému jsme si nebyli jistí užitečností webu, zjistil jsme ale, že mezi
+                    očkovacími místy jsou velké rozdíly v zaplněnosti, a tak jsme se rozhodli web spustit.
+                </p>
+            </li>
+            <li>
+                <strong>Změna registračního systému</strong>
+                <strong class="float-right">22. 1. 2021</strong>
+                <p>
+                    Registrační systém zavádí fronty na přihlášení, rezervace termínu je možná až po přijetí SMS s PIN2.
+                </p>
+            </li>
+            <li>
+                <strong>Začátek vývoje webu</strong>
+                <strong class="float-right">16. 1. 2021</strong>
+                <p>
+                    Registrační systém nenabízí žádný přehled volných míst v očkovacích centrech. Získáváme data pomocí
+                    scrapování a začínáme připravovat neoficiální přehled volných míst.
+                </p>
+            </li>
+            <li>
+                <strong>Spuštění registrace</strong>
+                <strong class="float-right">15. 1. 2021</strong>
+                <p>
+                    Spuštění registračního systému na očkování a otevření registrace pro věkovou skupinu 80+.
+                </p>
+            </li>
+        </ul>
     </div>
 </div>
 {% endblock %}
