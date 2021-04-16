@@ -497,11 +497,9 @@ def count_vaccinated_category():
 def count_reservations_category():
     ockovani_skupiny = pd.read_sql_query(
         """
-        select povolani kategorie, sum(case when datum_rezervace ='1970-01-01' then pocet else 0 end ) cekajici
-            , sum(case when datum_rezervace >'1970-01-01' then pocet else 0 end ) s_terminem,
-            sum(pocet) celkem
+        select povolani kategorie, sum(case when rezervace = false then pocet else 0 end) cekajici, 
+            sum(case when rezervace = true then pocet else 0 end) s_terminem, sum(pocet) celkem
             from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc;
-        
         """.format(get_import_id()),
         db.engine
     )
