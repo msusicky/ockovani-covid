@@ -498,17 +498,20 @@ def count_vaccinated_doctors(kraj_id=None):
 
 
 def count_end_date_vaccinated():
-    metrics = db.session.query(CrMetriky.ockovani_pocet_davek_zmena_tyden, CrMetriky.ockovani_pocet_davek,
+    metrics = db.session.query(CrMetriky.ockovani_pocet_castecne_zmena_tyden, CrMetriky.ockovani_pocet_castecne,
+                               CrMetriky.ockovani_pocet_plne_zmena_tyden, CrMetriky.ockovani_pocet_plne,
                                CrMetriky.pocet_obyvatel_dospeli) \
         .filter(CrMetriky.datum == get_import_date()) \
         .one()
 
-    if metrics is None or metrics.ockovani_pocet_davek_zmena_tyden is None:
+    if metrics is None or metrics.ockovani_pocet_castecne_zmena_tyden is None \
+            or CrMetriky.ockovani_pocet_plne_zmena_tyden is None:
         return None
 
     population = metrics.pocet_obyvatel_dospeli
     population_to_vaccinate = population * 0.7
-    days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_davek)) / metrics.ockovani_pocet_davek_zmena_tyden
+    days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_castecne - metrics.ockovani_pocet_plne)) \
+           / (metrics.ockovani_pocet_castecne_zmena_tyden + metrics.ockovani_pocet_plne_zmena_tyden)
     return get_import_date() + timedelta(days=days)
 
 
