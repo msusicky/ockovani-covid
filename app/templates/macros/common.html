@@ -102,3 +102,16 @@
 </span>
 {% endif %}
 {%- endmacro %}
+
+{% macro zprava(title, date, text) -%}
+<li>
+    <span class="font-weight-bold">
+        {{ title }}
+        <span class="d-inline d-md-none">({{ date }})</span>
+    </span>
+    <span class="font-weight-bold float-right d-none d-md-inline">
+        {{ date }}
+    </span>
+    <p>{{ text |safe }}</p>
+</li>
+{%- endmacro %}
