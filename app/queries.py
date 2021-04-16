@@ -351,8 +351,8 @@ def count_registrations(filter_column, filter_value):
 def count_vaccinated(kraj_id=None):
     ockovani = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) filter(where poradi_davky = 1) pocet_ockovani_castecne, 
-            sum(pocet) filter(where poradi_davky = davky) pocet_ockovani_plne
+        select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
+            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
         from ockovani_lide o 
         join vakciny v on v.vakcina = o.vakcina
         where datum < '{}' and (kraj_nuts_kod = '{}' or {})
@@ -365,8 +365,8 @@ def count_vaccinated(kraj_id=None):
     if kraj_id is not None:
         ockovani_kraj = pd.read_sql_query(
             """
-            select vekova_skupina, sum(pocet) filter(where poradi_davky = 1) pocet_ockovani_v_kraji_castecne, 
-                sum(pocet) filter(where poradi_davky = davky) pocet_ockovani_v_kraji_plne
+            select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_v_kraji_castecne, 
+                coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_v_kraji_plne
             from ockovani_lide_profese o 
             join vakciny v on v.vakcina = o.vakcina
             where datum < '{}' and (kraj_bydl_nuts = '{}')
@@ -434,37 +434,34 @@ def count_vaccinated(kraj_id=None):
 
 
 def count_vaccinated_category():
-    ockovani_kategorie = pd.read_sql_query(
+    df = pd.read_sql_query(
         """
-        select 'Zdravotník' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_zdravotnik is true
-            group by kategorie
-            union
-            select 'Sociální služby' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_socialni_sluzby is true
-            group by kategorie
-            union
-            select 'Ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_ostatni is true
-            group by kategorie
-            union
-            select 'Pedagog' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_pedagog is true
-            group by kategorie
-            union
-            select 'Školství ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_skolstvi_ostatni is true
-            group by kategorie    
+        select indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
+            indikace_skolstvi_ostatni, 
+            coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
+            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
+        from ockovani_lide_profese o
+        join vakciny v on v.vakcina = o.vakcina
+        group by indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
+            indikace_skolstvi_ostatni    
         """,
         db.engine
     )
 
-    return ockovani_kategorie
+    df = df.melt(id_vars=['pocet_ockovani_castecne', 'pocet_ockovani_plne'],
+                 value_vars=['indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog',
+                             'indikace_skolstvi_ostatni'],
+                 var_name='kategorie', value_name='aktivni')
+
+    df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
+
+    df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
+    df = df.rename(index={'indikace_socialni_sluzby': 'Sociální služby'})
+    df = df.rename(index={'indikace_ostatni': 'Ostatní'})
+    df = df.rename(index={'indikace_pedagog': 'Pedagog'})
+    df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
+
+    return df.reset_index().sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
