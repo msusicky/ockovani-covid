@@ -511,17 +511,17 @@ def count_reservations_category():
 def count_vaccinated_doctors(kraj_id=None):
     ockovani_doktori = pd.read_sql_query(
         """
-        select nazev_cely as nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
-            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end)  as sum_2
+        select zarizeni_nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
+            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end) as sum_2
         from ockovani_lide ol join (
-            SELECT min(nazev_cely) nazev_cely, nrpzs_kod, string_agg(distinct obec, ', ') obec 
+            SELECT nrpzs_kod, string_agg(distinct obec, ', ') obec 
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
         ) zs on (ol.zarizeni_kod=zs.nrpzs_kod)
-	    where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and kraj_nuts_kod='{}'
-	    group by nazev_cely, zarizeni_kod, obec 
+	    where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and (kraj_nuts_kod='{}' or True={})
+	    group by zarizeni_nazev, zarizeni_kod, obec 
 	    order by sum(pocet) desc
-        """.format(get_import_date(), kraj_id),
+        """.format(get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
     return ockovani_doktori
