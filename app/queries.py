@@ -528,8 +528,9 @@ def count_vaccinated_doctors(kraj_id=None):
 
 
 def count_supplies():
-    df = pd.read_sql_query("select * from dodavky_vakcin", db.engine)
-    return df.set_index(['datum', 'vyrobce'])
+    df = pd.read_sql_query('select datum, vyrobce, pocet from dodavky_vakcin where pocet > 0', db.engine)
+    df = df.pivot_table(values='pocet', index='datum', columns='vyrobce', aggfunc='sum')
+    return df.fillna(0)
 
 
 def count_end_date_vaccinated():
