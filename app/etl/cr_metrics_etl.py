@@ -3,7 +3,8 @@ from datetime import timedelta
 from sqlalchemy import func, case, text
 
 from app import db, app
-from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, Populace, CrMetriky, OckovaniDistribuce
+from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, Populace, CrMetriky, OckovaniDistribuce, \
+    Vakcina
 
 
 class CrMetricsEtl:
@@ -103,8 +104,9 @@ class CrMetricsEtl:
         vaccinated = db.session.query(
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
-        ).filter(OckovaniLide.datum < self._date) \
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
+        ).join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
+            .filter(OckovaniLide.datum < self._date) \
             .one()
 
         db.session.merge(CrMetriky(
