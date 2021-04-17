@@ -100,6 +100,14 @@ def mapa():
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
 
 
+@bp.route("/praktici")
+def praktici():
+    vaccination_doctors = queries.count_vaccinated_doctors()
+
+    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
+                           vaccination_doctors=vaccination_doctors)
+
+
 @bp.route("/statistiky")
 def statistiky():
     metriky = db.session.query(CrMetriky) \
@@ -147,24 +155,14 @@ def statistiky():
 
     deaths_graph_data = queries.get_deaths_graph_data()
 
-    if metriky is not None and metriky.ockovani_pocet_davek_zmena_tyden is not None:
-        cr_people = metriky.pocet_obyvatel_dospeli
-        cr_factor = 0.7
-        cr_to_vacc = cr_people * cr_factor
-        delka_dny = (7 * (2 * cr_to_vacc - metriky.ockovani_pocet_davek)) / metriky.ockovani_pocet_davek_zmena_tyden
-        end_date = get_import_date() + timedelta(days=delka_dny)
-    else:
-        end_date = None
-
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
-                           vaccines=vaccines, vaccinated=vaccinated, supplies=supplies, end_date=end_date,
-                           vaccinated_category=vaccinated_category, reservations_category=reservations_category,
-                           end_date_supplies=end_date_supplies, top5=top5_vaccination_day,
-                           top5_place=top5_vaccination_place_day,
+                           end_date=end_date, end_date_supplies=end_date_supplies, vaccines=vaccines,
+                           vaccinated=vaccinated, vaccinated_category=vaccinated_category,
+                           reservations_category=reservations_category, supplies=supplies,
+                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
-                           used_vaccine_graph_data=used_vaccine_graph_data,
-                           queue_graph_data=queue_graph_data, infected_graph_data=infected_graph_data,
-                           deaths_graph_data=deaths_graph_data)
+                           used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
+                           infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data)
 
 
 @bp.route("/napoveda")
