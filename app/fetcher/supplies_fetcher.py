@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 
@@ -17,8 +18,8 @@ class SuppliesFetcher(Fetcher):
     def __init__(self):
         super().__init__(DodavkaVakcin.__tablename__, self.SUPPLIES_CSV, check_date=False)
 
-    def get_modified_date(self) -> datetime:
-        return datetime.fromtimestamp(0)
+    def get_modified_date(self) -> Optional[datetime]:
+        return None
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)

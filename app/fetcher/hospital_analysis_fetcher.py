@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 import requests
@@ -21,14 +22,14 @@ class HospitalAnalysisFetcher(Fetcher):
         url = self.HOSPITAL_ANALYSIS_CSV.format(token)
         super().__init__(AnalyzaHospitalizaci.__tablename__, url)
 
-    def get_modified_date(self) -> datetime:
+    def get_modified_date(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers
         if 'content-disposition' in headers:
             filename = headers['content-disposition']
             modified_date = filename.split('.')[0].split('_')[-1]
             return datetime.strptime(modified_date, '%Y-%m-%d-%H-%M-%S')
         else:
-            return datetime.fromtimestamp(0)
+            return None
 
     def fetch(self, import_id: int) -> None:
         if self._url is None:

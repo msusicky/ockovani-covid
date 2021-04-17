@@ -85,12 +85,21 @@ class FetcherLauncher:
         modified_dates = []
 
         for fetcher in self._fetchers:
-            modified_date = fetcher.get_modified_date()
-            app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified date: '{modified_date}'.")
-            if fetcher.check_date and modified_date.date() < date.today():
-                raise Exception(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
+            try:
+                modified_date = fetcher.get_modified_date()
+                app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified date: '{modified_date}'.")
 
-            modified_dates.append(modified_date)
+                if fetcher.check_date and (modified_date is None or modified_date.date() < date.today()):
+                    raise Exception(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
+
+                if modified_date is not None:
+                    modified_dates.append(modified_date)
+
+            except Exception as e:
+                if fetcher.ignore_errors:
+                    app.logger.warn(f"Ignoring error: '{e}'")
+                else:
+                    raise e
 
         self._last_modified_date = max(modified_dates)
 
@@ -98,8 +107,15 @@ class FetcherLauncher:
         for fetcher in self._fetchers:
             start = time.time()
             app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
-            fetcher.fetch(self._import.id)
-            app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
+
+            try:
+                fetcher.fetch(self._import.id)
+                app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
+            except Exception as e:
+                if fetcher.ignore_errors:
+                    app.logger.warn(f"Ignoring error: '{e}'")
+                else:
+                    raise e
 
     def _init_import(self) -> None:
         # delete previous today's import if exists

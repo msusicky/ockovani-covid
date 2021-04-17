@@ -13,7 +13,7 @@ class DistributedFetcher(Fetcher):
     DISTRIBUTED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-distribuce.csv'
 
     def __init__(self):
-        super().__init__(OckovaniDistribuce.__tablename__, self.DISTRIBUTED_CSV)
+        super().__init__(OckovaniDistribuce.__tablename__, self.DISTRIBUTED_CSV, ignore_errors=True)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
