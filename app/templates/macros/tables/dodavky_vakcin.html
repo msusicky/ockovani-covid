@@ -13,7 +13,7 @@
         <tbody>
         {% for mesic, row in supplies.iterrows() %}
         <tr>
-            <td>{{ mesic | format_date }}</td>
+            <td>{{ mesic.strftime('%B %Y') }}</td>
             {% for vyrobce in supplies.columns %}
             <td class="text-right">{{ row[vyrobce] | format_number }}</td>
             {% endfor %}
