@@ -122,6 +122,8 @@ def statistiky():
 
     vaccinated = queries.count_vaccinated()
 
+    supplies = queries.count_supplies()
+
     vaccinated_category = queries.count_vaccinated_category()
 
     reservations_category = queries.count_reservations_category()
@@ -156,8 +158,8 @@ def statistiky():
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            end_date=end_date, end_date_supplies=end_date_supplies, vaccines=vaccines,
                            vaccinated=vaccinated, vaccinated_category=vaccinated_category,
-                           reservations_category=reservations_category, top5=top5_vaccination_day,
-                           top5_place=top5_vaccination_place_day,
+                           reservations_category=reservations_category, supplies=supplies,
+                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
                            infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data)

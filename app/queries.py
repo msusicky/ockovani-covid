@@ -495,6 +495,12 @@ def count_vaccinated_doctors(kraj_id=None):
     return ockovani_doktori
 
 
+def count_supplies():
+    df = pd.read_sql_query('select datum, vyrobce, pocet from dodavky_vakcin where pocet > 0', db.engine)
+    df = df.pivot_table(values='pocet', index='datum', columns='vyrobce', aggfunc='sum')
+    return df.fillna(0)
+
+
 def count_end_date_vaccinated():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne_zmena_tyden, CrMetriky.ockovani_pocet_castecne,
                                CrMetriky.ockovani_pocet_plne_zmena_tyden, CrMetriky.ockovani_pocet_plne,
