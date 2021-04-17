@@ -5,6 +5,7 @@
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
+{% from 'macros/tables/odhad_konce.html' import odhad_konce %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -199,6 +200,17 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title">Předpokládané dodávky vakcín</h5>
                 {{ dodavky_vakcin(supplies) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Odhad dostupnosti vakcín podle věkové skupiny</h5>
+                {{ odhad_konce(end_date_category) }}
             </div>
         </div>
     </div>

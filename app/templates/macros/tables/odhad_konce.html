@@ -1,0 +1,27 @@
+{% macro odhad_konce(end) -%}
+<table class="table table-bordered table-striped table-sm">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col" class="text-center w-50">Věková skupina</th>
+        <th scope="col" class="text-center w-50">
+            Měsíc
+            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+               title="Měsíc, kdy by měly být pro danou věkovou skupinu dostupné obě dávky vakcíny.">
+            </i>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for mesic, row in end.iterrows() %}
+    <tr>
+        <td>{{ row['vekova_skupina'] }}</td>
+        <td>{{ mesic.strftime('%B %Y') }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p class="card-text font-italic text-justify">
+    Výpočet předpokládá, že se očkování řídí jen podle věku a z každé skupiny se nechá očkovat 70 % populace.
+    Zanedbáváme také intervaly mezi první a druhou dávkou, reálně by tedy očkování první dávkou mělo proběhnout dříve.
+</p>
+{%- endmacro %}

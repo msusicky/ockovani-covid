@@ -501,7 +501,7 @@ def count_supplies():
     return df.fillna(0)
 
 
-def count_end_months_supplies():
+def count_end_date_category():
     df = pd.read_sql_query(
         """
         select vekova_skupina, min(datum) mesic from (
@@ -522,11 +522,11 @@ def count_end_months_supplies():
         ) t2
         on populace <= celkem
         group by vekova_skupina
-        order by vekova_skupina, datum
+        order by vekova_skupina
         """,
-        db
+        db.engine
     )
-    return df
+    return df.set_index('mesic')
 
 
 def count_end_date_vaccinated():
