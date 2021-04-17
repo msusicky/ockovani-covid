@@ -4,7 +4,7 @@ from sqlalchemy import func, case, text, or_, and_
 
 from app import db, app, queries
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniRezervace, OckovaniLide, \
-    OckovaniDistribuce, OckovaniSpotreba
+    OckovaniDistribuce, OckovaniSpotreba, Vakcina
 
 
 class CenterMetricsEtl:
@@ -97,8 +97,9 @@ class CenterMetricsEtl:
         """Computes metrics based on vaccinated people dataset for each vaccination center."""
         vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
                                       func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')) \
+                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')) \
             .outerjoin(OckovaniLide, and_(OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod, OckovaniLide.datum < self._date)) \
+            .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_active_subquery())),
                         and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())))) \
             .group_by(OckovaciMisto.id) \

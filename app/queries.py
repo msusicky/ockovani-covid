@@ -108,38 +108,34 @@ def count_vaccines_center(center_id):
         db.engine
     )
 
-    vyrobci = pd.read_sql_query(
-        """
-        select distinct(vyrobce)
-        from ockovani_distribuce;
-        """,
-        db.engine
-    )
+    vyrobci = pd.read_sql_query("select vyrobce from vakciny;", db.engine)
 
     mista_key = mista
     mista_key['join'] = 0
     vyrobci_key = vyrobci
     vyrobci_key['join'] = 0
 
-    res = mista_key.merge(vyrobci_key).drop('join', axis=1)
+    df = mista_key.merge(vyrobci_key).drop('join', axis=1)
 
-    res = pd.merge(res, prijato, how="left")
-    res = pd.merge(res, prijato_odjinud, how="left")
-    res = pd.merge(res, vydano, how="left")
-    res = pd.merge(res, spotreba, how="left")
+    df = pd.merge(df, prijato, how="left")
+    df = pd.merge(df, prijato_odjinud, how="left")
+    df = pd.merge(df, vydano, how="left")
+    df = pd.merge(df, spotreba, how="left")
 
-    res['prijato'] = res['prijato'].fillna(0).astype('int')
-    res['prijato_odjinud'] = res['prijato_odjinud'].fillna(0).astype('int')
-    res['vydano'] = res['vydano'].fillna(0).astype('int')
-    res['pouzito'] = res['pouzito'].fillna(0).astype('int')
-    res['znehodnoceno'] = res['znehodnoceno'].fillna(0).astype('int')
+    df['prijato'] = df['prijato'].fillna(0).astype('int')
+    df['prijato_odjinud'] = df['prijato_odjinud'].fillna(0).astype('int')
+    df['vydano'] = df['vydano'].fillna(0).astype('int')
+    df['pouzito'] = df['pouzito'].fillna(0).astype('int')
+    df['znehodnoceno'] = df['znehodnoceno'].fillna(0).astype('int')
 
-    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud'] - res['vydano']
-    res['skladem'] = res['prijato_celkem'] - res['pouzito'] - res['znehodnoceno']
+    df['prijato_celkem'] = df['prijato'] + df['prijato_odjinud'] - df['vydano']
+    df['skladem'] = df['prijato_celkem'] - df['pouzito'] - df['znehodnoceno']
 
-    res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
+    df = df.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
-    return res
+    df = df[(df['prijato_celkem'] > 0) | (df['pouzito'] > 0) | (df['znehodnoceno'] > 0)]
+
+    return df
 
 
 def count_vaccines_kraj(kraj_id):
@@ -195,56 +191,48 @@ def count_vaccines_kraj(kraj_id):
 
     ockovano = pd.read_sql_query(
         """
-        select kraj_nuts_kod kraj_id, sum(pocet) ockovano,
-            case 
-                when vakcina = 'VAXZEVRIA' then 'AstraZeneca'
-                when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
-                when vakcina = 'Comirnaty' then 'Pfizer'
-            else 'ostatní' end vyrobce
+        select kraj_nuts_kod kraj_id, sum(pocet) ockovano, vyrobce
         from ockovani_lide
+        join vakciny on vakciny.vakcina = ockovani_lide.vakcina
         where kraj_nuts_kod = '{}' and datum < '{}'
-        group by kraj_nuts_kod, vakcina
+        group by kraj_nuts_kod, vyrobce
         """.format(kraj_id, get_import_date()),
         db.engine
     )
 
-    vyrobci = pd.read_sql_query(
-        """
-        select distinct(vyrobce)
-        from ockovani_distribuce;
-        """,
-        db.engine
-    )
+    vyrobci = pd.read_sql_query("select vyrobce from vakciny;", db.engine)
 
     mista_key = mista
     mista_key['join'] = 0
     vyrobci_key = vyrobci
     vyrobci_key['join'] = 0
 
-    res = mista_key.merge(vyrobci_key).drop('join', axis=1)
+    df = mista_key.merge(vyrobci_key).drop('join', axis=1)
 
-    res = pd.merge(res, prijato, how="left")
-    res = pd.merge(res, prijato_odjinud, how="left")
-    res = pd.merge(res, vydano, how="left")
-    res = pd.merge(res, spotreba, how="left")
+    df = pd.merge(df, prijato, how="left")
+    df = pd.merge(df, prijato_odjinud, how="left")
+    df = pd.merge(df, vydano, how="left")
+    df = pd.merge(df, spotreba, how="left")
 
-    res['prijato'] = res['prijato'].fillna(0).astype('int')
-    res['prijato_odjinud'] = res['prijato_odjinud'].fillna(0).astype('int')
-    res['vydano'] = res['vydano'].fillna(0).astype('int')
-    res['znehodnoceno'] = res['znehodnoceno'].fillna(0).astype('int')
+    df['prijato'] = df['prijato'].fillna(0).astype('int')
+    df['prijato_odjinud'] = df['prijato_odjinud'].fillna(0).astype('int')
+    df['vydano'] = df['vydano'].fillna(0).astype('int')
+    df['znehodnoceno'] = df['znehodnoceno'].fillna(0).astype('int')
 
-    res = res.groupby(by=['kraj_id', 'vyrobce'], as_index=False).sum()
+    df = df.groupby(by=['kraj_id', 'vyrobce'], as_index=False).sum()
 
-    res = pd.merge(res, ockovano, how="left")
+    df = pd.merge(df, ockovano, how="left")
 
-    res['ockovano'] = res['ockovano'].fillna(0).astype('int')
+    df['ockovano'] = df['ockovano'].fillna(0).astype('int')
 
-    res['prijato_celkem'] = res['prijato'] + res['prijato_odjinud'] - res['vydano']
-    res['skladem'] = res['prijato_celkem'] - res['ockovano'] - res['znehodnoceno']
+    df['prijato_celkem'] = df['prijato'] + df['prijato_odjinud'] - df['vydano']
+    df['skladem'] = df['prijato_celkem'] - df['ockovano'] - df['znehodnoceno']
 
-    res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
+    df = df.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
 
-    return res
+    df = df[(df['prijato_celkem'] > 0) | (df['ockovano'] > 0) | (df['znehodnoceno'] > 0)]
+
+    return df
 
 
 def count_vaccines_cr():
@@ -270,36 +258,37 @@ def count_vaccines_cr():
 
     ockovano = pd.read_sql_query(
         """
-        select sum(pocet) ockovano,
-            case 
-                when vakcina = 'VAXZEVRIA' then 'AstraZeneca'
-                when vakcina = 'COVID-19 Vaccine Moderna' then 'Moderna'
-                when vakcina = 'Comirnaty' then 'Pfizer'
-                else 'ostatní' end vyrobce
+        select sum(pocet) ockovano, vyrobce
         from ockovani_lide
+        join vakciny on vakciny.vakcina = ockovani_lide.vakcina
         where datum < '{}'
-        group by vakcina
+        group by vyrobce
         """.format(get_import_date()),
         db.engine
     )
 
-    res = pd.merge(prijato, spotreba, how="left")
+    vyrobci = pd.read_sql_query("select vyrobce from vakciny;", db.engine)
 
-    res['prijato'] = res['prijato'].fillna(0).astype('int')
-    res['znehodnoceno'] = res['znehodnoceno'].fillna(0).astype('int')
+    df = pd.merge(vyrobci, prijato, how="left")
+    df = pd.merge(df, spotreba, how="left")
 
-    res = res.groupby(by=['vyrobce'], as_index=False).sum()
+    df['prijato'] = df['prijato'].fillna(0).astype('int')
+    df['znehodnoceno'] = df['znehodnoceno'].fillna(0).astype('int')
 
-    res = pd.merge(res, ockovano, how="left")
+    df = df.groupby(by=['vyrobce'], as_index=False).sum()
 
-    res['ockovano'] = res['ockovano'].fillna(0).astype('int')
+    df = pd.merge(df, ockovano, how="left")
 
-    res['prijato_celkem'] = res['prijato']
-    res['skladem'] = res['prijato_celkem'] - res['ockovano'] - res['znehodnoceno']
+    df['ockovano'] = df['ockovano'].fillna(0).astype('int')
 
-    res = res.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
+    df['prijato_celkem'] = df['prijato']
+    df['skladem'] = df['prijato_celkem'] - df['ockovano'] - df['znehodnoceno']
 
-    return res
+    df = df.groupby(by=['vyrobce'], as_index=False).sum().sort_values(by=['vyrobce'])
+
+    df = df[(df['prijato_celkem'] > 0) | (df['ockovano'] > 0) | (df['znehodnoceno'] > 0)]
+
+    return df
 
 
 def count_registrations(filter_column, filter_value):
@@ -362,10 +351,13 @@ def count_registrations(filter_column, filter_value):
 def count_vaccinated(kraj_id=None):
     ockovani = pd.read_sql_query(
         """
-        select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani
-        from ockovani_lide
+        select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
+            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
+        from ockovani_lide o 
+        join vakciny v on v.vakcina = o.vakcina
         where datum < '{}' and (kraj_nuts_kod = '{}' or {})
-        group by vekova_skupina, vakcina, poradi_davky
+        group by vekova_skupina
+        order by vekova_skupina
         """.format(get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
@@ -373,10 +365,12 @@ def count_vaccinated(kraj_id=None):
     if kraj_id is not None:
         ockovani_kraj = pd.read_sql_query(
             """
-            select vekova_skupina, vakcina, poradi_davky, sum(pocet) pocet_ockovani_v_kraji
-            from ockovani_lide_profese
+            select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_v_kraji_castecne, 
+                coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_v_kraji_plne
+            from ockovani_lide_profese o 
+            join vakciny v on v.vakcina = o.vakcina
             where datum < '{}' and (kraj_bydl_nuts = '{}')
-            group by vekova_skupina, vakcina, poradi_davky
+            group by vekova_skupina
             """.format(get_import_date(), kraj_id),
             db.engine
         )
@@ -415,17 +409,8 @@ def count_vaccinated(kraj_id=None):
     )
 
     ockovani['vekova_skupina'] = ockovani['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
-    ockovani['pocet_ockovani_castecne'] = ockovani['pocet_ockovani'] \
-        .where(ockovani['poradi_davky'] == 1) \
-        .fillna(0) \
-        .astype('int')
-    ockovani['pocet_ockovani_plne'] = ockovani['pocet_ockovani'] \
-        .where((ockovani['poradi_davky'] == 2) | (ockovani['vakcina'].isin([]))) \
-        .fillna(0) \
-        .astype('int')
-    ockovani_grp = ockovani.groupby(['vekova_skupina']).sum().drop('poradi_davky', axis=1).reset_index()
 
-    merged = pd.merge(ockovani_grp, registrace, how="left")
+    merged = pd.merge(ockovani, registrace, how="left")
     merged = pd.merge(merged, populace, how="left")
 
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
@@ -433,20 +418,8 @@ def count_vaccinated(kraj_id=None):
     if kraj_id is not None:
         if ockovani_kraj is not None and not ockovani_kraj.empty:
             ockovani_kraj['vekova_skupina'] = ockovani_kraj['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
-            ockovani_kraj['pocet_ockovani_v_kraji_castecne'] = ockovani_kraj['pocet_ockovani_v_kraji'] \
-                .where(ockovani_kraj['poradi_davky'] == 1) \
-                .fillna(0) \
-                .astype('int')
-            ockovani_kraj['pocet_ockovani_v_kraji_plne'] = ockovani_kraj['pocet_ockovani_v_kraji'] \
-                .where((ockovani_kraj['poradi_davky'] == 2) | (ockovani_kraj['vakcina'].isin([]))) \
-                .fillna(0) \
-                .astype('int')
-            ockovani_kraj_grp = ockovani_kraj.groupby(['vekova_skupina']) \
-                .sum() \
-                .drop('poradi_davky', axis=1) \
-                .reset_index()
 
-            merged = pd.merge(merged, ockovani_kraj_grp, how="left")
+            merged = pd.merge(merged, ockovani_kraj, how="left")
             merged['podil_ockovani_v_kraji_castecne'] = (merged['pocet_ockovani_v_kraji_castecne'] / merged['pocet_vek']) \
                 .replace({np.nan: None})
             merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']) \
@@ -461,47 +434,42 @@ def count_vaccinated(kraj_id=None):
 
 
 def count_vaccinated_category():
-    ockovani_kategorie = pd.read_sql_query(
+    df = pd.read_sql_query(
         """
-        select 'Zdravotník' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_zdravotnik is true
-            group by kategorie
-            union
-            select 'Sociální služby' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_socialni_sluzby is true
-            group by kategorie
-            union
-            select 'Ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_ostatni is true
-            group by kategorie
-            union
-            select 'Pedagog' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_pedagog is true
-            group by kategorie
-            union
-            select 'Školství ostatní' as kategorie, sum(case when poradi_davky=1 then pocet else 0 end) pocet_ockovani_castecne, 
-            sum(case when poradi_davky=2 then pocet else 0 end) pocet_ockovani_plne
-            from ockovani_lide_profese where indikace_skolstvi_ostatni is true
-            group by kategorie    
+        select indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
+            indikace_skolstvi_ostatni, 
+            coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
+            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
+        from ockovani_lide_profese o
+        join vakciny v on v.vakcina = o.vakcina
+        group by indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
+            indikace_skolstvi_ostatni    
         """,
         db.engine
     )
 
-    return ockovani_kategorie
+    df = df.melt(id_vars=['pocet_ockovani_castecne', 'pocet_ockovani_plne'],
+                 value_vars=['indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog',
+                             'indikace_skolstvi_ostatni'],
+                 var_name='kategorie', value_name='aktivni')
+
+    df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
+
+    df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
+    df = df.rename(index={'indikace_socialni_sluzby': 'Sociální služby'})
+    df = df.rename(index={'indikace_ostatni': 'Ostatní'})
+    df = df.rename(index={'indikace_pedagog': 'Pedagog'})
+    df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
+
+    return df.reset_index().sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
     ockovani_skupiny = pd.read_sql_query(
         """
-        select povolani kategorie, sum(case when datum_rezervace ='1970-01-01' then pocet else 0 end ) cekajici
-            , sum(case when datum_rezervace >'1970-01-01' then pocet else 0 end ) s_terminem,
-            sum(pocet) celkem
+        select povolani kategorie, sum(case when rezervace = false then pocet else 0 end) cekajici, 
+            sum(case when rezervace = true then pocet else 0 end) s_terminem, sum(pocet) celkem
             from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc;
-        
         """.format(get_import_id()),
         db.engine
     )
@@ -511,17 +479,17 @@ def count_reservations_category():
 def count_vaccinated_doctors(kraj_id=None):
     ockovani_doktori = pd.read_sql_query(
         """
-        select nazev_cely as nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
-            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end)  as sum_2
+        select zarizeni_nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
+            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end) as sum_2
         from ockovani_lide ol join (
-            SELECT min(nazev_cely) nazev_cely, nrpzs_kod, string_agg(distinct obec, ', ') obec 
+            SELECT nrpzs_kod, string_agg(distinct obec, ', ') obec 
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
         ) zs on (ol.zarizeni_kod=zs.nrpzs_kod)
-	    where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and kraj_nuts_kod='{}'
-	    group by nazev_cely, zarizeni_kod, obec 
+	    where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and (kraj_nuts_kod='{}' or True={})
+	    group by zarizeni_nazev, zarizeni_kod, obec 
 	    order by sum(pocet) desc
-        """.format(get_import_date(), kraj_id),
+        """.format(get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
     return ockovani_doktori
@@ -562,17 +530,20 @@ def count_end_months_supplies():
 
 
 def count_end_date_vaccinated():
-    metrics = db.session.query(CrMetriky.ockovani_pocet_davek_zmena_tyden, CrMetriky.ockovani_pocet_davek,
+    metrics = db.session.query(CrMetriky.ockovani_pocet_castecne_zmena_tyden, CrMetriky.ockovani_pocet_castecne,
+                               CrMetriky.ockovani_pocet_plne_zmena_tyden, CrMetriky.ockovani_pocet_plne,
                                CrMetriky.pocet_obyvatel_dospeli) \
         .filter(CrMetriky.datum == get_import_date()) \
         .one()
 
-    if metrics is None or metrics.ockovani_pocet_davek_zmena_tyden is None:
+    if metrics is None or metrics.ockovani_pocet_castecne_zmena_tyden is None \
+            or CrMetriky.ockovani_pocet_plne_zmena_tyden is None:
         return None
 
     population = metrics.pocet_obyvatel_dospeli
     population_to_vaccinate = population * 0.7
-    days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_davek)) / metrics.ockovani_pocet_davek_zmena_tyden
+    days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_castecne - metrics.ockovani_pocet_plne)) \
+           / (metrics.ockovani_pocet_castecne_zmena_tyden + metrics.ockovani_pocet_plne_zmena_tyden)
     return get_import_date() + timedelta(days=days)
 
 
@@ -758,25 +729,15 @@ def get_received_vaccine_graph_data():
 def get_used_vaccine_graph_data():
     return db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
         """
-        select
-            vyrobce,
-            array_agg(base.datum) as datum,
-            array_agg(base.ockovano) as ockovano 
+        select vyrobce, array_agg(base.datum) as datum, array_agg(base.ockovano) as ockovano 
         from (
-            select
-                case 
-                    when vakcina='Comirnaty' Then 'Pfizer'
-                    when vakcina='COVID-19 Vaccine Moderna' Then 'Moderna' 
-                    when vakcina='VAXZEVRIA' Then 'AstraZeneca'
-                    else 'ostatni'
-                end as vyrobce,
-                datum,
-                sum(pocet) as ockovano
+            select vyrobce, datum, sum(pocet) as ockovano
             from ockovani_lide
-            group by datum, vyrobce
-            order by vyrobce, datum
+            join vakciny on vakciny.vakcina = ockovani_lide.vakcina
+            group by vyrobce, datum 
         ) base
         group by vyrobce
+        order by vyrobce, datum
         """
     )).all()
 

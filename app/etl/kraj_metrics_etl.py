@@ -4,7 +4,7 @@ from sqlalchemy import func, case, text, and_
 
 from app import db, app
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, Okres, Kraj, KrajMetriky, \
-    Populace
+    Populace, Vakcina
 
 
 class KrajMetricsEtl:
@@ -120,8 +120,9 @@ class KrajMetricsEtl:
         vaccinated = db.session.query(
             Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_nuts_kod == Kraj.id, OckovaniLide.datum < self._date)) \
+            .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .group_by(Kraj.id) \
             .all()
 
