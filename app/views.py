@@ -173,6 +173,26 @@ def napoveda():
 def odkazy():
     return render_template('odkazy.html', last_update=_last_import_modified(), now=_now())
 
+@bp.route("/dataquality")
+def dataquality():
+    susp_vaccination = db.session.query("datum", "vakcina","zarizeni_kod", "zarizeni_nazev", "vekova_skupina", "pocet").from_statement(text(
+        """
+        select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
+        from ockovani_lide where vakcina not in ('Comirnaty','VAXZEVRIA','COVID-19 Vaccine Moderna')
+        """
+    )).all()
+
+    susp_vaccination_age = db.session.query("datum", "vakcina", "zarizeni_kod", "zarizeni_nazev", "vekova_skupina",
+                                        "pocet").from_statement(text(
+        """
+        select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
+        from ockovani_lide where vakcina !='Comirnaty' and vekova_skupina='0-17'
+        """
+    )).all()
+
+    return render_template('dataquality.html', last_update=_last_import_modified(), now=_now(), vaccinated=susp_vaccination,
+                           vaccinated_age=susp_vaccination_age)
+
 
 def _last_import_modified():
     """
