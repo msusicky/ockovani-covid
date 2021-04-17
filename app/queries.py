@@ -501,6 +501,34 @@ def count_supplies():
     return df.fillna(0)
 
 
+def count_end_date_category():
+    df = pd.read_sql_query(
+        """
+        select vekova_skupina, min(datum) mesic from (
+            select min(vekova_skupina) vekova_skupina, sum(pocet) * 0.7 populace
+            from populace_kategorie
+            join populace on vek >= min_vek and orp_kod = 'CZ0'
+            where min_vek >= 18
+            group by vekova_skupina
+        ) t1
+        join (
+            select datum, sum(pocet) over (order by datum rows between unbounded preceding and current row) celkem 
+            from (
+                select datum, sum(pocet / davky) as pocet 
+                from dodavky_vakcin d 
+                join vakciny v on (d.vyrobce = v.vyrobce)
+                group by datum
+            ) t3
+        ) t2
+        on populace <= celkem
+        group by vekova_skupina
+        order by vekova_skupina
+        """,
+        db.engine
+    )
+    return df.set_index('mesic')
+
+
 def count_end_date_vaccinated():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne_zmena_tyden, CrMetriky.ockovani_pocet_castecne,
                                CrMetriky.ockovani_pocet_plne_zmena_tyden, CrMetriky.ockovani_pocet_plne,
