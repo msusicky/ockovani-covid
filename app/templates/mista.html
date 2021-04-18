@@ -12,30 +12,5 @@ Očkovací místa |
     </div>
 </div>
 
-<div class="row">
-    <div class="col">
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
-            </div>
-            <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
-        </div>
-    </div>
-</div>
-
 {{ prehled_mist(mista, days) }}
 {% endblock %}
-
-{% block scripts %}
-<script>
-    $(document).ready(function(){
-      $("#centers-searchbox").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $("#centers-table tbody tr").filter(function() {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
-      });
-    });
-</script>
-{% endblock %}
-
