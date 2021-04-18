@@ -734,10 +734,10 @@ def get_used_vaccine_graph_data():
             select vyrobce, datum, sum(pocet) as ockovano
             from ockovani_lide
             join vakciny on vakciny.vakcina = ockovani_lide.vakcina
-            group by vyrobce, datum 
+            group by vyrobce, datum
+            order by vyrobce, datum
         ) base
         group by vyrobce
-        order by vyrobce, datum
         """
     )).all()
 
