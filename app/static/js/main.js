@@ -13,7 +13,7 @@ $(function(){
 
 
 // Sortable tables
-$(document).ready(function() {
+$(function () {
     $('.col-sortable').click(function () {
         var tbody = $(this).parents('table').eq(0).find('tbody').eq(0)
         var rows = tbody.find('tr').toArray().sort(comparer($(this).index()))
@@ -37,6 +37,11 @@ $(document).ready(function() {
         return $(row).children('td').eq(index)[0].dataset.value
     }
 });
+
+// Tooltips
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
 
 // Color palette
 const palette = [
