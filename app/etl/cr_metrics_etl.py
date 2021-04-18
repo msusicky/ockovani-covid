@@ -3,7 +3,8 @@ from datetime import timedelta
 from sqlalchemy import func, case, text
 
 from app import db, app
-from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, Populace, CrMetriky, OckovaniDistribuce
+from app.models import OckovaciMistoMetriky, OckovaniRegistrace, OckovaniLide, Populace, CrMetriky, OckovaniDistribuce, \
+    Vakcina
 
 
 class CrMetricsEtl:
@@ -59,15 +60,17 @@ class CrMetricsEtl:
     def _compute_registrations(self):
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
-            func.sum(OckovaciMistoMetriky.registrace_celkem).label('registrace_celkem'),
-            func.sum(OckovaciMistoMetriky.registrace_fronta).label("registrace_fronta")
-        ).filter(OckovaciMistoMetriky.datum == self._date) \
+            func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
+            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
+        ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .one()
 
         db.session.merge(CrMetriky(
             datum=self._date,
             registrace_celkem=registrations.registrace_celkem,
-            registrace_fronta=registrations.registrace_fronta
+            registrace_fronta=registrations.registrace_fronta,
+            registrace_rezervace_prumer=registrations.registrace_rezervace_prumer
         ))
 
         app.logger.info('Computing cr metrics - registrations finished.')
@@ -103,8 +106,9 @@ class CrMetricsEtl:
         vaccinated = db.session.query(
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 2, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
-        ).filter(OckovaniLide.datum < self._date) \
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne')
+        ).join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
+            .filter(OckovaniLide.datum < self._date) \
             .one()
 
         db.session.merge(CrMetriky(
@@ -234,6 +238,7 @@ class CrMetricsEtl:
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
+                registrace_rezervace_prumer_zmena_den = t0.registrace_rezervace_prumer - t1.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
@@ -264,6 +269,7 @@ class CrMetricsEtl:
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_rezervace_prumer_zmena_tyden = t0.registrace_rezervace_prumer - t7.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,

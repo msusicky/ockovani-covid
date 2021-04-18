@@ -7,12 +7,12 @@
 </div>
 
 <div class="table-responsive">
-    <table id="doctors-table" class="table table-bordered table-striped table-sm mb-0">
+    <table id="doctors-table" class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center col-sortable">Název zařízení (NRPZS kód)</th>
-            <th scope="col" class="text-center col-sortable">Obec</th>
-            <th scope="col" class="text-center col-sortable">Očkováno
+            <th scope="col" class="text-center col-sortable w-40">Název zařízení</th>
+            <th scope="col" class="text-center col-sortable w-30">Obec</th>
+            <th scope="col" class="text-center col-sortable w-15">Očkováno
                 <i class="fas fa-info-circle"
                    data-toggle="tooltip"
                    data-placement="auto"
@@ -20,7 +20,7 @@
                    title="Počet podaných dávek vakcíny">
                 </i>
             </th>
-            <th scope="col" class="text-center col-sortable">Očkováno za posledních 7 dní
+            <th scope="col" class="text-center col-sortable w-15">Očkováno za 7 dní
                 <i class="fas fa-info-circle"
                    data-toggle="tooltip"
                    data-placement="auto"
@@ -33,8 +33,14 @@
         <tbody>
         {% for idx, row in vac_doctor_age.iterrows() %}
         <tr>
-            <td data-value="{{ row['nazev'] }}">{{ row['nazev'] }} ({{ row['zarizeni_kod'] }})</td>
-            <td data-value="{{ row['obec'] }}">{{ row['obec'] }}</td>
+            <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
+                title="{{ row['zarizeni_nazev'] }} ({{ row['zarizeni_kod'] }})">
+                {{ row['zarizeni_nazev'] }}
+            </td>
+            <td class="ellipsis" data-value="{{ row['obec'] }}" data-toggle="tooltip" data-placement="auto"
+                title="{{ row['obec'] }}">
+                {{ row['obec'] }}
+            </td>
             <td class="text-right" data-value="{{ row['sum_1'] }}">{{ row['sum_1'] | format_number }}</td>
             <td class="text-right" data-value="{{ row['sum_2'] }}">{{ row['sum_2'] | format_number }}</td>
         </tr>

@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 from email import utils as eut
 from io import StringIO
+from typing import Optional
 
 import requests
 
@@ -9,19 +10,20 @@ from app import db
 
 
 class Fetcher:
-    def __init__(self, table: str, url: str, check_date=True):
+    def __init__(self, table: str, url: str, check_date=True, ignore_errors=False):
         self._table = table
         self._url = url
         self.check_date = check_date
+        self.ignore_errors = ignore_errors
 
-    def get_modified_date(self) -> datetime:
+    def get_modified_date(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers
         if 'last-modified' in headers:
             modified_tuple = eut.parsedate_tz(headers['last-modified'])
             modified_timestamp = eut.mktime_tz(modified_tuple)
+            return datetime.fromtimestamp(modified_timestamp)
         else:
-            modified_timestamp = 0
-        return datetime.fromtimestamp(modified_timestamp)
+            return None
 
     def fetch(self, import_id: int) -> None:
         pass
