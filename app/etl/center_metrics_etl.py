@@ -267,22 +267,19 @@ class CenterMetricsEtl:
                 registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
-        vacc_est_waiting = db.session.query(
-            OckovaciMisto.id,
-            (7.0 * (OckovaciMistoMetriky.registrace_fronta + OckovaciMistoMetriky.rezervace_cekajici)
-             / case([(func.sum(OckovaniLide.pocet) > 0, func.sum(OckovaniLide.pocet))], else_=None)).label('ockovani_odhad_cekani')
-        ).join(OckovaciMistoMetriky, OckovaciMisto.id == OckovaciMistoMetriky.misto_id) \
-            .join(OckovaniLide, OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod) \
-            .filter(OckovaciMistoMetriky.datum == self._date) \
-            .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_active_subquery())),
-                        and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_subquery())))) \
-            .filter(OckovaniLide.datum < self._date, OckovaniLide.datum >= self._date - timedelta(7)) \
-            .group_by(OckovaciMisto.id, OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.rezervace_cekajici) \
+        vacc_est_waiting = db.session.query("misto_id", "ockovani_odhad_cekani").from_statement(text(
+            """
+            select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / nullif(m.ockovani_pocet_davek - m7.ockovani_pocet_davek, 0)) ockovani_odhad_cekani
+            from ockovaci_mista_metriky m
+            join ockovaci_mista_metriky m7 on m.misto_id = m7.misto_id and m7.datum = :datum_7
+            where m.datum = :datum
+            """
+        )).params(datum=self._date, datum_7=self._date - timedelta(7)) \
             .all()
 
         for wait in vacc_est_waiting:
             db.session.merge(OckovaciMistoMetriky(
-                misto_id=wait.id,
+                misto_id=wait.misto_id,
                 datum=self._date,
                 ockovani_odhad_cekani=wait.ockovani_odhad_cekani
             ))
