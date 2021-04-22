@@ -148,17 +148,14 @@ Datová kvalita |
                 </div>
             </div>
             <div class="card-body">
-                <h5 class="card-title">Očkujeme, ale nemáme lidi v rezervačním systému</h5>
+                <h5 class="card-title">Očkujeme, ale nemáme lidi v rezervačním systému (za poslední měsíc a poměr více, než 1:2)</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-sm mb-0">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col" class="w-20 text-center">Název zařízení</th>
                             <th scope="col" class="w-20 text-center">NRPZS kód</th>
-                            <th scope="col" class="w-20 text-center">Datum</th>
-                            <th scope="col" class="w-20 text-center">Počet rezervací</th>
-                            <th scope="col" class="w-20 text-center">Počet očkování</th>
-                            <th scope="col" class="w-20 text-center">Poměr</th>
+                            <th scope="col" class="w-20 text-center">Počet očkovaných mimo rezervace</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -166,10 +163,7 @@ Datová kvalita |
                         <tr>
                             <td>{{ row['nazev'] }}</td>
                             <td>{{ row['nrpzs_kod'] }}</td>
-                            <td>{{ row['datum'] }}</td>
-                            <td>{{ row['pocet_rezervaci'] }}</td>
-                            <td>{{ row['ockovani'] }}</td>
-                            <td>{{ row['pomer'] }}</td>
+                            <td>{{ row['sum30_mimo_rezervace'] }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>

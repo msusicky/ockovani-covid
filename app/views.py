@@ -204,7 +204,7 @@ def dataquality():
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
             where vakciny_prijate_pocet>10 and (ockovani_pocet_davek*1.0/vakciny_prijate_pocet<0.15)
-            and omm.datum+'2 day'::interval>'{}'
+            and omm.datum+'1 day'::interval>'{}'
         """.format(get_import_date())
     )).all()
 
@@ -213,23 +213,26 @@ def dataquality():
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
             where vakciny_prijate_pocet>10 and (ockovani_pocet_davek*1.0/vakciny_prijate_pocet>2)
-            and omm.datum+'2 day'::interval>'{}'
+            and omm.datum+'1 day'::interval>'{}'
         """.format(get_import_date())
     )).all()
 
-    susp_reservation_vaccination = db.session.query("nazev", "nrpzs_kod","datum","pocet_rezervaci", "ockovani","pomer").from_statement(text(
+    susp_reservation_vaccination = db.session.query("nazev", "nrpzs_kod","sum30_mimo_rezervace").from_statement(text(
         """
-        select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
-            select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
-            from ockovani_rezervace o join ockovaci_mista ocm on (o.ockovaci_misto_id=ocm.id)
-            where import_id={} and o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
-            select datum, zarizeni_kod, sum(pocet) ockovani from ockovani_lide 
-            group by datum, zarizeni_kod) ocko on (rez.nrpzs_kod=ocko.zarizeni_kod and rez.datum=ocko.datum)
-            join (select min(nazev) nazev, nrpzs_kod from ockovaci_mista group by nrpzs_kod) om on (om.nrpzs_kod=ocko.zarizeni_kod)
-            where pocet_rezervaci>0 and ockovani*1.0/pocet_rezervaci>1.3
-            and rez.datum>now()-'31 days'::interval and ockovani>100
-            order by round(ockovani*1.0/pocet_rezervaci, 2) desc
-        """.format(get_import_id())
+        select nazev, nrpzs_kod, sum( ockovani-pocet_rezervaci) sum30_mimo_rezervace
+            from (
+            select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
+                        select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
+                        from ockovani_rezervace o join ockovaci_mista ocm on (o.ockovaci_misto_id=ocm.id)
+                        where import_id={} and o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
+                        select datum, zarizeni_kod, sum(pocet) ockovani from ockovani_lide 
+                        group by datum, zarizeni_kod) ocko on (rez.nrpzs_kod=ocko.zarizeni_kod and rez.datum=ocko.datum)
+                        join (select min(nazev) nazev, nrpzs_kod from ockovaci_mista group by nrpzs_kod) om on (om.nrpzs_kod=ocko.zarizeni_kod)
+                        where pocet_rezervaci>0 and ockovani*1.0/pocet_rezervaci>=2
+                        and rez.datum+'31 days'::interval>'{}' and ockovani>100
+                        --order by round(ockovani*1.0/pocet_rezervaci, 2) desc
+            ) pomery group by nazev, nrpzs_kod order by sum( ockovani-pocet_rezervaci) desc
+        """.format(get_import_id(), get_import_date())
     )).all()
 
     susp_reservation_vaccination_low = db.session.query("nazev", "nrpzs_kod", "datum", "pocet_rezervaci", "ockovani",
@@ -243,9 +246,9 @@ def dataquality():
             group by datum, zarizeni_kod) ocko on (rez.nrpzs_kod=ocko.zarizeni_kod and rez.datum=ocko.datum)
             join (select min(nazev) nazev, nrpzs_kod from ockovaci_mista group by nrpzs_kod) om on (om.nrpzs_kod=ocko.zarizeni_kod)
             where pocet_rezervaci>100 and ockovani*1.0/pocet_rezervaci<0.3
-            and rez.datum>now()-'30 days'::interval  
+            and rez.datum+'31 days'::interval>'{}'  
             order by round(ockovani*1.0/pocet_rezervaci, 2) desc
-        """.format(get_import_id())
+        """.format(get_import_id(), get_import_date())
     )).all()
 
     return render_template('dataquality.html', last_update=_last_import_modified(), now=_now(), susp_vaccination_type=susp_vaccination_type,
