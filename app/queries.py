@@ -448,13 +448,27 @@ def count_vaccinated_category():
         db.engine
     )
 
+    df['bez_indikace'] = ~(df['indikace_zdravotnik'] | df['indikace_socialni_sluzby'] | df['indikace_ostatni']
+                           | df['indikace_pedagog'] | df['indikace_skolstvi_ostatni'])
+
     df = df.melt(id_vars=['pocet_ockovani_castecne', 'pocet_ockovani_plne'],
-                 value_vars=['indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog',
-                             'indikace_skolstvi_ostatni'],
+                 value_vars=['bez_indikace', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
+                             'indikace_pedagog', 'indikace_skolstvi_ostatni'],
                  var_name='kategorie', value_name='aktivni')
 
     df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
 
+    df['popis'] = ''
+    df['popis']['indikace_zdravotnik'] = '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, 
+    farmaceuti, laboratoře vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
+    df['popis']['indikace_socialni_sluzby'] = '''Pracovníci nebo klienti v sociálních službách.'''
+    df['popis']['indikace_ostatni'] = '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný 
+    systém, pracovníky energetiky, vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo
+    sociální služby).'''
+    df['popis']['indikace_pedagog'] = '''Pedagogičtí pracovníci.'''
+    df['popis']['indikace_skolstvi_ostatni'] = '''Ostatní pracovníci ve školství.'''
+
+    df = df.rename(index={'bez_indikace': 'bez indikace'})
     df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
     df = df.rename(index={'indikace_socialni_sluzby': 'Sociální služby'})
     df = df.rename(index={'indikace_ostatni': 'Ostatní'})
