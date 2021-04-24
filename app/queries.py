@@ -718,6 +718,21 @@ def get_vaccination_graph_data(center_id):
     return merged
 
 
+def get_vaccination_total_graph_data():
+    ockovani = pd.read_sql_query(
+        """
+        select datum, sum(pocet) filter(where poradi_davky = 1) ockovani_castecne, 
+            sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne
+        from ockovani_lide o 
+        join vakciny v on v.vakcina = o.vakcina
+        group by datum
+        """,
+         db.engine
+    )
+
+    return ockovani.set_index('datum').fillna(0).sort_values('datum').cumsum()
+
+
 def get_received_vaccine_graph_data():
     return db.session.query("vyrobce", "datum", "prijem").from_statement(text(
         """
