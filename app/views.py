@@ -153,6 +153,8 @@ def statistiky():
     # Source data for graph of people in queue for the whole republic
     queue_graph_data = queries.get_queue_graph_data()
 
+    registrations_graph_data = queries.get_registrations_graph_data()
+
     infected_graph_data = queries.get_infected_graph_data()
 
     deaths_graph_data = queries.get_deaths_graph_data()
@@ -165,6 +167,7 @@ def statistiky():
                            top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
+                           registrations_graph_data=registrations_graph_data,
                            infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data)
 
 
