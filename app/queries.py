@@ -597,14 +597,14 @@ def count_end_date_supplies():
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
-def get_registrations_graph_data(center_id):
+def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """
         select datum, sum(pocet) pocet_registrace
         from ockovani_registrace  
-        where ockovaci_misto_id = '{}' and import_id = {}
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {}
         group by datum
-        """.format(center_id, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id()),
         db.engine
     )
 
@@ -612,9 +612,9 @@ def get_registrations_graph_data(center_id):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where ockovaci_misto_id = '{}' and import_id = {} and rezervace = true
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true
         group by datum_rezervace
-        """.format(center_id, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id()),
         db.engine
     )
 
@@ -625,7 +625,7 @@ def get_registrations_graph_data(center_id):
 
     merged = merged.set_index('datum')
 
-    idx = pd.date_range(merged.index.min(), get_import_date())
+    idx = pd.date_range(merged.index.min(), merged.index.max())
 
     return merged.reindex(idx).fillna(0)
 
@@ -716,6 +716,21 @@ def get_vaccination_graph_data(center_id):
     merged = merged.set_index('datum').fillna(0).sort_values('datum')
 
     return merged
+
+
+def get_vaccination_total_graph_data():
+    ockovani = pd.read_sql_query(
+        """
+        select datum, sum(pocet) filter(where poradi_davky = 1) ockovani_castecne, 
+            sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne
+        from ockovani_lide o 
+        join vakciny v on v.vakcina = o.vakcina
+        group by datum
+        """,
+         db.engine
+    )
+
+    return ockovani.set_index('datum').fillna(0).sort_values('datum').cumsum()
 
 
 def get_received_vaccine_graph_data():
