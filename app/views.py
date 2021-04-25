@@ -182,7 +182,7 @@ def dataquality():
     susp_vaccination_type = db.session.query("datum", "vakcina","zarizeni_kod", "zarizeni_nazev", "vekova_skupina", "pocet").from_statement(text(
         """
         select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
-        from ockovani_lide where vakcina not in ('Comirnaty','VAXZEVRIA','COVID-19 Vaccine Moderna')
+        from ockovani_lide where vakcina not in ('Comirnaty','VAXZEVRIA','COVID-19 Vaccine Moderna', 'COVID-19 Vaccine Janssen')
         """
     )).all()
 
