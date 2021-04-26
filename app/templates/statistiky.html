@@ -92,27 +92,23 @@ Statistiky |
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                        title="Dataset registrovaných dle profesí.">Stav registrací dle prioritních skupin</h5>
-                    {{ stav_registraci_kategorie(reservations_category) }}
-                    <p class="card-text font-italic mt-3">
-                        11. 4. zmizela z otevřených dat velká část registrací, nahlášeno na ÚZIS.
-                    </p>
-                </div>
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset registrovaných dle profesí.">Stav registrací dle prioritních skupin</h5>
+                {{ stav_registraci_kategorie(reservations_category) }}
+                <p class="card-text font-italic mt-3">
+                    11. 4. zmizela z otevřených dat velká část registrací, nahlášeno na ÚZIS.
+                </p>
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                        title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle indikací</h5>
-                    {{ stav_ockovani(vaccinated_category) }}
-                    <p class="card-text font-italic mt-3">Lidé s více indikacemi jsou započteni v každé.</p>
-                </div>
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle indikací</h5>
+                {{ stav_ockovani(vaccinated_category) }}
+                <p class="card-text font-italic mt-3">Lidé s více indikacemi jsou započteni v každé.</p>
             </div>
         </div>
     </div>

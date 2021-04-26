@@ -458,15 +458,24 @@ def count_vaccinated_category():
 
     df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
 
-    df['popis'] = ''
-    df['popis']['indikace_zdravotnik'] = '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, 
-    farmaceuti, laboratoře vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
-    df['popis']['indikace_socialni_sluzby'] = '''Pracovníci nebo klienti v sociálních službách.'''
-    df['popis']['indikace_ostatni'] = '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný 
-    systém, pracovníky energetiky, vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo
-    sociální služby).'''
-    df['popis']['indikace_pedagog'] = '''Pedagogičtí pracovníci.'''
-    df['popis']['indikace_skolstvi_ostatni'] = '''Ostatní pracovníci ve školství.'''
+    labels = {
+        'indikace_zdravotnik': [
+            '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, farmaceuti, laboratoře 
+            vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
+        ],
+        'indikace_socialni_sluzby': ['Pracovníci nebo klienti v sociálních službách.'],
+        'indikace_ostatni': [
+            '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný systém, pracovníky energetiky, 
+            vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo sociální služby).'''
+        ],
+        'indikace_pedagog': ['Pedagogičtí pracovníci.'],
+        'indikace_skolstvi_ostatni': ['Ostatní pracovníci ve školství.']
+    }
+    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['popis'])
+
+    df = pd.merge(df, labels_df, how='outer', left_on='kategorie', right_index=True)
+
+    df['popis'] = df['popis'].fillna('')
 
     df = df.rename(index={'bez_indikace': 'bez indikace'})
     df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
@@ -475,7 +484,7 @@ def count_vaccinated_category():
     df = df.rename(index={'indikace_pedagog': 'Pedagog'})
     df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
 
-    return df.reset_index().sort_values(by=['pocet_ockovani_plne'], ascending=False)
+    return df.reset_index('kategorie').sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
