@@ -2,12 +2,18 @@
 
 {% macro prehled_mist(centers, days) -%}
 <div class="row">
-    <div class="col">
-        <div class="input-group mb-3">
+    <div class="col mb-2">
+        <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
             </div>
             <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
+        </div>
+    </div>
+    <div class="col-12 col-md-auto mb-3">
+        <div class="custom-control custom-switch">
+            <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-barrierfree">jen bezbariérová</label>
         </div>
     </div>
 </div>
@@ -45,7 +51,7 @@
                 </thead>
                 <tbody>
                 {% for item in centers %}
-                <tr class="{{ 'table-warning' if not item.status }}">
+                <tr class="{{ 'table-warning' if not item.status }}" data-barrierfree="{{ item.bezbarierovy_pristup }}">
                     <td data-value="{{ item.nazev }}">
                         <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
                     </td>
@@ -89,13 +95,24 @@
 </div>
 
 <script>
-    $(document).ready(function(){
-      $("#centers-searchbox").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
+    function filterChanged() {
+        const searchValue = $("#centers-searchbox").val().toLowerCase();
+        const barrierfreeValue = $("#centers-barrierfree")[0].checked;
         $("#centers-table tbody tr").filter(function() {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            $(this).toggle(
+                $(this).text().toLowerCase().indexOf(searchValue) > -1
+                && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
+            )
         });
-      });
+    }
+
+    $(document).ready(function(){
+        $("#centers-searchbox").keyup(function () {
+            filterChanged();
+        });
+        $("#centers-barrierfree").change(function () {
+            filterChanged();
+        });
     });
 </script>
 {%- endmacro %}
