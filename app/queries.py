@@ -38,8 +38,9 @@ def has_unique_nrpzs(center_id):
 def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                                Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
-                               OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMistoMetriky.registrace_fronta,
-                               OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
+                               OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
+                               OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
+                               OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani) \
         .join(OckovaciMistoMetriky) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
@@ -458,15 +459,24 @@ def count_vaccinated_category():
 
     df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
 
-    df['popis'] = ''
-    df['popis']['indikace_zdravotnik'] = '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, 
-    farmaceuti, laboratoře vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
-    df['popis']['indikace_socialni_sluzby'] = '''Pracovníci nebo klienti v sociálních službách.'''
-    df['popis']['indikace_ostatni'] = '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný 
-    systém, pracovníky energetiky, vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo
-    sociální služby).'''
-    df['popis']['indikace_pedagog'] = '''Pedagogičtí pracovníci.'''
-    df['popis']['indikace_skolstvi_ostatni'] = '''Ostatní pracovníci ve školství.'''
+    labels = {
+        'indikace_zdravotnik': [
+            '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, farmaceuti, laboratoře 
+            vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
+        ],
+        'indikace_socialni_sluzby': ['Pracovníci nebo klienti v sociálních službách.'],
+        'indikace_ostatni': [
+            '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný systém, pracovníky energetiky, 
+            vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo sociální služby).'''
+        ],
+        'indikace_pedagog': ['Pedagogičtí pracovníci.'],
+        'indikace_skolstvi_ostatni': ['Ostatní pracovníci ve školství.']
+    }
+    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['popis'])
+
+    df = pd.merge(df, labels_df, how='outer', left_on='kategorie', right_index=True)
+
+    df['popis'] = df['popis'].fillna('')
 
     df = df.rename(index={'bez_indikace': 'bez indikace'})
     df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
@@ -475,7 +485,7 @@ def count_vaccinated_category():
     df = df.rename(index={'indikace_pedagog': 'Pedagog'})
     df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
 
-    return df.reset_index().sort_values(by=['pocet_ockovani_plne'], ascending=False)
+    return df.reset_index('kategorie').sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
@@ -597,14 +607,14 @@ def count_end_date_supplies():
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
-def get_registrations_graph_data(center_id):
+def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """
         select datum, sum(pocet) pocet_registrace
         from ockovani_registrace  
-        where ockovaci_misto_id = '{}' and import_id = {}
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {}
         group by datum
-        """.format(center_id, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id()),
         db.engine
     )
 
@@ -612,9 +622,9 @@ def get_registrations_graph_data(center_id):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where ockovaci_misto_id = '{}' and import_id = {} and rezervace = true
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true
         group by datum_rezervace
-        """.format(center_id, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id()),
         db.engine
     )
 
@@ -625,7 +635,7 @@ def get_registrations_graph_data(center_id):
 
     merged = merged.set_index('datum')
 
-    idx = pd.date_range(merged.index.min(), get_import_date())
+    idx = pd.date_range(merged.index.min(), merged.index.max())
 
     return merged.reindex(idx).fillna(0)
 
@@ -716,6 +726,21 @@ def get_vaccination_graph_data(center_id):
     merged = merged.set_index('datum').fillna(0).sort_values('datum')
 
     return merged
+
+
+def get_vaccination_total_graph_data():
+    ockovani = pd.read_sql_query(
+        """
+        select datum, sum(pocet) filter(where poradi_davky = 1) ockovani_castecne, 
+            sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne
+        from ockovani_lide o 
+        join vakciny v on v.vakcina = o.vakcina
+        group by datum
+        """,
+         db.engine
+    )
+
+    return ockovani.set_index('datum').fillna(0).sort_values('datum').cumsum()
 
 
 def get_received_vaccine_graph_data():

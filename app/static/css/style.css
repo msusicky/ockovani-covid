@@ -84,3 +84,7 @@ ul.timeline > li:before {
     height: 20px;
     z-index: 400;
 }
+
+.custom-switch {
+    padding: 7px 0 7px 36px;
+}

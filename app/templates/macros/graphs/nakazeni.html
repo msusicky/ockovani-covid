@@ -56,10 +56,16 @@
                 title: "Datum [den]",
                 type: "day",
                 tickformat: "%-d.%-m.%Y",
-                range: [new Date().setMonth(new Date().getMonth()-6), new Date()],
+                range: [new Date().setMonth(new Date().getMonth()-3), new Date()],
                 rangeslider: true,
                 rangeselector: {
                     buttons: [
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward"
+                        },
                         {
                             count: 6,
                             label: "6 měsíců",
@@ -83,7 +89,8 @@
             },
             yaxis: {
                 title: "Počet na 100 tisíc obyvatel",
-                automargin: true
+                automargin: true,
+                tickformat: ',f',
             },
             showlegend: true,
             legend: {

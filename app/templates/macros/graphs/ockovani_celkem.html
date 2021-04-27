@@ -1,51 +1,29 @@
-{% macro graf_umrti(data) -%}
-<div id="graf-umrti"></div>
-
+{% macro graf_ockovani_celkem(data) -%}
+<div id="graf-ockovani-celkem"></div>
 <script>
-    function grafUmrti() {
-        {% set data_ostatni = data.filter(like = 'ostatni', axis=0) %}
-        {% set data_80 = data.filter(like = '80+', axis=0) %}
-        {% set data_70 = data.filter(like = '70-79', axis=0) %}
-        {% set data_60 = data.filter(like = '60-69', axis=0) %}
-
-        const umrti = {
-            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+    function grafOckovaniCelkem() {
+        const ockovani_castecne = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_castecne'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
-            name: "0-59",
+            name: "Očkovaní (alespoň jedna dávka)",
         }
 
-        const umrti_80 = {
-            x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+        const ockovani_plne = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_plne'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
-            name: "80+",
-        }
-
-        const umrti_70 = {
-            x: [{% for idx, row in data_70.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_70.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines",
-            type: "scatter",
-            name: "70-79",
-        }
-
-        const umrti_60 = {
-            x: [{% for idx, row in data_60.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_60.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines",
-            type: "scatter",
-            name: "60-69",
+            name: "Plně očkovaní (všechny potřebné dávky)",
         }
 
         const layout = {
-            title: "Týdenní průměr počtu úmrtí na 100 tisíc obyvatel",
+            title: "Celkový počet očkovaných",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
-                type: "day",
+                type: "date",
                 tickformat: "%-d.%-m.%Y",
                 range: [new Date().setMonth(new Date().getMonth()-3), new Date()],
                 rangeslider: true,
@@ -79,7 +57,7 @@
                 }
             },
             yaxis: {
-                title: "Počet na 100 tisíc obyvatel",
+                title: "Počet osob",
                 automargin: true,
                 tickformat: ',f',
             },
@@ -93,22 +71,22 @@
             height: 700,
         }
 
-        const data = [umrti, umrti_60, umrti_70, umrti_80];
+        const data = [ockovani_castecne, ockovani_plne];
 
         const config = {
             responsive: true,
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-umrti", data, layout, config);
+        Plotly.newPlot("graf-ockovani-celkem", data, layout, config);
     }
 
-    grafUmrti();
+    grafOckovaniCelkem();
 
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         let target = $(e.target).attr("href")
-        if(target==="#deaths_graph") {
-            grafUmrti();
+        if(target==="#vaccination_total_graph") {
+            grafOckovaniCelkem();
         }
     });
 </script>
