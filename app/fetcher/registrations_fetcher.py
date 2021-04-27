@@ -1,4 +1,6 @@
 import pandas as pd
+import requests
+import os
 
 from app import db, app
 from app.fetcher.fetcher import Fetcher
@@ -13,16 +15,36 @@ class RegistrationsFetcher(Fetcher):
     REGISTRATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
 
     def __init__(self):
-        super().__init__(OckovaniRegistrace.__tablename__, self.REGISTRATIONS_CSV)
+        url = os.environ.get('ODL_REGISTRACE_ENH')
+        super().__init__(OckovaniRegistrace.__tablename__,
+                         url if url is not None and requests.head(
+                             url).status_code == 200 else self.REGISTRATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
-        df = pd.read_csv(self._url)
+        # df = pd.read_csv(self._url)
+        df = pd.read_csv('c:\\tmp\\registrace.csv')
+        app.logger.info("Download of the registration dataset finished.")
 
-        df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
+        if 'OckovaciCentrumKod' in df:
+            # Tailor the dataset to the open one
+            df['Datum'] = df['Datum'].astype(str).str[:10]
+            df = df.rename(columns={'Datum': 'datum', 'OckovaciCentrumKod': 'ockovaci_misto_id'
+                , 'VekovaSkupina': 'vekova_skupina', 'PovolaniNazev': 'povolani'
+                , 'Zeme': 'stat', 'Rezervace': 'rezervace'
+                , 'DatumRezervace': 'datum_rezervace'})
+            df.count()
+            df['Zruseno'].head()
+            df = df.loc[df['Zruseno'] == 'Ne'].loc[df['Zablokovano'] == 'Ne' or df['DuvodBlokace']=='Ztotožněn, ale již vakcinován'].loc[df['ZrusenoReservatic'] == 'Ne']
+            df = df[
+                ['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace']]
+            # Ano / Ne
+            df['rezervace'] = df['rezervace'].map({'Ano': True, 'Ne': False}).astype('bool')
+        else:
+            df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
 
+        df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['vekova_skupina'] = df['vekova_skupina'].fillna('neuvedeno')
         df['stat'] = df['stat'].fillna('neuvedeno')
-        df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
