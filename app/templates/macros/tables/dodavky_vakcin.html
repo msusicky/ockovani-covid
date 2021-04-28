@@ -1,6 +1,6 @@
 {% macro dodavky_vakcin(supplies) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm mb-0">
+    <table class="table table-bordered table-striped table-sm">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center" style="width: 16%">Měsíc</th>
@@ -23,4 +23,8 @@
         </tbody>
     </table>
 </div>
+<p class="card-text font-italic">
+    Zdroj: <a href="https://datastudio.google.com/embed/reporting/85df8158-a444-4e32-a525-7440ef7756f0/page/ApJ2B"
+              target="_blank">Dodávky vakcín do ČR (Středočeský kraj)</a>.
+</p>
 {%- endmacro %}
