@@ -261,6 +261,7 @@ class OckovaniRegistrace(db.Model):
     stat = Column(Unicode, primary_key=True)
     rezervace = Column(Boolean, primary_key=True)
     datum_rezervace = Column(Date, primary_key=True)
+    ockovani = Column(Integer, primary_key=True)
     pocet = Column(Integer)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
 

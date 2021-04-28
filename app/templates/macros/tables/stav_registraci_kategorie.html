@@ -14,7 +14,13 @@
             <th scope="col" class="w-20 text-center" colspan="1">
                 S termínem
                     <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                       title="Počet lidí s PIN2, z nichž někteří již byli očkováni - nelze rozlišit">
+                       title="Počet lidí s PIN2, kteří ještě pravděpodobně nebyli očkováni - možná nepřesnost cca 1 den">
+                    </i>
+            </th>
+            <th scope="col" class="w-20 text-center" colspan="1">
+                Očkovaní
+                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                       title="Počet lidí s PIN2, kteří již byli očkováni alespoň jednou dávkou. Více nelze rozlišit. Pokud sloupec obsahuje nuly, výpočet se nepovedl.">
                     </i>
             </th>
             <th scope="col" class="w-20 text-center" colspan="1">
@@ -32,6 +38,7 @@
                 data-value="{{ row['kategorie'] }}">{{ row['kategorie'] }}</td>
             <td class="text-right">{{ row['cekajici'] | format_number }}</td>
             <td class="text-right">{{ row['s_terminem'] | format_number }}</td>
+            <td class="text-right">{{ row['ockovani'] | format_number }}</td>
             <td class="text-right">{{ row['celkem'] | format_number }}</td>
         </tr>
         {% endfor %}
@@ -41,6 +48,7 @@
             <td>Celkem</td>
             <td class="text-right">{{ reservations_category['cekajici'].sum() | format_number }}</td>
             <td class="text-right">{{ reservations_category['s_terminem'].sum() | format_number }}</td>
+            <td class="text-right">{{ reservations_category['ockovani'].sum() | format_number }}</td>
             <td class="text-right">{{ reservations_category['celkem'].sum() | format_number }}</td>
         </tr>
         </tfoot>
