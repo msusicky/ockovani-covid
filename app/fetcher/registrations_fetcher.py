@@ -21,8 +21,7 @@ class RegistrationsFetcher(Fetcher):
                              url).status_code == 200 else self.REGISTRATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
-        # df = pd.read_csv(self._url)
-        df = pd.read_csv('c:\\tmp\\registrace.csv')
+        df = pd.read_csv(self._url)
         app.logger.info("Download of the registration dataset finished.")
 
         if 'OckovaciCentrumKod' in df:
@@ -32,15 +31,22 @@ class RegistrationsFetcher(Fetcher):
                 , 'VekovaSkupina': 'vekova_skupina', 'PovolaniNazev': 'povolani'
                 , 'Zeme': 'stat', 'Rezervace': 'rezervace'
                 , 'DatumRezervace': 'datum_rezervace'})
-            df.count()
-            df['Zruseno'].head()
-            df = df.loc[df['Zruseno'] == 'Ne'].loc[df['Zablokovano'] == 'Ne' or df['DuvodBlokace']=='Ztotožněn, ale již vakcinován'].loc[df['ZrusenoReservatic'] == 'Ne']
+            # We import only notblocked or blocked with vaccination
+            df = df.loc[df['Zruseno'] == 'Ne'].loc[
+                (df['Zablokovano'] == 'Ne') | (df['DuvodBlokace'] == 'Ztotožněn, ale již vakcinován')].loc[
+                df['ZrusenoReservatic'] == 'Ne']
+            df['ockovani'] = df['DuvodBlokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
+            # Cut the dataframe to the right output
             df = df[
-                ['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace']]
+                ['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace',
+                 'ockovani']]
             # Ano / Ne
             df['rezervace'] = df['rezervace'].map({'Ano': True, 'Ne': False}).astype('bool')
+
         else:
             df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
+            # set as empty
+            df['ockovani'] = -1
 
         df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['vekova_skupina'] = df['vekova_skupina'].fillna('neuvedeno')
