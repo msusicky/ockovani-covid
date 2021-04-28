@@ -483,7 +483,7 @@ def count_reservations_category():
         """
         select povolani kategorie, sum(case when rezervace is false and ockovani < 1 then pocet else 0 end) cekajici, 
             sum(case when rezervace is true and ockovani < 1 then pocet else 0 end) s_terminem,
-			sum(case when ockovani = 1 then pocet else 0 end) vymazani,sum(pocet) celkem
+			sum(case when ockovani = 1 then pocet else 0 end) ockovani,sum(pocet) celkem
             from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc
         """.format(get_import_id()),
         db.engine
