@@ -38,12 +38,15 @@ class VaccinatedProfessionsFetcher(Fetcher):
         df['indikace_ostatni'] = df['indikace_ostatni'].fillna(False).astype('bool')
         df['indikace_pedagog'] = df['indikace_pedagog'].fillna(False).astype('bool')
         df['indikace_skolstvi_ostatni'] = df['indikace_skolstvi_ostatni'].fillna(False).astype('bool')
+        df['indikace_bezpecnostni_infrastruktura'] = df['indikace_bezpecnostni_infrastruktura'].fillna(False).astype('bool')
+        df['indikace_chronicke_onemocneni'] = df['indikace_chronicke_onemocneni'].fillna(False).astype('bool')
 
         df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
 
         df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina',
                  'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
-                 'indikace_pedagog', 'indikace_skolstvi_ostatni']]
+                 'indikace_pedagog', 'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura',
+                 'indikace_chronicke_onemocneni']]
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 

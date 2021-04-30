@@ -243,6 +243,8 @@ class OckovaniLideProfese(db.Model):
     indikace_ostatni = Column(Boolean, primary_key=True)
     indikace_pedagog = Column(Boolean, primary_key=True)
     indikace_skolstvi_ostatni = Column(Boolean, primary_key=True)
+    indikace_bezpecnostni_infrastruktura = Column(Boolean, primary_key=True)
+    indikace_chronicke_onemocneni = Column(Boolean, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
