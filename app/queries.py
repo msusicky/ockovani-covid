@@ -392,7 +392,7 @@ def count_vaccinated(kraj_id=None):
         """
         select vekova_skupina, sum(pocet) pocet_fronta
         from ockovani_registrace
-        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {})
+        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {}) and ockovani < 1
         group by vekova_skupina
         """.format(get_import_id(), mista_ids, kraj_id is None),
         db.engine
@@ -493,7 +493,7 @@ def count_reservations_category():
         """
         select povolani kategorie, sum(case when rezervace is false and ockovani < 1 then pocet else 0 end) cekajici, 
             sum(case when rezervace is true and ockovani < 1 then pocet else 0 end) s_terminem,
-			sum(case when ockovani = 1 then pocet else 0 end) ockovani,sum(pocet) celkem
+			sum(case when ockovani = 1 then pocet else 0 end) ockovani, sum(pocet) celkem
             from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc
         """.format(get_import_id()),
         db.engine

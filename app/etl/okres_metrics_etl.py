@@ -59,7 +59,7 @@ class OkresMetricsEtl:
         """Computes metrics based on registrations dataset for each okres."""
         registrations = db.session.query(
             OckovaciMisto.okres_id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.okres_id) \
@@ -197,7 +197,7 @@ class OkresMetricsEtl:
         ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter(OckovaniRegistrace.rezervace == False) \
+            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
             .group_by(Okres.id) \
             .all()
 
