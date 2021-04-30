@@ -457,46 +457,43 @@ def count_vaccinated_category():
                  value_vars=['bez_indikace', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
                              'indikace_pedagog', 'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura',
                              'indikace_chronicke_onemocneni'],
-                 var_name='kategorie', value_name='aktivni')
+                 var_name='indikace', value_name='aktivni')
 
-    df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
+    df = df[df['aktivni'] == True].groupby(['indikace']).sum()
 
     labels = {
+        'bez_indikace': ['bez indikace', ''],
         'indikace_zdravotnik': [
+            'Zdravotník',
             '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, farmaceuti, laboratoře 
             vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
         ],
-        'indikace_socialni_sluzby': ['Pracovníci nebo klienti v sociálních službách.'],
+        'indikace_socialni_sluzby': ['Sociální služby', 'Pracovníci nebo klienti v sociálních službách.'],
         'indikace_ostatni': [
+            'Ostatní',
             '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný systém, pracovníky energetiky, 
             vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo sociální služby).'''
         ],
-        'indikace_pedagog': ['Pedagogičtí pracovníci.'],
-        'indikace_skolstvi_ostatni': ['Ostatní pracovníci ve školství.'],
-        'indikace_bezpecnostni_infrastruktura': ['Zaměstnanci Ministerstva obrany nebo bezpečnostní sbory.'],
+        'indikace_pedagog': ['Pedagog', 'Pedagogičtí pracovníci.'],
+        'indikace_skolstvi_ostatni': ['Školství ostatní', 'Ostatní pracovníci ve školství.'],
+        'indikace_bezpecnostni_infrastruktura': [
+            'Bezpečnostní infrastruktura',
+            'Zaměstnanci Ministerstva obrany nebo bezpečnostní sbory.'
+        ],
         'indikace_chronicke_onemocneni': [
+            'Chronické onemocnění',
             '''Chronicky nemocní (hematoonkologické onemocnění, onkologické onemocnění (solidní nádory), závažné akutní 
             nebo dlouhodobé onemocnění srdce, závažné dlouhodobé onemocnění plic, diabetes mellitus, obezita, závažné 
             dlouhodobé onemocnění ledvin, závažné dlouhodobé onemocnění jater, stav po transplantaci nebo na čekací 
             listině, hypertenze, závažné neurologické nebo neuromuskulární onemocnění, vrozený nebo získaný kognitivní 
             deficit, vzácné genetické onemocnění, závažné oslabení imunitního systému, jiné závažné onemocnění).'''],
     }
-    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['popis'])
 
-    df = pd.merge(df, labels_df, how='outer', left_on='kategorie', right_index=True)
+    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['kategorie', 'popis'])
 
-    df['popis'] = df['popis'].fillna('')
+    df = pd.merge(df, labels_df, how='outer', left_on='indikace', right_index=True)
 
-    df = df.rename(index={'bez_indikace': 'bez indikace'})
-    df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
-    df = df.rename(index={'indikace_socialni_sluzby': 'Sociální služby'})
-    df = df.rename(index={'indikace_ostatni': 'Ostatní'})
-    df = df.rename(index={'indikace_pedagog': 'Pedagog'})
-    df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
-    df = df.rename(index={'indikace_bezpecnostni_infrastruktura': 'Bezpečnostní infrastruktura'})
-    df = df.rename(index={'indikace_chronicke_onemocneni': 'Chronické onemocnění'})
-
-    return df.reset_index('kategorie').sort_values(by=['pocet_ockovani_plne'], ascending=False)
+    return df.dropna().sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
