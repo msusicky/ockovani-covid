@@ -22,7 +22,8 @@ class VaccinatedProfessionsFetcher(Fetcher):
 
     def fetch(self, import_id: int) -> None:
         usecols = ['datum', 'datum_vakcinace', 'vakcina', 'kraj_nuts_kod', 'kraj_kod', 'orp_bydliste_kod',
-                   'zarizeni_kod', 'poradi_davky', 'vekova_skupina']
+                   'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'bezpecnostni_infrastruktura',
+                   'chronicke_onemocneni']
 
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
                          usecols=lambda c: c.startsWith('indikace_') or c in usecols)
