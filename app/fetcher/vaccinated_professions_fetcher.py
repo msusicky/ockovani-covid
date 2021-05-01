@@ -21,7 +21,12 @@ class VaccinatedProfessionsFetcher(Fetcher):
                          url if url is not None and requests.head(url).status_code == 200 else self.VACCINATED_PROFESSIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
-        df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'})
+        usecols = ['datum', 'datum_vakcinace', 'vakcina', 'kraj_nuts_kod', 'kraj_kod', 'orp_bydliste_kod',
+                   'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'bezpecnostni_infrastruktura',
+                   'chronicke_onemocneni']
+
+        df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
+                         usecols=lambda c: c.startswith('indikace_') or c in usecols)
 
         if 'orp_bydliste_kod' in df:
             df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
