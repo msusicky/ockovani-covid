@@ -613,9 +613,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum, sum(pocet) pocet_registrace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {}
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and datum < '{}'
         group by datum
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 
@@ -623,9 +623,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true and datum < '{}'
         group by datum_rezervace
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 
