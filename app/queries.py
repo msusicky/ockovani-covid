@@ -319,6 +319,7 @@ def count_registrations(filter_column, filter_value):
     df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
     df['fronta_cekani'] = (df['dnes'] - df['datum']).astype('timedelta64[ns]').dt.days
     df['fronta_pocet_x_cekani'] = df['fronta_pocet'] * df['fronta_cekani']
+    df['s_terminem_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['ockovani'] == 0)).fillna(0).astype('int')
     df['registrace_7'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(7))
     df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
     # df['registrace_14'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(14))
@@ -390,9 +391,10 @@ def count_vaccinated(kraj_id=None):
 
     registrace = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) pocet_fronta
+        select vekova_skupina, sum(pocet) filter (where rezervace = false and ockovani < 1) pocet_fronta, 
+            sum(pocet) filter (where rezervace = true and ockovani = 0) pocet_s_terminem
         from ockovani_registrace
-        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {}) and ockovani < 1
+        where import_id = {} and (ockovaci_misto_id in({}) or {}) 
         group by vekova_skupina
         """.format(get_import_id(), mista_ids, kraj_id is None),
         db.engine
@@ -415,6 +417,7 @@ def count_vaccinated(kraj_id=None):
     merged = pd.merge(merged, populace, how="left")
 
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
+    merged['pocet_s_terminem'] = merged['pocet_s_terminem'].fillna(0).astype('int')
 
     if kraj_id is not None:
         if ockovani_kraj is not None and not ockovani_kraj.empty:

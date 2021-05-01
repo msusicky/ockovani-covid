@@ -15,13 +15,20 @@
     <table class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="w-20 text-center" rowspan="{{'2' if show_ratio else '1'}}">
-                {% if kategorie %} Indikace {% else %} Věková skupina {% endif %}</th>
+            <th scope="col" class="w-10 text-center" rowspan="{{'2' if show_ratio else '1'}}">
+                {% if kategorie %} Indikace {% else %} Věková skupina {% endif %}
+            </th>
             {% if not kategorie %}
-            <th scope="col" class="w-20 text-center" rowspan="{{'2' if show_ratio else '1'}}">
+            <th scope="col" class="w-15 text-center" rowspan="{{'2' if show_ratio else '1'}}">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                    title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
+                </i>
+            </th>
+            <th scope="col" class="w-15 text-center" rowspan="{{'2' if show_ratio else '1'}}">
+                S termínem
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet lidí s PIN2, kteří ještě pravděpodobně nebyli očkováni - možná nepřesnost cca 1 den.">
                 </i>
             </th>
             {% endif %}
@@ -86,6 +93,7 @@
 
             {% if not kategorie %}
             <td class="text-right">{{ row['pocet_fronta'] | format_number }}</td>
+            <td class="text-right">{{ row['pocet_s_terminem'] | format_number }}</td>
             {% endif %}
 
             <td class="text-right">{{ row['pocet_ockovani_castecne'] | format_number }}</td>
@@ -125,6 +133,7 @@
         <tr>
             <td>Celkem</td>
             <td class="text-right">{{ vaccinated['pocet_fronta'].sum() | format_number }}</td>
+            <td class="text-right">{{ vaccinated['pocet_s_terminem'].sum() | format_number }}</td>
             <td class="text-right">{{ vaccinated['pocet_ockovani_castecne'].sum() | format_number }}</td>
             {% if 'podil_ockovani_castecne' in vaccinated %}
                 <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_castecne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
