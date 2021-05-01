@@ -27,7 +27,9 @@ class VaccinatedProfessionsFetcher(Fetcher):
             df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
             orp = pd.read_sql_query('select uzis_orp orp_bydl_kod, kraj_nuts kraj_bydl_nuts from obce_orp', db.engine)
             df = pd.merge(df, orp, how='left')
-            df = df.rename(columns={'kraj_kod': 'kraj_nuts_kod', 'datum_vakcinace': 'datum'})
+            df = df.rename(columns={'kraj_kod': 'kraj_nuts_kod', 'datum_vakcinace': 'datum',
+                                    'bezpecnostni_infrastruktura': 'indikace_bezpecnostni_infrastruktura',
+                                    'chronicke_onemocneni': 'indikace_chronicke_onemocneni'})
             df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
         else:
             df['vekova_skupina'] = '-'
