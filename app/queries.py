@@ -514,7 +514,7 @@ def count_vaccinated_doctors(kraj_id=None):
         """
         select zarizeni_nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
             sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end) as sum_2
-        from ockovani_lide ol join (
+        from ockovani_lide ol left join (
             SELECT nrpzs_kod, string_agg(distinct obec, ', ') obec 
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
@@ -525,6 +525,7 @@ def count_vaccinated_doctors(kraj_id=None):
         """.format(get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
+    ockovani_doktori['obec'] = ockovani_doktori['obec'].replace({None: ''})
     return ockovani_doktori
 
 
