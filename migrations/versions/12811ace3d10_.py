@@ -21,8 +21,8 @@ def upgrade():
     op.add_column('ockovani_lide_profese', sa.Column('indikace_bezpecnostni_infrastruktura', sa.Boolean(), nullable=True))
     op.add_column('ockovani_lide_profese', sa.Column('indikace_chronicke_onemocneni', sa.Boolean(), nullable=True))
     op.execute("UPDATE ockovani_lide_profese SET indikace_bezpecnostni_infrastruktura = false, indikace_chronicke_onemocneni = false")
-    op.alter_column('ockovani_lide_profese', 'indikace_bezpecnostni_infrastruktura', nullable=False)
-    op.alter_column('ockovani_lide_profese', 'indikace_chronicke_onemocneni', nullable=False)
+    op.execute('ALTER TABLE ockovani_lide_profese DROP CONSTRAINT ockovani_lide_profese_pkey')
+    op.create_primary_key('ockovani_lide_profese_pkey', 'ockovani_lide_profese', ['datum', 'vakcina', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina', 'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni'])
     # ### end Alembic commands ###
 
 
