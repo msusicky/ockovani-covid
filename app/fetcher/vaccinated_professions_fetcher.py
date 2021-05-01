@@ -26,7 +26,7 @@ class VaccinatedProfessionsFetcher(Fetcher):
                    'chronicke_onemocneni']
 
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
-                         usecols=lambda c: c.startsWith('indikace_') or c in usecols)
+                         usecols=lambda c: c.startswith('indikace_') or c in usecols)
 
         if 'orp_bydliste_kod' in df:
             df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
