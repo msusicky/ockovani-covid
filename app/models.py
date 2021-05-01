@@ -243,6 +243,8 @@ class OckovaniLideProfese(db.Model):
     indikace_ostatni = Column(Boolean, primary_key=True)
     indikace_pedagog = Column(Boolean, primary_key=True)
     indikace_skolstvi_ostatni = Column(Boolean, primary_key=True)
+    indikace_bezpecnostni_infrastruktura = Column(Boolean, primary_key=True)
+    indikace_chronicke_onemocneni = Column(Boolean, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
@@ -261,6 +263,7 @@ class OckovaniRegistrace(db.Model):
     stat = Column(Unicode, primary_key=True)
     rezervace = Column(Boolean, primary_key=True)
     datum_rezervace = Column(Date, primary_key=True)
+    ockovani = Column(Integer, primary_key=True)
     pocet = Column(Integer)
     import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
 

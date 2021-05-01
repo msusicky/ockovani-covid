@@ -319,6 +319,7 @@ def count_registrations(filter_column, filter_value):
     df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
     df['fronta_cekani'] = (df['dnes'] - df['datum']).astype('timedelta64[ns]').dt.days
     df['fronta_pocet_x_cekani'] = df['fronta_pocet'] * df['fronta_cekani']
+    df['s_terminem_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['ockovani'] < 1)).fillna(0).astype('int')
     df['registrace_7'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(7))
     df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
     # df['registrace_14'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(14))
@@ -390,9 +391,10 @@ def count_vaccinated(kraj_id=None):
 
     registrace = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) pocet_fronta
+        select vekova_skupina, sum(pocet) filter (where rezervace = false and ockovani < 1) pocet_fronta, 
+            sum(pocet) filter (where rezervace = true and ockovani < 1) pocet_s_terminem
         from ockovani_registrace
-        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {})
+        where import_id = {} and (ockovaci_misto_id in({}) or {}) 
         group by vekova_skupina
         """.format(get_import_id(), mista_ids, kraj_id is None),
         db.engine
@@ -415,6 +417,7 @@ def count_vaccinated(kraj_id=None):
     merged = pd.merge(merged, populace, how="left")
 
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
+    merged['pocet_s_terminem'] = merged['pocet_s_terminem'].fillna(0).astype('int')
 
     if kraj_id is not None:
         if ockovani_kraj is not None and not ockovani_kraj.empty:
@@ -438,62 +441,71 @@ def count_vaccinated_category():
     df = pd.read_sql_query(
         """
         select indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
-            indikace_skolstvi_ostatni, 
+            indikace_skolstvi_ostatni, indikace_bezpecnostni_infrastruktura, indikace_chronicke_onemocneni,
             coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
             coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
         from ockovani_lide_profese o
         join vakciny v on v.vakcina = o.vakcina
         group by indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
-            indikace_skolstvi_ostatni    
+            indikace_skolstvi_ostatni, indikace_bezpecnostni_infrastruktura, indikace_chronicke_onemocneni    
         """,
         db.engine
     )
 
     df['bez_indikace'] = ~(df['indikace_zdravotnik'] | df['indikace_socialni_sluzby'] | df['indikace_ostatni']
-                           | df['indikace_pedagog'] | df['indikace_skolstvi_ostatni'])
+                           | df['indikace_pedagog'] | df['indikace_skolstvi_ostatni']
+                           | df['indikace_bezpecnostni_infrastruktura'] | df['indikace_chronicke_onemocneni'])
 
     df = df.melt(id_vars=['pocet_ockovani_castecne', 'pocet_ockovani_plne'],
                  value_vars=['bez_indikace', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
-                             'indikace_pedagog', 'indikace_skolstvi_ostatni'],
-                 var_name='kategorie', value_name='aktivni')
+                             'indikace_pedagog', 'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura',
+                             'indikace_chronicke_onemocneni'],
+                 var_name='indikace', value_name='aktivni')
 
-    df = df[df['aktivni'] == True].groupby(['kategorie']).sum()
+    df = df[df['aktivni'] == True].groupby(['indikace']).sum()
 
     labels = {
+        'bez_indikace': ['bez indikace', ''],
         'indikace_zdravotnik': [
+            'Zdravotník',
             '''Zdravotničtí pracovníci (zejména nemocnice, ZZS, primární ambulantní péče, farmaceuti, laboratoře 
             vyšetřující COVID-19, zdravotníci v sociálních službách), oblast ochrany veřejného zdraví.'''
         ],
-        'indikace_socialni_sluzby': ['Pracovníci nebo klienti v sociálních službách.'],
+        'indikace_socialni_sluzby': ['Sociální služby', 'Pracovníci nebo klienti v sociálních službách.'],
         'indikace_ostatni': [
+            'Ostatní',
             '''Pracovníci kritické infrastruktury, kteří zahrnují integrovaný záchranný systém, pracovníky energetiky, 
             vládu a krizové štáby (osoba není začleněna v indikačních skupinách zdravotník nebo sociální služby).'''
         ],
-        'indikace_pedagog': ['Pedagogičtí pracovníci.'],
-        'indikace_skolstvi_ostatni': ['Ostatní pracovníci ve školství.']
+        'indikace_pedagog': ['Pedagog', 'Pedagogičtí pracovníci.'],
+        'indikace_skolstvi_ostatni': ['Školství ostatní', 'Ostatní pracovníci ve školství.'],
+        'indikace_bezpecnostni_infrastruktura': [
+            'Bezpečnostní infrastruktura',
+            'Zaměstnanci Ministerstva obrany nebo bezpečnostní sbory.'
+        ],
+        'indikace_chronicke_onemocneni': [
+            'Chronické onemocnění',
+            '''Chronicky nemocní (hematoonkologické onemocnění, onkologické onemocnění (solidní nádory), závažné akutní 
+            nebo dlouhodobé onemocnění srdce, závažné dlouhodobé onemocnění plic, diabetes mellitus, obezita, závažné 
+            dlouhodobé onemocnění ledvin, závažné dlouhodobé onemocnění jater, stav po transplantaci nebo na čekací 
+            listině, hypertenze, závažné neurologické nebo neuromuskulární onemocnění, vrozený nebo získaný kognitivní 
+            deficit, vzácné genetické onemocnění, závažné oslabení imunitního systému, jiné závažné onemocnění).'''],
     }
-    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['popis'])
 
-    df = pd.merge(df, labels_df, how='outer', left_on='kategorie', right_index=True)
+    labels_df = pd.DataFrame.from_dict(labels, orient='index', columns=['kategorie', 'popis'])
 
-    df['popis'] = df['popis'].fillna('')
+    df = pd.merge(df, labels_df, how='outer', left_on='indikace', right_index=True)
 
-    df = df.rename(index={'bez_indikace': 'bez indikace'})
-    df = df.rename(index={'indikace_zdravotnik': 'Zdravotník'})
-    df = df.rename(index={'indikace_socialni_sluzby': 'Sociální služby'})
-    df = df.rename(index={'indikace_ostatni': 'Ostatní'})
-    df = df.rename(index={'indikace_pedagog': 'Pedagog'})
-    df = df.rename(index={'indikace_skolstvi_ostatni': 'Školství ostatní'})
-
-    return df.reset_index('kategorie').sort_values(by=['pocet_ockovani_plne'], ascending=False)
+    return df.dropna().sort_values(by=['pocet_ockovani_plne'], ascending=False)
 
 
 def count_reservations_category():
     ockovani_skupiny = pd.read_sql_query(
         """
-        select povolani kategorie, sum(case when rezervace = false then pocet else 0 end) cekajici, 
-            sum(case when rezervace = true then pocet else 0 end) s_terminem, sum(pocet) celkem
-            from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc;
+        select povolani kategorie, sum(case when rezervace is false and ockovani < 1 then pocet else 0 end) cekajici, 
+            sum(case when rezervace is true and ockovani < 1 then pocet else 0 end) s_terminem,
+			sum(case when ockovani = 1 then pocet else 0 end) ockovani, sum(pocet) celkem
+            from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc
         """.format(get_import_id()),
         db.engine
     )
@@ -505,7 +517,7 @@ def count_vaccinated_doctors(kraj_id=None):
         """
         select zarizeni_nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
             sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end) as sum_2
-        from ockovani_lide ol join (
+        from ockovani_lide ol left join (
             SELECT nrpzs_kod, string_agg(distinct obec, ', ') obec 
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
@@ -516,6 +528,7 @@ def count_vaccinated_doctors(kraj_id=None):
         """.format(get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
+    ockovani_doktori['obec'] = ockovani_doktori['obec'].replace({None: ''})
     return ockovani_doktori
 
 
@@ -612,9 +625,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum, sum(pocet) pocet_registrace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {}
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and datum < '{}'
         group by datum
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 
@@ -622,9 +635,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true and datum < '{}'
         group by datum_rezervace
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 

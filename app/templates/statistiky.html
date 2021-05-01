@@ -57,10 +57,10 @@ Statistiky |
                     {{ metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
                     {{ metrika('Očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných alespoň jednou dávkou.') }}
                     {{ metrika('Podíl očkovaných', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl očkovaných dospělých lidí, kteří dostali alespoň jednu dávku.') }}
-                    {{ metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (obě dávky).') }}
+                    {{ metrika('Plně očkovaní', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', info='Počet lidí plně očkovaných (všechny potřebné dávky).') }}
                     {{ metrika('Podíl plně očkovaných', metriky.ockovani_pocet_plne, delta_day=metriky.ockovani_pocet_plne_zmena_den, delta_week=metriky.ockovani_pocet_plne_zmena_tyden, color='std', decimal=True, unit='%', multiply=100, divide=metriky.pocet_obyvatel_dospeli, info='Podíl plně očkovaných dospělých lidí.') }}
                     {{ metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacími centry a praktickými lékaři podle vykázaných očkování.") }}
-                    {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
+                    {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', warning='Počet dávek přijatých na očkovací centra. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
                     {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
                     {{ metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
                     {{ metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, info='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.<br>Rezervace na 2.&nbsp;dávku se vytváří společně s rezervací na 1.&nbsp;dávku, zahrnuti jsou tedy i ti, kteří čekají na obě dávky.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
@@ -90,19 +90,16 @@ Statistiky |
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-7">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
                     title="Dataset registrovaných dle profesí.">Stav registrací dle prioritních skupin</h5>
-                {{ stav_registraci_kategorie(reservations_category) }}
-                <p class="card-text font-italic mt-3">
-                    11. 4. zmizela z otevřených dat velká část registrací, nahlášeno na ÚZIS.
-                </p>
+                {{ stav_registraci_kategorie(reservations_category) }}                
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-5">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
