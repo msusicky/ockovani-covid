@@ -44,7 +44,7 @@ class CenterMetricsEtl:
         """Computes metrics based on registrations dataset for each vaccination center."""
         registrations = db.session.query(
             OckovaciMisto.id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
@@ -185,7 +185,7 @@ class CenterMetricsEtl:
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter(OckovaniRegistrace.rezervace == False) \
+            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -203,7 +203,7 @@ class CenterMetricsEtl:
                  registrace_odhad_cekani
             from ockovaci_mista
             join ockovani_registrace on id = ockovaci_misto_id
-            where import_id = :import_id
+            where import_id = :import_id and ockovani < 1
             group by (id)
             """
         )).params(datum_7=self._date - timedelta(7), import_id=self._import_id) \

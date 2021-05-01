@@ -392,7 +392,7 @@ def count_vaccinated(kraj_id=None):
         """
         select vekova_skupina, sum(pocet) pocet_fronta
         from ockovani_registrace
-        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {})
+        where rezervace = false and import_id = {} and (ockovaci_misto_id in({}) or {}) and ockovani < 1
         group by vekova_skupina
         """.format(get_import_id(), mista_ids, kraj_id is None),
         db.engine
@@ -501,7 +501,7 @@ def count_reservations_category():
         """
         select povolani kategorie, sum(case when rezervace is false and ockovani < 1 then pocet else 0 end) cekajici, 
             sum(case when rezervace is true and ockovani < 1 then pocet else 0 end) s_terminem,
-			sum(case when ockovani = 1 then pocet else 0 end) ockovani,sum(pocet) celkem
+			sum(case when ockovani = 1 then pocet else 0 end) ockovani, sum(pocet) celkem
             from ockovani_registrace where import_id={} group by povolani order by sum(pocet) desc
         """.format(get_import_id()),
         db.engine
@@ -622,9 +622,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum, sum(pocet) pocet_registrace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {}
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and datum < '{}'
         group by datum
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 
@@ -632,9 +632,9 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true and datum < '{}'
         group by datum_rezervace
-        """.format(center_id, center_id is None, get_import_id()),
+        """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
     )
 

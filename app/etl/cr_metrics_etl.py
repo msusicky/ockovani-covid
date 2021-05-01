@@ -61,7 +61,7 @@ class CrMetricsEtl:
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
             func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == False, OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .one()
@@ -168,7 +168,7 @@ class CrMetricsEtl:
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter(OckovaniRegistrace.rezervace == False) \
+            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
             .one()
 
         db.session.merge(CrMetriky(

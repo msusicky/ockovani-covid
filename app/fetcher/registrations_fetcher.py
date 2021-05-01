@@ -34,6 +34,10 @@ class RegistrationsFetcher(Fetcher):
             # We import only notblocked or blocked with vaccination
             df = df.loc[(df['Zruseno'] == 'Ne') & (df['ZrusenoReservatic'] == 'Ne') & (
                     (df['Zablokovano'] == 'Ne') | (df['DuvodBlokace'] == 'Ztotožněn, ale již vakcinován'))]
+            #removing vaccinated without the reservation
+            df = df.loc[((df['DuvodBlokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace']=='Ne') )|
+                        (df['rezervace'] == 'Ano')]
+
             df['ockovani'] = df['DuvodBlokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
             # Cut the dataframe to the right output
             df = df[
