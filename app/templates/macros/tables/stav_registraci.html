@@ -6,11 +6,17 @@
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="w-15 text-center col-sortable">Věková skupina</th>
-            <th scope="col" class="w-25 text-center col-sortable">Prioritní skupina</th>
-            <th scope="col" class="w-15 text-center col-sortable">
+            <th scope="col" class="w-20 text-center col-sortable">Prioritní skupina</th>
+            <th scope="col" class="w-10 text-center col-sortable">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).">
+                </i>
+            </th>
+            <th scope="col" class="w-10 text-center">
+                S termínem
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet lidí s PIN2, kteří ještě pravděpodobně nebyli očkováni - možná nepřesnost cca 1 den.">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center col-sortable">
@@ -45,6 +51,9 @@
             </td>
             <td class="text-right" data-value="{{ row['fronta_pocet'] }}">
                 {{ row['fronta_pocet'] | format_number }}
+            </td>
+            <td class="text-right" data-value="{{ row['s_terminem_pocet'] }}">
+                {{ row['s_terminem_pocet'] | format_number }}
             </td>
             <td class="text-center" data-value="{{ row['rezervace_prumer_cekani'] }}">
                 {{ stitek(row['rezervace_prumer_cekani'], decimal=True, unit='týdne', unit_short='t', rev_color=True, limits=(1, 2)) }}
