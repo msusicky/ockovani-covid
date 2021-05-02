@@ -635,7 +635,7 @@ def get_registrations_graph_data(center_id=None):
         """
         select datum_rezervace datum, sum(pocet) pocet_rezervace
         from ockovani_registrace  
-        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true and datum < '{}'
+        where (ockovaci_misto_id = '{}' or {}) and import_id = {} and rezervace = true and datum_rezervace < '{}'
         group by datum_rezervace
         """.format(center_id, center_id is None, get_import_id(), get_import_date()),
         db.engine
