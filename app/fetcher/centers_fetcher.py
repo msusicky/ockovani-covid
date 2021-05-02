@@ -25,6 +25,9 @@ class CentersFetcher(Fetcher):
         df['longitude'] = df['longitude'].replace({np.nan: None})
         df['nrpzs_kod'] = df['nrpzs_kod'].str.zfill(11)
 
+        # set all centers disabled to disable centers removed from the list
+        db.session.query(OckovaciMisto).update({OckovaciMisto.status: False})
+
         for idx, row in df.iterrows():
             db.session.merge(OckovaciMisto(
                 id=row['ockovaci_misto_id'],
