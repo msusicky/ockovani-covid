@@ -428,11 +428,15 @@ def count_vaccinated(kraj_id=None):
                 .replace({np.nan: None})
             merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']) \
                 .replace({np.nan: None})
+            merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
+                               + merged['pocet_ockovani_v_kraji_castecne']) / merged['pocet_vek']).replace({np.nan: None})
     else:
         merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']) \
             .replace({np.nan: None})
         merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
             .replace({np.nan: None})
+        merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
+                           + merged['pocet_ockovani_castecne']) / merged['pocet_vek']).replace({np.nan: None})
 
     return merged
 
