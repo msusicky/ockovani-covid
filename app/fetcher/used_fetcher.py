@@ -1,8 +1,8 @@
 import pandas as pd
 
-from app import db
+from app import db, app
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaniSpotreba
+from app.models import OckovaniSpotreba, OckovaciMisto
 
 
 class UsedFetcher(Fetcher):
@@ -21,6 +21,14 @@ class UsedFetcher(Fetcher):
         df['kraj_nuts_kod'] = df['kraj_nuts_kod'].fillna('-')
 
         df = df.groupby(['datum', 'ockovaci_misto_id', 'ockovaci_latka', 'vyrobce'], dropna=False).sum().reset_index()
+
+        # filter out missing centers
+        size = len(df)
+        mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
+        df = df[df['ockovaci_misto_id'].isin(mista_ids)]
+
+        if size > len(df):
+            app.logger.warn("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
         self._truncate()
 
