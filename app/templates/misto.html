@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
+{% from 'macros/tables/volna_mista.html' import volna_mista %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/graphs/registrace.html' import graf_registrace %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -85,6 +86,9 @@
                         <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#free_slots">Volná místa</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
@@ -122,6 +126,9 @@
                     </div>
                     <div class="tab-pane" id="registration">
                         {{ stav_registraci(registrations) }}
+                    </div>
+                    <div class="tab-pane" id="free_slots">
+                        {{ volna_mista(free_slots) }}
                     </div>
                     <div class="tab-pane" id="vaccination">
                         {{ stav_vakcin(vaccines) }}
