@@ -26,6 +26,11 @@
             <td class="text-right">{{ row['maximalni_kapacita'] | format_number }}</td>
         </tr>
         {% endfor %}
+        {% if free_slots.empty %}
+        <tr>
+            <td colspan="3" class="font-italic">Toto očkovací místo nemá vypsané žádné termíny.</td>
+        </tr>
+        {% endif %}
         </tbody>
     </table>
     <p class="card-text font-italic text-justify">
