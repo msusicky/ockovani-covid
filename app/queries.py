@@ -633,6 +633,9 @@ def count_free_slots(center_id=None):
         db.engine
     )
 
+    if rezervace.empty:
+        return rezervace
+
     rezervace = rezervace.set_index('datum')
 
     idx = pd.date_range(rezervace.index.min(), rezervace.index.max())
