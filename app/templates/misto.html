@@ -86,10 +86,10 @@
                         <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#free_slots">Volná místa</a>
+                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
+                        <a class="nav-link" data-toggle="tab" href="#free_slots">Volné termíny</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
@@ -127,11 +127,11 @@
                     <div class="tab-pane" id="registration">
                         {{ stav_registraci(registrations) }}
                     </div>
-                    <div class="tab-pane" id="free_slots">
-                        {{ volna_mista(free_slots) }}
-                    </div>
                     <div class="tab-pane" id="vaccination">
                         {{ stav_vakcin(vaccines) }}
+                    </div>
+                    <div class="tab-pane" id="free_slots">
+                        {{ volna_mista(free_slots) }}
                     </div>
                     <div class="tab-pane" id="queue_graph">
                         {{ graf_fronta(queue_graph_data) }}
