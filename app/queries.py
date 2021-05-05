@@ -402,7 +402,7 @@ def count_vaccinated(kraj_id=None):
 
     populace = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) pocet_vek
+        select vekova_skupina, sum(pocet) pocet_vek, min_vek
         from populace p 
         join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         where orp_kod = '{}'
@@ -428,11 +428,15 @@ def count_vaccinated(kraj_id=None):
                 .replace({np.nan: None})
             merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']) \
                 .replace({np.nan: None})
+            merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
+                               + merged['pocet_ockovani_v_kraji_castecne']) / merged['pocet_vek']).replace({np.nan: None})
     else:
         merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']) \
             .replace({np.nan: None})
         merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
             .replace({np.nan: None})
+        merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
+                           + merged['pocet_ockovani_castecne']) / merged['pocet_vek']).replace({np.nan: None})
 
     return merged
 
