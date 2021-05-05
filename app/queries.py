@@ -402,7 +402,7 @@ def count_vaccinated(kraj_id=None):
 
     populace = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) pocet_vek
+        select vekova_skupina, sum(pocet) pocet_vek, min_vek
         from populace p 
         join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         where orp_kod = '{}'
@@ -433,6 +433,8 @@ def count_vaccinated(kraj_id=None):
             .replace({np.nan: None})
         merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
             .replace({np.nan: None})
+        merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
+                           + merged['pocet_ockovani_castecne']) / merged['pocet_vek']).replace({np.nan: None})
 
     return merged
 
@@ -618,6 +620,24 @@ def count_end_date_supplies():
               'listopadu', 'prosince']
 
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
+
+
+def count_free_slots(center_id=None):
+    rezervace = pd.read_sql_query(
+        """
+        select datum, volna_kapacita, maximalni_kapacita
+        from ockovani_rezervace  
+        where ockovaci_misto_id = '{}' and import_id = {} and datum >= '{}' and kalendar_ockovani = 'V1' and maximalni_kapacita != 0
+        order by datum
+        """.format(center_id, get_import_id(), get_import_date()),
+        db.engine
+    )
+
+    rezervace = rezervace.set_index('datum')
+
+    idx = pd.date_range(rezervace.index.min(), rezervace.index.max())
+
+    return rezervace.reindex(idx).fillna(0)
 
 
 def get_registrations_graph_data(center_id=None):

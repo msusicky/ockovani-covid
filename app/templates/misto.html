@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
+{% from 'macros/tables/volna_mista.html' import volna_mista %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/graphs/registrace.html' import graf_registrace %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -88,6 +89,9 @@
                         <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#free_slots">Volné termíny</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
                     </li>
                     <li class="nav-item">
@@ -108,6 +112,7 @@
                             {{ metrika('Použité dávky', metriky.vakciny_ockovane_pocet, delta_day=metriky.vakciny_ockovane_pocet_zmena_den, delta_week=metriky.vakciny_ockovane_pocet_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacím centrem podle dat o spotřebě vakcín.<br>Většinou je tento údaj méně přesný než počet vycházející z dat o vykázaných očkováních.") }}
                             {{ metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Odhadovaný počet dávek skladem.<br>Údaj je počítán z dat o distribuci a spotřebě vakcín. Jednotlivé datové sady mají různá zpoždění a nepřesnosti, proto údaj berte jako orientační.') }}
                             {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
+                            {{ metrika('Rezervací denně', metriky.registrace_rezervace_prumer, delta_day=metriky.registrace_rezervace_prumer_zmena_den, delta_week=metriky.registrace_rezervace_prumer_zmena_tyden, info='Průměrný počet rezervací uvolněných za posledních 7 dnů.') }}
                             {{ metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
                             {{ metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.<br>Rezervace na 2.&nbsp;dávku se vytváří společně s rezervací na 1.&nbsp;dávku, zahrnuti jsou tedy i ti, kteří čekají na obě dávky.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
                             {{ metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
@@ -125,6 +130,9 @@
                     </div>
                     <div class="tab-pane" id="vaccination">
                         {{ stav_vakcin(vaccines) }}
+                    </div>
+                    <div class="tab-pane" id="free_slots">
+                        {{ volna_mista(free_slots) }}
                     </div>
                     <div class="tab-pane" id="queue_graph">
                         {{ graf_fronta(queue_graph_data) }}

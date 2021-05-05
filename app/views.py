@@ -79,6 +79,8 @@ def info_misto(misto_id):
 
     registrations = queries.count_registrations('ockovaci_mista.id', misto_id)
 
+    free_slots = queries.count_free_slots(misto_id)
+
     vaccines = queries.count_vaccines_center(misto_id)
 
     queue_graph_data = queries.get_queue_graph_data(center_id=misto_id)
@@ -88,8 +90,8 @@ def info_misto(misto_id):
     vaccination_graph_data = queries.get_vaccination_graph_data(misto_id)
 
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
-                           vaccines=vaccines, registrations=registrations, queue_graph_data=queue_graph_data,
-                           registrations_graph_data=registrations_graph_data,
+                           vaccines=vaccines, registrations=registrations, free_slots=free_slots,
+                           queue_graph_data=queue_graph_data, registrations_graph_data=registrations_graph_data,
                            vaccination_graph_data=vaccination_graph_data)
 
 
