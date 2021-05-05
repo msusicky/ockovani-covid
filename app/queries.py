@@ -402,7 +402,7 @@ def count_vaccinated(kraj_id=None):
 
     populace = pd.read_sql_query(
         """
-        select vekova_skupina, sum(pocet) pocet_vek
+        select vekova_skupina, sum(pocet) pocet_vek, min_vek
         from populace p 
         join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         where orp_kod = '{}'
