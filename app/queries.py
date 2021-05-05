@@ -622,6 +622,24 @@ def count_end_date_supplies():
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
+def count_free_slots(center_id=None):
+    rezervace = pd.read_sql_query(
+        """
+        select datum, volna_kapacita, maximalni_kapacita
+        from ockovani_rezervace  
+        where ockovaci_misto_id = '{}' and import_id = {} and datum >= '{}' and kalendar_ockovani = 'V1' and maximalni_kapacita != 0
+        order by datum
+        """.format(center_id, get_import_id(), get_import_date()),
+        db.engine
+    )
+
+    rezervace = rezervace.set_index('datum')
+
+    idx = pd.date_range(rezervace.index.min(), rezervace.index.max())
+
+    return rezervace.reindex(idx).fillna(0)
+
+
 def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """

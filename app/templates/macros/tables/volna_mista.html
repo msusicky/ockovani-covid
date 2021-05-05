@@ -1,0 +1,39 @@
+{% macro volna_mista(free_slots) -%}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="w-40 text-center">Datum</th>
+            <th scope="col" class="w-30 text-center">
+                Volná kapacita
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Volná kapacita pro očkování 1. dávkou.">
+                </i>
+            </th>
+            <th scope="col" class="w-30 text-center">
+                Celková kapacita
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Celková kapacita pro očkování 1. dávkou uvedená v rezervačním systému.">
+                </i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for datum, row in free_slots.iterrows() %}
+        <tr class="{{ 'table-warning' if row['volna_kapacita'] == 0 }}">
+            <td>{{ datum | format_date_wd }}</td>
+            <td class="text-right">{{ row['volna_kapacita'] | format_number }}</td>
+            <td class="text-right">{{ row['maximalni_kapacita'] | format_number }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="card-text font-italic text-justify">
+        Počet volných míst pro očkování 1. dávkou je pouze orientační, aktualizuje se jedenkrát denně.
+        Volná místa jsou určena pouze pro registrované, kteří už obdrželi SMS s PIN2!
+    </p>
+    <p class="card-text font-italic text-justify">
+        Oranžově jsou vyznačeny plně obsazené dny.
+    </p>
+</div>
+{%- endmacro %}
