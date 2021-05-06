@@ -517,20 +517,25 @@ def count_reservations_category():
 def count_vaccinated_doctors(kraj_id=None):
     ockovani_doktori = pd.read_sql_query(
         """
-        select zarizeni_nazev, zarizeni_kod, obec, sum(pocet) as sum_1, 
-            sum(case when ol.datum+'7 days'::interval>='{}' then pocet else 0 end) as sum_2
-        from ockovani_lide ol left join (
-            SELECT nrpzs_kod, string_agg(distinct obec, ', ') obec 
-            from zdravotnicke_stredisko zs 
-            group by nrpzs_kod
-        ) zs on (ol.zarizeni_kod=zs.nrpzs_kod)
-	    where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) and (kraj_nuts_kod='{}' or True={})
-	    group by zarizeni_nazev, zarizeni_kod, obec 
+        select z.zarizeni_nazev, o.nazev okres, sum(pocet) as sum_1, 
+            coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{}'), 0) as sum_2,
+            string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{}') vakciny
+        from ockovani_lide ol 
+        left join ockovaci_zarizeni z on ol.zarizeni_kod = z.id
+        left join okresy o on o.id = z.okres_id
+        left join vakciny v on ol.vakcina = v.vakcina
+        where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) 
+            and (kraj_nuts_kod='{}' or True={}) 
+            and zrizovatel_kod in (5, 8)
+	    group by z.zarizeni_nazev, o.nazev 
 	    order by sum(pocet) desc
-        """.format(get_import_date(), kraj_id, kraj_id is None),
+        """.format(get_import_date(), get_import_date(), kraj_id, kraj_id is None),
         db.engine
     )
-    ockovani_doktori['obec'] = ockovani_doktori['obec'].replace({None: ''})
+
+    ockovani_doktori['okres'] = ockovani_doktori['okres'].replace({None: ''})
+    ockovani_doktori['vakciny'] = ockovani_doktori['vakciny'].replace({None: ''})
+
     return ockovani_doktori
 
 

@@ -10,22 +10,24 @@
     <table id="doctors-table" class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center col-sortable w-40">Název zařízení</th>
-            <th scope="col" class="text-center col-sortable w-30">Obec</th>
-            <th scope="col" class="text-center col-sortable w-15">Očkováno
-                <i class="fas fa-info-circle"
-                   data-toggle="tooltip"
-                   data-placement="auto"
-                   data-html="true"
-                   title="Počet podaných dávek vakcíny">
+            <th scope="col" class="text-center col-sortable w-30">Název zařízení</th>
+            <th scope="col" class="text-center col-sortable w-20">Okres</th>
+            <th scope="col" class="text-center w-20">
+                Vakcíny
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Vakcíny očkované za posledních 7 dní.">
                 </i>
             </th>
-            <th scope="col" class="text-center col-sortable w-15">Očkováno za 7 dní
-                <i class="fas fa-info-circle"
-                   data-toggle="tooltip"
-                   data-placement="auto"
-                   data-html="true"
-                   title="Počet podaných dávek vakcíny za posledních 7 dní">
+            <th scope="col" class="text-center col-sortable w-15">
+                Očkováno
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet podaných dávek vakcíny.">
+                </i>
+            </th>
+            <th scope="col" class="text-center col-sortable w-15">
+                Očkováno za<br>7 dní
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Počet podaných dávek vakcíny za posledních 7 dní.">
                 </i>
             </th>
         </tr>
@@ -34,13 +36,13 @@
         {% for idx, row in vac_doctor_age.iterrows() %}
         <tr>
             <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
-                title="{{ row['zarizeni_nazev'] }} ({{ row['zarizeni_kod'] }})">
+                title="{{ row['zarizeni_nazev'] }}">
                 {{ row['zarizeni_nazev'] }}
             </td>
-            <td class="ellipsis" data-value="{{ row['obec'] }}" data-toggle="tooltip" data-placement="auto"
-                title="{{ row['obec'] }}">
-                {{ row['obec'] }}
+            <td data-value="{{ row['okres'] }}" data-toggle="tooltip" data-placement="auto">
+                {{ row['okres'] }}
             </td>
+            <td>{{ row['vakciny'] }}</td>
             <td class="text-right" data-value="{{ row['sum_1'] }}">{{ row['sum_1'] | format_number }}</td>
             <td class="text-right" data-value="{{ row['sum_2'] }}">{{ row['sum_2'] | format_number }}</td>
         </tr>
@@ -48,7 +50,7 @@
         </tbody>
         <tfoot class="font-weight-bold">
         <tr>
-            <td colspan="2">Celkem</td>
+            <td colspan="3">Celkem</td>
             <td class="text-right">{{ vac_doctor_age['sum_1'].sum() | format_number }}</td>
             <td class="text-right">{{ vac_doctor_age['sum_2'].sum() | format_number }}</td>
         </tr>
