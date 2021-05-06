@@ -7,7 +7,7 @@
 </div>
 
 <div class="table-responsive">
-    <table id="doctors-table" class="table table-bordered table-striped table-sm mb-0" style="table-layout: fixed">
+    <table id="doctors-table" class="table table-bordered table-striped table-sm" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center col-sortable w-30">Název zařízení</th>
@@ -34,7 +34,7 @@
         </thead>
         <tbody>
         {% for idx, row in vac_doctor_age.iterrows() %}
-        <tr>
+        <tr class="{{ 'table-warning' if row['provoz_ukoncen'] }}">
             <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
                 title="{{ row['zarizeni_nazev'] }}">
                 {{ row['zarizeni_nazev'] }}
@@ -57,6 +57,10 @@
         </tfoot>
     </table>
 </div>
+
+<p class="card-text font-italic text-justify">
+    Oranžově jsou vyznačena zdravotnická zařízení, která ukončila očkování.
+</p>
 
 <script>
     $(document).ready(function(){
