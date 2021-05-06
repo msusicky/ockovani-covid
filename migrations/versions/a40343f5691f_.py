@@ -25,15 +25,19 @@ def upgrade():
     sa.Column('vek', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('orp_kod', 'pocet', 'vek')
     )
-    
-    with open('data/populace.csv', mode='r', encoding='utf-8') as populace_file:
-        reader = csv.reader(populace_file, delimiter=';')
-        next(reader, None)
-        populace_arr = [{'orp_kod': row[0], 'pocet': row[1], 'vek': row[2]} for row in reader]
 
-    print(populace_arr)
-
-    op.bulk_insert(Populace.__table__, populace_arr)
+    # FILE WAS REPLACED BY NEW VERSION
+    #
+    # with open('data/populace.csv', mode='r', encoding='utf-8') as populace_file:
+    #     reader = csv.reader(populace_file, delimiter=';')
+    #     next(reader, None)
+    #     populace_arr = [{'orp_kod': row[0], 'pocet': row[1], 'vek': row[2]} for row in reader]
+    #
+    # print(populace_arr)
+    #
+    # op.bulk_insert(Populace.__table__, populace_arr)
+    #
+    # FILE WAS REPLACED BY NEW VERSION
 
     # ### end Alembic commands ###
 
