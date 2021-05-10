@@ -150,6 +150,26 @@ class OckovaciMisto(db.Model):
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
 
 
+class OckovaciZarizeni(db.Model):
+    __tablename__ = 'ockovaci_zarizeni'
+
+    id = Column(Unicode, primary_key=True)
+    zarizeni_nazev = Column(Unicode)
+    provoz_zahajen = Column(Boolean)
+    okres_id = Column(Unicode, ForeignKey('okresy.id'))
+    zrizovatel_kod = Column(Integer)
+    zrizovatel_nazev = Column(Unicode)
+    provoz_ukoncen = Column(Date)
+
+    okres = relationship("Okres", back_populates="ockovaci_zarizeni")
+
+    def __repr__(self):
+        return f"<OckovaciZarizeni(zarizeni_nazev='{self.zarizeni_nazev}')>"
+
+
+Okres.ockovaci_zarizeni = relationship("OckovaciZarizeni", back_populates="okres")
+
+
 class Import(db.Model):
     __tablename__ = 'importy'
 
