@@ -132,19 +132,9 @@ def statistiky():
 
     reservations_category = queries.count_reservations_category()
 
-    top5_vaccination_day = db.session.query("datum", "sum").from_statement(text(
-        """
-        select datum, sum(pocet) from ockovani_lide 
-        group by datum order by sum(pocet) desc limit 5
-        """
-    )).all()
+    vaccinated_week = queries.count_vaccinated_week()
 
-    top5_vaccination_place_day = db.session.query("datum", "zarizeni_nazev", "sum").from_statement(text(
-        """
-        select datum, zarizeni_nazev, sum(pocet) from ockovani_lide 
-        group by datum, zarizeni_nazev order by sum(pocet) desc limit 5;
-        """
-    )).all()
+    top_centers = queries.count_top_centers()
 
     # Source data for graph of received vaccines of the manufacturers
     received_vaccine_graph_data = queries.get_received_vaccine_graph_data()
@@ -168,7 +158,7 @@ def statistiky():
                            vaccinated=vaccinated, vaccinated_category=vaccinated_category,
                            reservations_category=reservations_category, supplies=supplies,
                            end_date_category=end_date_category,
-                           top5=top5_vaccination_day, top5_place=top5_vaccination_place_day,
+                           vaccinated_week=vaccinated_week, top_centers=top_centers,
                            received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
                            vaccination_total_graph_data=vaccination_total_graph_data,

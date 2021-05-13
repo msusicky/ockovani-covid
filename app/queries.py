@@ -648,6 +648,31 @@ def count_free_slots(center_id=None):
     return rezervace.reindex(idx).fillna(0)
 
 
+def count_vaccinated_week():
+    return db.session.query("datum", "sum").from_statement(text(
+        f"""
+        select datum, sum(pocet) 
+        from ockovani_lide 
+        where datum >= '{get_import_date() - timedelta(7)}'
+        group by datum 
+        order by datum 
+        """
+    )).all()
+
+
+def count_top_centers():
+    return db.session.query("zarizeni_nazev", "pocet").from_statement(text(
+        f"""
+        select zarizeni_nazev, sum(pocet) pocet
+        from ockovani_lide 
+        where datum >= '{get_import_date() - timedelta(7)}'
+        group by zarizeni_nazev 
+        order by pocet desc 
+        limit 7;
+        """
+    )).all()
+
+
 def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """

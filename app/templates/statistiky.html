@@ -6,6 +6,8 @@
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
 {% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
 {% from 'macros/tables/odhad_konce.html' import odhad_konce %}
+{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
+{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -117,30 +119,8 @@ Statistiky |
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Nejvíce naočkovaných za den</h5>
-                {% if top5 %}
-                <table class="table table-bordered table-striped table-sm">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="w-50 text-center">Datum</th>
-                        <th scope="col" class="w-50 text-center">Očkováno</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in top5 %}
-                    <tr>
-                        <td class="text-right">{{ item.datum | format_date_wd }}</td>
-                        <td class="text-right">{{ item.sum | format_number }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="alert alert-warning w-100" role="alert">
-                    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
-                </div>
-                {% endif %}
-                <p class="card-text font-italic text-justify">5 dní s největším počtem očkovaných.</p>
+                    title="Dataset očkování, data se postupně doplňují.">Počet očkovaných v tomto týdnu</h5>
+                {{ prehled_ockovani_tyden(vaccinated_week) }}
             </div>
         </div>
     </div>
@@ -148,32 +128,8 @@ Statistiky |
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Nejvýkonnější místo</h5>
-                {% if top5_place %}
-                <table class="table table-bordered table-striped table-sm">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="text-center">Místo</th>
-                        <th scope="col" class="text-center">Očkováno</th>
-                        <th scope="col" class="text-center">Datum</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in top5_place %}
-                    <tr>
-                        <td>{{ item.zarizeni_nazev }}</td>
-                        <td class="text-right">{{ item.sum | format_number }}</td>
-                        <td class="text-right">{{ item.datum | format_date_wd }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="alert alert-warning w-100" role="alert">
-                    Aktuálně nemáme žádná data. <a href="javascript:history.back()" class="alert-link">Zpět</a>.
-                </div>
-                {% endif %}
-                <p class="card-text font-italic text-justify">5 míst s největším počtem očkovaných za den.</p>
+                    title="Dataset očkování, data se postupně doplňují.">Nejvýkonnější místa</h5>
+                {{ nejvykonnejsi_mista(top_centers) }}
             </div>
         </div>
     </div>
