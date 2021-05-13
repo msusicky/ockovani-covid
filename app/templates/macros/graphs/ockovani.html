@@ -27,6 +27,7 @@
             mode: "lines+markers",
             type: "scatter",
             name: "Očkováno",
+            hovertemplate: "%{y}"
         }
 
         const ockovane_1 = {
@@ -36,6 +37,7 @@
             type: "scatter",
             name: "Očkováno 1. dávkou",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
 
         const ockovane_2 = {
@@ -45,6 +47,7 @@
             type: "scatter",
             name: "Očkováno 2. dávkou",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
         {% endif %}
 
@@ -56,6 +59,7 @@
             name: "Použito dávek",
             {% if 'ockovane' in data %}
             visible: "legendonly",
+            hovertemplate: "%{y}"
             {% endif %}
         }
 
@@ -65,6 +69,7 @@
             mode: "lines+markers",
             type: "scatter",
             name: "Rezervace",
+            hovertemplate: "%{y}"
         }
 
         const rezervace_1 = {
@@ -74,6 +79,7 @@
             type: "scatter",
             name: "Rezervace na 1. dávku",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
 
         const rezervace_2 = {
@@ -83,6 +89,7 @@
             type: "scatter",
             name: "Rezervace na 2. dávku",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
 
         const kapacita = {
@@ -91,6 +98,7 @@
             mode: "lines+markers",
             type: "scatter",
             name: "Maximální kapacita",
+            hovertemplate: "%{y}"
         }
 
         const kapacita_1 = {
@@ -100,6 +108,7 @@
             type: "scatter",
             name: "Maximální kapacita pro 1. dávky",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
 
         const kapacita_2 = {
@@ -109,6 +118,7 @@
             type: "scatter",
             name: "Maximální kapacita pro 2. dávky",
             visible: "legendonly",
+            hovertemplate: "%{y}"
         }
 
         const layout = {
