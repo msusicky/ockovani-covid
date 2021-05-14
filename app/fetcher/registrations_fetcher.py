@@ -21,7 +21,12 @@ class RegistrationsFetcher(Fetcher):
                              url).status_code == 200 else self.REGISTRATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
-        df = pd.read_csv(self._url)
+        usecols = ['datum', 'Datum', 'ockovaci_misto_id', 'OckovaciCentrumKod', 'vekova_skupina', 'VekovaSkupina',
+                   'povolani', 'PovolaniNazev', 'stat', 'Zeme', 'rezervace', 'Rezervace', 'datum_rezervace',
+                   'DatumRezervace', 'Zruseno', 'ZrusenoReservatic', 'Zablokovano', 'DuvodBlokace']
+
+        df = pd.read_csv(self._url, usecols=lambda c: c in usecols)
+
         app.logger.info("Download of the registration dataset finished.")
 
         if 'OckovaciCentrumKod' in df:
@@ -47,7 +52,6 @@ class RegistrationsFetcher(Fetcher):
             df['rezervace'] = df['rezervace'].map({'Ano': True, 'Ne': False}).astype('bool')
 
         else:
-            df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
             # set as empty
             df['ockovani'] = -1
 

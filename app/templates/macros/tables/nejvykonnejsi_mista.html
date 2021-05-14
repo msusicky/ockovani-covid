@@ -1,0 +1,20 @@
+{% macro nejvykonnejsi_mista(top_centers) -%}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm mb-0">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Místo</th>
+            <th scope="col" class="text-center">Očkováno za 7 dní</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in top_centers %}
+        <tr>
+            <td>{{ item.zarizeni_nazev }}</td>
+            <td class="text-right">{{ item.pocet | format_number }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro %}
