@@ -20,7 +20,7 @@ class HospitalAnalysisFetcher(Fetcher):
     def __init__(self):
         token = os.environ.get('ODL_UZIS_TOKEN')
         url = self.HOSPITAL_ANALYSIS_CSV.format(token)
-        super().__init__(AnalyzaHospitalizaci.__tablename__, url)
+        super().__init__(AnalyzaHospitalizaci.__tablename__, url, ignore_errors=True)
 
     def get_modified_date(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers

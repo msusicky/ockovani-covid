@@ -13,7 +13,7 @@ class HealthFacilitiesFetcher(Fetcher):
     FACILITIES_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-zarizeni.csv'
 
     def __init__(self):
-        super().__init__(OckovaciZarizeni.__tablename__, self.FACILITIES_CSV)
+        super().__init__(OckovaciZarizeni.__tablename__, self.FACILITIES_CSV, check_date=False)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'})
