@@ -789,6 +789,9 @@ def get_vaccination_graph_data(center_id):
 
         merged = pd.merge(merged, ockovani, how='outer')
 
+    if merged.empty:
+        return merged
+
     merged = merged.set_index('datum')
 
     idx = pd.date_range(merged.index.min(), merged.index.max())
