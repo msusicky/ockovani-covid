@@ -22,8 +22,8 @@
     function grafOckovani() {
         {% if 'ockovane' in data %}
         const ockovane = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane'] }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}{% if row['ockovane'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['ockovane'] != None %}{{ row['ockovane'] }},{% endif %}{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Očkováno",
@@ -31,8 +31,8 @@
         }
 
         const ockovane_1 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_1'] }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}{% if row['ockovane_1'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['ockovane_1'] != None %}{{ row['ockovane_1'] }},{% endif %}{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Očkováno 1. dávkou",
@@ -41,8 +41,8 @@
         }
 
         const ockovane_2 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['ockovane_2'] }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}{% if row['ockovane_2'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['ockovane_2'] != None %}{{ row['ockovane_2'] }},{% endif %}{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Očkováno 2. dávkou",
@@ -52,8 +52,8 @@
         {% endif %}
 
         const pouzite = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['pouzite'] }},{% endfor %}],
+            x: [{% for idx, row in data.iterrows() %}{% if row['pouzite'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['pouzite'] != None %}{{ row['pouzite'] }},{% endif %}{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
             name: "Použito dávek",
