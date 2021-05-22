@@ -7,6 +7,7 @@ from app import app
 from app.etl import MetricsEtl
 from app.fetcher import FetcherLauncher
 from app.twitter_bot import TwitterBot
+from app.verifier import Verifier
 
 
 @app.cli.command('fetch-data')
@@ -59,6 +60,17 @@ def compute_metrics_command(metric, datum):
         exit(0)
     else:
         app.logger.error("Computing metrics failed.")
+        exit(1)
+
+
+@app.cli.command('verify-data')
+def verify_data_command():
+    """Verify if data are not same as yesterday."""
+    result = Verifier.verify_data()
+
+    if result:
+        exit(0)
+    else:
         exit(1)
 
 
