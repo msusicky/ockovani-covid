@@ -30,3 +30,5 @@ jobs:
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask fetch-data all"
       - name: Compute metrics
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask compute-metrics all"
+      - name: Verify data
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask verify-data"
