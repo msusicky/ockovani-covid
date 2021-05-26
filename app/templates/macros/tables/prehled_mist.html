@@ -41,10 +41,10 @@
                         </i>
                     </th>
                     <th scope="col" class="text-center col-sortable">
-                        Naočkování registrovaných
+                        Zatížení místa
                         <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
                            data-placement="auto"
-                           title="Odhadovaný počet týdnů potřebný k naočkování lidí s rezervací a lidí ve frontě 1. dávkou při rychlostí očkování podle posledních 7 dnů. Data o očkování se doplňují zpětně a u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
+                           title="Odhadovaný počet týdnů potřebný k naočkování všech lidí na místě - tj. lidí s rezervací a lidí ve frontě 1. dávkou při rychlostí očkování podle posledních 7 dnů. Data o očkování se doplňují zpětně a u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
                         </i>
                     </th>
                 </tr>
@@ -76,7 +76,7 @@
                         {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(1, 2)) }}
                     </td>
                     <td class="text-center" data-value="{{ item.ockovani_odhad_cekani }}">
-                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(2, 4)) }}
+                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='', unit_short='', divide=7, rev_color=True, limits=(2, 4)) }}
                     </td>
                 </tr>
                 {% endfor %}
