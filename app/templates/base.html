@@ -105,16 +105,16 @@
     {% block body %}{% endblock %}
 </div>
 
-<div class="footer text-center p-3 bg-light mt-4">
-    <div class="row">
-        <div class="col-lg-8">
+<div class="footer p-3 bg-light mt-4">
+    <div class="row align-items-center">
+        <div class="col text-center text-lg-left">
             <p class="mb-1">
                 Vznik: 16. 01. 2021, <a href="https://opendatalab.cz/" target="_blank">OpenDataLab</a>.
                 Data na tomto webu pochází z <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
                                                 target="_blank">opendat
                 Ministerstva zdravotnictví ČR</a>.
             </p>
-            <p class="mb-1 font-italic">
+            <p class="mb-0 font-italic">
                 Provozovatel neodpovídá za správnost a úplnost zpracovaných dat a informací, ani tato neověřuje a zříká
                 se
                 zodpovědnosti za veškeré škody a újmy, které by použitím těchto dat mohly vzniknout.
@@ -123,11 +123,8 @@
                 zdravotnictví
                 ČR</a>.
             </p>
-            <p class="mb-0">
-                Zdroj mapy: <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/" target="_blank">www.mylog.cz</a>
-            </p>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-auto text-center mt-3 mt-lg-0">
             <a href="https://fit.cvut.cz/" target="_blank"><img src="{{ url_for('static',filename='FIT_logo.png') }}"></a>
             &nbsp;
             <a href="https://profinit.eu/" target="_blank"><img src="{{ url_for('static',filename='PROFINIT_logo.png') }}"></a>
