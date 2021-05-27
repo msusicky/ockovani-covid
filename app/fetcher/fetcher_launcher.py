@@ -20,6 +20,8 @@ from app.models import Import
 
 class FetcherLauncher:
 
+    ATTEMPTS = 10
+
     def __init__(self):
         self._fetchers = []
         self._import = None
@@ -28,8 +30,20 @@ class FetcherLauncher:
     def fetch(self, dataset: str) -> bool:
         try:
             self._init_fetchers(dataset)
-            self._check_modified_dates()
+
+            for i in range(1, self.ATTEMPTS + 1):
+                try:
+                    self._check_modified_dates()
+                    break
+                except OldDataException as e:
+                    if i < self.ATTEMPTS:
+                        app.logger.info(f'New data not available yet. Attempt {i}/{self.ATTEMPTS}, waiting 10 minutes...')
+                        time.sleep(600)
+                    else:
+                        raise e
+
             self._init_import()
+
         except Exception as e:
             app.logger.error(e)
             return False
@@ -94,7 +108,7 @@ class FetcherLauncher:
                 app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified date: '{modified_date}'.")
 
                 if fetcher.check_date and (modified_date is None or modified_date.date() < date.today()):
-                    raise Exception(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
+                    raise OldDataException(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
 
                 if modified_date is not None:
                     modified_dates.append(modified_date)
@@ -140,6 +154,10 @@ class FetcherLauncher:
         self._import.status = 'FINISHED'
         self._import.end = datetime.now()
         db.session.commit()
+
+
+class OldDataException(Exception):
+    pass
 
 
 if __name__ == '__main__':
