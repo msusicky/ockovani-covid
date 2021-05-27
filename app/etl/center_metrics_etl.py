@@ -273,7 +273,7 @@ class CenterMetricsEtl:
             select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / 
                 coalesce(nullif(m.ockovani_pocet_davek - m7.ockovani_pocet_davek, 0),
                 nullif( (select sum(maximalni_kapacita-volna_kapacita) from ockovani_rezervace or2 
-                where datum between :datum_7 and :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id) ,0)
+                where datum >= :datum_7 and datum < :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id) ,0)
                 )) ockovani_odhad_cekani
             from ockovaci_mista_metriky m
             join ockovaci_mista_metriky m7 on m.misto_id = m7.misto_id and m7.datum = :datum_7
