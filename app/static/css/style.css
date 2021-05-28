@@ -88,3 +88,8 @@ ul.timeline > li:before {
 .custom-switch {
     padding: 7px 0 7px 36px;
 }
+
+#vyzva {
+    padding-top: 5rem;
+    margin-top: -5rem;
+}
