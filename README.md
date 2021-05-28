@@ -34,6 +34,9 @@ Web: https://ockovani.opendatalab.cz
 * [Vitalia: Jak si (ne)vybrat nejpomalejší místo na očkování proti covidu](https://www.vitalia.cz/clanky/jak-si-ne-vybrat-nejpomalejsi-misto-na-ockovani-proti-covidu/)
 * [Televize Seznam: Večerní zprávy (15. 3.)](https://www.televizeseznam.cz/video/vecerni-zpravy-porad/kteri-ministri-uz-jsou-naockovani-opatreni-do-velikonoc-a-opakovani-rocniku-64143662)
 * [TV9P: Marta Kloučková Quintet a webová aplikace z FIT](https://www.youtube.com/watch?v=_DcoB_fXfe4)
+* [TV Nova: Mladí programátoři vytvořili web, kde zjistíte kapacity očkovacích míst](https://tn.nova.cz/clanek/mladi-programatori-vytvorili-web-kde-se-daji-zjistit-kapacity-ockovacich-mist.html)
+* [LIDOVKY: Jak vybrat rychlé očkovací centrum mezi pomalými? Správný výběr může ‚zkrátit‘ frontu i o týdny](https://www.lidovky.cz/domov/aplikace-pomaha-vybrat-rychla-ockovaci-centra-ktere-zvolit-terminy-se-lisi-v-radech-tydnu.A210523_214914_ln_domov_lros)
+* [Seznam Zprávy: Návod: Co udělat před tím, než se zaregistrujete k očkování](https://www.seznamzpravy.cz/clanek/ockovani-covid-jak-vybrat-misto-bez-front-156088)
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
