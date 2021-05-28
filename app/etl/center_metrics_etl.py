@@ -267,14 +267,19 @@ class CenterMetricsEtl:
                 registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
+        # if we don't have exact place we use filled reservations from the last 7 days
         vacc_est_waiting = db.session.query("misto_id", "ockovani_odhad_cekani").from_statement(text(
             """
-            select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / nullif(m.ockovani_pocet_davek - m7.ockovani_pocet_davek, 0)) ockovani_odhad_cekani
+            select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / 
+                coalesce(nullif(m.ockovani_pocet_davek - m7.ockovani_pocet_davek, 0),
+                nullif( (select sum(maximalni_kapacita-volna_kapacita) from ockovani_rezervace or2 
+                where datum >= :datum_7 and datum < :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id) ,0)
+                )) ockovani_odhad_cekani
             from ockovaci_mista_metriky m
             join ockovaci_mista_metriky m7 on m.misto_id = m7.misto_id and m7.datum = :datum_7
             where m.datum = :datum
             """
-        )).params(datum=self._date, datum_7=self._date - timedelta(7)) \
+        )).params(datum=self._date, datum_7=self._date - timedelta(7), import_id=self._import_id) \
             .all()
 
         for wait in vacc_est_waiting:
