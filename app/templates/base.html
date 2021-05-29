@@ -99,6 +99,17 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <p class="mb-0">
+                    Pomohly Vám tyto stránky?
+                    <a href="{{ url_for('view.index') }}#vyzva" class="alert-link">
+                        Podívejte se, jak můžete pomoci Vy!
+                    </a>
+                </p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -125,9 +136,11 @@
             </p>
         </div>
         <div class="col-lg-auto text-center mt-3 mt-lg-0">
-            <a href="https://fit.cvut.cz/" target="_blank"><img src="{{ url_for('static',filename='FIT_logo.png') }}"></a>
+            <a href="https://fit.cvut.cz/" target="_blank"><img
+                    src="{{ url_for('static',filename='FIT_logo.png') }}"></a>
             &nbsp;
-            <a href="https://profinit.eu/" target="_blank"><img src="{{ url_for('static',filename='PROFINIT_logo.png') }}"></a>
+            <a href="https://profinit.eu/" target="_blank"><img
+                    src="{{ url_for('static',filename='PROFINIT_logo.png') }}"></a>
         </div>
     </div>
 </div>
@@ -142,6 +155,7 @@
 	function gtag(){dataLayer.push(arguments);}
 	gtag('js', new Date());
 	gtag('config', 'G-TXSRVP25Y2');
+
 </script>
 
 <!-- Hotjar Tracking Code for ockovani.opendatalab.cz -->
@@ -154,6 +168,7 @@
         r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
         a.appendChild(r);
     })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+
 </script>
 
 </body>
