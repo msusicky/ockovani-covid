@@ -1,8 +1,7 @@
 name: update-data
 
 on:
-  schedule:
-    - cron:  '00 6 * * *'
+  workflow_dispatch
 
 jobs:
   deploy:
