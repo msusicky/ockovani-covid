@@ -92,4 +92,5 @@ ul.timeline > li:before {
 #vyzva {
     padding-top: 5rem;
     margin-top: -5rem;
+    z-index: -999999;
 }
