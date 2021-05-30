@@ -37,8 +37,13 @@ class FetcherLauncher:
                     break
                 except OldDataException as e:
                     if i < self.ATTEMPTS:
-                        app.logger.info(f'New data not available yet. Attempt {i}/{self.ATTEMPTS}, waiting 10 minutes...')
-                        time.sleep(600)
+                        app.logger.info(
+                            f'New data not available yet. Attempt {i}/{self.ATTEMPTS} failed, waiting 10 minutes...'
+                        )
+                        time.sleep(60)
+                        for j in range(9, 0, -1):
+                            app.logger.info(f'Waiting for new data, {j} minutes left...')
+                            time.sleep(60)
                     else:
                         raise e
 
