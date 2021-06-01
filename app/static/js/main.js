@@ -21,8 +21,10 @@ $(function () {
         if (!this.asc) {
             rows = rows.reverse()
         }
-        for (var i = 0; i < rows.length; i++) {
+        for (let i = 0, j = 0; i < rows.length; i++) {
             tbody.append(rows[i])
+            if (rows[i].style.display !== 'none')
+                rows[i].style.backgroundColor = !!(j++ & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)"
         }
     })
 

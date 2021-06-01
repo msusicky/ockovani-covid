@@ -69,6 +69,9 @@
         $("#doctors-table tbody tr").filter(function() {
           $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
+        $("#doctors-table tbody tr:visible").each(function (index) {
+            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+        });
       });
     });
 </script>
