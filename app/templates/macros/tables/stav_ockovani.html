@@ -136,7 +136,7 @@
 
             {% if not kategorie and 'zajem' in vaccinated %}
             <td class="text-right">
-                {% if row['zajem'] and row['min_vek'] >= 0 %}
+                {% if row['zajem'] and row['min_vek'] >= 18 %}
                 {{ (100 * row['zajem']) | format_decimal }} %
                 {% endif %}
             </td>
