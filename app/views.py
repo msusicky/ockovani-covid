@@ -6,7 +6,8 @@ from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
-from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky
+from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
+    Vakcinacka
 
 
 @bp.route('/')
@@ -175,9 +176,11 @@ def napoveda():
 def odkazy():
     return render_template('odkazy.html', last_update=_last_import_modified(), now=_now())
 
+
 @bp.route("/dataquality")
 def dataquality():
-    susp_vaccination_type = db.session.query("datum", "vakcina","zarizeni_kod", "zarizeni_nazev", "vekova_skupina", "pocet").from_statement(text(
+    susp_vaccination_type = db.session.query("datum", "vakcina", "zarizeni_kod", "zarizeni_nazev", "vekova_skupina",
+                                             "pocet").from_statement(text(
         """
         select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
         from ockovani_lide where vakcina not in ('Comirnaty','VAXZEVRIA','COVID-19 Vaccine Moderna', 'COVID-19 Vaccine Janssen')
@@ -185,14 +188,15 @@ def dataquality():
     )).all()
 
     susp_vaccination_age = db.session.query("datum", "vakcina", "zarizeni_kod", "zarizeni_nazev", "vekova_skupina",
-                                        "pocet").from_statement(text(
+                                            "pocet").from_statement(text(
         """
         select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
         from ockovani_lide where vakcina !='Comirnaty' and vekova_skupina='0-17'
         """
     )).all()
 
-    susp_storage_vacc = db.session.query("pomer", "vakciny_skladem_pocet", "ockovani_pocet_davek", "nazev").from_statement(text(
+    susp_storage_vacc = db.session.query("pomer", "vakciny_skladem_pocet", "ockovani_pocet_davek",
+                                         "nazev").from_statement(text(
         """
         select ockovani_pocet_davek/vakciny_skladem_pocet pomer,vakciny_skladem_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -210,7 +214,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_vaccination_accepted = db.session.query("vakciny_prijate_pocet", "ockovani_pocet_davek", "nazev").from_statement(text(
+    susp_vaccination_accepted = db.session.query("vakciny_prijate_pocet", "ockovani_pocet_davek",
+                                                 "nazev").from_statement(text(
         """
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -219,7 +224,7 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_reservation_vaccination = db.session.query("nazev", "nrpzs_kod","sum30_mimo_rezervace").from_statement(text(
+    susp_reservation_vaccination = db.session.query("nazev", "nrpzs_kod", "sum30_mimo_rezervace").from_statement(text(
         """
         select nazev, nrpzs_kod, sum( ockovani-pocet_rezervaci) sum30_mimo_rezervace
             from (
@@ -238,7 +243,7 @@ def dataquality():
     )).all()
 
     susp_reservation_vaccination_low = db.session.query("nazev", "nrpzs_kod", "datum", "pocet_rezervaci", "ockovani",
-                                                    "pomer").from_statement(text(
+                                                        "pomer").from_statement(text(
         """
         select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
             select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
@@ -253,9 +258,12 @@ def dataquality():
         """.format(get_import_id(), get_import_date())
     )).all()
 
-    return render_template('dataquality.html', last_update=_last_import_modified(), now=_now(), susp_vaccination_type=susp_vaccination_type,
-                           vaccinated_age=susp_vaccination_age, susp_storage_vacc=susp_storage_vacc, susp_vaccination=susp_vaccination,
-                           susp_vaccination_accepted=susp_vaccination_accepted,susp_reservation_vaccination=susp_reservation_vaccination,
+    return render_template('dataquality.html', last_update=_last_import_modified(), now=_now(),
+                           susp_vaccination_type=susp_vaccination_type,
+                           vaccinated_age=susp_vaccination_age, susp_storage_vacc=susp_storage_vacc,
+                           susp_vaccination=susp_vaccination,
+                           susp_vaccination_accepted=susp_vaccination_accepted,
+                           susp_reservation_vaccination=susp_reservation_vaccination,
                            susp_reservation_vaccination_low=susp_reservation_vaccination_low)
 
 

@@ -61,6 +61,11 @@
                     Aktuální fronta
                 </a>
                 {% endif %}
+                {% if misto.vakcinacka %}
+                <a href="{{ misto.vakcinacka.url_mista }}" class="btn btn-primary" target="_blank">
+                    Vakcinačka
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
