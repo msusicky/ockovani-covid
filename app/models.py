@@ -703,3 +703,18 @@ class CrMetriky(db.Model):
 
     def __repr__(self):
         return f"<CrMetriky(datum='{self.datum}')>"
+
+
+class Vakcinacka(db.Model):
+    __tablename__ = 'vakcinacka'
+
+    misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    url_mista = Column(Unicode)
+
+    def __repr__(self):
+        return f"<Vakcinacka(misto_id='{self.misto_id}')>"
+
+    misto = relationship('OckovaciMisto', back_populates='vakcinacka')
+
+
+OckovaciMisto.vakcinacka = relationship("Vakcinacka", uselist=False, back_populates="misto")
