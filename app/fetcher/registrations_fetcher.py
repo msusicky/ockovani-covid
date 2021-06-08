@@ -53,7 +53,7 @@ class RegistrationsFetcher(Fetcher):
             df['rezervace'] = df['rezervace'].map({'Ano': True, 'Ne': False}).astype('bool')
 
         else:
-            df = df.loc[(df['zablokovano'] == 'Ne') | (df['duvod_blokace'] == 'Ztotožněn, ale již vakcinován')]
+            df = df.loc[(df['zablokovano'] == '') | (df['duvod_blokace'] == 'Ztotožněn, ale již vakcinován')]
             df = df.loc[((df['duvod_blokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace'] == '')) |
                         (df['rezervace'] == '1')]
             df['ockovani'] = df['duvod_blokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
