@@ -37,6 +37,8 @@ Web: https://ockovani.opendatalab.cz
 * [TV Nova: Mladí programátoři vytvořili web, kde zjistíte kapacity očkovacích míst](https://tn.nova.cz/clanek/mladi-programatori-vytvorili-web-kde-se-daji-zjistit-kapacity-ockovacich-mist.html)
 * [LIDOVKY: Jak vybrat rychlé očkovací centrum mezi pomalými? Správný výběr může ‚zkrátit‘ frontu i o týdny](https://www.lidovky.cz/domov/aplikace-pomaha-vybrat-rychla-ockovaci-centra-ktere-zvolit-terminy-se-lisi-v-radech-tydnu.A210523_214914_ln_domov_lros)
 * [Seznam Zprávy: Návod: Co udělat před tím, než se zaregistrujete k očkování](https://www.seznamzpravy.cz/clanek/ockovani-covid-jak-vybrat-misto-bez-front-156088)
+* [iDNES.cz: Očkování je možné i v den registrace. Přehled míst, kde se nejméně čeká](https://www.idnes.cz/zpravy/domaci/ockovaci-mista-skupina-od-16-do-29-praha-cekani-koronavirus.A210603_151750_domaci_lre)
+* [Svět Androida: Kde je nejkratší řada na očkování? Takto to lehce zjistíte i z mobilu](https://www.svetandroida.cz/kapacita-ockovacich-center-z-mobilu/)
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
