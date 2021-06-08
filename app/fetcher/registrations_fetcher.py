@@ -23,7 +23,8 @@ class RegistrationsFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         usecols = ['datum', 'Datum', 'ockovaci_misto_id', 'OckovaciCentrumKod', 'vekova_skupina', 'VekovaSkupina',
                    'povolani', 'PovolaniNazev', 'stat', 'Zeme', 'rezervace', 'Rezervace', 'datum_rezervace',
-                   'DatumRezervace', 'Zruseno', 'ZrusenoReservatic', 'Zablokovano', 'DuvodBlokace']
+                   'DatumRezervace', 'Zruseno', 'ZrusenoReservatic', 'zablokovano', 'Zablokovano', 'duvod_blokace',
+                   'DuvodBlokace']
 
         df = pd.read_csv(self._url, usecols=lambda c: c in usecols)
 
@@ -52,8 +53,12 @@ class RegistrationsFetcher(Fetcher):
             df['rezervace'] = df['rezervace'].map({'Ano': True, 'Ne': False}).astype('bool')
 
         else:
-            # set as empty
-            df['ockovani'] = -1
+            df = df.loc[(df['zablokovano'] == 'Ne') | (df['duvod_blokace'] == 'Ztotožněn, ale již vakcinován')]
+            df = df.loc[((df['duvod_blokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace'] == '')) |
+                        (df['rezervace'] == '1')]
+            df['ockovani'] = df['duvod_blokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
+            df = df[['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace',
+                     'ockovani']]
 
         df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
         df['vekova_skupina'] = df['vekova_skupina'].fillna('neuvedeno')
