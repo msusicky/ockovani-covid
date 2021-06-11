@@ -10,7 +10,11 @@
             <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-12 col-md-auto text-center mb-3">
+    <div class="col-12 col-lg-auto text-center mb-3">
+        <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
+        </div>
         <div class="custom-control custom-switch mr-3" style="display: inline-block">
             <input id="centers-active" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="centers-active">jen aktivní</label>
@@ -40,7 +44,8 @@
                     </th>
                     <th scope="col" class="text-center col-sortable">
                         Čekání na rezervaci
-                        <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip" data-placement="auto"
+                        <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
+                           data-placement="auto"
                            title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání - ověřte si ve stavu registrací konkrétního očkovacího místa čekání pro vaši skupinu.<br>Červená (>2), žlutá (>1), zelená (>0).">
                         </i>
                     </th>
@@ -78,10 +83,12 @@
                         {{ item.registrace_fronta | format_number }}
                     </td>
                     <td class="text-center" data-value="{{ item.registrace_prumer_cekani }}">
-                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7, rev_color=True, limits=(1, 2)) }}
+                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7,
+                        rev_color=True, limits=(1, 2)) }}
                     </td>
                     <td class="text-center" data-value="{{ item.ockovani_odhad_cekani }}">
-                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='', unit_short='', divide=7, rev_color=True, limits=(2, 4)) }}
+                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='', unit_short='', divide=7,
+                        rev_color=True, limits=(2, 4)) }}
                     </td>
                 </tr>
                 {% endfor %}
@@ -89,7 +96,8 @@
             </table>
         </div>
         <p class="font-italic text-justify mb-0">
-            Oranžově jsou vyznačena očkovací místa, která jsou v&nbsp;současnosti skryta v rezervačním systému, ale zároveň jsou na nich čekající ve frontě nebo s&nbsp;rezervací.
+            Oranžově jsou vyznačena očkovací místa, která jsou v&nbsp;současnosti skryta v rezervačním systému, ale
+            zároveň jsou na nich čekající ve frontě nebo s&nbsp;rezervací.
         </p>
         {% else %}
         <div class="alert alert-warning w-100" role="alert">
@@ -104,22 +112,29 @@
         const searchValue = $("#centers-searchbox").val().toLowerCase();
         const activeValue = $("#centers-active")[0].checked;
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
+        const selfPaidValue = $("#centers-selfpaid")[0].checked;
+        const selfPaidString = "samopl"
 
-        $("#centers-table tbody tr").filter(function() {
+        $("#centers-table tbody tr").filter(function () {
             $(this).toggle(
                 $(this).text().toLowerCase().indexOf(searchValue) > -1
+                && ((selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) > -1) || (
+                    !selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) === -1))
                 && (!activeValue || $(this)[0].dataset.active === 'True')
                 && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
             )
         });
 
         $("#centers-table tbody tr:visible").each(function (index) {
-            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
         });
     }
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $("#centers-searchbox").keyup(function () {
+            filterChanged();
+        });
+        $("#centers-selfpaid").change(function () {
             filterChanged();
         });
         $("#centers-active").change(function () {
