@@ -10,7 +10,7 @@
             <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-12 col-md-auto text-center mb-3">
+    <div class="col-12 col-lg-auto text-center mb-3">
         <div class="custom-control custom-switch mr-3" style="display: inline-block">
             <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
             <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
@@ -119,7 +119,7 @@
             $(this).toggle(
                 $(this).text().toLowerCase().indexOf(searchValue) > -1
                 && ((selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) > -1) || (
-                    !selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) == -1))
+                    !selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) === -1))
                 && (!activeValue || $(this)[0].dataset.active === 'True')
                 && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
             )
