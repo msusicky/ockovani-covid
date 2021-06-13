@@ -40,8 +40,8 @@ class RegistrationsFetcher(Fetcher):
             # We import only notblocked or blocked with vaccination
             df = df.loc[(df['Zruseno'] == 'Ne') & (df['ZrusenoReservatic'] == 'Ne') & (
                     (df['Zablokovano'] == 'Ne') | (df['DuvodBlokace'] == 'Ztotožněn, ale již vakcinován'))]
-            #removing vaccinated without the reservation
-            df = df.loc[((df['DuvodBlokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace']=='Ne') )|
+            # removing vaccinated without the reservation
+            df = df.loc[((df['DuvodBlokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace'] == 'Ne')) |
                         (df['rezervace'] == 'Ano')]
 
             df['ockovani'] = df['DuvodBlokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
@@ -64,6 +64,20 @@ class RegistrationsFetcher(Fetcher):
         df['vekova_skupina'] = df['vekova_skupina'].fillna('neuvedeno')
         df['stat'] = df['stat'].fillna('neuvedeno')
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
+        # Replace - error caused by NAKIT 11.6.2021 - #471
+        df['povolani'] = df['povolani'].replace(
+            ['OccupationGroupChronic2Name', 'OccupationGroupAcademicStaffName', 'OccupationGroupArmyName',
+             'OccupationGroupChronicName', 'OccupationGroupMedicalWorkerName',
+             'OccupationGroupCriticalInfrastructureName', 'OccupationGroupAgeName',
+             'OccupationGroupTHPWorkersName', 'OccupationGroupSelfPayerName', 'OccupationGroupSocialWorkerName',
+             'OccupationGroupNonMedicalStaffName', 'OccupationGroupCaringPersonName'],
+            ['Osoba s chronickým onemocněním – druhá skupina', 'Akademický pracovník VŠ', 'Zaměstnanci Ministerstva obrany',
+             'Osoba s chronickým onemocněním', 'Zdravotnický pracovník dle §76 a §77 zákona 372/2011  Sb.',
+             'Kritická infrastruktura', 'Na základě dosaženého věku',
+             'Technicko hospodářští pracovníci ve zdravotnických zařízeních', 'Samoplátce', 'Pracovník v sociálních službách',
+             'Nezdravotničtí pracovníci podílející se na poskytování zdravotní péče a péče o covid-19 pozitivní osoby', 'Osoba pečující o osobu v III. nebo IV. stupni závislosti']
+            )
+        df['povolani'] = df['povolani'].fillna('neuvedeno')
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
