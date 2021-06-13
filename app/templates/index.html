@@ -152,6 +152,8 @@
     <div class="col">
         <h3>Aktuality a důležité informace</h3>
         <ul class="timeline text-justify">
+            {{ zprava('Neohlášená změna názvu povolání', '11. 6. 2021',
+            'Pravděpodobně NAKIT změnil názvy povolání na číselníkové hodnoty a promítlo se to do opendat. Žádné varování předem. Aktuálně nahrazujeme na naší straně.') }}
             {{ zprava('Pozdní aktualizace webu a dočasně poškozená data', '8. 6. 2021',
             'Pozdní aktualizace a dočasně poškozená data o očkování a registracích způsobené chybnou změnou v aplikaci.') }}
             {{ zprava('Chybějící data v datasetu registrací', '2. 5. 2021',
@@ -195,7 +197,6 @@
             'Spuštění registračního systému na očkování a otevření registrace pro věkovou skupinu 80+.') }}
 
         </ul>
-        <a href="./dataquality" style="display: none">Report datové kvality</a>
     </div>
 </div>
 {% endblock %}

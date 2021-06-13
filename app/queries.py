@@ -6,7 +6,7 @@ from sqlalchemy import func, or_, and_, text
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace
 
 
 def unique_nrpzs_subquery():
@@ -625,6 +625,27 @@ def count_end_date_supplies():
               'listopadu', 'prosince']
 
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
+
+
+def couht_end_date_interested():
+    metrics = db.session.query(CrMetriky.ockovani_pocet_castecne, CrMetriky.ockovani_pocet_plne,
+                               CrMetriky.ockovani_pocet_davek_zmena_tyden) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one()
+
+    if metrics is None or metrics.ockovani_pocet_davek_zmena_tyden is None:
+        return None
+
+    registrations_waiting = db.session.query(func.count(OckovaniRegistrace.datum)) \
+        .filter(OckovaniRegistrace.ockovani == 0) \
+        .filter(OckovaniRegistrace.import_id == get_import_id()) \
+        .one()
+
+    waiting_count = registrations_waiting[0] * 2 + metrics.ockovani_pocet_castecne - metrics.ockovani_pocet_plne
+
+    days = (7 * waiting_count) / metrics.ockovani_pocet_davek_zmena_tyden
+
+    return get_import_date() + timedelta(days=days)
 
 
 def count_free_slots(center_id=None):
