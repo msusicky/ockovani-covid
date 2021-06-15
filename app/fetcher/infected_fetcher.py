@@ -32,6 +32,7 @@ class InfectedFetcher(Fetcher):
         df = df[['datum', 'vekova_skupina', 'kraj_nuts_kod']]
 
         df['kraj_nuts_kod'] = df['kraj_nuts_kod'].fillna('-')
+        df['vekova_skupina'] = df['vekova_skupina'].fillna('-')
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
