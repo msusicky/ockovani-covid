@@ -163,7 +163,7 @@
                 <td class="text-right">{{ (100 * vaccinated['pocet_ockovani_v_kraji_plne'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% endif %}
             {% if 'zajem' in vaccinated %}
-                <td></td>
+                <td class="text-right">{{ (100 * (vaccinated['pocet_fronta'].sum() + vaccinated['pocet_s_terminem'].sum() + vaccinated['pocet_ockovani_castecne'].sum()) / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
             {% endif %}
         </tr>
         </tfoot>
