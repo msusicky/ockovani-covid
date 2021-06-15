@@ -524,9 +524,7 @@ def count_vaccinated_doctors(kraj_id=None):
         left join ockovaci_zarizeni z on ol.zarizeni_kod = z.id
         left join okresy o on o.id = z.okres_id
         left join vakciny v on ol.vakcina = v.vakcina
-        where zarizeni_kod not in (select nrpzs_kod from ockovaci_mista) 
-            and (kraj_nuts_kod='{}' or True={}) 
-            and zrizovatel_kod in (5, 8)
+        where prakticky_lekar = True and (kraj_nuts_kod='{}' or True={})
 	    group by z.zarizeni_nazev, o.nazev, z.provoz_ukoncen
 	    order by sum(pocet) desc
         """.format(get_import_date(), get_import_date(), kraj_id, kraj_id is None),
