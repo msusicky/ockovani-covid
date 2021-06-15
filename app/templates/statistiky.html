@@ -43,12 +43,9 @@ Statistiky |
         <h5>Nedovolené zjednodušení</h5>
         <p>
             Pokud bychom očkovali průměrnou rychlostí posledního týdne, pak skončíme (70 % populace plně očkováno)
-            <strong>{{ end_date | format_date }}</strong>.
-            Nicméně dodávky vakcín se výrazně zvýší, všechny potřebné dávky by měly být dodány do konce
-            <strong>{{ end_date_supplies }}</strong>.
-        </p>
-        <p>
-            Nedostatek zájemců o očkování nastane přibližně: <strong>{{ end_date_interested | format_date }}</strong>.
+            <strong>{{ end_date | format_date }}</strong>. Všechny potřebné dávky by měly být dodány do konce
+            <strong>{{ end_date_supplies }}</strong>. Nicméně nedostatek zájemců o očkování nastane přibližně už
+            <strong>{{ end_date_interested | format_date }}</strong>.
         </p>
         {% endif %}
     </div>
