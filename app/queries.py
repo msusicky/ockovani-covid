@@ -672,7 +672,7 @@ def count_vaccinated_week():
         f"""
         select datum, sum(pocet) 
         from ockovani_lide 
-        where datum >= '{get_import_date() - timedelta(7)}'
+        where datum >= '{get_import_date() - timedelta(10)}'
         group by datum 
         order by datum 
         """
@@ -687,7 +687,7 @@ def count_top_centers():
         where datum >= '{get_import_date() - timedelta(7)}'
         group by zarizeni_nazev 
         order by pocet desc 
-        limit 7;
+        limit 10;
         """
     )).all()
 
