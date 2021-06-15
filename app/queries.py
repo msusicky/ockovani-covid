@@ -574,7 +574,7 @@ def count_end_date_category():
 def count_end_date_vaccinated():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne_zmena_tyden, CrMetriky.ockovani_pocet_castecne,
                                CrMetriky.ockovani_pocet_plne_zmena_tyden, CrMetriky.ockovani_pocet_plne,
-                               CrMetriky.pocet_obyvatel_dospeli) \
+                               CrMetriky.pocet_obyvatel_celkem) \
         .filter(CrMetriky.datum == get_import_date()) \
         .one()
 
@@ -582,7 +582,7 @@ def count_end_date_vaccinated():
             or CrMetriky.ockovani_pocet_plne_zmena_tyden is None:
         return None
 
-    population = metrics.pocet_obyvatel_dospeli
+    population = metrics.pocet_obyvatel_celkem
     population_to_vaccinate = population * 0.7
     days = (7 * (2 * population_to_vaccinate - metrics.ockovani_pocet_castecne - metrics.ockovani_pocet_plne)) \
            / (metrics.ockovani_pocet_castecne_zmena_tyden + metrics.ockovani_pocet_plne_zmena_tyden)
@@ -590,14 +590,14 @@ def count_end_date_vaccinated():
 
 
 def count_end_date_supplies():
-    metrics = db.session.query(CrMetriky.pocet_obyvatel_dospeli) \
+    metrics = db.session.query(CrMetriky.pocet_obyvatel_celkem) \
         .filter(CrMetriky.datum == get_import_date()) \
         .one()
 
     if metrics is None:
         return None
 
-    population_to_vaccinate = metrics.pocet_obyvatel_dospeli * 0.7
+    population_to_vaccinate = metrics.pocet_obyvatel_celkem * 0.7
 
     end_date = db.session.query("datum").from_statement(text(
         f"""
@@ -672,7 +672,7 @@ def count_vaccinated_week():
         f"""
         select datum, sum(pocet) 
         from ockovani_lide 
-        where datum >= '{get_import_date() - timedelta(7)}'
+        where datum >= '{get_import_date() - timedelta(10)}'
         group by datum 
         order by datum 
         """
@@ -687,7 +687,7 @@ def count_top_centers():
         where datum >= '{get_import_date() - timedelta(7)}'
         group by zarizeni_nazev 
         order by pocet desc 
-        limit 7;
+        limit 10;
         """
     )).all()
 

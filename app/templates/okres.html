@@ -38,7 +38,7 @@
                     </div>
                     <div class="tab-pane" id="stats">
                         <div class="row px-2 mb-n2">
-                            {{ metrika('Počet obyvatel (18+)', metriky.pocet_obyvatel_dospeli) }}
+                            {{ metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
                             {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra v okrese.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném okrese. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
                             {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).') }}
                             {{ metrika('Rezervací denně', metriky.registrace_rezervace_prumer, delta_day=metriky.registrace_rezervace_prumer_zmena_den, delta_week=metriky.registrace_rezervace_prumer_zmena_tyden, info='Průměrný počet rezervací uvolněných za posledních 7 dnů.') }}

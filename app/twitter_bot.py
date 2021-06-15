@@ -10,16 +10,17 @@ from app.models import CrMetriky
 class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
-                                 CrMetriky.pocet_obyvatel_dospeli, CrMetriky.registrace_fronta) \
+                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_fronta) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
         self._vaccinated = stats.ockovani_pocet_plne
         self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
-        self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_dospeli
+        self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_celkem
         self._waiting = stats.registrace_fronta
-        self._end_date = queries.count_end_date_vaccinated()
-        self._end_date_supplies = queries.count_end_date_supplies()
+        # self._end_date = queries.count_end_date_vaccinated()
+        # self._end_date_supplies = queries.count_end_date_supplies()
+        self._end_date_interested = queries.couht_end_date_interested()
 
     def post_tweet(self):
         text = self._generate_tweet()
@@ -34,10 +35,10 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na termín čeká {} zájemců. Aktuální rychlostí bude 70 % dospělých naočkováno cca {}, potřebné vakcíny by měly dorazit do konce {}. https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na termín čeká {} zájemců. Nedostatek zájemců o očkování nastane přibližne: {}. https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
-                    filters.format_date(self._end_date).replace(' ', ''), self._end_date_supplies)
+                    filters.format_date(self._end_date_interested))
         return text
 
     def _generate_progressbar(self):
