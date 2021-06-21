@@ -108,18 +108,20 @@
 </div>
 
 <script>
+    const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     function filterChanged() {
-        const searchValue = $("#centers-searchbox").val().toLowerCase();
+        const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
         const activeValue = $("#centers-active")[0].checked;
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
         const selfPaidValue = $("#centers-selfpaid")[0].checked;
         const selfPaidString = "samopl"
 
         $("#centers-table tbody tr").filter(function () {
+            const normalized = stripAccents($(this).text().toLowerCase());
             $(this).toggle(
-                $(this).text().toLowerCase().indexOf(searchValue) > -1
-                && ((selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) > -1) || (
-                    !selfPaidValue && $(this).text().toLowerCase().indexOf(selfPaidString) === -1))
+                normalized.indexOf(searchValue) > -1
+                && ((selfPaidValue && normalized.indexOf(selfPaidString) > -1) || (
+                    !selfPaidValue && normalized.indexOf(selfPaidString) === -1))
                 && (!activeValue || $(this)[0].dataset.active === 'True')
                 && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
             )
