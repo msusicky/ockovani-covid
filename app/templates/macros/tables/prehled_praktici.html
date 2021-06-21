@@ -63,16 +63,17 @@
 </p>
 
 <script>
+    const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     $(document).ready(function(){
-      $("#doctors-searchbox").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $("#doctors-table tbody tr").filter(function() {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        $("#doctors-searchbox").on("keyup", function() {
+            var value = stripAccents($(this).val().toLowerCase());
+            $("#doctors-table tbody tr").filter(function() {
+                $(this).toggle(stripAccents($(this).text().toLowerCase()).indexOf(value) > -1)
+            });
+            $("#doctors-table tbody tr:visible").each(function (index) {
+                $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+            });
         });
-        $("#doctors-table tbody tr:visible").each(function (index) {
-            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
-        });
-      });
     });
 </script>
 {%- endmacro %}
