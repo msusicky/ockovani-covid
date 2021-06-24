@@ -6,7 +6,7 @@ from sqlalchemy import func, or_, and_, text
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace
 
 
 def unique_nrpzs_subquery():
@@ -644,6 +644,27 @@ def couht_end_date_interested():
     days = (7 * waiting_count) / metrics.ockovani_pocet_davek_zmena_tyden
 
     return get_import_date() + timedelta(days=days)
+
+
+def count_interest():
+    metrics = db.session.query(CrMetriky.ockovani_pocet_castecne, CrMetriky.pocet_obyvatel_celkem) \
+        .filter(CrMetriky.datum == get_import_date()) \
+        .one()
+
+    registrations_waiting = db.session.query(func.count(OckovaniRegistrace.datum)) \
+        .filter(OckovaniRegistrace.ockovani == 0) \
+        .filter(OckovaniRegistrace.import_id == get_import_id()) \
+        .one()
+
+    eligible_population = db.session.query(func.sum(Populace.pocet)) \
+        .filter(Populace.vek >= 16) \
+        .filter(Populace.orp_kod == "CZ0") \
+        .one()
+
+    interest_eligible = (metrics.ockovani_pocet_castecne + registrations_waiting[0]) / eligible_population[0]
+    interest_all = (metrics.ockovani_pocet_castecne + registrations_waiting[0]) / metrics.pocet_obyvatel_celkem
+
+    return interest_all, interest_eligible
 
 
 def count_free_slots(center_id=None):
