@@ -123,6 +123,8 @@ def statistiky():
 
     end_date_interested = queries.couht_end_date_interested()
 
+    interest = queries.count_interest()
+
     vaccines = queries.count_vaccines_cr()
 
     vaccinated = queries.count_vaccinated()
@@ -158,11 +160,11 @@ def statistiky():
 
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            end_date=end_date, end_date_supplies=end_date_supplies,
-                           end_date_interested=end_date_interested, vaccines=vaccines, vaccinated=vaccinated,
-                           vaccinated_category=vaccinated_category, reservations_category=reservations_category,
-                           supplies=supplies, end_date_category=end_date_category,
-                           vaccinated_week=vaccinated_week, top_centers=top_centers,
-                           received_vaccine_graph_data=received_vaccine_graph_data,
+                           end_date_interested=end_date_interested, interest=interest, vaccines=vaccines,
+                           vaccinated=vaccinated, vaccinated_category=vaccinated_category,
+                           reservations_category=reservations_category, supplies=supplies,
+                           end_date_category=end_date_category, vaccinated_week=vaccinated_week,
+                           top_centers=top_centers, received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
                            vaccination_total_graph_data=vaccination_total_graph_data,
                            registrations_graph_data=registrations_graph_data,
