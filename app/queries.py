@@ -634,8 +634,8 @@ def couht_end_date_interested():
     if metrics is None or metrics.ockovani_pocet_davek_zmena_tyden is None:
         return None
 
-    registrations_waiting = db.session.query(func.count(OckovaniRegistrace.datum)) \
-        .filter(OckovaniRegistrace.ockovani == 0) \
+    registrations_waiting = db.session.query(func.sum(OckovaniRegistrace.pocet)) \
+        .filter(OckovaniRegistrace.ockovani < 1) \
         .filter(OckovaniRegistrace.import_id == get_import_id()) \
         .one()
 
@@ -651,8 +651,8 @@ def count_interest():
         .filter(CrMetriky.datum == get_import_date()) \
         .one()
 
-    registrations_waiting = db.session.query(func.count(OckovaniRegistrace.datum)) \
-        .filter(OckovaniRegistrace.ockovani == 0) \
+    registrations_waiting = db.session.query(func.sum(OckovaniRegistrace.pocet)) \
+        .filter(OckovaniRegistrace.ockovani < 1) \
         .filter(OckovaniRegistrace.import_id == get_import_id()) \
         .one()
 
