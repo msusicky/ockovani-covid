@@ -277,6 +277,12 @@ def praktici_index():
 @bp.route("/praktici/admin", methods = ['POST'])
 def praktici_admin():
     """ Administration for the free vaccines """
+    if request.method == 'POST':
+        session['zdravotnicke_zarizeni_kod'] = request.form['zdravotnicke_zarizeni_kod']
+        session['heslo'] = request.form['heslo']
+    # Check password
+    ######
+
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now())
 
 @bp.route("/praktici/register", methods = ['POST'])
