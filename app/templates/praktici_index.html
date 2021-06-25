@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Praktici - rozcestník |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Rozcestník pro praktické lékaře</h3>
+    </div>
+</div>
+
+<h4>Registrovat se </h4>
+<form action="praktici/register" method="post">
+Zadejte kód Vaší ordinace: <input type="text" name="zdravotnicke_zarizeni_kod">
+    <!-- Nasledne bude zobrazeno heslo -->
+    <input type="submit" value="Odeslat">
+</form>
+<hr />
+Editovat své záznamy
+
+<hr />
+<a href="praktici/volne_vakciny">Přehled volných vakcín</a>
+
+{% endblock %}
