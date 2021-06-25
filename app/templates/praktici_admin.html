@@ -7,75 +7,155 @@ Praktici - administrace |
 {% block body %}
 <div class="row">
     <div class="col">
-        <h3>Administrace</h3>
+        <h3>Volné vakcíny - administrace</h3>
     </div>
 </div>
-
-{% if session['zdravotnicke_zarizeni_kod'] %}
-    Děkujeme za registraci. Pro ordinaci {{session['zdravotnicke_zarizeni_kod']}} je Vaše heslo: xxxx.
-    Pokud ho zapomenete, napište nám na info@opendatalab.cz.
-    <br />
-    <br />
-{% endif %}
-<!-- jinak se ukaze tabulka pro editaci s vakcinami, resp. musime hlidat, jestli nedoslo k aktualizaci -->
-
-<form action="." name="free-vaccines" method="post">
-
-    <div class="table-responsive">
-            <table id="centers-table" class="table table-bordered table-striped table-sm">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col" class="text-center">Aktualizace</th>
-                    <th scope="col" class="text-center col-sortable">Dávek</th>
-                    <th scope="col" class="text-center col-sortable">Vakcína</th>
-                    <th scope="col" class="text-center col-sortable">Kraj</th>
-                    <th scope="col" class="text-center col-sortable">Město</th>
-                    <th scope="col" class="text-center">Ordinace</th>
-                    <th scope="col" class="text-center">Adresa</th>
-                    <th scope="col" class="text-center">Telefon</th>
-                    <th scope="col" class="text-center">Email</th>
-                    <th scope="col" class="text-center">Poznámka</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in free_vaccines %}
-                <tr>
-                    <td class="text-right">
-                        {{ item.datum_aktualizace }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.pocet_davek }}">
-                        {{ item.pocet_davek | format_number }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.vakcina }}">
-                        {{ item.vakcina }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.kraj }}">
-                        {{ item.kraj }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.mesto }}">
-                        {{ item.mesto }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.ordinace }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.adresa }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.telefon }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.email }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.poznamka }}
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+{% if session.get('error') %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-danger" role="alert">
+            <p class="mb-0">
+                {{ session.get('error') }}
+            </p>
         </div>
-    <input type="submit" name="Odeslat" value="Aktualizovat">
-</form>
+    </div>
+</div>
+{% endif %}
+{% if session.get('success') %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-success" role="alert">
+            <p class="mb-0">
+                {{ session.get('success') }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col">
+        <h4>Editace</h4>
+    </div>
+</div>
+<div class="row">
+    {% if user %}
+        <div class="col">
+            <!-- jinak se ukaze tabulka pro editaci s vakcinami, resp. musime hlidat, jestli nedoslo k aktualizaci -->
 
+            <form action="." name="free-vaccines" method="post">
+
+                <div class="table-responsive">
+                        <table id="centers-table" class="table table-bordered table-striped table-sm">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" class="text-center">Aktualizace</th>
+                                <th scope="col" class="text-center col-sortable">Dávek</th>
+                                <th scope="col" class="text-center col-sortable">Vakcína</th>
+                                <th scope="col" class="text-center col-sortable">Kraj</th>
+                                <th scope="col" class="text-center col-sortable">Město</th>
+                                <th scope="col" class="text-center">Ordinace</th>
+                                <th scope="col" class="text-center">Adresa</th>
+                                <th scope="col" class="text-center">Telefon</th>
+                                <th scope="col" class="text-center">Email</th>
+                                <th scope="col" class="text-center">Poznámka</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in free_vaccines %}
+                            <tr>
+                                <td class="text-right">
+                                    {{ item.datum_aktualizace }}
+                                </td>
+                                <td class="text-right" data-value="{{ item.pocet_davek }}">
+                                    {{ item.pocet_davek | format_number }}
+                                </td>
+                                <td class="text-right" data-value="{{ item.vakcina }}">
+                                    {{ item.vakcina }}
+                                </td>
+                                <td class="text-right" data-value="{{ item.kraj }}">
+                                    {{ item.kraj }}
+                                </td>
+                                <td class="text-right" data-value="{{ item.mesto }}">
+                                    {{ item.mesto }}
+                                </td>
+                                <td class="text-right">
+                                    {{ item.ordinace }}
+                                </td>
+                                <td class="text-right">
+                                    {{ item.adresa }}
+                                </td>
+                                <td class="text-right">
+                                    {{ item.telefon }}
+                                </td>
+                                <td class="text-right">
+                                    {{ item.email }}
+                                </td>
+                                <td class="text-right">
+                                    {{ item.poznamka }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                <input type="submit" name="Odeslat" value="Aktualizovat">
+            </form>
+        </div>
+    {% else %}
+        <div class="col-sm-6 mb-3">
+            <div class="card card-body bg-light">
+                <h5>Registrovat se</h5>
+                <form action="{{ url_for('view.praktici_admin_register') }}" method="post">
+                    <div class="form-group row">
+                        <label for="register-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="register-id" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-8">
+                            <button type="submit" class="btn btn-primary">Registrovat</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="card card-body bg-light">
+                <h5>Editovat své záznamy</h5>
+                <form action="{{ url_for('view.praktici_admin_login') }}" method="post">
+                    <div class="form-group row">
+                        <label for="login-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                        <div class="col-lg-8">
+                            <input type="text" class="form-control" id="login-id" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="login-passwd" class="col-lg-4 col-form-label">Heslo</label>
+                        <div class="col-lg-8">
+                            <input type="password" class="form-control" id="login-passwd" name="passwd">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-8">
+                            <button type="submit" class="btn btn-primary">Přihlásit</button>
+                        </div>
+                    </div>
+                </form>
+                <p class="card-text font-italic">
+                    Pokud jste heslo zapomněli, napište nám o něj na TODO.
+                </p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col">
+        <h4>Přehled</h4>
+        <!-- Sem rovnou vložit komponentu s vakcínami, bude pro přihlášené i nepřihlášené  -->
+    </div>
+</div>
 {% endblock %}

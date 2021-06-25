@@ -727,7 +727,11 @@ class PrakticiLogin(db.Model):
     __tablename__ = 'praktici_login'
 
     zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
-    heslo = Column(Unicode, nullable=False, default="select substring(md5('Ockovani_praktici'||now()), 0, 7)")
+    heslo = Column(Unicode, nullable=False)
+
+    def __init__(self, id, passwd):
+        self.zdravotnicke_zarizeni_kod = id
+        self.heslo = passwd
 
     def __repr__(self):
         return f"<PrakticiLogin(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"

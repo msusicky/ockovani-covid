@@ -20,6 +20,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(modu
 
 locale.setlocale(locale.LC_TIME, "cs_CZ")
 
-from app import filters, views, models, commands
+from app import filters, views, controllers, models, commands
 
 app.register_blueprint(bp)

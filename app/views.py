@@ -1,13 +1,13 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 
-from flask import render_template, request, session
+from flask import render_template, session
 from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    Vakcinacka
+    ZdravotnickeStredisko, PrakticiLogin
 
 
 @bp.route('/')
@@ -270,32 +270,25 @@ def dataquality():
                            susp_reservation_vaccination=susp_reservation_vaccination,
                            susp_reservation_vaccination_low=susp_reservation_vaccination_low)
 
-@bp.route("/praktici_index")
-def praktici_index():
-    return render_template('praktici_index.html', last_update=_last_import_modified(), now=_now())
 
-@bp.route("/praktici/admin", methods = ['POST'])
+@bp.route("/praktici_admin")
 def praktici_admin():
-    """ Administration for the free vaccines """
-    if request.method == 'POST':
-        session['zdravotnicke_zarizeni_kod'] = request.form['zdravotnicke_zarizeni_kod']
-        session['heslo'] = request.form['heslo']
-    # Check password
-    ######
+    if session.get('user_id') is not None and session.get('user_passwd') is not None:
+        user = db.session.query(PrakticiLogin) \
+            .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .filter(PrakticiLogin.heslo == session['user_passwd']) \
+            .one_or_none()
+    else:
+        user = None
 
-    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now())
+    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user)
 
-@bp.route("/praktici/register", methods = ['POST'])
-def praktici_register():
-    """ Registration process """
-    if request.method == 'POST':
-        session['zdravotnicke_zarizeni_kod'] = request.form['zdravotnicke_zarizeni_kod']
-    """ It is necessary to create vaccine rows, insert to the login table - if the GP is not yet registered. (pk there) """
-    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now())
 
-@bp.route("/praktici/volne_vakciny")
-def praktici_volne_vakciny():
-    return render_template('praktici_volne_vakciny.html', last_update=_last_import_modified(), now=_now())
+# na tohle bych nedelal samostatnou stranku, ale dal bych to jako komponentu do prehledu praktiku a administrace
+# @bp.route("/praktici/volne_vakciny")
+# def praktici_volne_vakciny():
+#     return render_template('praktici_volne_vakciny.html', last_update=_last_import_modified(), now=_now())
+
 
 def _last_import_modified():
     """
