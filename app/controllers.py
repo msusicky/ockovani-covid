@@ -3,6 +3,7 @@ import string
 from datetime import datetime
 
 from flask import session, redirect, request, url_for
+from flask.json import dump
 
 from app import db, bp
 from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity, Vakcina
@@ -104,13 +105,29 @@ def praktici_admin_edit():
 
     user = db.session.query(PrakticiLogin) \
         .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == id) \
-        .fitler(PrakticiLogin.heslo == passwd) \
+        .filter(PrakticiLogin.heslo == passwd) \
         .one_or_none()
 
     if user is None:
         session['error'] = 'Neplatné zdravotnické zařízení nebo heslo.'
     else:
-        pass # todo: nacteni udaju z formulare a uprava zaznamu
+        for i in range(len(request.form)):
+            vaccine = db.session.query(PrakticiKapacity) \
+                .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == id) \
+                .filter(PrakticiKapacity.typ_vakciny == request.form.getlist('typ_vakciny[]')[i]) \
+                .one_or_none()
+
+            if vaccine is None:
+                continue
+
+            vaccine.pocet_davek = request.form.getlist('pocet_davek[]')[i]
+            vaccine.adresa = request.form.getlist('adresa[]')[i]
+            vaccine.kontakt_tel = request.form.getlist('kontakt_tel[]')[i]
+            vaccine.kontakt_email = request.form.getlist('kontakt_email[]')[i]
+            vaccine.poznamka = request.form.getlist('poznamka[]')[i]
+
+            db.session.merge(vaccine)
+            db.session.commit()
 
     return redirect(url_for('view.praktici_admin'))
 

@@ -59,23 +59,23 @@ Praktici - administrace |
                     {% for vaccine in user_vaccines %}
                     <tr>
                         <td class="text-left">
-                            <input type="hidden" name="typ_vakciny" value="{{ vaccine.typ_vakciny }}"/>
+                            <input type="hidden" name="typ_vakciny[]" value="{{ vaccine.typ_vakciny }}"/>
                             {{ vaccine.typ_vakciny }}
                         </td>
                         <td class="text-left">
-                            <input type="number" name="pocet_davek" value="{{ vaccine.pocet_davek }}" size="4"/>
+                            <input type="number" name="pocet_davek[]" value="{{ vaccine.pocet_davek }}" size="4"/>
                         </td>
                         <td class="text-left">
-                            <input type="text" name="adresa" value="{{ vaccine.adresa }}"/>
+                            <input type="text" name="adresa[]" value="{{ vaccine.adresa }}"/>
                         </td>
                         <td class="text-left">
-                            <input type="tel" name="kontakt_tel" value="{{ vaccine.kontakt_tel }}" size="9"/>
+                            <input type="tel" name="kontakt_tel[]" value="{{ vaccine.kontakt_tel }}" size="9"/>
                         </td>
                         <td class="text-left">
-                            <input type="email" name="kontakt_email" value="{{ vaccine.kontakt_email }}" size="20"/>
+                            <input type="email" name="kontakt_email[]" value="{{ vaccine.kontakt_email }}" size="20"/>
                         </td>
                         <td class="text-left">
-                            <input type="text" name="poznamka" value="{{ vaccine.poznamka }}"/>
+                            <input type="text" name="poznamka[]" value="{{ vaccine.poznamka }}"/>
                         </td>
                     </tr>
                     {% endfor %}
