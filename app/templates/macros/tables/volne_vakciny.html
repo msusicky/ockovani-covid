@@ -1,67 +1,57 @@
-{% extends 'base.html' %}
-
-{% block title %}
-Praktici - administrace |
-{% endblock %}
-
-{% block body %}
-<div class="row">
-    <div class="col">
-        <h3>Přehled volných vakcín u praktických lékařů</h3>
-    </div>
+{% macro volne_vakciny(free_vaccines) -%}
+<div class="table-responsive">
+    <table id="centers-table" class="table table-bordered table-striped table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center">Aktualizace</th>
+            <th scope="col" class="text-center col-sortable">Dávek</th>
+            <th scope="col" class="text-center col-sortable">Vakcína</th>
+            <th scope="col" class="text-center col-sortable">Kraj</th>
+            <th scope="col" class="text-center col-sortable">Město</th>
+            <th scope="col" class="text-center">Ordinace</th>
+            <th scope="col" class="text-center">Adresa</th>
+            <th scope="col" class="text-center">Telefon</th>
+            <th scope="col" class="text-center">Email</th>
+            <th scope="col" class="text-center">Poznámka</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in free_vaccines %}
+        <tr>
+            <td class="text-right">
+                {{ item.datum_aktualizace }}
+            </td>
+            <td class="text-right" data-value="{{ item.pocet_davek }}">
+                {{ item.pocet_davek | format_number }}
+            </td>
+            <td class="text-right" data-value="{{ item.vakcina }}">
+                {{ item.vakcina }}
+            </td>
+            <td class="text-right" data-value="{{ item.kraj }}">
+                {{ item.kraj }}
+            </td>
+            <td class="text-right" data-value="{{ item.mesto }}">
+                {{ item.mesto }}
+            </td>
+            <td class="text-right">
+                {{ item.ordinace }}
+            </td>
+            <td class="text-right">
+                {{ item.adresa }}
+            </td>
+            <td class="text-right">
+                {{ item.telefon }}
+            </td>
+            <td class="text-right">
+                {{ item.email }}
+            </td>
+            <td class="text-right">
+                {{ item.poznamka }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
-    <div class="table-responsive">
-            <table id="centers-table" class="table table-bordered table-striped table-sm">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col" class="text-center">Aktualizace</th>
-                    <th scope="col" class="text-center col-sortable">Dávek</th>
-                    <th scope="col" class="text-center col-sortable">Vakcína</th>
-                    <th scope="col" class="text-center col-sortable">Kraj</th>
-                    <th scope="col" class="text-center col-sortable">Město</th>
-                    <th scope="col" class="text-center">Ordinace</th>
-                    <th scope="col" class="text-center">Adresa</th>
-                    <th scope="col" class="text-center">Telefon</th>
-                    <th scope="col" class="text-center">Email</th>
-                    <th scope="col" class="text-center">Poznámka</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in free_vaccines %}
-                <tr>
-                    <td class="text-right">
-                        {{ item.datum_aktualizace }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.pocet_davek }}">
-                        {{ item.pocet_davek | format_number }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.vakcina }}">
-                        {{ item.vakcina }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.kraj }}">
-                        {{ item.kraj }}
-                    </td>
-                    <td class="text-right" data-value="{{ item.mesto }}">
-                        {{ item.mesto }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.ordinace }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.adresa }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.telefon }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.email }}
-                    </td>
-                    <td class="text-right">
-                        {{ item.poznamka }}
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-{% endblock %}
+{%- endmacro %}
+
