@@ -17,7 +17,7 @@ Praktici - administrace |
     <div class="col">
         <div class="alert alert-danger" role="alert">
             <p class="mb-0">
-                {{ session.get('error') }}
+                {{ session.get('error') | safe }}
             </p>
         </div>
     </div>
@@ -29,7 +29,7 @@ Praktici - administrace |
     <div class="col">
         <div class="alert alert-success" role="alert">
             <p class="mb-0">
-                {{ session.get('success') }}
+                {{ session.get('success') | safe }}
             </p>
         </div>
     </div>
@@ -69,7 +69,7 @@ Praktici - administrace |
                             <input type="text" name="adresa[]" value="{{ vaccine.adresa }}" size="25"/>
                         </td>
                         <td>
-                            <input type="tel" name="kontakt_tel[]" value="{{ vaccine.kontakt_tel }}" size="9"/>
+                            <input type="tel" name="kontakt_tel[]" value="{{ vaccine.kontakt_tel }}" size="13"/>
                         </td>
                         <td>
                             <input type="email" name="kontakt_email[]" value="{{ vaccine.kontakt_email }}" size="20"/>
@@ -104,6 +104,11 @@ Praktici - administrace |
                     </div>
                 </div>
             </form>
+            <p class="card-text font-italic text-justify">
+                Zadejte "úplný kód" z
+                <a href="https://nrpzs.uzis.cz/" target="_blank">Národního registru poskytovatelů zdravotních služeb</a>
+                (karta "Detailní záznamy na ÚZIS ČR").
+            </p>
         </div>
     </div>
     <div class="col-sm-6 mb-3">
@@ -129,8 +134,8 @@ Praktici - administrace |
                     </div>
                 </div>
             </form>
-            <p class="card-text font-italic">
-                Pokud jste heslo zapomněli, napište nám o něj na TODO.
+            <p class="card-text font-italic text-justify">
+                Pokud jste heslo zapomněli, napište nám o něj na info@opendatalab.cz.
             </p>
         </div>
     </div>

@@ -57,7 +57,7 @@ def praktici_admin_register():
         session['user_id'] = id
         session['user_passwd'] = passwd
 
-        session['success'] = f"Děkujeme za registraci. Pro ordinaci '{id}' je Vaše heslo '{passwd}'."
+        session['success'] = f"Děkujeme za registraci. Pro ordinaci {id} je Vaše heslo <strong>{passwd}</strong>."
 
     return redirect(url_for('view.praktici_admin'))
 
