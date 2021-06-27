@@ -1,4 +1,4 @@
-name: update-web
+name: update-free-vaccines
 
 on:
   schedule:
