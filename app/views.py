@@ -109,7 +109,8 @@ def praktici():
 
     free_vaccines = db.session.query(PrakticiKapacity) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
-        .order_by(PrakticiKapacity.kraj) \
+        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                  PrakticiKapacity.typ_vakciny) \
         .all()
 
     return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
@@ -293,7 +294,8 @@ def praktici_admin():
 
     all_vaccines = db.session.query(PrakticiKapacity) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
-        .order_by(PrakticiKapacity.kraj) \
+        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                  PrakticiKapacity.typ_vakciny) \
         .all()
 
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
