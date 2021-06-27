@@ -343,6 +343,8 @@ class ZdravotnickeStredisko(db.Model):
     okres = Column(Unicode)
     okres_kod = Column(Unicode)
     nrpzs_kod = Column(Unicode)
+    email = Column(Unicode)
+    telefon = Column(Unicode)
 
     def __repr__(self):
         return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
@@ -719,3 +721,37 @@ class Vakcinacka(db.Model):
 
 
 OckovaciMisto.vakcinacka = relationship("Vakcinacka", uselist=False, back_populates="misto")
+
+
+class PrakticiLogin(db.Model):
+    __tablename__ = 'praktici_login'
+
+    zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
+    heslo = Column(Unicode, nullable=False)
+
+    def __init__(self, id, passwd):
+        self.zdravotnicke_zarizeni_kod = id
+        self.heslo = passwd
+
+    def __repr__(self):
+        return f"<PrakticiLogin(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
+
+
+class PrakticiKapacity(db.Model):
+    __tablename__ = 'praktici_kapacity'
+
+    zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
+    datum_aktualizace = Column(DateTime, nullable=False, default="now()")
+    typ_vakciny = Column(Unicode, primary_key=True)
+    kraj = Column(Unicode, nullable=False)
+    mesto = Column(Unicode, nullable=False)
+    nazev_ordinace = Column(Unicode, nullable=False)
+    adresa = Column(Unicode)
+    pocet_davek = Column(Integer, nullable=False)
+    kontakt_email = Column(Unicode)
+    kontakt_tel = Column(Unicode)
+    poznamka = Column(Unicode)
+
+    def __repr__(self):
+        return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
+
