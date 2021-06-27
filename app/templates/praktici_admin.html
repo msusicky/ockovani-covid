@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
+
+{% block title %}
+Praktici - administrace |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Volné vakcíny - administrace</h3>
+    </div>
+</div>
+
+{% if session.get('error') %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-danger" role="alert">
+            <p class="mb-0">
+                {{ session.get('error') | safe }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if session.get('success') %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-success" role="alert">
+            <p class="mb-0">
+                {{ session.get('success') | safe }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-3">
+    {% if user %}
+    <div class="col-12">
+        <h4>Editace: {{ user.nazev_cely }}</h4>
+    </div>
+    <div class="col-12">
+        <form action="{{ url_for('view.praktici_admin_edit') }}" name="free-vaccines" method="post">
+            <div class="table-responsive">
+                <table id="centers-table" class="table table-bordered table-striped table-sm">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="text-center">Vakcína</th>
+                        <th scope="col" class="text-center">Dávek</th>
+                        <th scope="col" class="text-center">Adresa</th>
+                        <th scope="col" class="text-center">Telefon</th>
+                        <th scope="col" class="text-center">Email</th>
+                        <th scope="col" class="text-center">Poznámka</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vaccine in user_vaccines %}
+                    <tr>
+                        <td>
+                            <input type="hidden" name="typ_vakciny[]" value="{{ vaccine.typ_vakciny }}"/>
+                            {{ vaccine.typ_vakciny }}
+                        </td>
+                        <td>
+                            <input type="number" name="pocet_davek[]" value="{{ vaccine.pocet_davek }}" size="4"/>
+                        </td>
+                        <td>
+                            <input type="text" name="adresa[]" value="{{ vaccine.adresa }}" size="25"/>
+                        </td>
+                        <td>
+                            <input type="tel" name="kontakt_tel[]" value="{{ vaccine.kontakt_tel }}" size="13"/>
+                        </td>
+                        <td>
+                            <input type="email" name="kontakt_email[]" value="{{ vaccine.kontakt_email }}" size="20"/>
+                        </td>
+                        <td>
+                            <input type="text" name="poznamka[]" value="{{ vaccine.poznamka }}"/>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Aktualizovat</button>
+            <a class="btn btn-warning" href="{{ url_for('view.praktici_admin_logout') }}">Odhlásit se</a>
+        </form>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <h4>Editace</h4>
+    </div>
+    <div class="col-sm-6 mb-3">
+        <div class="card card-body bg-light">
+            <h5>Registrovat se</h5>
+            <form action="{{ url_for('view.praktici_admin_register') }}" method="post">
+                <div class="form-group row">
+                    <label for="register-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" id="register-id" name="id">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-8">
+                        <button type="submit" class="btn btn-primary">Registrovat</button>
+                    </div>
+                </div>
+            </form>
+            <p class="card-text font-italic text-justify">
+                Zadejte "úplný kód" z
+                <a href="https://nrpzs.uzis.cz/" target="_blank">Národního registru poskytovatelů zdravotních služeb</a>
+                (karta "Detailní záznamy na ÚZIS ČR").
+            </p>
+        </div>
+    </div>
+    <div class="col-sm-6 mb-3">
+        <div class="card card-body bg-light">
+            <h5>Editovat své záznamy</h5>
+            <form action="{{ url_for('view.praktici_admin_login') }}" method="post">
+                <div class="form-group row">
+                    <label for="login-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" id="login-id" name="id">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="login-passwd" class="col-lg-4 col-form-label">Heslo</label>
+                    <div class="col-lg-8">
+                        <input type="password" class="form-control" id="login-passwd" name="passwd">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-8">
+                        <button type="submit" class="btn btn-primary">Přihlásit</button>
+                    </div>
+                </div>
+            </form>
+            <p class="card-text font-italic text-justify">
+                Pokud jste heslo zapomněli, napište nám o něj na info@opendatalab.cz.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col">
+        <h4>Přehled</h4>
+        {{ volne_vakciny(all_vaccines) }}
+    </div>
+</div>
+{% endblock %}

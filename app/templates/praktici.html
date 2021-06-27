@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% from 'macros/tables/prehled_praktici.html' import stav_ockovani_praktici %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 
 {% block title %}
 Praktici |
@@ -8,9 +9,35 @@ Praktici |
 {% block body %}
 <div class="row">
     <div class="col">
-        <h3>Očkování praktickými lékaři (mimo očkovací místa)</h3>
+        <h3>Očkování praktickými lékaři</h3>
     </div>
 </div>
 
-{{ stav_ockovani_praktici(vaccination_doctors) }}
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#overview">Přehled očkování</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#free_vaccines">Volné vakcíny</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="overview">
+                        {{ stav_ockovani_praktici(vaccination_doctors) }}
+                    </div>
+                    <div class="tab-pane" id="free_vaccines">
+                        {{ volne_vakciny(free_vaccines) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

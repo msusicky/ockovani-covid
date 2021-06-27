@@ -1,13 +1,13 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 
-from flask import render_template
+from flask import render_template, session
 from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    Vakcinacka
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
 
 
 @bp.route('/')
@@ -107,8 +107,14 @@ def mapa():
 def praktici():
     vaccination_doctors = queries.count_vaccinated_doctors()
 
+    free_vaccines = db.session.query(PrakticiKapacity) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                  PrakticiKapacity.typ_vakciny) \
+        .all()
+
     return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors)
+                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines)
 
 
 @bp.route("/statistiky")
@@ -269,6 +275,34 @@ def dataquality():
                            susp_vaccination_accepted=susp_vaccination_accepted,
                            susp_reservation_vaccination=susp_reservation_vaccination,
                            susp_reservation_vaccination_low=susp_reservation_vaccination_low)
+
+
+@bp.route("/praktici_admin")
+def praktici_admin():
+    if session.get('user_id') is not None and session.get('user_passwd') is not None:
+        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
+                                ZdravotnickeStredisko.nazev_cely) \
+            .join(ZdravotnickeStredisko,
+                  ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiLogin.zdravotnicke_zarizeni_kod) \
+            .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .filter(PrakticiLogin.heslo == session['user_passwd']) \
+            .one_or_none()
+        user_vaccines = db.session.query(PrakticiKapacity) \
+            .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .order_by(PrakticiKapacity.typ_vakciny) \
+            .all()
+    else:
+        user = None
+        user_vaccines = None
+
+    all_vaccines = db.session.query(PrakticiKapacity) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                  PrakticiKapacity.typ_vakciny) \
+        .all()
+
+    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
+                           user_vaccines=user_vaccines, all_vaccines=all_vaccines)
 
 
 def _last_import_modified():

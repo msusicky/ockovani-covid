@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 app = Flask(__name__)
+app.secret_key = '34983459843jf4985435kdsjcf3489fjc3j34c'
 app.config.from_object(Config)
 
 bp = Blueprint('view', __name__, template_folder="templates")
@@ -19,6 +20,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(modu
 
 locale.setlocale(locale.LC_TIME, "cs_CZ")
 
-from app import filters, views, models, commands
+from app import filters, views, controllers, models, commands
 
 app.register_blueprint(bp)
