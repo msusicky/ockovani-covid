@@ -107,8 +107,13 @@ def mapa():
 def praktici():
     vaccination_doctors = queries.count_vaccinated_doctors()
 
+    free_vaccines = db.session.query(PrakticiKapacity) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .order_by(PrakticiKapacity.kraj) \
+        .all()
+
     return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors)
+                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines)
 
 
 @bp.route("/statistiky")
@@ -284,6 +289,7 @@ def praktici_admin():
             .all()
     else:
         user = None
+        user_vaccines = None
 
     all_vaccines = db.session.query(PrakticiKapacity) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
