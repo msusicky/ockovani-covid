@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import session, redirect, request, url_for
 
 from app import db, bp
-from app.models import ZdravotnickeStredisko, PrakticiLogin
+from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity, Vakcina
 
 
 @bp.route("/praktici_admin/register", methods = ['POST'])
@@ -33,8 +33,23 @@ def praktici_admin_register():
         passwd = ''.join(random.choice(characters) for i in range(8))
 
         user = PrakticiLogin(id, passwd)
-
         db.session.add(user)
+
+        vaccines = db.session.query(Vakcina).all()
+
+        for vaccine in vaccines:
+            free_vaccine = PrakticiKapacity()
+            free_vaccine.zdravotnicke_zarizeni_kod = id
+            free_vaccine.typ_vakciny = vaccine.vyrobce
+            free_vaccine.kraj = zarizeni.kraj
+            free_vaccine.mesto = zarizeni.obec
+            free_vaccine.nazev_ordinace = zarizeni.nazev_cely
+            free_vaccine.adresa = f'{zarizeni.ulice} {zarizeni.cislo_domu}, {zarizeni.psc} {zarizeni.obec}'
+            free_vaccine.pocet_davek = 0
+            free_vaccine.kontakt_email = zarizeni.email
+            free_vaccine.kontakt_tel = zarizeni.telefon
+            db.session.add(free_vaccine)
+
         db.session.commit()
 
         session['user_id'] = id

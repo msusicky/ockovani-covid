@@ -284,12 +284,6 @@ def praktici_admin():
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user)
 
 
-# na tohle bych nedelal samostatnou stranku, ale dal bych to jako komponentu do prehledu praktiku a administrace
-# @bp.route("/praktici/volne_vakciny")
-# def praktici_volne_vakciny():
-#     return render_template('praktici_volne_vakciny.html', last_update=_last_import_modified(), now=_now())
-
-
 def _last_import_modified():
     """
     Returns last successful import.
