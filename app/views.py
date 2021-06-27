@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
 
 
 @bp.route('/')
@@ -280,7 +280,10 @@ def dataquality():
 @bp.route("/praktici_admin")
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
-        user = db.session.query(PrakticiLogin) \
+        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
+                                ZdravotnickeStredisko.nazev_cely) \
+            .join(ZdravotnickeStredisko,
+                  ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiLogin.zdravotnicke_zarizeni_kod) \
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()

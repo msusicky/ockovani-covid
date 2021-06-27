@@ -37,10 +37,10 @@ Praktici - administrace |
 {% endif %}
 
 <div class="row mb-3">
-    <div class="col-12">
-        <h4>Editace</h4>
-    </div>
     {% if user %}
+    <div class="col-12">
+        <h4>Editace: {{ user.nazev_cely }}</h4>
+    </div>
     <div class="col-12">
         <form action="{{ url_for('view.praktici_admin_edit') }}" name="free-vaccines" method="post">
             <div class="table-responsive">
@@ -87,6 +87,9 @@ Praktici - administrace |
         </form>
     </div>
     {% else %}
+    <div class="col-12">
+        <h4>Editace</h4>
+    </div>
     <div class="col-sm-6 mb-3">
         <div class="card card-body bg-light">
             <h5>Registrovat se</h5>

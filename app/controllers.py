@@ -14,7 +14,7 @@ def praktici_admin_register():
     session.pop('error', None)
     session.pop('success', None)
 
-    id = request.form.get('id')
+    id = request.form.get('id')[:14]
 
     zarizeni = db.session.query(ZdravotnickeStredisko) \
         .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == id) \
@@ -67,7 +67,7 @@ def praktici_admin_login():
     session.pop('error', None)
     session.pop('success', None)
 
-    id = request.form.get('id')
+    id = request.form.get('id')[:14]
     passwd = request.form.get('passwd')
 
     user = db.session.query(PrakticiLogin) \
