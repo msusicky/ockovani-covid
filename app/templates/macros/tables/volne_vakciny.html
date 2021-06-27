@@ -19,33 +19,33 @@
         {% for item in free_vaccines %}
         <tr>
             <td class="text-right">
-                {{ item.datum_aktualizace }}
+                {{ item.datum_aktualizace | format_datetime_short_wd }}
             </td>
             <td class="text-right" data-value="{{ item.pocet_davek }}">
                 {{ item.pocet_davek | format_number }}
             </td>
-            <td class="text-right" data-value="{{ item.vakcina }}">
-                {{ item.vakcina }}
+            <td data-value="{{ item.typ_vakciny }}">
+                {{ item.typ_vakciny }}
             </td>
-            <td class="text-right" data-value="{{ item.kraj }}">
+            <td data-value="{{ item.kraj }}">
                 {{ item.kraj }}
             </td>
-            <td class="text-right" data-value="{{ item.mesto }}">
+            <td data-value="{{ item.mesto }}">
                 {{ item.mesto }}
             </td>
-            <td class="text-right">
-                {{ item.ordinace }}
+            <td>
+                {{ item.nazev_ordinace }}
             </td>
-            <td class="text-right">
+            <td>
                 {{ item.adresa }}
             </td>
-            <td class="text-right">
-                {{ item.telefon }}
+            <td>
+                {{ item.kontakt_tel }}
             </td>
-            <td class="text-right">
-                {{ item.email }}
+            <td>
+                {{ item.kontakt_email }}
             </td>
-            <td class="text-right">
+            <td>
                 {{ item.poznamka }}
             </td>
         </tr>

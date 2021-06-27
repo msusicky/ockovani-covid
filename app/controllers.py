@@ -111,7 +111,7 @@ def praktici_admin_edit():
     if user is None:
         session['error'] = 'Neplatné zdravotnické zařízení nebo heslo.'
     else:
-        for i in range(len(request.form)):
+        for i in range(len(request.form.getlist('typ_vakciny[]'))):
             vaccine = db.session.query(PrakticiKapacity) \
                 .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == id) \
                 .filter(PrakticiKapacity.typ_vakciny == request.form.getlist('typ_vakciny[]')[i]) \
@@ -120,7 +120,8 @@ def praktici_admin_edit():
             if vaccine is None:
                 continue
 
-            vaccine.pocet_davek = request.form.getlist('pocet_davek[]')[i]
+            pocet_davek = request.form.getlist('pocet_davek[]')[i]
+            vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
             vaccine.adresa = request.form.getlist('adresa[]')[i]
             vaccine.kontakt_tel = request.form.getlist('kontakt_tel[]')[i]
             vaccine.kontakt_email = request.form.getlist('kontakt_email[]')[i]

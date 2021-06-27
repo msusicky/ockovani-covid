@@ -280,6 +280,7 @@ def praktici_admin():
             .one_or_none()
         user_vaccines = db.session.query(PrakticiKapacity) \
             .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .order_by(PrakticiKapacity.typ_vakciny) \
             .all()
     else:
         user = None
