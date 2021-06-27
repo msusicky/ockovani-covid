@@ -48,6 +48,7 @@ def praktici_admin_register():
             free_vaccine.pocet_davek = 0
             free_vaccine.kontakt_email = zarizeni.email
             free_vaccine.kontakt_tel = zarizeni.telefon
+            free_vaccine.poznamka = ''
             db.session.add(free_vaccine)
 
         db.session.commit()

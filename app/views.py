@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    ZdravotnickeStredisko, PrakticiLogin
+    PrakticiLogin, PrakticiKapacity
 
 
 @bp.route('/')
@@ -278,10 +278,19 @@ def praktici_admin():
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
+        user_vaccines = db.session.query(PrakticiKapacity) \
+            .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .all()
     else:
         user = None
 
-    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user)
+    all_vaccines = db.session.query(PrakticiKapacity) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .order_by(PrakticiKapacity.kraj) \
+        .all()
+
+    return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
+                           user_vaccines=user_vaccines, all_vaccines=all_vaccines)
 
 
 def _last_import_modified():

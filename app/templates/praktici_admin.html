@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 
 {% block title %}
 Praktici - administrace |
@@ -10,6 +11,7 @@ Praktici - administrace |
         <h3>Volné vakcíny - administrace</h3>
     </div>
 </div>
+
 {% if session.get('error') %}
 <div class="row">
     <div class="col">
@@ -21,6 +23,7 @@ Praktici - administrace |
     </div>
 </div>
 {% endif %}
+
 {% if session.get('success') %}
 <div class="row">
     <div class="col">
@@ -32,130 +35,111 @@ Praktici - administrace |
     </div>
 </div>
 {% endif %}
-<div class="row">
-    <div class="col">
+
+<div class="row mb-3">
+    <div class="col-12">
         <h4>Editace</h4>
     </div>
-</div>
-<div class="row">
     {% if user %}
-        <div class="col">
-            <!-- jinak se ukaze tabulka pro editaci s vakcinami, resp. musime hlidat, jestli nedoslo k aktualizaci -->
-
-            <form action="." name="free-vaccines" method="post">
-
-                <div class="table-responsive">
-                        <table id="centers-table" class="table table-bordered table-striped table-sm">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th scope="col" class="text-center">Aktualizace</th>
-                                <th scope="col" class="text-center col-sortable">Dávek</th>
-                                <th scope="col" class="text-center col-sortable">Vakcína</th>
-                                <th scope="col" class="text-center col-sortable">Kraj</th>
-                                <th scope="col" class="text-center col-sortable">Město</th>
-                                <th scope="col" class="text-center">Ordinace</th>
-                                <th scope="col" class="text-center">Adresa</th>
-                                <th scope="col" class="text-center">Telefon</th>
-                                <th scope="col" class="text-center">Email</th>
-                                <th scope="col" class="text-center">Poznámka</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for item in free_vaccines %}
-                            <tr>
-                                <td class="text-right">
-                                    {{ item.datum_aktualizace }}
-                                </td>
-                                <td class="text-right" data-value="{{ item.pocet_davek }}">
-                                    {{ item.pocet_davek | format_number }}
-                                </td>
-                                <td class="text-right" data-value="{{ item.vakcina }}">
-                                    {{ item.vakcina }}
-                                </td>
-                                <td class="text-right" data-value="{{ item.kraj }}">
-                                    {{ item.kraj }}
-                                </td>
-                                <td class="text-right" data-value="{{ item.mesto }}">
-                                    {{ item.mesto }}
-                                </td>
-                                <td class="text-right">
-                                    {{ item.ordinace }}
-                                </td>
-                                <td class="text-right">
-                                    {{ item.adresa }}
-                                </td>
-                                <td class="text-right">
-                                    {{ item.telefon }}
-                                </td>
-                                <td class="text-right">
-                                    {{ item.email }}
-                                </td>
-                                <td class="text-right">
-                                    {{ item.poznamka }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+    <div class="col-12">
+        <form action="{{ url_for('view.praktici_admin_edit') }}" name="free-vaccines" method="post">
+            <div class="table-responsive">
+                <table id="centers-table" class="table table-bordered table-striped table-sm">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" class="text-center">Vakcína</th>
+                        <th scope="col" class="text-center">Dávek</th>
+                        <th scope="col" class="text-center">Adresa</th>
+                        <th scope="col" class="text-center">Telefon</th>
+                        <th scope="col" class="text-center">Email</th>
+                        <th scope="col" class="text-center">Poznámka</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vaccine in user_vaccines %}
+                    <tr>
+                        <td class="text-left">
+                            <input type="hidden" name="typ_vakciny" value="{{ vaccine.typ_vakciny }}"/>
+                            {{ vaccine.typ_vakciny }}
+                        </td>
+                        <td class="text-left">
+                            <input type="number" name="pocet_davek" value="{{ vaccine.pocet_davek }}" size="4"/>
+                        </td>
+                        <td class="text-left">
+                            <input type="text" name="adresa" value="{{ vaccine.adresa }}"/>
+                        </td>
+                        <td class="text-left">
+                            <input type="tel" name="kontakt_tel" value="{{ vaccine.kontakt_tel }}" size="9"/>
+                        </td>
+                        <td class="text-left">
+                            <input type="email" name="kontakt_email" value="{{ vaccine.kontakt_email }}" size="20"/>
+                        </td>
+                        <td class="text-left">
+                            <input type="text" name="poznamka" value="{{ vaccine.poznamka }}"/>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Aktualizovat</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="col-sm-6 mb-3">
+        <div class="card card-body bg-light">
+            <h5>Registrovat se</h5>
+            <form action="{{ url_for('view.praktici_admin_register') }}" method="post">
+                <div class="form-group row">
+                    <label for="register-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" id="register-id" name="id">
                     </div>
-                <input type="submit" name="Odeslat" value="Aktualizovat">
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-8">
+                        <button type="submit" class="btn btn-primary">Registrovat</button>
+                    </div>
+                </div>
             </form>
         </div>
-    {% else %}
-        <div class="col-sm-6 mb-3">
-            <div class="card card-body bg-light">
-                <h5>Registrovat se</h5>
-                <form action="{{ url_for('view.praktici_admin_register') }}" method="post">
-                    <div class="form-group row">
-                        <label for="register-id" class="col-lg-4 col-form-label">Kód ordinace</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" id="register-id" name="id">
-                        </div>
+    </div>
+    <div class="col-sm-6 mb-3">
+        <div class="card card-body bg-light">
+            <h5>Editovat své záznamy</h5>
+            <form action="{{ url_for('view.praktici_admin_login') }}" method="post">
+                <div class="form-group row">
+                    <label for="login-id" class="col-lg-4 col-form-label">Kód ordinace</label>
+                    <div class="col-lg-8">
+                        <input type="text" class="form-control" id="login-id" name="id">
                     </div>
-                    <div class="form-group row">
-                        <div class="col-lg-4"></div>
-                        <div class="col-lg-8">
-                            <button type="submit" class="btn btn-primary">Registrovat</button>
-                        </div>
+                </div>
+                <div class="form-group row">
+                    <label for="login-passwd" class="col-lg-4 col-form-label">Heslo</label>
+                    <div class="col-lg-8">
+                        <input type="password" class="form-control" id="login-passwd" name="passwd">
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-8">
+                        <button type="submit" class="btn btn-primary">Přihlásit</button>
+                    </div>
+                </div>
+            </form>
+            <p class="card-text font-italic">
+                Pokud jste heslo zapomněli, napište nám o něj na TODO.
+            </p>
         </div>
-        <div class="col-sm-6 mb-3">
-            <div class="card card-body bg-light">
-                <h5>Editovat své záznamy</h5>
-                <form action="{{ url_for('view.praktici_admin_login') }}" method="post">
-                    <div class="form-group row">
-                        <label for="login-id" class="col-lg-4 col-form-label">Kód ordinace</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" id="login-id" name="id">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="login-passwd" class="col-lg-4 col-form-label">Heslo</label>
-                        <div class="col-lg-8">
-                            <input type="password" class="form-control" id="login-passwd" name="passwd">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-lg-4"></div>
-                        <div class="col-lg-8">
-                            <button type="submit" class="btn btn-primary">Přihlásit</button>
-                        </div>
-                    </div>
-                </form>
-                <p class="card-text font-italic">
-                    Pokud jste heslo zapomněli, napište nám o něj na TODO.
-                </p>
-            </div>
-        </div>
+    </div>
     {% endif %}
 </div>
 
 <div class="row">
     <div class="col">
         <h4>Přehled</h4>
-        <!-- Sem rovnou vložit komponentu s vakcínami, bude pro přihlášené i nepřihlášené  -->
+        {{ volne_vakciny(all_vaccines) }}
     </div>
 </div>
 {% endblock %}
