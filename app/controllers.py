@@ -40,6 +40,7 @@ def praktici_admin_register():
 
         for vaccine in vaccines:
             free_vaccine = PrakticiKapacity()
+            free_vaccine.datum_aktualizace = datetime.now()
             free_vaccine.zdravotnicke_zarizeni_kod = id
             free_vaccine.typ_vakciny = vaccine.vyrobce
             free_vaccine.kraj = zarizeni.kraj
@@ -120,6 +121,7 @@ def praktici_admin_edit():
             if vaccine is None:
                 continue
 
+            vaccine.datum_aktualizace = datetime.now()
             pocet_davek = request.form.getlist('pocet_davek[]')[i]
             vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
             vaccine.adresa = request.form.getlist('adresa[]')[i]
