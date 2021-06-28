@@ -1,4 +1,4 @@
-name: update-web
+name: update-free-vaccines
 
 on:
   schedule:
@@ -7,7 +7,6 @@ on:
 jobs:
   deploy:
     name: Update free vaccines page
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: production
     runs-on: ubuntu-18.04
     env:
