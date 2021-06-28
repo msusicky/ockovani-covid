@@ -9,12 +9,16 @@ from app import db, bp
 from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity, Vakcina
 
 
-@bp.route("/praktici_admin/register", methods = ['POST'])
+@bp.route("/praktici_admin/register", methods=['POST'])
 def praktici_admin_register():
     session.pop('error', None)
     session.pop('success', None)
 
     id = request.form.get('id')[:14]
+
+    # for ICO acceptance
+    if len(id) < 14:
+        id = id.ljust(14, '0')
 
     zarizeni = db.session.query(ZdravotnickeStredisko) \
         .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == id) \
@@ -63,12 +67,16 @@ def praktici_admin_register():
     return redirect(url_for('view.praktici_admin'))
 
 
-@bp.route("/praktici_admin/login", methods = ['POST'])
+@bp.route("/praktici_admin/login", methods=['POST'])
 def praktici_admin_login():
     session.pop('error', None)
     session.pop('success', None)
 
     id = request.form.get('id')[:14]
+    # for ICO acceptance
+    if len(id) < 14:
+        id = id.ljust(14, '0')
+
     passwd = request.form.get('passwd')
 
     user = db.session.query(PrakticiLogin) \
@@ -85,7 +93,7 @@ def praktici_admin_login():
     return redirect(url_for('view.praktici_admin'))
 
 
-@bp.route("/praktici_admin/logout", methods = ['GET'])
+@bp.route("/praktici_admin/logout", methods=['GET'])
 def praktici_admin_logout():
     session.pop('error', None)
     session.pop('success', None)
@@ -96,7 +104,7 @@ def praktici_admin_logout():
     return redirect(url_for('view.praktici_admin'))
 
 
-@bp.route("/praktici_admin/edit", methods = ['POST'])
+@bp.route("/praktici_admin/edit", methods=['POST'])
 def praktici_admin_edit():
     session.pop('error', None)
     session.pop('success', None)
@@ -133,5 +141,3 @@ def praktici_admin_edit():
             db.session.commit()
 
     return redirect(url_for('view.praktici_admin'))
-
-
