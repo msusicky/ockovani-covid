@@ -33,8 +33,23 @@ Praktici |
                         {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
                     <div class="tab-pane" id="free_vaccines">
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <p>
+                                V této tabulce jsou ordinacemi nabízeny vakcíny, kterým se blíží datum spotřeby. Údaje se
+                                pravidelně aktualizují.
+                            </p>
+                            <p class="mb-0">
+                                Pokud máte o očkování zájem, kontaktujte vybranou ordinaci, dodržujte přitom pokyny v
+                                poznámce.
+                            </p>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                         {{ volne_vakciny(free_vaccines) }}
-                        <a href="https://bit.ly/COVID19-zachran-vakcinu" class="btn btn-primary mt-3" target="_blank">Původní Google tabulka s nabídkami vakcín</a>
+                        <a href="https://bit.ly/COVID19-zachran-vakcinu" class="btn btn-primary mt-3" target="_blank">
+                            Původní Google tabulka s nabídkami vakcín
+                        </a>
                     </div>
                 </div>
             </div>
