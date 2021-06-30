@@ -19,20 +19,17 @@ Praktici |
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#overview">Přehled očkování</a>
+                        <a class="nav-link active" data-toggle="tab" href="#free_vaccines">Volné vakcíny</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#free_vaccines">Volné vakcíny</a>
+                        <a class="nav-link" data-toggle="tab" href="#overview">Přehled očkování</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="overview">
-                        {{ stav_ockovani_praktici(vaccination_doctors) }}
-                    </div>
-                    <div class="tab-pane" id="free_vaccines">
+                    <div class="tab-pane active" id="free_vaccines">
                         <div class="alert alert-info alert-dismissible fade show" role="alert">
                             <p>
                                 V této tabulce jsou ordinacemi nabízeny vakcíny, kterým se blíží datum spotřeby. Údaje
@@ -50,6 +47,9 @@ Praktici |
                         <a href="https://bit.ly/COVID19-zachran-vakcinu" class="btn btn-primary mt-3" target="_blank">
                             Původní Google tabulka s nabídkami vakcín
                         </a>
+                    </div>
+                    <div class="tab-pane" id="overview">
+                        {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
                 </div>
             </div>
