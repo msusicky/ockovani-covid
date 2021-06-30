@@ -164,6 +164,8 @@ def statistiky():
 
     deaths_graph_data = queries.get_deaths_graph_data()
 
+    pocet_opravneni = queries.count_eligible()
+
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            end_date=end_date, end_date_supplies=end_date_supplies,
                            end_date_interested=end_date_interested, interest=interest, vaccines=vaccines,
@@ -174,7 +176,8 @@ def statistiky():
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
                            vaccination_total_graph_data=vaccination_total_graph_data,
                            registrations_graph_data=registrations_graph_data,
-                           infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data)
+                           infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data,
+                           pocet_opravneni=pocet_opravneni)
 
 
 @bp.route("/napoveda")

@@ -646,6 +646,15 @@ def couht_end_date_interested():
     return get_import_date() + timedelta(days=days)
 
 
+def count_eligible():
+    eligible_population = db.session.query(func.sum(Populace.pocet)) \
+        .filter(Populace.vek >= 12) \
+        .filter(Populace.orp_kod == "CZ0") \
+        .one()
+
+    return eligible_population[0]
+
+
 def count_interest():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne, CrMetriky.pocet_obyvatel_celkem) \
         .filter(CrMetriky.datum == get_import_date()) \
@@ -656,12 +665,7 @@ def count_interest():
         .filter(OckovaniRegistrace.import_id == get_import_id()) \
         .one()
 
-    eligible_population = db.session.query(func.sum(Populace.pocet)) \
-        .filter(Populace.vek >= 16) \
-        .filter(Populace.orp_kod == "CZ0") \
-        .one()
-
-    interest_eligible = (metrics.ockovani_pocet_castecne + registrations_waiting[0]) / eligible_population[0]
+    interest_eligible = (metrics.ockovani_pocet_castecne + registrations_waiting[0]) / count_eligible()
     interest_all = (metrics.ockovani_pocet_castecne + registrations_waiting[0]) / metrics.pocet_obyvatel_celkem
 
     return interest_all, interest_eligible

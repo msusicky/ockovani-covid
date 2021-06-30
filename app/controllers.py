@@ -50,7 +50,7 @@ def praktici_admin_register():
             free_vaccine.kraj = zarizeni.kraj
             free_vaccine.mesto = zarizeni.obec
             free_vaccine.nazev_ordinace = zarizeni.nazev_cely
-            free_vaccine.adresa = f'{zarizeni.ulice if zarizeni.ulice else zarizeni.obec} {zarizeni.cislo_domu}, {zarizeni.psc} {zarizeni.obec}'
+            free_vaccine.adresa = f'{zarizeni.ulice if zarizeni.ulice else zarizeni.obec} {zarizeni.cislo_domu}'
             free_vaccine.pocet_davek = 0
             free_vaccine.kontakt_email = zarizeni.email
             free_vaccine.kontakt_tel = zarizeni.telefon

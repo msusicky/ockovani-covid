@@ -32,13 +32,18 @@ Statistiky |
         {% if metriky %}
         <p>
             K datu poslední aktualizace bylo kompletně naočkováno
-            <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí a
-            <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí alespoň jednou dávkou.
+            <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí
+            (<strong>{{ (100 * metriky.ockovani_pocet_plne / metriky.pocet_obyvatel_celkem) | format_decimal }} %</strong>,
+            <strong>{{ (100 * metriky.ockovani_pocet_plne / pocet_opravneni) | format_decimal }} %</strong> starších 12 let) a
+            <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí
+            (<strong>{{ (100 * metriky.ockovani_pocet_castecne / metriky.pocet_obyvatel_celkem) | format_decimal }} %</strong>,
+            <strong>{{ (100 * metriky.ockovani_pocet_castecne / pocet_opravneni) | format_decimal }} %</strong> starších 12 let)
+            alespoň jednou dávkou.
             Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
             Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong>
             registrovaných zájemců.
             Zájem o očkování má <strong>{{ (interest[0] * 100) | format_decimal }} %</strong> obyvatel
-            (<strong>{{ (interest[1] * 100) | format_decimal }} %</strong> obyvatel starších 16 let).
+            (<strong>{{ (interest[1] * 100) | format_decimal }} %</strong> obyvatel starších 12 let).
         </p>
         <h5>Nedovolené zjednodušení</h5>
         <p>
