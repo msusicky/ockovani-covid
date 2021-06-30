@@ -19,7 +19,7 @@
         {% for item in free_vaccines %}
         <tr>
             <td class="text-right">
-                {{ item.datum_aktualizace | format_datetime_short_wd }}
+                {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
             </td>
             <td class="text-right" data-value="{{ item.pocet_davek }}">
                 {{ item.pocet_davek | format_number }}
