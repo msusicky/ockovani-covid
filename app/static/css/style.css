@@ -94,3 +94,7 @@ ul.timeline > li:before {
     margin-top: -5rem;
     z-index: -999999;
 }
+
+img[title='Vaše poloha'] {
+    filter: hue-rotate(220deg);
+}
