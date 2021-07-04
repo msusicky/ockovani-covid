@@ -113,8 +113,21 @@ def praktici():
                   PrakticiKapacity.typ_vakciny) \
         .all()
 
+    vaccines_options = db.session.query(PrakticiKapacity.typ_vakciny) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .distinct(PrakticiKapacity.typ_vakciny) \
+        .order_by(PrakticiKapacity.typ_vakciny) \
+        .all()
+
+    kraj_options = db.session.query(PrakticiKapacity.kraj) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .distinct(PrakticiKapacity.kraj) \
+        .order_by(PrakticiKapacity.kraj) \
+        .all()
+
     return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines)
+                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines,
+                           vaccines_options=vaccines_options, kraj_options=kraj_options)
 
 
 @bp.route("/statistiky")
