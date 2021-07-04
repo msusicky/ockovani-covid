@@ -12,6 +12,10 @@
     </div>
     <div class="col-12 col-lg-auto text-center mb-3">
         <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <input id="centers-children" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-children">děti</label>
+        </div>
+        <div class="custom-control custom-switch mr-3" style="display: inline-block">
             <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
             <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
         </div>
@@ -115,6 +119,8 @@
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
         const selfPaidValue = $("#centers-selfpaid")[0].checked;
         const selfPaidString = "samopl"
+        const childrenValue = $("#centers-children")[0].checked;
+        const childrenString = "12 ?- ?15"
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
@@ -122,6 +128,8 @@
                 normalized.indexOf(searchValue) > -1
                 && ((selfPaidValue && normalized.indexOf(selfPaidString) > -1) || (
                     !selfPaidValue && normalized.indexOf(selfPaidString) === -1))
+                && ((childrenValue && normalized.search(childrenString) > -1) || (
+                    !childrenValue && normalized.search(childrenString) === -1))
                 && (!activeValue || $(this)[0].dataset.active === 'True')
                 && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
             )
@@ -137,6 +145,9 @@
             filterChanged();
         });
         $("#centers-selfpaid").change(function () {
+            filterChanged();
+        });
+        $("#centers-children").change(function () {
             filterChanged();
         });
         $("#centers-active").change(function () {
