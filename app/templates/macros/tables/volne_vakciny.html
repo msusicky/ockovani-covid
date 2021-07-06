@@ -1,12 +1,39 @@
-{% macro volne_vakciny(free_vaccines) -%}
+{% macro volne_vakciny(free_vaccines, kraj_options, vaccines_options) -%}
+
+<div class="form-row">
+    <div class="col-12 col-lg-6 mb-3">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
+            </div>
+            <input id="free-vaccines-searchbox" type="text" class="form-control" placeholder="Hledat...">
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 mb-3">
+        <select id="free-vaccines-kraj" class="custom-select">
+            <option value="">Všechny kraje</option>
+            {% for option in kraj_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6 col-lg-3 mb-3">
+        <select id="free-vaccines-vaccine" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in vaccines_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
 <div class="table-responsive">
-    <table id="centers-table" class="table table-bordered table-striped table-sm mb-0">
+    <table id="free-vaccines-table" class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center">Aktualizace</th>
             <th scope="col" class="text-center col-sortable">Dávek</th>
             <th scope="col" class="text-center col-sortable">Vakcína</th>
-            <th scope="col" class="text-center col-sortable">Kraj</th>
             <th scope="col" class="text-center col-sortable">Město</th>
             <th scope="col" class="text-center">Ordinace</th>
             <th scope="col" class="text-center">Adresa</th>
@@ -16,7 +43,7 @@
         </thead>
         <tbody>
         {% for item in free_vaccines %}
-        <tr>
+        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}">
             <td class="text-right">
                 {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
             </td>
@@ -25,9 +52,6 @@
             </td>
             <td data-value="{{ item.typ_vakciny }}">
                 {{ item.typ_vakciny }}
-            </td>
-            <td data-value="{{ item.kraj }}">
-                {{ item.kraj }}
             </td>
             <td data-value="{{ item.mesto }}">
                 {{ item.mesto }}
@@ -50,5 +74,40 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    function filterChanged() {
+        const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
+        const krajValue = $("#free-vaccines-kraj").val();
+        const vaccineValue = $("#free-vaccines-vaccine").val();
+
+        $("#free-vaccines-table tbody tr").filter(function () {
+            const normalized = stripAccents($(this).text().toLowerCase());
+            $(this).toggle(
+                normalized.indexOf(searchValue) > -1
+                && (!krajValue || $(this)[0].dataset.kraj === krajValue)
+                && (!vaccineValue || $(this)[0].dataset.vaccine === vaccineValue)
+            )
+        });
+
+        $("#free-vaccines-table tbody tr:visible").each(function (index) {
+            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+        });
+    }
+
+    $(document).ready(function () {
+        $("#free-vaccines-searchbox").keyup(function () {
+            filterChanged();
+        });
+        $("#free-vaccines-kraj").change(function () {
+            filterChanged();
+        });
+        $("#free-vaccines-vaccine").change(function () {
+            filterChanged();
+        });
+        filterChanged();
+    });
+</script>
 {%- endmacro %}
 
