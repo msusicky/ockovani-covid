@@ -63,8 +63,8 @@
 </p>
 
 <script>
-    const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     $(document).ready(function(){
+        const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         $("#doctors-searchbox").on("keyup", function() {
             var value = stripAccents($(this).val().toLowerCase());
             $("#doctors-table tbody tr").filter(function() {
