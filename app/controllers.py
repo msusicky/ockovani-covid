@@ -4,8 +4,9 @@ from datetime import datetime
 
 from flask import session, redirect, request, url_for
 from flask.json import dump
+from flask_mail import Message
 
-from app import db, bp
+from app import db, bp, mail
 from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity, Vakcina
 
 
@@ -63,6 +64,12 @@ def praktici_admin_register():
         session['user_passwd'] = passwd
 
         session['success'] = f"Děkujeme za registraci. Pro ordinaci {id} je Vaše heslo <strong>{passwd}</strong>."
+        msg = Message("Registrace ordinace",
+                      sender="info@opendatalab.cz",
+                      recipients=["info@opendatalab.cz"])
+        msg.body = "Děkujeme za registraci. Pro ordinaci {id} je Vaše heslo {passwd}."
+        msg.html = "Děkujeme za registraci. Pro ordinaci {id} je Vaše heslo <strong>{passwd}</strong>."
+        mail.send(msg)
 
     return redirect(url_for('view.praktici_admin'))
 

@@ -12,3 +12,4 @@ gspread
 pandas
 ipykernel
 python-twitter
+Flask-Mail

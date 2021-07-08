@@ -4,12 +4,14 @@ import logging
 from flask import Flask, Blueprint
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
 
 from config import Config
 
 app = Flask(__name__)
 app.secret_key = '34983459843jf4985435kdsjcf3489fjc3j34c'
 app.config.from_object(Config)
+mail = Mail(app)
 
 bp = Blueprint('view', __name__, template_folder="templates")
 
