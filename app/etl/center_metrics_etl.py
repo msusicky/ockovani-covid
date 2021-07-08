@@ -274,7 +274,6 @@ class CenterMetricsEtl:
                 where datum >= :datum_7 and datum < :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id), 0)
                 ) ockovani_odhad_cekani
             from ockovaci_mista_metriky m
-            join ockovaci_mista_metriky m7 on m.misto_id = m7.misto_id and m7.datum = :datum_7
             where m.datum = :datum
             """
         )).params(datum=self._date, datum_7=self._date - timedelta(7), import_id=self._import_id) \
