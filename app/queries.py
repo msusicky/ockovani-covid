@@ -6,7 +6,8 @@ from sqlalchemy import func, or_, and_, text
 
 from app import db
 from app.context import get_import_date, get_import_id
-from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace
+from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
+    PrakticiKapacity
 
 
 def unique_nrpzs_subquery():
@@ -715,6 +716,10 @@ def count_top_centers():
         limit 10;
         """
     )).all()
+
+
+def couht_gp_vaccines():
+    return db.session.query(func.sum(PrakticiKapacity.pocet_davek)).one()[0]
 
 
 def get_registrations_graph_data(center_id=None):
