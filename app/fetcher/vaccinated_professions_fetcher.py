@@ -28,17 +28,13 @@ class VaccinatedProfessionsFetcher(Fetcher):
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
                          usecols=lambda c: c.startswith('indikace_') or c in usecols)
 
-        if 'orp_bydliste_kod' in df:
-            df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
-            orp = pd.read_sql_query('select uzis_orp orp_bydl_kod, kraj_nuts kraj_bydl_nuts from obce_orp', db.engine)
-            df = pd.merge(df, orp, how='left')
-            df = df.rename(columns={'kraj_kod': 'kraj_nuts_kod', 'datum_vakcinace': 'datum',
-                                    'bezpecnostni_infrastruktura': 'indikace_bezpecnostni_infrastruktura',
-                                    'chronicke_onemocneni': 'indikace_chronicke_onemocneni'})
-            df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
-        else:
-            df['vekova_skupina'] = '-'
-            df['kraj_bydl_nuts'] = '-'
+        df = df.rename(columns={'kraj_kod': 'kraj_nuts_kod', 'datum_vakcinace': 'datum',
+                                'bezpecnostni_infrastruktura': 'indikace_bezpecnostni_infrastruktura',
+                                'chronicke_onemocneni': 'indikace_chronicke_onemocneni'})
+
+        df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
+
+        df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
 
         df['indikace_zdravotnik'] = df['indikace_zdravotnik'].fillna(False).astype('bool')
         df['indikace_socialni_sluzby'] = df['indikace_socialni_sluzby'].fillna(False).astype('bool')
@@ -48,7 +44,9 @@ class VaccinatedProfessionsFetcher(Fetcher):
         df['indikace_bezpecnostni_infrastruktura'] = df['indikace_bezpecnostni_infrastruktura'].fillna(False).astype('bool')
         df['indikace_chronicke_onemocneni'] = df['indikace_chronicke_onemocneni'].fillna(False).astype('bool')
 
-        df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
+        orp = pd.read_sql_query('select uzis_orp orp_bydl_kod, kraj_nuts kraj_bydl_nuts from obce_orp', db.engine)
+        df = pd.merge(df, orp, how='left')
+        df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
 
         df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina',
                  'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
