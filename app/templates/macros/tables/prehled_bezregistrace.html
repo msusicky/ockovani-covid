@@ -1,0 +1,58 @@
+{% macro stav_ockovani_praktici(without_registration) -%}
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
+    </div>
+    <input id="doctors-searchbox" type="text" class="form-control" placeholder="Hledat...">
+</div>
+
+<div class="table-responsive">
+    <table id="places-table" class="table table-bordered table-striped table-sm" style="table-layout: fixed">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center col-sortable w-30">Název zařízení</th>
+            <th scope="col" class="text-center col-sortable w-20">Kraj</th>
+            <th scope="col" class="text-center col-sortable w-20">Otvírací doba</th>
+            <th scope="col" class="text-center col-sortable w-20">Web</th>
+            <th scope="col" class="text-center col-sortable w-20">Telefon</th>
+            <th scope="col" class="text-center col-sortable w-20">Stav fronty</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for idx, row in without_registration.iterrows() %}
+        <tr class="{{ 'table-warning' if row['provoz_ukoncen'] }}">
+            <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
+                title="{{ row['zarizeni_nazev'] }}">
+                {{ row['zarizeni_nazev'] }}
+            </td>
+            <td data-value="{{ row['okres'] }}" data-toggle="tooltip" data-placement="auto">
+                {{ row['okres'] }}
+            </td>
+            <td>{{ row['vakciny'] }}</td>
+            <td class="text-right" data-value="{{ row['sum_1'] }}">{{ row['sum_1'] | format_number }}</td>
+            <td class="text-right" data-value="{{ row['sum_2'] }}">{{ row['sum_2'] | format_number }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="card-text font-italic text-justify mb-0">
+    Oranžově jsou vyznačena zdravotnická zařízení, která ukončila očkování.
+</p>
+
+<script>
+    $(document).ready(function(){
+        const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        $("#places-searchbox").on("keyup", function() {
+            var value = stripAccents($(this).val().toLowerCase());
+            $("#places-table tbody tr").filter(function() {
+                $(this).toggle(stripAccents($(this).text().toLowerCase()).indexOf(value) > -1)
+            });
+            $("#places-table tbody tr:visible").each(function (index) {
+                $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+            });
+        });
+    });
+</script>
+{%- endmacro %}
