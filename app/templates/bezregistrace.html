@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/prehled_bezregistrace.html' import ockovaci_mista_bez_registrace %}
+
+{% block title %}
+Očkování bez registrace |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Očkovací místa bez registrace</h3>
+    </div>
+</div>
+
+{{ ockovaci_mista_bez_registrace(without_registration) }}
+
+{% endblock %}

@@ -755,3 +755,25 @@ class PrakticiKapacity(db.Model):
     def __repr__(self):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
 
+
+class OckovaciMistoBezRegistrace(db.Model):
+    __tablename__ = 'ockovaci_mista_bez_registrace'
+
+    id = Column(Unicode, primary_key=True)
+    status = Column(Boolean)
+    nazev = Column(Unicode)
+    kraj = Column(Unicode, nullable=False)
+    kraj_kod = Column(Unicode, nullable=False)
+    nrpzs_kod = Column(Unicode)
+    pouzite_vakciny = Column(Unicode)
+    adresa = Column(Unicode)
+    otviraci_doba = Column(Unicode)
+    web = Column(Unicode)
+    kontakt_tel = Column(Unicode)
+    api_fronta = Column(Unicode)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    dotaz_ockovani = Column(Unicode)
+
+    def __repr__(self):
+        return f"<OckovaciMistoBezRegistrace(nazev='{self.nazev}')>"
