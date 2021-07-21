@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, get_import_id, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciMistoBezRegistrace
 
 
 @bp.route('/')
@@ -333,6 +333,14 @@ def praktici_admin():
                            user_vaccines=user_vaccines, all_vaccines=all_vaccines, vaccines_options=vaccines_options,
                            kraj_options=kraj_options)
 
+@bp.route("/bezregistrace")
+def bez_registrace():
+    without_registration = db.session.query(OckovaciMistoBezRegistrace) \
+        .order_by(OckovaciMistoBezRegistrace.nazev) \
+        .all()
+
+    return render_template('bezregistrace.html', last_update=_last_import_modified(), now=_now(),
+                           without_registration=without_registration)
 
 def _last_import_modified():
     """
