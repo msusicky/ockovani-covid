@@ -24,7 +24,7 @@ class SuppliesFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
 
-        df = df[['Měsíc', 'Pfizer', 'Spikevax', 'AZ', 'CureVac', 'Janssen', 'Novavax', 'GSK']]
+        df = df[['Měsíc', 'Pfizer', 'Moderna', 'AZ', 'CureVac', 'Janssen', 'Novavax', 'GSK']]
         df = df.dropna(subset=['Měsíc'])
 
         df['Měsíc'] = df['Měsíc'].replace({'/1/': '/'}, regex=True)
@@ -34,7 +34,7 @@ class SuppliesFetcher(Fetcher):
         df = df.rename(columns={'AZ': 'AstraZeneca'})
 
         df['Pfizer'] = df['Pfizer'].replace({',': ''}, regex=True).astype('int')
-        df['Spikevax'] = df['Spikevax'].replace({',': ''}, regex=True).astype('int')
+        df['Moderna'] = df['Moderna'].replace({',': ''}, regex=True).astype('int')
         df['AstraZeneca'] = df['AstraZeneca'].replace({',': ''}, regex=True).astype('int')
         df['CureVac'] = df['CureVac'].replace({',': ''}, regex=True).astype('int')
         df['Janssen'] = df['Janssen'].replace({',': ''}, regex=True).astype('int')
@@ -42,7 +42,7 @@ class SuppliesFetcher(Fetcher):
         df['GSK'] = df['GSK'].replace({',': ''}, regex=True).astype('int')
 
         df = df.melt(id_vars=['datum'],
-                     value_vars=['Pfizer', 'Spikevax', 'AstraZeneca', 'CureVac', 'Janssen', 'Novavax', 'GSK'],
+                     value_vars=['Pfizer', 'Moderna', 'AstraZeneca', 'CureVac', 'Janssen', 'Novavax', 'GSK'],
                      var_name='vyrobce', value_name='pocet')
 
         self._truncate()
