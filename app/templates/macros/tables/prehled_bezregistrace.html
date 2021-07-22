@@ -6,12 +6,13 @@
         <tr>
             <th scope="col" class="text-center col-sortable w-30">Název</th>
             <th scope="col" class="text-center col-sortable w-20">Kraj</th>
+            <th scope="col" class="text-center col-sortable w-20">Adresa</th>
             <th scope="col" class="text-center col-sortable w-20">Vakcíny</th>
             <!-- <th scope="col" class="text-center col-sortable w-20">Adresa</th>-->
             <th scope="col" class="text-center w-20">Otvírací doba</th>
-            <th scope="col" class="text-center w-20">Web</th>
+            <th scope="col" class="text-center w-10">Web</th>
             <th scope="col" class="text-center w-20">Telefon</th>
-            <!-- <th scope="col" class="text-center w-20">Stav fronty</th> -->
+            <th scope="col" class="text-center w-20">Stav fronty</th>
         </tr>
         </thead>
         <tbody>
@@ -23,6 +24,9 @@
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.kraj }}" title="{{ item.kraj }}">{{ item.kraj
                 }}
             </td>
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.adresa }}" title="{{ item.adresa }}"><a href="https://mapy.cz/zakladni?q={{item.latitude}}%3B{{item.longitude}}" target="_blank">{{ item.adresa
+                }}</a>
+            </td>
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.pouzite_vakciny }}" title="{{ item.pouzite_vakciny }}">{{
                 item.pouzite_vakciny }}
             </td>
@@ -32,12 +36,12 @@
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.otviraci_doba }}">{{
                 item.otviraci_doba }}
             </td>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.web }}"><a
-                    href="{{ item.web }}" target="_blank">link</a></td>
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.web }}">
+                    <a href="{{ item.web }}" target="_blank">link</a></td>
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.kontakt_tel }}">{{
                 item.kontakt_tel }}
             </td>
-            <!-- <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="">x</td> -->
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title=""><p id="queue-title-{{ item.nazev }}">Žádné informace</p></td>
         </tr>
         {% endfor %}
         </tbody>
@@ -47,7 +51,7 @@
 <p class="card-text font-italic text-justify mb-0">
     Oranžově jsou vyznačena zdravotnická zařízení, která ukončila očkování. Data pochází z otevřených zdrojů a https://covid.gov.cz/situace/registrace-na-ockovani/ockovani-bez-predchozi-registrace
 </p>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
         const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -60,6 +64,31 @@
                 $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
             });
         });
+        updateQueue();
     });
+
+    function updateQueue() {
+      $title = $('#queue-title-Chodov');
+
+      $.get('https://occhodov.ikem.cz/api/semaphore')
+        .then(function(semaphoreData) {
+          if (semaphoreData) {
+            var queueState = semaphoreData.queue_state;
+            if (queueState == 'full') {
+              $title.text('Nad hodinu');
+            } else if (queueState == 'ok') {
+              $title.text('20-60 minut');
+            } else if (queueState == 'free') {
+              $title.text('Do 20 minut');
+            } else if (queueState == 'closed') {
+              $title.text('Zavřeno');
+            } else {
+              $title.text('Žádné informace');
+            }
+          }
+        });
+    }
+
+
 </script>
 {%- endmacro %}

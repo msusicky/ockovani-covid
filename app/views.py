@@ -336,7 +336,7 @@ def praktici_admin():
 @bp.route("/bezregistrace")
 def bez_registrace():
     without_registration = db.session.query(OckovaciMistoBezRegistrace) \
-        .order_by(OckovaciMistoBezRegistrace.nazev) \
+        .order_by(OckovaciMistoBezRegistrace.kraj_kod, OckovaciMistoBezRegistrace.id) \
         .all()
 
     return render_template('bezregistrace.html', last_update=_last_import_modified(), now=_now(),
