@@ -777,3 +777,13 @@ class OckovaciMistoBezRegistrace(db.Model):
 
     def __repr__(self):
         return f"<OckovaciMistoBezRegistrace(nazev='{self.nazev}')>"
+
+class BezRegistraceFronta(db.Model):
+    __tablename__ = 'bezregistrace_fronta'
+
+    bezregistrace_id = Column(Unicode, primary_key=True)
+    cas_mereni = Column(DateTime, primary_key=True)
+    hodnota = Column(Unicode)
+
+    def __repr__(self):
+        return f"<BezRegistraceFronta(id='{self.id}')>"
