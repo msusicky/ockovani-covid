@@ -18,16 +18,21 @@
         <tbody>
         {% for item in without_registration %}
         <tr>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.nazev }}" title="{{ item.nazev }}">{{ item.nazev
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.nazev }}"
+                title="{{ item.nazev }}">{{ item.nazev
                 }}
             </td>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.kraj }}" title="{{ item.kraj }}">{{ item.kraj
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.kraj }}"
+                title="{{ item.kraj }}">{{ item.kraj
                 }}
             </td>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.adresa }}" title="{{ item.adresa }}"><a href="https://mapy.cz/zakladni?q={{item.latitude}}%3B{{item.longitude}}" target="_blank">{{ item.adresa
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.adresa }}"
+                title="{{ item.adresa }}"><a href="https://mapy.cz/zakladni?q={{item.latitude}}%3B{{item.longitude}}"
+                                             target="_blank">{{ item.adresa
                 }}</a>
             </td>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.pouzite_vakciny }}" title="{{ item.pouzite_vakciny }}">{{
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.pouzite_vakciny }}"
+                title="{{ item.pouzite_vakciny }}">{{
                 item.pouzite_vakciny }}
             </td>
             <!--<td class="ellipsis" data-placement="auto" data-toggle="tooltip" data-value="{{ item.adresa }}" title="{{ item.adresa }}">{{
@@ -37,11 +42,12 @@
                 item.otviraci_doba }}
             </td>
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.web }}">
-                    <a href="{{ item.web }}" target="_blank">link</a></td>
+                <a href="{{ item.web }}" target="_blank">link</a></td>
             <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title="{{ item.kontakt_tel }}">{{
                 item.kontakt_tel }}
             </td>
-            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title=""><p id="queue-title-{{ item.nazev }}">Žádné informace</p></td>
+            <td class="ellipsis" data-placement="auto" data-toggle="tooltip" title=""><p
+                    id="queue-title-{{ item.nazev }}">Žádné informace</p></td>
         </tr>
         {% endfor %}
         </tbody>
@@ -49,7 +55,22 @@
 </div>
 
 <p class="card-text font-italic text-justify mb-0">
-    Oranžově jsou vyznačena zdravotnická zařízení, která ukončila očkování. Data pochází z otevřených zdrojů a https://covid.gov.cz/situace/registrace-na-ockovani/ockovani-bez-predchozi-registrace
+    Oranžově jsou vyznačena zdravotnická zařízení, která ukončila očkování. Data pochází z otevřených zdrojů a
+    https://covid.gov.cz/situace/registrace-na-ockovani/ockovani-bez-predchozi-registrace
+</p>
+<p>
+    V některých krajích je očkování bez registrace jen dočasné. Uvádíme linky na oficiální stránky:
+    <ul>
+        <li><a href="https://ockovani.kr-stredocesky.cz/ockovani-bez-registrace">Středočeský kraj</a></li>
+        <li><a href="https://www.kraj-jihocesky.cz/index.php/pokyny-pro-zajemce-o-ockovani-bez-predchozi-registrace">Jihočeský kraj</a> </li>
+        <li><a href="https://www.plzen.eu/o-meste/aktuality/aktuality-z-mesta/ockovani-proti-covidu-19-bez-registrace-spousti-i-plzensky-kraj.aspx">Plzeňský kraj</a></li>
+        <li><a href="https://www.kr-karlovarsky.cz/covid-19/Stranky/ockovani_kvk.aspx">Karlovarský kraj</a></li>
+        <li><a href="https://www.kr-kralovehradecky.cz/cz/kraj-volene-organy/tiskove-centrum/aktuality1/krajske-nemocnice-ockuji-zajemce-i-bez-registrace-331395/">Královéhradecký kraj</a></li>
+        <li><a href="https://www.pardubickykraj.cz/ockovani/112713/ockovani-bez-registrace">Pardubický kraj</a></li>
+        <li><a href="https://www.kr-vysocina.cz/ockovani-bez-registrace-v-kraji-vysocina/d-4108390/p1=111304">Kraj Vysočina</a></li>
+        <li><a href="https://koronavirus.msk.cz/ockovani.html">Moravskoslezský kraj</a></li>
+        <li><a href="https://www.kr-zlinsky.cz/kde-se-ockuje-cl-5177.html">Zlínský kraj</a></li>
+    </ul>
 </p>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -68,25 +89,25 @@
     });
 
     function updateQueue() {
-      $title = $('#queue-title-Chodov');
+        $title = $('#queue-title-Chodov');
 
-      $.get('https://occhodov.ikem.cz/api/semaphore')
-        .then(function(semaphoreData) {
-          if (semaphoreData) {
-            var queueState = semaphoreData.queue_state;
-            if (queueState == 'full') {
-              $title.text('Nad hodinu');
-            } else if (queueState == 'ok') {
-              $title.text('20-60 minut');
-            } else if (queueState == 'free') {
-              $title.text('Do 20 minut');
-            } else if (queueState == 'closed') {
-              $title.text('Zavřeno');
-            } else {
-              $title.text('Žádné informace');
-            }
-          }
-        });
+        $.get('https://occhodov.ikem.cz/api/semaphore')
+            .then(function (semaphoreData) {
+                if (semaphoreData) {
+                    var queueState = semaphoreData.queue_state;
+                    if (queueState == 'full') {
+                        $title.text('Nad hodinu');
+                    } else if (queueState == 'ok') {
+                        $title.text('20-60 minut');
+                    } else if (queueState == 'free') {
+                        $title.text('Do 20 minut');
+                    } else if (queueState == 'closed') {
+                        $title.text('Zavřeno');
+                    } else {
+                        $title.text('Žádné informace');
+                    }
+                }
+            });
     }
 
 
