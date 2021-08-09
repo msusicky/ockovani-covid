@@ -10,9 +10,9 @@ class Verifier:
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
-        if metrics.registrace_celkem_zmena_den is not None and metrics.registrace_celkem_zmena_den <= 0:
-            app.logger.error(f'Verify data - failed - registrations count is lower or equal than yesterday ({metrics.registrace_celkem_zmena_den}).')
-            return False
+        # if metrics.registrace_celkem_zmena_den is not None and metrics.registrace_celkem_zmena_den <= 0:
+        #     app.logger.error(f'Verify data - failed - registrations count is lower or equal than yesterday ({metrics.registrace_celkem_zmena_den}).')
+        #     return False
 
         if metrics.ockovani_pocet_davek_zmena_den is not None and metrics.ockovani_pocet_davek_zmena_den <= 0:
             app.logger.error(f'Verify data - failed - vaccinated doses count is lower or equal than yesterday ({metrics.ockovani_pocet_davek_zmena_den}).')
