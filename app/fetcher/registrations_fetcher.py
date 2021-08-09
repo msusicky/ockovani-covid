@@ -66,16 +66,32 @@ class RegistrationsFetcher(Fetcher):
         df['datum_rezervace'] = df['datum_rezervace'].fillna('1970-01-01')
         # Replace - error caused by NAKIT 11.6.2021 - #471
         df['povolani'] = df['povolani'].replace(
-            ['OccupationGroupChronic2Name', 'OccupationGroupAcademicStaffName', 'OccupationGroupArmyName',
-             'OccupationGroupChronicName', 'OccupationGroupMedicalWorkerName',
-             'OccupationGroupCriticalInfrastructureName', 'OccupationGroupAgeName',
-             'OccupationGroupTHPWorkersName', 'OccupationGroupSelfPayerName', 'OccupationGroupSocialWorkerName',
-             'OccupationGroupNonMedicalStaffName', 'OccupationGroupCaringPersonName'],
-            ['Osoba s chronickým onemocněním – druhá skupina', 'Akademický pracovník VŠ', 'Zaměstnanci Ministerstva obrany',
-             'Osoba s chronickým onemocněním', 'Zdravotnický pracovník dle §76 a §77 zákona 372/2011  Sb.',
-             'Kritická infrastruktura', 'Na základě dosaženého věku',
-             'Technicko hospodářští pracovníci ve zdravotnických zařízeních', 'Samoplátce', 'Pracovník v sociálních službách',
-             'Nezdravotničtí pracovníci podílející se na poskytování zdravotní péče a péče o covid-19 pozitivní osoby', 'Osoba pečující o osobu v III. nebo IV. stupni závislosti']
+            ['OccupationGroupChronic2Name',
+             'OccupationGroupAcademicStaffName',
+             'OccupationGroupArmyName',
+             'OccupationGroupChronicName',
+             'OccupationGroupMedicalWorkerName',
+             'OccupationGroupCriticalInfrastructureName',
+             'OccupationGroupAgeName',
+             'OccupationGroupTHPWorkersName',
+             'OccupationGroupSelfPayerName',
+             'OccupationGroupSocialWorkerName',
+             'OccupationGroupNonMedicalStaffName',
+             'OccupationGroupCaringPersonName',
+             'OccupationGroupTeacher'],
+            ['Osoba s chronickým onemocněním – druhá skupina',
+             'Akademický pracovník VŠ',
+             'Zaměstnanci Ministerstva obrany',
+             'Osoba s chronickým onemocněním',
+             'Zdravotnický pracovník dle §76 a §77 zákona 372/2011  Sb.',
+             'Kritická infrastruktura',
+             'Na základě dosaženého věku',
+             'Technicko hospodářští pracovníci ve zdravotnických zařízeních',
+             'Samoplátce',
+             'Pracovník v sociálních službách',
+             'Nezdravotničtí pracovníci podílející se na poskytování zdravotní péče a péče o covid-19 pozitivní osoby',
+             'Osoba pečující o osobu v III. nebo IV. stupni závislosti',
+             'Pedagogický pracovník/nepedagogický zaměstnanec']
             )
         df['povolani'] = df['povolani'].fillna('neuvedeno')
 
