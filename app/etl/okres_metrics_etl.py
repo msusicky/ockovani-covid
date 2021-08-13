@@ -60,6 +60,7 @@ class OkresMetricsEtl:
         registrations = db.session.query(
             OckovaciMisto.okres_id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
             func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.za_zavorou == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.okres_id) \
@@ -71,6 +72,7 @@ class OkresMetricsEtl:
                 datum=self._date,
                 registrace_celkem=registration.registrace_celkem,
                 registrace_fronta=registration.registrace_fronta,
+                registrace_pred_zavorou=registration.pred_zavorou,
                 registrace_rezervace_prumer=registration.registrace_rezervace_prumer
             ))
 
