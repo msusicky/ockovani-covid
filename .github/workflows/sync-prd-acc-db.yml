@@ -24,7 +24,6 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-          echo "Public IP: ${{ steps.ip.outputs.ipv4 }}"      
       - name: Execute db sync prd -> acc
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "pg_dump -c ockovani_prd | psql ockovani_acc"
       - name: Execute migrations
