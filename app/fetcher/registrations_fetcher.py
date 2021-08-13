@@ -15,10 +15,7 @@ class RegistrationsFetcher(Fetcher):
     REGISTRATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
 
     def __init__(self):
-        url = os.environ.get('ODL_REGISTRACE_ENH')
-        super().__init__(OckovaniRegistrace.__tablename__,
-                         url if url is not None and requests.head(
-                             url).status_code == 200 else self.REGISTRATIONS_CSV)
+        super().__init__(OckovaniRegistrace.__tablename__, self.REGISTRATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
         usecols = ['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace',
@@ -84,6 +81,6 @@ class RegistrationsFetcher(Fetcher):
         df = df[df['ockovaci_misto_id'].isin(mista_ids)]
 
         if size > len(df):
-            app.logger.warn("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
+            app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)

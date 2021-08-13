@@ -120,7 +120,7 @@ class FetcherLauncher:
 
             except Exception as e:
                 if fetcher.ignore_errors:
-                    app.logger.warn(f"Ignoring error: '{e}'")
+                    app.logger.warning(f"Ignoring error: '{e}'")
                 else:
                     raise e
 
@@ -136,7 +136,7 @@ class FetcherLauncher:
                 app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
             except Exception as e:
                 if fetcher.ignore_errors:
-                    app.logger.warn(f"Ignoring error: '{e}'")
+                    app.logger.warning(f"Ignoring error: '{e}'")
                 else:
                     raise e
 
