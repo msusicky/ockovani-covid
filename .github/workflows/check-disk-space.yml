@@ -1,15 +1,12 @@
-name: post-tweet
+name: check-disk-space
 
 on:
-  workflow_run:
-    workflows: [update-data]
-    types:
-      - completed
+  schedule:
+    - cron:  '00 00 * * *'
 
 jobs:
   deploy:
-    name: Post tweet with statistics
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Check used disk space
     environment: production
     runs-on: ubuntu-18.04
     env:
@@ -28,5 +25,5 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-      - name: Post tweet
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask post-tweet"
+      - name: Check disk space
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && bash scripts/check_disk_space.sh"
