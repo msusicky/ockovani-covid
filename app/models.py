@@ -283,6 +283,7 @@ class OckovaniRegistrace(db.Model):
     povolani = Column(Unicode, primary_key=True)
     stat = Column(Unicode, primary_key=True)
     rezervace = Column(Boolean, primary_key=True)
+    pred_zavorou = Column(Boolean, primary_key=True)
     za_zavorou = Column(Boolean, primary_key=True)
     datum_rezervace = Column(Date, primary_key=True)
     ockovani = Column(Integer, primary_key=True)

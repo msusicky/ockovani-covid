@@ -30,6 +30,7 @@ class RegistrationsFetcher(Fetcher):
         df = df.loc[((df['duvod_blokace'] != 'Ztotožněn, ale již vakcinován') & (df['rezervace'].isna())) | (df['rezervace'] == 1)]
 
         df['ockovani'] = df['duvod_blokace'].apply(lambda val: 1 if val == 'Ztotožněn, ale již vakcinován' else 0)
+        df['pred_zavorou'] = df['zavora_status'].apply(lambda val: True if val == 'před závorou' or val == 'vrácen před záv' else False)
         df['za_zavorou'] = df['zavora_status'].apply(lambda val: True if val == 'za závorou' else False)
 
         df['rezervace'] = df['rezervace'].fillna(False).astype('bool')
@@ -69,7 +70,7 @@ class RegistrationsFetcher(Fetcher):
         df['povolani'] = df['povolani'].fillna('neuvedeno')
 
         df = df[['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace',
-                 'ockovani', 'za_zavorou']]
+                 'ockovani', 'pred_zavorou', 'za_zavorou']]
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 

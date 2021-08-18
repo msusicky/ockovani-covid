@@ -35,9 +35,10 @@ def upgrade():
     # ### end Alembic commands ###
 
     connection = op.get_bind()
+    connection.execute("alter table ockovani_registrace add column pred_zavorou boolean default false")
     connection.execute("alter table ockovani_registrace add column za_zavorou boolean default false")
     connection.execute("alter table ockovani_registrace drop CONSTRAINT ockovani_registrace_part_pkey")
-    connection.execute("alter table ockovani_registrace add CONSTRAINT ockovani_registrace_part_pkey PRIMARY KEY (datum, ockovaci_misto_id, vekova_skupina, povolani, stat, rezervace, datum_rezervace, import_id, ockovani, za_zavorou)")
+    connection.execute("alter table ockovani_registrace add CONSTRAINT ockovani_registrace_part_pkey PRIMARY KEY (datum, ockovaci_misto_id, vekova_skupina, povolani, stat, rezervace, datum_rezervace, import_id, ockovani, pred_zavorou, za_zavorou)")
 
 
 def downgrade():
@@ -57,6 +58,7 @@ def downgrade():
     # ### end Alembic commands ###
 
     connection = op.get_bind()
+    connection.execute("alter table ockovani_registrace drop column pred_zavorou")
     connection.execute("alter table ockovani_registrace drop column za_zavorou")
     connection.execute("alter table ockovani_registrace drop CONSTRAINT ockovani_registrace_part_pkey")
     connection.execute("alter table ockovani_registrace add CONSTRAINT ockovani_registrace_part_pkey PRIMARY KEY (datum, ockovaci_misto_id, vekova_skupina, povolani, stat, rezervace, datum_rezervace, import_id, ockovani)")
