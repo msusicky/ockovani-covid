@@ -57,7 +57,7 @@ class CenterMetricsEtl:
                 datum=self._date,
                 registrace_celkem=registration.registrace_celkem,
                 registrace_fronta=registration.registrace_fronta,
-                registrace_pred_zavorou=registration.pred_zavorou,
+                registrace_pred_zavorou=registration.registrace_pred_zavorou,
                 registrace_rezervace_prumer=registration.registrace_rezervace_prumer
             ))
 
@@ -320,6 +320,7 @@ class CenterMetricsEtl:
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
+                registrace_pred_zavorou_zmena_den = t0.registrace_pred_zavorou - t1.registrace_pred_zavorou,
                 registrace_rezervace_prumer_zmena_den = t0.registrace_rezervace_prumer - t1.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_den = t0.registrace_tydenni_uspesnost - t1.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
@@ -354,6 +355,7 @@ class CenterMetricsEtl:
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
+                registrace_pred_zavorou_zmena_tyden = t0.registrace_pred_zavorou - t7.registrace_pred_zavorou,
                 registrace_rezervace_prumer_zmena_tyden = t0.registrace_rezervace_prumer - t7.registrace_rezervace_prumer, 
                 registrace_tydenni_uspesnost_zmena_tyden = t0.registrace_tydenni_uspesnost - t7.registrace_tydenni_uspesnost,
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
