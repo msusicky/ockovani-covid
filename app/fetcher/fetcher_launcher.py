@@ -14,7 +14,6 @@ from app.fetcher.supplies_fetcher import SuppliesFetcher
 from app.fetcher.used_fetcher import UsedFetcher
 from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.vaccinated_fetcher import VaccinatedFetcher
-from app.fetcher.vaccinated_professions_fetcher import VaccinatedProfessionsFetcher
 from app.models import Import
 
 
@@ -72,7 +71,6 @@ class FetcherLauncher:
             self._fetchers.append(RegistrationsFetcher())
             self._fetchers.append(ReservationsFetcher())
             self._fetchers.append(VaccinatedFetcher())
-            self._fetchers.append(VaccinatedProfessionsFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(HospitalAnalysisFetcher())
@@ -91,8 +89,6 @@ class FetcherLauncher:
             self._fetchers.append(ReservationsFetcher())
         elif dataset == 'vaccinated':
             self._fetchers.append(VaccinatedFetcher())
-        elif dataset == 'vaccinated_professions':
-            self._fetchers.append(VaccinatedProfessionsFetcher())
         elif dataset == 'infected':
             self._fetchers.append(InfectedFetcher())
         elif dataset == 'deaths':
