@@ -16,8 +16,8 @@ class VaccinatedFetcher(Fetcher):
         super().__init__(OckovaniLide.__tablename__, self.VACCINATED_CSV)
 
     def fetch(self, import_id: int) -> None:
-        usecols = ['datum', 'vakcina', 'kraj_nuts_kod', 'orp_bydliste_kod', 'zarizeni_kod', 'poradi_davky',
-                   'vekova_skupina']
+        usecols = ['datum', 'vakcina', 'kraj_nuts_kod', 'orp_bydliste_kod', 'zarizeni_kod', 'zarizeni_nazev',
+                   'poradi_davky', 'vekova_skupina']
 
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
                          usecols=lambda c: c.startswith('indikace_') or c in usecols)
@@ -38,10 +38,10 @@ class VaccinatedFetcher(Fetcher):
         df = pd.merge(df, orp, how='left')
         df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
 
-        df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'poradi_davky', 'vekova_skupina',
-                 'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni',
-                 'indikace_pedagog', 'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura',
-                 'indikace_chronicke_onemocneni']]
+        df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'zarizeni_nazev', 'poradi_davky',
+                 'vekova_skupina', 'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
+                 'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni',
+                 'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni']]
 
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
