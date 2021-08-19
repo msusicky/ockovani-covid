@@ -283,6 +283,8 @@ class OckovaniRegistrace(db.Model):
     povolani = Column(Unicode, primary_key=True)
     stat = Column(Unicode, primary_key=True)
     rezervace = Column(Boolean, primary_key=True)
+    pred_zavorou = Column(Boolean, primary_key=True)
+    za_zavorou = Column(Boolean, primary_key=True)
     datum_rezervace = Column(Date, primary_key=True)
     ockovani = Column(Integer, primary_key=True)
     pocet = Column(Integer)
@@ -420,6 +422,9 @@ class KrajMetriky(db.Model):
     registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
     registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
     registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_pred_zavorou = Column(Integer)                   # pocet registraci pred zavorou
+    registrace_pred_zavorou_zmena_den = Column(Integer)         # pocet registraci pred zavorou - zmena za den
+    registrace_pred_zavorou_zmena_tyden = Column(Integer)       # pocet registraci pred zavorou - zmena za tyden
     registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
     registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
     registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
@@ -505,6 +510,9 @@ class OkresMetriky(db.Model):
     registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
     registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
     registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_pred_zavorou = Column(Integer)                   # pocet registraci pred zavorou
+    registrace_pred_zavorou_zmena_den = Column(Integer)         # pocet registraci pred zavorou - zmena za den
+    registrace_pred_zavorou_zmena_tyden = Column(Integer)       # pocet registraci pred zavorou - zmena za tyden
     registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
     registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
     registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
@@ -576,6 +584,9 @@ class OckovaciMistoMetriky(db.Model):
     registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
     registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
     registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_pred_zavorou = Column(Integer)                   # pocet registraci pred zavorou
+    registrace_pred_zavorou_zmena_den = Column(Integer)         # pocet registraci pred zavorou - zmena za den
+    registrace_pred_zavorou_zmena_tyden = Column(Integer)       # pocet registraci pred zavorou - zmena za tyden
     registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
     registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
     registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
@@ -664,6 +675,9 @@ class CrMetriky(db.Model):
     registrace_fronta = Column(Integer)                         # pocet registraci bez rezervace
     registrace_fronta_zmena_den = Column(Integer)               # pocet registraci bez rezervace - zmena za den
     registrace_fronta_zmena_tyden = Column(Integer)             # pocet registraci bez rezervace - zmena za tyden
+    registrace_pred_zavorou = Column(Integer)                   # pocet registraci pred zavorou
+    registrace_pred_zavorou_zmena_den = Column(Integer)         # pocet registraci pred zavorou - zmena za den
+    registrace_pred_zavorou_zmena_tyden = Column(Integer)       # pocet registraci pred zavorou - zmena za tyden
     registrace_tydenni_uspesnost = Column(Float)                # uspesnost rezervaci za poslednich 7 dni
     registrace_tydenni_uspesnost_zmena_den = Column(Float)      # uspesnost rezervaci za poslednich 7 dni - zmena za den
     registrace_tydenni_uspesnost_zmena_tyden = Column(Float)    # uspesnost rezervaci za poslednich 7 dni - zmena za tyden
