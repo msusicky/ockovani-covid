@@ -45,13 +45,6 @@ Statistiky |
             Zájem o očkování má <strong>{{ (interest[0] * 100) | format_decimal }} %</strong> obyvatel
             (<strong>{{ (interest[1] * 100) | format_decimal }} %</strong> obyvatel starších 12 let).
         </p>
-        <h5>Nedovolené zjednodušení</h5>
-        <p>
-            Pokud bychom očkovali průměrnou rychlostí posledního týdne, pak skončíme (70 % populace plně očkováno)
-            <strong>{{ end_date | format_date }}</strong>. Všechny potřebné dávky by měly být dodány do konce
-            <strong>{{ end_date_supplies }}</strong>. Nicméně nedostatek zájemců o očkování nastane přibližně
-            <strong>{{ end_date_interested | format_date }}</strong>.
-        </p>
         {% endif %}
     </div>
 </div>
@@ -145,7 +138,7 @@ Statistiky |
 
 <div class="row mb-3">
     <div class="col-lg-6">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Předpokládané dodávky vakcín</h5>
                 <i>Dočasně nedostupné - neaktuální data</i>
@@ -153,11 +146,8 @@ Statistiky |
             </div>
         </div>
     </div>
-</div>
-
-<div class="row">
     <div class="col-lg-6">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Počty vakcín</h5>
                 <i>Dočasně nedostupné - pracujeme na přesnější verzi</i>
@@ -165,6 +155,9 @@ Statistiky |
             </div>
         </div>
     </div>
+</div>
+
+<div class="row">
     <!--<div class="col-lg-6">
         <div class="card mb-3">
             <div class="card-body">
