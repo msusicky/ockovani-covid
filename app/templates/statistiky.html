@@ -45,11 +45,6 @@ Statistiky |
             Zájem o očkování má <strong>{{ (interest[0] * 100) | format_decimal }} %</strong> obyvatel
             (<strong>{{ (interest[1] * 100) | format_decimal }} %</strong> obyvatel starších 12 let).
         </p>
-        <h5>Nedovolené zjednodušení</h5>
-        <p>
-            Pokud bychom očkovali průměrnou rychlostí posledního týdne, pak skončíme (70 % populace plně očkováno)
-            <strong>{{ end_date | format_date }}</strong>.
-        </p>
         {% endif %}
     </div>
 </div>
