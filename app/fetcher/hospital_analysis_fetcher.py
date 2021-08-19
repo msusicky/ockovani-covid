@@ -7,7 +7,7 @@ import requests
 
 from app import db
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaniLideProfese, AnalyzaHospitalizaci
+from app.models import AnalyzaHospitalizaci
 
 
 class HospitalAnalysisFetcher(Fetcher):

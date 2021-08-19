@@ -10,17 +10,17 @@ from app.models import CrMetriky
 class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
-                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_fronta) \
+                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_pred_zavorou) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
         self._vaccinated = stats.ockovani_pocet_plne
         self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
         self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_celkem
-        self._waiting = stats.registrace_fronta
+        self._waiting = stats.registrace_pred_zavorou
         # self._end_date = queries.count_end_date_vaccinated()
         # self._end_date_supplies = queries.count_end_date_supplies()
-        self._end_date_interested = queries.couht_end_date_interested()
+        # self._end_date_interested = queries.couht_end_date_interested()
         self._interest_all = queries.count_interest()[0]
         self._gp_vaccines = queries.couht_gp_vaccines()
 
@@ -37,11 +37,10 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na termín čeká {} zájemců. O očkování má zájem {} % obyvatel, nedostatek zájemců nastane přibližně: {}. U praktiků čeká {} dávek. https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na termín (před závorou) čeká {} zájemců. O očkování má zájem {} % obyvatel. U praktiků čeká {} dávek. https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
-                    filters.format_decimal(self._interest_all * 100), filters.format_date(self._end_date_interested),
-                    filters.format_number(self._gp_vaccines))
+                    filters.format_decimal(self._interest_all * 100), filters.format_number(self._gp_vaccines))
         return text
 
     def _generate_progressbar(self):
