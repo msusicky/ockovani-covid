@@ -10,7 +10,7 @@ class VaccinatedFetcher(Fetcher):
     Class for updating vaccinated people table.
     """
 
-    VACCINATED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv'
+    VACCINATED_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-profese.csv'
 
     def __init__(self):
         super().__init__(OckovaniLide.__tablename__, self.VACCINATED_CSV)
