@@ -236,25 +236,6 @@ class OckovaniLide(db.Model):
     datum = Column(Date, primary_key=True)
     vakcina = Column(Unicode, ForeignKey('vakciny.vakcina'), primary_key=True)
     kraj_nuts_kod = Column(Unicode, index=True)
-    kraj_nazev = Column(Unicode)
-    zarizeni_kod = Column(Unicode, primary_key=True, index=True)
-    zarizeni_nazev = Column(Unicode)
-    poradi_davky = Column(Integer, primary_key=True)
-    vekova_skupina = Column(Unicode, primary_key=True)
-    pocet = Column(Integer)
-
-    def __repr__(self):
-        return f"<OckovaniLide(zarizeni_nazev='{self.zarizeni_nazev}', vakcina='{self.vakcina}', " \
-               f"datum='{self.datum}', poradi_davky={self.poradi_davky}, vekova_skupina='{self.vekova_skupina,}', " \
-               f"pocet={self.pocet})>"
-
-
-class OckovaniLideProfese(db.Model):
-    __tablename__ = 'ockovani_lide_profese'
-
-    datum = Column(Date, primary_key=True)
-    vakcina = Column(Unicode, primary_key=True)
-    kraj_nuts_kod = Column(Unicode, index=True)
     zarizeni_kod = Column(Unicode, primary_key=True, index=True)
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
@@ -269,8 +250,8 @@ class OckovaniLideProfese(db.Model):
     pocet = Column(Integer)
 
     def __repr__(self):
-        return f"<OckovaniLideProfese(zarizeni_kod='{self.zarizeni_kod}', vakcina='{self.vakcina}', " \
-               f"datum='{self.datum}', poradi_davky={self.poradi_davky}, vekova_skupina='{self.vekova_skupina}', " \
+        return f"<OckovaniLide(zarizeni_kod='{self.zarizeni_kod}', vakcina='{self.vakcina}', " \
+               f"datum='{self.datum}', poradi_davky={self.poradi_davky}, vekova_skupina='{self.vekova_skupina,}', " \
                f"pocet={self.pocet})>"
 
 

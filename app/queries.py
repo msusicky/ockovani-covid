@@ -372,7 +372,7 @@ def count_vaccinated(kraj_id=None):
             """
             select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_v_kraji_castecne, 
                 coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_v_kraji_plne
-            from ockovani_lide_profese o 
+            from ockovani_lide o 
             join vakciny v on v.vakcina = o.vakcina
             where datum < '{}' and (kraj_bydl_nuts = '{}')
             group by vekova_skupina
@@ -449,7 +449,7 @@ def count_vaccinated_category():
             indikace_skolstvi_ostatni, indikace_bezpecnostni_infrastruktura, indikace_chronicke_onemocneni,
             coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
             coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
-        from ockovani_lide_profese o
+        from ockovani_lide o
         join vakciny v on v.vakcina = o.vakcina
         group by indikace_zdravotnik, indikace_socialni_sluzby, indikace_ostatni, indikace_pedagog, 
             indikace_skolstvi_ostatni, indikace_bezpecnostni_infrastruktura, indikace_chronicke_onemocneni    
