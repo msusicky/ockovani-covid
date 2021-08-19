@@ -75,11 +75,13 @@ Statistiky |
                     {{ metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
                     {{ metrika('Dnešní kapacita 2. dávky', metriky.rezervace_kapacita_2, delta_day=metriky.rezervace_kapacita_2_zmena_den, delta_week=metriky.rezervace_kapacita_2_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 2.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
                     {{ metrika('Dnešní celková kapacita', metriky.rezervace_kapacita, delta_day=metriky.rezervace_kapacita_zmena_den, delta_week=metriky.rezervace_kapacita_zmena_tyden, color='std', info='Celková dnešní kapacita pro očkování, zahrnuje i rezervace pro náhradníky.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                    {#
                     {{ metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2). Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání.') }}
                     {{ metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
                     {{ metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
                     {{ metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
                     {{ metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
+                    #}
                 </div>
             </div>
         </div>
@@ -145,7 +147,8 @@ Statistiky |
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Předpokládané dodávky vakcín</h5>
-                {{ dodavky_vakcin(supplies) }}
+                <i>Dočasně nedostupné - neaktuální data</i>
+                {# {{ dodavky_vakcin(supplies) }} #}
             </div>
         </div>
     </div>
@@ -156,18 +159,19 @@ Statistiky |
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">Počty vakcín</h5>
-                {{ stav_vakcin(vaccines) }}
+                <i>Dočasně nedostupné - pracujeme na přesnější verzi</i>
+                {# {{ stav_vakcin(vaccines) }} #}
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
+    <!--<div class="col-lg-6">
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">Odhad dostupnosti vakcín pro věkové skupiny</h5>
                 {{ odhad_konce(end_date_category) }}
             </div>
         </div>
-    </div>
+    </div>-->
 </div>
 
 <div class="row mb-3">

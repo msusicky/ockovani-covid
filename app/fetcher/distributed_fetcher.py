@@ -31,7 +31,7 @@ class DistributedFetcher(Fetcher):
         df = df[df['ockovaci_misto_id'].isin(mista_ids)]
 
         if size > len(df):
-            app.logger.warn("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
+            app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
         self._truncate()
 

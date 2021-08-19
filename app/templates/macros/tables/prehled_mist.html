@@ -43,21 +43,13 @@
                     <th scope="col" class="text-center col-sortable">
                         Ve frontě
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                           title="Počet registrovaných čekajících na rezervaci konkrétního termínu (přibližně odpovídá čekajícím na SMS s PIN2).">
+                           title="Počet registrovaných bez rezervovaného termínu.">
                         </i>
                     </th>
                     <th scope="col" class="text-center col-sortable">
-                        Čekání na rezervaci
-                        <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
-                           data-placement="auto"
-                           title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na SMS s PIN2).<br>Pokud přednost dostávají prioritní skupiny, odpovídá tento údaj spíše jejich čekání - ověřte si ve stavu registrací konkrétního očkovacího místa čekání pro vaši skupinu.<br>Červená (>2), žlutá (>1), zelená (>0).">
-                        </i>
-                    </th>
-                    <th scope="col" class="text-center col-sortable">
-                        Zatížení místa
-                        <i class="fas fa-exclamation-triangle" data-html="true" data-toggle="tooltip"
-                           data-placement="auto"
-                           title="Odhadovaný počet týdnů potřebný k naočkování všech lidí na daném místě, tj. těch s rezervací a lidí ve frontě 1. dávkou. Pro odhad rychlosti očkování se používají zaplněné rezervace za posledních 7 dnů. Data mohou být ovlivněna nedostatkem zájemců nebo změnami kapacit místa, u nových míst chybí úplně, proto číslo berte jako orientační!<br>Červená (>4), žlutá (>2), zelená (>0).">
+                        Před závorou
+                        <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                           title="Počet registrovaných čekajících na možnost rezervace konkrétního termínu.">
                         </i>
                     </th>
                 </tr>
@@ -86,13 +78,8 @@
                     <td class="text-right" data-value="{{ item.registrace_fronta }}">
                         {{ item.registrace_fronta | format_number }}
                     </td>
-                    <td class="text-center" data-value="{{ item.registrace_prumer_cekani }}">
-                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7,
-                        rev_color=True, limits=(1, 2)) }}
-                    </td>
-                    <td class="text-center" data-value="{{ item.ockovani_odhad_cekani }}">
-                        {{ stitek(item.ockovani_odhad_cekani, decimal=True, unit='', unit_short='', divide=7,
-                        rev_color=True, limits=(2, 4)) }}
+                    <td class="text-right" data-value="{{ item.registrace_pred_zavorou }}">
+                        {{ item.registrace_pred_zavorou | format_number }}
                     </td>
                 </tr>
                 {% endfor %}

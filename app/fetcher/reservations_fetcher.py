@@ -28,6 +28,6 @@ class ReservationsFetcher(Fetcher):
         df = df[df['ockovaci_misto_id'].isin(mista_ids)]
 
         if size > len(df):
-            app.logger.warn("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
+            app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)
