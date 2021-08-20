@@ -36,6 +36,9 @@ class OpeningHoursFetcher(Fetcher):
             r = requests.get(self._url.format(id), auth=(user, password))
             df = DataFrame(r.json()['results'])
 
+            if df.empty:
+                continue
+
             df = df.groupby(['weekday', 'from_hour', 'to_hour']).min().reset_index()
 
             for idx, row in df.iterrows():
