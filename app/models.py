@@ -182,8 +182,8 @@ class ProvozniDoba(db.Model):
 
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     den = Column(Integer, primary_key=True)
-    od = Column(Unicode)
-    do = Column(Unicode)
+    od = Column(Unicode, primary_key=True)
+    do = Column(Unicode, primary_key=True)
 
 
 class OckovaciZarizeni(db.Model):

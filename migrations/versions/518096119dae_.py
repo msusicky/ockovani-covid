@@ -48,7 +48,7 @@ def upgrade():
     sa.Column('od', sa.Unicode(), nullable=True),
     sa.Column('do', sa.Unicode(), nullable=True),
     sa.ForeignKeyConstraint(['ockovaci_misto_id'], ['ockovaci_mista.id'], ),
-    sa.PrimaryKeyConstraint('ockovaci_misto_id', 'den')
+    sa.PrimaryKeyConstraint('ockovaci_misto_id', 'den', 'od', 'do')
     )
     # ### end Alembic commands ###
 
