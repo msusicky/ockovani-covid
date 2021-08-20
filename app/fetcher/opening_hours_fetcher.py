@@ -36,7 +36,7 @@ class OpeningHoursFetcher(Fetcher):
             r = requests.get(self._url.format(id), auth=(user, password))
             df = DataFrame(r.json()['results'])
 
-            df = df.groupby(['weekday', 'from_hour', 'to_hour']).min()
+            df = df.groupby(['weekday', 'from_hour', 'to_hour']).min().reset_index()
 
             for idx, row in df.iterrows():
                 db.session.add(ProvozniDoba(
