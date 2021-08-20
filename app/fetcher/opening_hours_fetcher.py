@@ -36,6 +36,8 @@ class OpeningHoursFetcher(Fetcher):
             r = requests.get(self._url.format(id), auth=(user, password))
             df = DataFrame(r.json()['results'])
 
+            df = df.groupby(['weekday', 'from_hour', 'to_hour']).min()
+
             for idx, row in df.iterrows():
                 db.session.add(ProvozniDoba(
                     ockovaci_misto_id=id,
