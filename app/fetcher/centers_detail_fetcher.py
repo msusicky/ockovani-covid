@@ -19,7 +19,7 @@ class CentersDetailFetcher(Fetcher):
     CENTERS_LIST = 'vaccination-center/'
 
     def __init__(self):
-        super().__init__(OckovaciMistoDetail.__tablename__, self.API_URL + self.CENTERS_LIST, check_date=False)
+        super().__init__(OckovaciMistoDetail.__tablename__, self.API_URL + self.CENTERS_LIST)
 
     def get_modified_date(self) -> Optional[datetime]:
         return datetime.today()

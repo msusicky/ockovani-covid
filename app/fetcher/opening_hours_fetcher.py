@@ -19,7 +19,7 @@ class OpeningHoursFetcher(Fetcher):
     OPENING_HOURS = 'vaccination-center/{}/opening-hours/'
 
     def __init__(self):
-        super().__init__(ProvozniDoba.__tablename__, self.API_URL + self.OPENING_HOURS, check_date=False)
+        super().__init__(ProvozniDoba.__tablename__, self.API_URL + self.OPENING_HOURS)
 
     def get_modified_date(self) -> Optional[datetime]:
         return datetime.today()
@@ -38,7 +38,7 @@ class OpeningHoursFetcher(Fetcher):
 
             for idx, row in df.iterrows():
                 db.session.add(ProvozniDoba(
-                    ockovaci_misto_id=row['id'],
+                    ockovaci_misto_id=id,
                     den=row['weekday'],
                     od=row['from_hour'],
                     do=row['to_hour']
