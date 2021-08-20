@@ -159,6 +159,7 @@ class OckovaciMistoDetail(db.Model):
     typ = Column(Unicode)
     deti = Column(Boolean)
     drive_in = Column(Boolean)
+    upresneni_polohy = Column(Unicode)
     platba_karta = Column(Boolean)
     platba_hotovost = Column(Boolean)
     telefon = Column(Unicode)
@@ -180,7 +181,7 @@ class ProvozniDoba(db.Model):
     __tablename__ = 'provozni_doba'
 
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    den = Column(Integer)
+    den = Column(Integer, primary_key=True)
     od = Column(Unicode)
     do = Column(Unicode)
 

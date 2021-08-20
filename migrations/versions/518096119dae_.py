@@ -23,6 +23,7 @@ def upgrade():
     sa.Column('typ', sa.Unicode(), nullable=True),
     sa.Column('deti', sa.Boolean(), nullable=True),
     sa.Column('drive_in', sa.Boolean(), nullable=True),
+    sa.Column('upresneni_polohy', sa.Unicode(), nullable=True),
     sa.Column('platba_karta', sa.Boolean(), nullable=True),
     sa.Column('platba_hotovost', sa.Boolean(), nullable=True),
     sa.Column('telefon', sa.Unicode(), nullable=True),
@@ -47,7 +48,7 @@ def upgrade():
     sa.Column('od', sa.Unicode(), nullable=True),
     sa.Column('do', sa.Unicode(), nullable=True),
     sa.ForeignKeyConstraint(['ockovaci_misto_id'], ['ockovaci_mista.id'], ),
-    sa.PrimaryKeyConstraint('ockovaci_misto_id')
+    sa.PrimaryKeyConstraint('ockovaci_misto_id', 'den')
     )
     # ### end Alembic commands ###
 
