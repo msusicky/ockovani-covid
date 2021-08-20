@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey, Index
+from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey, Index, ARRAY
 from sqlalchemy.orm import relationship
 
 from app import db
@@ -142,12 +142,47 @@ class OckovaciMisto(db.Model):
     bezbarierovy_pristup = Column(Boolean)
 
     okres = relationship("Okres", back_populates="ockovaci_mista")
+    ockovaci_misto_detail = relationship("OckovaciMistoDetail", uselist=False)
+    provozni_doba = relationship("ProvozniDoba")
 
     def __repr__(self):
         return f"<OckovaciMisto(nazev='{self.nazev}')>"
 
 
 Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
+
+
+class OckovaciMistoDetail(db.Model):
+    __tablename__ = 'ockovaci_mista_detail'
+
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    typ = Column(Unicode)
+    deti = Column(Boolean)
+    drive_in = Column(Boolean)
+    platba_karta = Column(Boolean)
+    platba_hotovost = Column(Boolean)
+    telefon = Column(Unicode)
+    email = Column(Unicode)
+    odkaz = Column(Unicode)
+    poznamka = Column(Unicode)
+    verejna_poznamka = Column(Unicode)
+    vakciny = Column(ARRAY(Unicode))
+    presun_2davky_nepovolen = Column(Boolean)
+    presun_2davky_linka = Column(Boolean)
+    presun_2davky_centrum = Column(Boolean)
+    presun_2davky_telefon = Column(Unicode)
+    presun_2davky_email = Column(Unicode)
+    presun_2davky_online = Column(Boolean)
+    presun_2davky_poznamka = Column(Unicode)
+
+
+class ProvozniDoba(db.Model):
+    __tablename__ = 'provozni_doba'
+
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    den = Column(Integer)
+    od = Column(Unicode)
+    do = Column(Unicode)
 
 
 class OckovaciZarizeni(db.Model):
@@ -237,6 +272,7 @@ class OckovaniLide(db.Model):
     vakcina = Column(Unicode, ForeignKey('vakciny.vakcina'), primary_key=True)
     kraj_nuts_kod = Column(Unicode, index=True)
     zarizeni_kod = Column(Unicode, primary_key=True, index=True)
+    zarizeni_nazev = Column(Unicode)
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
     kraj_bydl_nuts = Column(Unicode, primary_key=True, index=True)
