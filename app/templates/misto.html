@@ -52,15 +52,12 @@
                 </dl>
                 <div class="mb-n1">
                     {% if misto.status %}
-                    <a href="https://cfa.uzis.cz/vaccination-centers/{{misto.id}}" class="btn btn-primary mb-1"
+                    <a href="https://ockoreport.uzis.cz/Detail?guid={{misto.id}}" class="btn btn-primary mb-1"
                        target="_blank">
                         Oficiální stránka místa
                     </a>
                     <a href="https://registrace.mzcr.cz/" class="btn btn-primary mb-1" target="_blank">
                         Registrace
-                    </a>
-                    <a href="https://ockoreport.uzis.cz/" class="btn btn-primary mb-1" target="_blank">
-                        Aktuální fronta
                     </a>
                     {% endif %}
                     {% if misto.vakcinacka %}
