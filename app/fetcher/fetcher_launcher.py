@@ -68,7 +68,7 @@ class FetcherLauncher:
         if dataset == 'all':
             self._fetchers.append(CentersFetcher())
             self._fetchers.append(CentersDetailFetcher())
-            self._fetchers.append(OpeningHoursFetcher())
+            # self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
@@ -77,8 +77,8 @@ class FetcherLauncher:
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
-            self._fetchers.append(HospitalAnalysisFetcher())
-            self._fetchers.append(SuppliesFetcher())
+            # self._fetchers.append(HospitalAnalysisFetcher())
+            # self._fetchers.append(SuppliesFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_detail':
