@@ -3,11 +3,13 @@ import time
 from datetime import date, datetime
 
 from app import app, db
+from app.fetcher.centers_detail_fetcher import CentersDetailFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
 from app.fetcher.deaths_fetcher import DeathsFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
 from app.fetcher.infected_fetcher import InfectedFetcher
+from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.supplies_fetcher import SuppliesFetcher
@@ -65,6 +67,8 @@ class FetcherLauncher:
     def _init_fetchers(self, dataset: str) -> None:
         if dataset == 'all':
             self._fetchers.append(CentersFetcher())
+            self._fetchers.append(CentersDetailFetcher())
+            self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
@@ -77,6 +81,10 @@ class FetcherLauncher:
             self._fetchers.append(SuppliesFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
+        elif dataset == 'centers_detail':
+            self._fetchers.append(CentersDetailFetcher())
+        elif dataset == 'opening_hours':
+            self._fetchers.append(OpeningHoursFetcher())
         elif dataset == 'health_facilities':
             self._fetchers.append(HealthFacilitiesFetcher())
         elif dataset == 'distributed':
