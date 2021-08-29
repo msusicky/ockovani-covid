@@ -38,8 +38,11 @@
                 <dl>
                     <dt>Adresa</dt>
                     <dd>{{misto.adresa}}</dd>
+                    <dd>{{ misto.ockovaci_misto_detail.upresneni_polohy }}</dd>
                     <dt>Bezbariérový přístup</dt>
                     <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
+                    <dt>Drive-in</dt>
+                    <dd>{{ 'Ano' if misto.ockovaci_misto_detail.drive_in else 'Ne' }}</dd>
                     <dt>Okolní očkovací místa</dt>
                     <dd>
                         <span class="mr-1">

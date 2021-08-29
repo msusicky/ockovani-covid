@@ -27,6 +27,10 @@
             <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
             <label class="custom-control-label" for="centers-barrierfree">jen bezbariérová</label>
         </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-drivein" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-drivein">jen drive-in</label>
+        </div>
     </div>
 </div>
 
@@ -57,7 +61,10 @@
                 <tbody>
                 {% for item in centers %}
                 <tr class="{{ 'table-warning' if not item.status }}" data-active="{{ item.status }}"
-                    data-barrierfree="{{ item.bezbarierovy_pristup }}">
+                    data-barrierfree="{{ item.bezbarierovy_pristup }}"
+                    data-drivein="{{ item.ockovaci_misto_detail.drive_in }}"
+                    data-children="{{ item.ockovaci_misto_detail.deti }}"
+                    data-selfpaid="{{ item.ockovaci_misto_detail.typ == 'TODO' }}">
                     <td data-value="{{ item.nazev }}">
                         <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
                     </td>
@@ -104,21 +111,25 @@
         const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
         const activeValue = $("#centers-active")[0].checked;
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
+        const driveinValue = $("#centers-drivein")[0].checked;
         const selfPaidValue = $("#centers-selfpaid")[0].checked;
-        const selfPaidString = "samopl"
         const childrenValue = $("#centers-children")[0].checked;
-        const childrenString = "12 ?- ?15"
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const selfpaid = $(this)[0].dataset.selfpaid;
+            const children = $(this)[0].dataset.children;
+            const active = $(this)[0].dataset.active;
+            const barrierfree = $(this)[0].dataset.barrierfree;
+            const drivein = $(this)[0].dataset.drivein;
+
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && ((selfPaidValue && normalized.indexOf(selfPaidString) > -1) || (
-                    !selfPaidValue && normalized.indexOf(selfPaidString) === -1))
-                && ((childrenValue && normalized.search(childrenString) > -1) || (
-                    !childrenValue && normalized.search(childrenString) === -1))
-                && (!activeValue || $(this)[0].dataset.active === 'True')
-                && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
+                && ((selfPaidValue && selfpaid === 'True') || (!selfPaidValue && selfpaid === 'False'))
+                && ((childrenValue && children === 'True') || (!childrenValue && children === 'False'))
+                && (!activeValue || active === 'True')
+                && (!barrierfreeValue || barrierfree === 'True')
+                && (!driveinValue || drivein === 'True')
             )
         });
 
@@ -141,6 +152,9 @@
             filterChanged();
         });
         $("#centers-barrierfree").change(function () {
+            filterChanged();
+        });
+        $("#centers-drivein").change(function () {
             filterChanged();
         });
         filterChanged();
