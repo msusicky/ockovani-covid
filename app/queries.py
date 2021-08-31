@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_, text
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity
+    PrakticiKapacity, OckovaciMistoDetail
 
 
 def unique_nrpzs_subquery():
@@ -40,19 +40,23 @@ def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                                Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
                                OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
+                               OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
                                OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
                                OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
                                OckovaciMistoMetriky.registrace_pred_zavorou) \
         .join(OckovaciMistoMetriky) \
+        .join(OckovaciMistoDetail) \
         .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
         .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
         .filter(filter_column == filter_value) \
         .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(or_(OckovaciMisto.status == True, OckovaciMistoMetriky.registrace_fronta > 0,
                     OckovaciMistoMetriky.rezervace_cekajici > 0)) \
+        .filter(OckovaciMistoDetail.typ != 'AČR') \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.longitude,
                   OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
+                  OckovaciMisto.bezbarierovy_pristup, OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
                   OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
                   OckovaciMistoMetriky.ockovani_odhad_cekani, OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
                   OckovaciMistoMetriky.registrace_pred_zavorou) \

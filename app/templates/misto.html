@@ -38,6 +38,8 @@
                 <dl>
                     <dt>Adresa</dt>
                     <dd>{{misto.adresa}}</dd>
+                    <dt>Upřesnění polohy</dt>
+                    <dd>{{ misto.ockovaci_misto_detail.upresneni_polohy }}</dd>
                     <dt>Bezbariérový přístup</dt>
                     <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
                     <dt>Okolní očkovací místa</dt>
@@ -73,7 +75,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">Mapa</h5>
-                <div id="center-map" style="height:250px;"></div>
+                <div id="center-map" style="height:270px;"></div>
             </div>
         </div>
     </div>
