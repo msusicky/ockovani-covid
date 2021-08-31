@@ -142,7 +142,7 @@ class OckovaciMisto(db.Model):
     bezbarierovy_pristup = Column(Boolean)
 
     okres = relationship("Okres", back_populates="ockovaci_mista")
-    ockovaci_misto_detail = relationship("OckovaciMistoDetail", uselist=False)
+    ockovaci_misto_detail = relationship("OckovaciMistoDetail", uselist=False, lazy='joined')
     provozni_doba = relationship("ProvozniDoba")
 
     def __repr__(self):

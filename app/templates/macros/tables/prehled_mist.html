@@ -16,6 +16,10 @@
             <label class="custom-control-label" for="centers-children">děti</label>
         </div>
         <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <input id="centers-walkin" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-walkin">bez registrace</label>
+        </div>
+        <div class="custom-control custom-switch mr-3" style="display: inline-block">
             <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
             <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
         </div>
@@ -57,7 +61,10 @@
                 <tbody>
                 {% for item in centers %}
                 <tr class="{{ 'table-warning' if not item.status }}" data-active="{{ item.status }}"
-                    data-barrierfree="{{ item.bezbarierovy_pristup }}">
+                    data-barrierfree="{{ item.bezbarierovy_pristup }}"
+                    data-children="{{ item.deti }}"
+                    data-walkin="{{ item.typ == 'WALKIN' }}"
+                    data-selfpaid="{{ item.typ == 'SMPL' }}">
                     <td data-value="{{ item.nazev }}">
                         <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
                     </td>
@@ -105,20 +112,24 @@
         const activeValue = $("#centers-active")[0].checked;
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
         const selfPaidValue = $("#centers-selfpaid")[0].checked;
-        const selfPaidString = "samopl"
+        const walkinValue = $("#centers-walkin")[0].checked;
         const childrenValue = $("#centers-children")[0].checked;
-        const childrenString = "12 ?- ?15"
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const selfpaid = $(this)[0].dataset.selfpaid;
+            const walkin = $(this)[0].dataset.walkin;
+            const children = $(this)[0].dataset.children;
+            const active = $(this)[0].dataset.active;
+            const barrierfree = $(this)[0].dataset.barrierfree;
+
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && ((selfPaidValue && normalized.indexOf(selfPaidString) > -1) || (
-                    !selfPaidValue && normalized.indexOf(selfPaidString) === -1))
-                && ((childrenValue && normalized.search(childrenString) > -1) || (
-                    !childrenValue && normalized.search(childrenString) === -1))
-                && (!activeValue || $(this)[0].dataset.active === 'True')
-                && (!barrierfreeValue || $(this)[0].dataset.barrierfree === 'True')
+                && ((selfPaidValue && selfpaid === 'True') || (!selfPaidValue && selfpaid === 'False'))
+                && ((walkinValue && walkin === 'True') || (!walkinValue && walkin === 'False'))
+                && ((childrenValue && children === 'True') || (!childrenValue && (children === 'False' || selfpaid === 'True')))
+                && (!activeValue || active === 'True')
+                && (!barrierfreeValue || barrierfree === 'True')
             )
         });
 
@@ -141,6 +152,9 @@
             filterChanged();
         });
         $("#centers-barrierfree").change(function () {
+            filterChanged();
+        });
+        $("#centers-walkin").change(function () {
             filterChanged();
         });
         filterChanged();
