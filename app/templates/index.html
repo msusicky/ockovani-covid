@@ -14,10 +14,6 @@
                 </strong>
                 Nezávazně doporučujeme sledovat, kolik je na daném místě registrovaných lidí, kteří mají a nemají
                 termín, kolik je obsazených slotů na očkování a kolik vakcín přibližně dostává dané místo.
-                <strong>
-                    Nedává smysl měnit často registraci, změnou registrace se dostáváte na poslední místo lidí stejného
-                    věku v dané kategorii na novém místě.
-                </strong>
             </p>
             <p>
                 Navštivte repozitář <a href="https://github.com/msusicky/ockovani-covid" target="_blank">
@@ -117,41 +113,13 @@
         Zdroj mapy: <a href="https://www.mylog.cz/svg-mapa-ceska-a-slovenska/" target="_blank">www.mylog.cz</a>
     </div>
 </div>
-<div class="row mb-3">
-    <div id="vyzva" class="col text-justify">
-        <h3>Výzva</h3>
-        <p>
-            Vážení uživatelé těchto stránek,
-        </p>
-        <p>
-            v minulosti se někteří z Vás ptali, jak mohou přispět na chod webu. Do tvorby stránek jsme investovali
-            mnoho volného času, převážně večerů a víkendů, které jsme vzali svým blízkým. Nabídky jsme odmítali s tím,
-            že nic nepotřebujeme. Podle odezvy nejen na sociálních sítích se náš záměr povedl a pomohli jsme mnoha
-            lidem najít vhodné místo tak, aby zbytečně nepropadaly volné kapacity, lidé se očkovali rychleji a mohli
-            dříve začít normálnější život, což pomůže nám všem.
-        </p>
-        <p>
-            Změnili jsme ale názor a přeci jen bychom Vás chtěli o něco požádat, aby se naše investice zhodnotila ještě
-            o něco víc. Pokud máte pocit, že Vám naše stránky pomohly, věnujte prosím své 2 hodiny (tedy hodinu za
-            každou dávku vakcíny) času do nějaké obecně prospěšné aktivity. Pomozte sousedce s nákupem, ukliďte
-            nepořádek v přírodě, nebo něco podobného. Pokud se budete chtít pochlubit na sociálních sítích, použijte
-            hashtag #posliToDal.
-        </p>
-        <p>
-            Pokud se Vám zdá náš nápad příliš idealistický a nesmyslný, nebo už teď pomáháte bližním, nebudeme se
-            zlobit, když tuto výzvu budete ignorovat.
-        </p>
-        <p>
-            Předem děkujeme<br>
-            <i>Marek a Honza</i>
-        </p>
-    </div>
-</div>
 
 <div class="row">
     <div class="col">
         <h3>Aktuality a důležité informace</h3>
         <ul class="timeline text-justify">
+            {{ zprava('Spolupráce s Centrálním Řídícím Týmem COVID-19', '30. 8. 2021',
+            'V polovině srpna jsme byli kontaktováni s nabídkou vzájemné spolupráce a nabídkou přístupu k neveřejným datům. Tak můžeme nabídnout aktuálnější informace, být lépe připraveni na chystané změny a zlepšit uživatelský komfort.') }}
             {{ zprava('Změna podílů proočkovanosti a odhadu dosažení 70 %', '16. 6. 2021',
             'V souvislosti s otevřením registrace pro osoby starší 16 let a plánovanému očkování starších 12 let, měníme ve statistikách proočkovanost dospělé populace na proočkovanost celé populace a také odhad dosažení 70% proočkovanosti nově počítá se 70 % celé populace.') }}
             {{ zprava('Neohlášená změna názvu povolání', '11. 6. 2021',
