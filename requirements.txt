@@ -7,8 +7,14 @@ Werkzeug>=0.16.1
 psycopg2-binary>=2.8
 python-dotenv
 markupsafe
-requests
+requests~=2.25.1
 gspread
-pandas
+pandas~=1.2.3
 ipykernel
 python-twitter
+
+numpy~=1.20.1
+python-dateutil~=2.8.1
+click~=7.1.2
+setuptools~=47.1.0
+alembic~=1.5.6

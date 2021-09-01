@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from typing import Optional
 
+import numpy as np
 import requests
 from pandas import DataFrame
 
@@ -31,19 +32,38 @@ class CentersDetailFetcher(Fetcher):
         r = requests.get(self._url, auth=(user, password))
         df = DataFrame(r.json()['results'])
 
-        # filter out missing centers
-        size = len(df)
-        mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
-        df = df[df['id'].isin(mista_ids)]
+        df['latitude'] = df['latitude'].replace({np.nan: None})
+        df['longitude'] = df['longitude'].replace({np.nan: None})
+        df['min_vaccination_capacity'] = df['min_vaccination_capacity'].replace({np.nan: None})
+        df['code'] = df['code'].str.zfill(11)
 
-        if size > len(df):
-            app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
+        mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
 
         for idx, row in df.iterrows():
+            id = row['id']
+
+            if id not in mista_ids:
+                # skip mobile centers
+                if row['district_nuts4_code']:
+                    db.session.merge(OckovaciMisto(
+                        id=id,
+                        nazev=row['name'],
+                        okres_id=row['district_nuts4_code'],
+                        status=row['operational_status'],
+                        adresa=row['address'],
+                        latitude=row['latitude'],
+                        longitude=row['longitude'],
+                        nrpzs_kod=row['code'],
+                        minimalni_kapacita=row['min_vaccination_capacity'],
+                        bezbarierovy_pristup=row['wheelchair_access']
+                    ))
+                else:
+                    continue
+
             vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
 
             db.session.merge(OckovaciMistoDetail(
-                ockovaci_misto_id=row['id'],
+                ockovaci_misto_id=id,
                 typ=row['center_type_name'],
                 deti=row['children'],
                 drive_in=row['drive_in'],
