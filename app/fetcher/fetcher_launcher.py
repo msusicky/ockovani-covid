@@ -12,6 +12,7 @@ from app.fetcher.infected_fetcher import InfectedFetcher
 from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
+from app.fetcher.reservations_fetcher_api import ReservationsFetcherApi
 from app.fetcher.supplies_fetcher import SuppliesFetcher
 from app.fetcher.used_fetcher import UsedFetcher
 from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
@@ -74,6 +75,8 @@ class FetcherLauncher:
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
             self._fetchers.append(ReservationsFetcher())
+            #??? maybe only one
+            self._fetchers.append(ReservationsFetcherApi())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
@@ -95,6 +98,8 @@ class FetcherLauncher:
             self._fetchers.append(RegistrationsFetcher())
         elif dataset == 'reservations':
             self._fetchers.append(ReservationsFetcher())
+        elif dataset == 'reservations_api':
+            self._fetchers.append(ReservationsFetcherApi())
         elif dataset == 'vaccinated':
             self._fetchers.append(VaccinatedFetcher())
         elif dataset == 'infected':
