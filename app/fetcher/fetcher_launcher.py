@@ -74,8 +74,7 @@ class FetcherLauncher:
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            self._fetchers.append(ReservationsFetcher())
-            #??? maybe only one
+            # self._fetchers.append(ReservationsFetcher())
             self._fetchers.append(ReservationsFetcherApi())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
