@@ -32,6 +32,7 @@ class CentersDetailFetcher(Fetcher):
         r = requests.get(self._url, auth=(user, password))
         df = DataFrame(r.json()['results'])
 
+        df['district_nuts4_code'] = df['district_nuts4_code'].replace({'': None})
         df['latitude'] = df['latitude'].replace({np.nan: None})
         df['longitude'] = df['longitude'].replace({np.nan: None})
         df['min_vaccination_capacity'] = df['min_vaccination_capacity'].replace({np.nan: None})
@@ -43,22 +44,18 @@ class CentersDetailFetcher(Fetcher):
             id = row['id']
 
             if id not in mista_ids:
-                # skip mobile centers
-                if row['district_nuts4_code']:
-                    db.session.merge(OckovaciMisto(
-                        id=id,
-                        nazev=row['name'],
-                        okres_id=row['district_nuts4_code'],
-                        status=row['operational_status'],
-                        adresa=row['address'],
-                        latitude=row['latitude'],
-                        longitude=row['longitude'],
-                        nrpzs_kod=row['code'],
-                        minimalni_kapacita=row['min_vaccination_capacity'],
-                        bezbarierovy_pristup=row['wheelchair_access']
-                    ))
-                else:
-                    continue
+                db.session.merge(OckovaciMisto(
+                    id=id,
+                    nazev=row['name'],
+                    okres_id=row['district_nuts4_code'],
+                    status=row['operational_status'],
+                    adresa=row['address'],
+                    latitude=row['latitude'],
+                    longitude=row['longitude'],
+                    nrpzs_kod=row['code'],
+                    minimalni_kapacita=row['min_vaccination_capacity'],
+                    bezbarierovy_pristup=row['wheelchair_access']
+                ))
 
             vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
 
