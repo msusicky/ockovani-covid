@@ -11,7 +11,7 @@ from app.fetcher.fetcher import Fetcher
 from app.models import OckovaciMisto, OckovaniRezervace
 
 
-class ReservationsFetcherApi(Fetcher):
+class ReservationsApiFetcher(Fetcher):
     """
     Class for updating reservations table.
     """
@@ -20,7 +20,7 @@ class ReservationsFetcherApi(Fetcher):
     VACCINE_SERVICES = 'vaccine_services/stats/'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES, check_date=False)
+        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES, ignore_errors=True)
 
     def get_modified_date(self) -> Optional[datetime]:
         return datetime.today()

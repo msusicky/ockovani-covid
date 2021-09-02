@@ -21,6 +21,7 @@ class CentersFetcher(Fetcher):
 
         df['operacni_status'] = df['operacni_status'].fillna(False).astype('bool')
         df['bezbarierovy_pristup'] = df['bezbarierovy_pristup'].fillna(False).astype('bool')
+        df['okres_nuts_kod'] = df['okres_nuts_kod'].replace({np.nan: None})
         df['latitude'] = df['latitude'].replace({np.nan: None})
         df['longitude'] = df['longitude'].replace({np.nan: None})
         df['nrpzs_kod'] = df['nrpzs_kod'].str.zfill(11)
