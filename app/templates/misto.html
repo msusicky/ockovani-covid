@@ -38,19 +38,26 @@
                 <dl>
                     <dt>Adresa</dt>
                     <dd>{{misto.adresa}}</dd>
-                    <dt>Upřesnění polohy</dt>
-                    <dd>{{ misto.ockovaci_misto_detail.upresneni_polohy }}</dd>
+
+                    {% if misto.ockovaci_misto_detail.upresneni_polohy %}
+                        <dt>Upřesnění polohy</dt>
+                        <dd>{{ misto.ockovaci_misto_detail.upresneni_polohy }}</dd>
+                    {% endif %}
+
                     <dt>Bezbariérový přístup</dt>
                     <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
-                    <dt>Okolní očkovací místa</dt>
-                    <dd>
-                        <span class="mr-1">
-                            Okres: <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">{{ misto.okres.nazev }}</a>
-                        </span>
-                        <span>
-                            Kraj: <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev) }}">{{ misto.okres.kraj.nazev }}</a>
-                        </span>
-                    </dd>
+
+                    {% if misto.okres %}
+                        <dt>Okolní očkovací místa</dt>
+                        <dd>
+                            <span class="mr-1">
+                                Okres: <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">{{ misto.okres.nazev }}</a>
+                            </span>
+                            <span>
+                                Kraj: <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev) }}">{{ misto.okres.kraj.nazev }}</a>
+                            </span>
+                        </dd>
+                    {% endif %}
                 </dl>
                 <div class="mb-n1">
                     {% if misto.status %}

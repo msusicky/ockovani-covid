@@ -63,6 +63,7 @@ class OkresMetricsEtl:
             func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
+            .filter(OckovaciMisto.okres_id != None) \
             .group_by(OckovaciMisto.okres_id) \
             .all()
 
@@ -138,6 +139,7 @@ class OkresMetricsEtl:
             ) vakciny_prijate_pocet
             from ockovaci_mista m
             left join ockovani_distribuce d on (d.ockovaci_misto_id = m.id or d.cilove_ockovaci_misto_id = m.id)
+            where m.okres_id is not null
             group by (m.okres_id)
             """
         )).all()

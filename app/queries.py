@@ -309,6 +309,9 @@ def count_registrations(filter_column, filter_value):
     )
     mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
 
+    if len(mista_ids) == 0:
+        return pd.DataFrame()
+
     df = pd.read_sql_query(
         """
         select *
