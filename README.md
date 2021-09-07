@@ -39,6 +39,8 @@ Web: https://ockovani.opendatalab.cz
 * [Seznam Zprávy: Návod: Co udělat před tím, než se zaregistrujete k očkování](https://www.seznamzpravy.cz/clanek/ockovani-covid-jak-vybrat-misto-bez-front-156088)
 * [iDNES.cz: Očkování je možné i v den registrace. Přehled míst, kde se nejméně čeká](https://www.idnes.cz/zpravy/domaci/ockovaci-mista-skupina-od-16-do-29-praha-cekani-koronavirus.A210603_151750_domaci_lre)
 * [Svět Androida: Kde je nejkratší řada na očkování? Takto to lehce zjistíte i z mobilu](https://www.svetandroida.cz/kapacita-ockovacich-center-z-mobilu/)
+* [Lékaři nabízejí na internetu očkování vakcínami proti koronaviru, kterým se blíží expirace. Chrání je před likvidací](https://ct24.ceskatelevize.cz/domaci/3360582-lekari-nabizeji-na-internetu-ockovani-vakcinami-proti-koronaviru-kterym-se-blizi)
+* [Lékaři zachraňují vakcíny před vylitím. Speciální web nabízí volné dávky, kterým brzy končí trvanlivost](https://www.lidovky.cz/domov/lekari-zachranuji-vakciny-pred-vylitim-specialni-web-nabizi-volne-davky-kterym-brzy-konci-trvanlivos.A210901_114738_ln_domov_lros)
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.
