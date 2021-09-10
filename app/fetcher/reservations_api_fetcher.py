@@ -1,11 +1,11 @@
 import os
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional
 
 import requests
 from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
-from sqlalchemy import engine, func, text
+from sqlalchemy import func, text
 
 from app import db, app
 from app.fetcher.fetcher import Fetcher
@@ -22,7 +22,7 @@ class ReservationsApiFetcher(Fetcher):
     VACCINE_SERVICES = 'vaccine_services/stats/'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES, ignore_errors=True)
+        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES)
 
     def get_modified_date(self) -> Optional[datetime]:
         return datetime.today()
@@ -42,6 +42,7 @@ class ReservationsApiFetcher(Fetcher):
         month_after = datetime.now() + relativedelta(days=31)
         date_to = month_after.strftime('%Y-%m-%d')
         not_found = 0
+        empty = 0
 
         last_import_id = db.session.query(func.max(Import.id)).filter(Import.status == 'FINISHED').one()
 
@@ -62,10 +63,16 @@ class ReservationsApiFetcher(Fetcher):
 
             if r.status_code == 404:
                 # Place not found
-                not_found = not_found + 1;
+                not_found += 1
                 continue
 
-            df = DataFrame(r.json())
+            response_data = r.json()
+
+            if len(response_data) == 0:
+                empty += 1
+                continue
+
+            df = DataFrame(response_data)
 
             # There are multiple calendars - per each vaccine type one -> grouping
             df = df.groupby(['date', 'vaccine_round'], dropna=True) \
@@ -83,5 +90,5 @@ class ReservationsApiFetcher(Fetcher):
                     kalendar_ockovani=row['vaccine_round'].upper(),
                     import_id=import_id
                 ))
-        app.logger.warning("Not able to find {} centers.".format(not_found))
+        app.logger.warning("Not able to find {} centers and {} responses were empty.".format(not_found, empty))
         db.session.commit()
