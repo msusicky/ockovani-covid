@@ -7,9 +7,13 @@ Očkovací místa |
 
 {% block body %}
 <div class="row">
-    <div class="col mb-2">
-        <h3>Všechna očkovací místa - <a class="{{ 'active' if request.path == '/mapa' else '' }}"
-                   href="{{ url_for('view.mapa') }}">MAPA</a></h3>
+    <div class="col-auto">
+        <h3>Všechna očkovací místa</h3>
+    </div>
+    <div class="col-auto ml-auto">
+        <a class="btn btn-primary {{ 'active' if request.path == '/mapa' else '' }}" href="{{ url_for('view.mapa') }}">
+            Zobrazit na mapě
+        </a>
     </div>
 </div>
 
