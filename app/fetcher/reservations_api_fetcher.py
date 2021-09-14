@@ -85,8 +85,8 @@ class ReservationsApiFetcher(Fetcher):
                 db.session.merge(OckovaniRezervace(
                     datum=row['date'],
                     ockovaci_misto_id=center,
-                    volna_kapacita=row['available_slots'] - row['reservations_count'],
-                    maximalni_kapacita=row['available_slots'],
+                    volna_kapacita=row['available_slots'],
+                    maximalni_kapacita=row['available_slots'] + row['reservations_count'],
                     kalendar_ockovani=row['vaccine_round'].upper(),
                     import_id=import_id
                 ))
