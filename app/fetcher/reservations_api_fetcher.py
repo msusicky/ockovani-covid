@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 import requests
+import urllib3
 from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
 from sqlalchemy import func, text
@@ -23,6 +24,7 @@ class ReservationsApiFetcher(Fetcher):
 
     def __init__(self):
         super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES)
+        urllib3.disable_warnings()
 
     def get_modified_date(self) -> Optional[datetime]:
         return datetime.today()
