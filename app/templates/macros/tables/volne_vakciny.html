@@ -9,7 +9,7 @@
             <input id="free-vaccines-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-6 col-lg-3 mb-3">
+    <div class="col mb-3">
         <select id="free-vaccines-kraj" class="custom-select">
             <option value="">Všechny kraje</option>
             {% for option in kraj_options %}
@@ -17,13 +17,19 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-6 col-lg-3 mb-3">
+    <div class="col mb-3">
         <select id="free-vaccines-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
             {% for option in vaccines_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
+    </div>
+    <div class="col-auto mb-3">
+        <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <input id="free-vaccines-children" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="free-vaccines-children">pediatři</label>
+        </div>
     </div>
 </div>
 
@@ -43,7 +49,7 @@
         </thead>
         <tbody>
         {% for item in free_vaccines %}
-        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}">
+        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}" data-children="{{ item.deti }}">
             <td class="text-right">
                 {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
             </td>
@@ -81,13 +87,17 @@
         const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
         const krajValue = $("#free-vaccines-kraj").val();
         const vaccineValue = $("#free-vaccines-vaccine").val();
+        const childrenValue = $("#free-vaccines-children")[0].checked;
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const children = $(this)[0].dataset.children;
+
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
                 && (!krajValue || $(this)[0].dataset.kraj === krajValue)
                 && (!vaccineValue || $(this)[0].dataset.vaccine === vaccineValue)
+                && ((childrenValue && children === 'True') || (!childrenValue && children === 'False'))
             )
         });
 
@@ -104,6 +114,9 @@
             filterChanged();
         });
         $("#free-vaccines-vaccine").change(function () {
+            filterChanged();
+        });
+        $("#free-vaccines-children").change(function () {
             filterChanged();
         });
         filterChanged();
