@@ -84,9 +84,11 @@ class CrMetricsEtl:
             func.sum(OckovaciMistoMetriky.rezervace_cekajici).label("rezervace_cekajici"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_1).label("rezervace_cekajici_1"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_2).label("rezervace_cekajici_2"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_3).label("rezervace_cekajici_3"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_3).label("rezervace_kapacita_3")
         ).filter(OckovaciMistoMetriky.datum == self._date) \
             .one()
 
@@ -96,9 +98,11 @@ class CrMetricsEtl:
             rezervace_cekajici=reservations.rezervace_cekajici,
             rezervace_cekajici_1=reservations.rezervace_cekajici_1,
             rezervace_cekajici_2=reservations.rezervace_cekajici_2,
+            rezervace_cekajici_3=reservations.rezervace_cekajici_3,
             rezervace_kapacita=reservations.rezervace_kapacita,
             rezervace_kapacita_1=reservations.rezervace_kapacita_1,
-            rezervace_kapacita_2=reservations.rezervace_kapacita_2
+            rezervace_kapacita_2=reservations.rezervace_kapacita_2,
+            rezervace_kapacita_3=reservations.rezervace_kapacita_3
         ))
 
         app.logger.info('Computing cr metrics - reservations finished.')
@@ -237,9 +241,11 @@ class CrMetricsEtl:
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
                 rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
+                rezervace_cekajici_3_zmena_den = t0.rezervace_cekajici_3 - t1.rezervace_cekajici_3,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
+                rezervace_kapacita_3_zmena_den = t0.rezervace_kapacita_3 - t1.rezervace_kapacita_3,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_pred_zavorou_zmena_den = t0.registrace_pred_zavorou - t1.registrace_pred_zavorou,
@@ -270,9 +276,11 @@ class CrMetricsEtl:
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
                 rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
+                rezervace_cekajici_3_zmena_tyden = t0.rezervace_cekajici_3 - t7.rezervace_cekajici_3,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
+                rezervace_kapacita_3_zmena_tyden = t0.rezervace_kapacita_3 - t7.rezervace_kapacita_3,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_pred_zavorou_zmena_tyden = t0.registrace_pred_zavorou - t7.registrace_pred_zavorou,

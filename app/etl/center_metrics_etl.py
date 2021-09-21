@@ -71,9 +71,11 @@ class CenterMetricsEtl:
             func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_1"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_2"),
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_3"),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_2"),
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
             func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
         ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
@@ -87,9 +89,11 @@ class CenterMetricsEtl:
                 rezervace_cekajici=reservation.rezervace_cekajici,
                 rezervace_cekajici_1=reservation.rezervace_cekajici_1,
                 rezervace_cekajici_2=reservation.rezervace_cekajici_2,
+                rezervace_cekajici_3=reservation.rezervace_cekajici_3,
                 rezervace_kapacita=reservation.rezervace_kapacita,
                 rezervace_kapacita_1=reservation.rezervace_kapacita_1,
                 rezervace_kapacita_2=reservation.rezervace_kapacita_2,
+                rezervace_kapacita_3=reservation.rezervace_kapacita_3,
                 rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
@@ -317,9 +321,11 @@ class CenterMetricsEtl:
                 rezervace_cekajici_zmena_den = t0.rezervace_cekajici - t1.rezervace_cekajici,
                 rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
+                rezervace_cekajici_3_zmena_den = t0.rezervace_cekajici_3 - t1.rezervace_cekajici_3,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
+                rezervace_kapacita_3_zmena_den = t0.rezervace_kapacita_3 - t1.rezervace_kapacita_3,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_pred_zavorou_zmena_den = t0.registrace_pred_zavorou - t1.registrace_pred_zavorou,
@@ -353,9 +359,11 @@ class CenterMetricsEtl:
                 rezervace_cekajici_zmena_tyden = t0.rezervace_cekajici - t7.rezervace_cekajici,
                 rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
+                rezervace_cekajici_3_zmena_tyden = t0.rezervace_cekajici_3 - t7.rezervace_cekajici_3,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
+                rezervace_kapacita_3_zmena_tyden = t0.rezervace_kapacita_3 - t7.rezervace_kapacita_3,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_pred_zavorou_zmena_tyden = t0.registrace_pred_zavorou - t7.registrace_pred_zavorou,
