@@ -470,6 +470,9 @@ class KrajMetriky(db.Model):
     ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
     ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
     ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    ockovani_pocet_3 = Column(Integer)                          # pocet ockovanych 3. davkou
+    ockovani_pocet_3_zmena_den = Column(Integer)                # pocet ockovanych 3. davkou - zmena za den
+    ockovani_pocet_3_zmena_tyden = Column(Integer)              # pocet ockovanych 3. davkou - zmena za tyden
     vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
@@ -635,6 +638,9 @@ class OckovaciMistoMetriky(db.Model):
     ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
     ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
     ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    ockovani_pocet_3 = Column(Integer)                          # pocet ockovanych 3. davkou
+    ockovani_pocet_3_zmena_den = Column(Integer)                # pocet ockovanych 3. davkou - zmena za den
+    ockovani_pocet_3_zmena_tyden = Column(Integer)              # pocet ockovanych 3. davkou - zmena za tyden
     ockovani_odhad_cekani = Column(Float)                       # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci
     ockovani_odhad_cekani_zmena_den = Column(Float)             # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za den
     ockovani_odhad_cekani_zmena_tyden = Column(Float)           # odhad casu potrebneho na naockovani lidi ve fronte a rezervaci - zmena za tyden
@@ -723,6 +729,9 @@ class CrMetriky(db.Model):
     ockovani_pocet_plne = Column(Integer)                       # pocet ockovanych plne (vsechny davky)
     ockovani_pocet_plne_zmena_den = Column(Integer)             # pocet ockovanych plne (vsechny davky) - zmena za den
     ockovani_pocet_plne_zmena_tyden = Column(Integer)           # pocet ockovanych plne (vsechny davky) - zmena za tyden
+    ockovani_pocet_3 = Column(Integer)                          # pocet ockovanych 3. davkou
+    ockovani_pocet_3_zmena_den = Column(Integer)                # pocet ockovanych 3. davkou - zmena za den
+    ockovani_pocet_3_zmena_tyden = Column(Integer)              # pocet ockovanych 3. davkou - zmena za tyden
     vakciny_prijate_pocet = Column(Integer)                     # pocet prijatych vakcin
     vakciny_prijate_pocet_zmena_den = Column(Integer)           # pocet prijatych vakcin - zmena za den
     vakciny_prijate_pocet_zmena_tyden = Column(Integer)         # pocet prijatych vakcin - zmena za tyden
