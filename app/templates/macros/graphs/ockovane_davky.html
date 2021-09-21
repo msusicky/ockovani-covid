@@ -6,7 +6,7 @@
         const traces = [
             {% for row in data %}
                 {
-                    x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
+                    x: [{% for date in row.datum %}"{{ date }}",{% endfor %}],
                     y: [{% for value in row.ockovano %}{{ value }}, {% endfor %}],
                     name: "{{ row.vyrobce }}",
                     mode: "lines+markers",

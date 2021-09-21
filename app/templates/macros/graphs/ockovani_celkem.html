@@ -20,6 +20,15 @@
             hovertemplate: "%{y}"
         }
 
+        const ockovani_3 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_3'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Očkovaní 3. dávkou",
+            hovertemplate: "%{y}"
+        }
+
         const layout = {
             title: "Celkový počet očkovaných",
             autosize: true,
@@ -73,7 +82,7 @@
             height: 700,
         }
 
-        const data = [ockovani_castecne, ockovani_plne];
+        const data = [ockovani_castecne, ockovani_plne, ockovani_3];
 
         const config = {
             responsive: true,
