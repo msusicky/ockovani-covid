@@ -836,7 +836,8 @@ def get_vaccination_graph_data(center_id):
         ockovani = pd.read_sql_query(
             """
             select datum, sum(pocet) ockovane, sum(pocet) filter(where poradi_davky = 1) ockovane_1, 
-                sum(pocet) filter(where poradi_davky = 2) ockovane_2
+                sum(pocet) filter(where poradi_davky = 2) ockovane_2,
+                sum(pocet) filter(where poradi_davky = 3) ockovane_3
             from ockovani_lide o
             join ockovaci_mista m on m.nrpzs_kod = o.zarizeni_kod
             where m.id = '{}'
@@ -861,6 +862,7 @@ def get_vaccination_graph_data(center_id):
         merged['ockovane'] = np.where(merged.index.date < get_import_date(), merged['ockovane'], None)
         merged['ockovane_1'] = np.where(merged.index.date < get_import_date(), merged['ockovane_1'], None)
         merged['ockovane_2'] = np.where(merged.index.date < get_import_date(), merged['ockovane_2'], None)
+        merged['ockovane_3'] = np.where(merged.index.date < get_import_date(), merged['ockovane_3'], None)
 
     return merged
 
@@ -869,7 +871,8 @@ def get_vaccination_total_graph_data():
     ockovani = pd.read_sql_query(
         """
         select datum, sum(pocet) filter(where poradi_davky = 1) ockovani_castecne, 
-            sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne
+            sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne,
+            sum(pocet) filter(where poradi_davky = 3) ockovani_3
         from ockovani_lide o 
         join vakciny v on v.vakcina = o.vakcina
         group by datum

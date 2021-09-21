@@ -49,6 +49,16 @@
             visible: "legendonly",
             hovertemplate: "%{y}"
         }
+
+        const ockovane_3 = {
+            x: [{% for idx, row in data.iterrows() %}{% if row['ockovane_3'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['ockovane_3'] != None %}{{ row['ockovane_3'] }},{% endif %}{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Očkováno 3. dávkou",
+            visible: "legendonly",
+            hovertemplate: "%{y}"
+        }
         {% endif %}
 
         const pouzite = {
@@ -176,7 +186,7 @@
 
         {% if 'ockovane' in data %}
         const data = [ockovane, pouzite, rezervace, kapacita, ockovane_1, rezervace_1, kapacita_1, ockovane_2,
-            rezervace_2, kapacita_2];
+            rezervace_2, kapacita_2, ockovane_3];
         {% else %}
         const data = [pouzite, rezervace, kapacita, rezervace_1, kapacita_1, rezervace_2, kapacita_2];
         {% endif %}
