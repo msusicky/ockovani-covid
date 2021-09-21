@@ -56,6 +56,15 @@
             hovertemplate: "%{y}"
         }
 
+        const rezervace_3 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_cekajici_3'] }},{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Čekající na očkování 3. dávkou",
+            hovertemplate: "%{y}"
+        }
+
         const layout = {
             title: "Počet čekajících ve frontě a s rezervací",
             autosize: true,
@@ -109,7 +118,7 @@
             height: 700,
         }
 
-        const data = [fronta, rezervace_1, rezervace_2];
+        const data = [fronta, rezervace_1, rezervace_2, rezervace_3];
 
         const config = {
             responsive: true,

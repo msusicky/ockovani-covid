@@ -770,7 +770,7 @@ def get_queue_graph_data(center_id=None, kraj_id=None):
     elif center_id:
         fronta = pd.read_sql_query(
             f"""
-                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2, rezervace_cekajici_3
                 from ockovaci_mista_metriky
                 where misto_id = '{center_id}'
             """,
@@ -779,7 +779,7 @@ def get_queue_graph_data(center_id=None, kraj_id=None):
     elif kraj_id:
         fronta = pd.read_sql_query(
             f"""
-                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2, rezervace_cekajici_3
                 from kraje_metriky
                 where kraj_id = '{kraj_id}'
             """,
@@ -788,7 +788,7 @@ def get_queue_graph_data(center_id=None, kraj_id=None):
     else:
         fronta = pd.read_sql_query(
             """
-                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2
+                select datum, registrace_fronta, rezervace_cekajici_1, rezervace_cekajici_2, rezervace_cekajici_3
                 from cr_metriky
             """,
             db.engine
@@ -797,7 +797,10 @@ def get_queue_graph_data(center_id=None, kraj_id=None):
     fronta = fronta.set_index('datum').fillna(0).sort_values('datum')
 
     for idx, row in fronta.iterrows():
-        if row['registrace_fronta'] == 0 and row['rezervace_cekajici_1'] == 0 and row['rezervace_cekajici_2'] == 0:
+        if row['registrace_fronta'] == 0 \
+                and row['rezervace_cekajici_1'] == 0 \
+                and row['rezervace_cekajici_2'] == 0 \
+                and row['rezervace_cekajici_3'] == 0:
             fronta.drop(idx, inplace=True)
         else:
             break
@@ -812,7 +815,9 @@ def get_vaccination_graph_data(center_id):
             sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V1') kapacita_1, 
             sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V1') rezervace_1, 
             sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V2') kapacita_2,
-            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V2') rezervace_2
+            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V2') rezervace_2,
+            sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V3') kapacita_3,
+            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V3') rezervace_3
         from ockovani_rezervace  
         where ockovaci_misto_id = '{}' and import_id = {}
         group by datum
