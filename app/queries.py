@@ -963,8 +963,9 @@ def get_infected_graph_data():
         [df['vekova_skupina'] == '80+',
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
          (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
+         (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
          df['vekova_skupina'] == '0-17'],
-        ['80+', '70-79', '60-69', '0-17'], default='ostatni')
+        ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
     df = df.rolling(7).sum()
