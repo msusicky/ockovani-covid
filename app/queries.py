@@ -703,9 +703,13 @@ def count_free_slots(center_id=None):
 
 
 def count_vaccinated_week():
-    return db.session.query("datum", "sum").from_statement(text(
+    return db.session.query('datum', 'pocet_1', 'pocet_2', 'pocet_3', 'pocet_celkem').from_statement(text(
         f"""
-        select datum, sum(pocet) 
+        select datum, 
+            sum(case when poradi_davky = 1 then pocet else 0 end) pocet_1, 
+            sum(case when poradi_davky = 2 then pocet else 0 end) pocet_2, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) pocet_3, 
+            sum(pocet) pocet_celkem
         from ockovani_lide 
         where datum >= '{get_import_date() - timedelta(10)}'
         group by datum 
@@ -963,8 +967,9 @@ def get_infected_graph_data():
         [df['vekova_skupina'] == '80+',
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
          (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
+         (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
          df['vekova_skupina'] == '0-17'],
-        ['80+', '70-79', '60-69', '0-17'], default='ostatni')
+        ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
     df = df.rolling(7).sum()
