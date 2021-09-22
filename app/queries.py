@@ -703,9 +703,13 @@ def count_free_slots(center_id=None):
 
 
 def count_vaccinated_week():
-    return db.session.query("datum", "sum").from_statement(text(
+    return db.session.query('datum', 'pocet_1', 'pocet_2', 'pocet_3', 'pocet_celkem').from_statement(text(
         f"""
-        select datum, sum(pocet) 
+        select datum, 
+            sum(case when poradi_davky = 1 then pocet else 0 end) pocet_1, 
+            sum(case when poradi_davky = 2 then pocet else 0 end) pocet_2, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) pocet_3, 
+            sum(pocet) pocet_celkem
         from ockovani_lide 
         where datum >= '{get_import_date() - timedelta(10)}'
         group by datum 
