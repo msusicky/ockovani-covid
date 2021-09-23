@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_, text
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaciMistoDetail
+    PrakticiKapacity, OckovaciMistoDetail, OckovaniRezervace
 
 
 def unique_nrpzs_subquery():
@@ -64,6 +64,16 @@ def find_centers(filter_column, filter_value):
         .all()
 
     return centers
+
+
+def find_third_doses_centers():
+    center_ids = db.session.query(OckovaniRezervace.ockovaci_misto_id) \
+        .distinct() \
+        .filter(OckovaniRezervace.import_id == get_import_id()) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V3') \
+        .all()
+
+    return [center[0] for center in center_ids]
 
 
 def count_vaccines_center(center_id):
