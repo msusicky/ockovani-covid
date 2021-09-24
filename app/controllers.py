@@ -55,6 +55,8 @@ def praktici_admin_register():
             free_vaccine.kontakt_email = zarizeni.email
             free_vaccine.kontakt_tel = zarizeni.telefon
             free_vaccine.poznamka = ''
+            free_vaccine.dospeli = zarizeni.druh_zarizeni_kod != 321
+            free_vaccine.deti = zarizeni.druh_zarizeni_kod == 321
             db.session.add(free_vaccine)
 
         db.session.commit()
@@ -129,12 +131,19 @@ def praktici_admin_edit():
             if vaccine is None:
                 continue
 
-            vaccine.datum_aktualizace = datetime.now()
             pocet_davek = request.form.getlist('pocet_davek[]')[i]
+            expirace = request.form.getlist('expirace[]')[i]
+            dospeli = [int(v)-1 for v in request.form.getlist('dospeli[]')]
+            deti = [int(v)-1 for v in request.form.getlist('deti[]')]
+
+            vaccine.datum_aktualizace = datetime.now()
             vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
+            vaccine.dospeli = i in dospeli
+            vaccine.deti = i in deti
             vaccine.adresa = request.form.getlist('adresa[]')[i]
             vaccine.kontakt_tel = request.form.getlist('kontakt_tel[]')[i]
             vaccine.kontakt_email = request.form.getlist('kontakt_email[]')[i]
+            vaccine.expirace = expirace if len(expirace) > 0 else None
             vaccine.poznamka = request.form.getlist('poznamka[]')[i]
 
             db.session.merge(vaccine)

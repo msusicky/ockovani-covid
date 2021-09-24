@@ -9,7 +9,7 @@
             <input id="free-vaccines-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-6 col-lg-3 mb-3">
+    <div class="col mb-3">
         <select id="free-vaccines-kraj" class="custom-select">
             <option value="">Všechny kraje</option>
             {% for option in kraj_options %}
@@ -17,13 +17,25 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col-6 col-lg-3 mb-3">
+    <div class="col mb-3">
         <select id="free-vaccines-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
             {% for option in vaccines_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
+    </div>
+    <div class="col-auto mb-3">
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="free-vaccines-adults" type="checkbox" class="custom-control-input" checked>
+            <label class="custom-control-label" for="free-vaccines-adults">dospělí</label>
+        </div>
+    </div>
+    <div class="col-auto mb-3">
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="free-vaccines-children" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="free-vaccines-children">děti</label>
+        </div>
     </div>
 </div>
 
@@ -36,14 +48,15 @@
             <th scope="col" class="text-center col-sortable">Vakcína</th>
             <th scope="col" class="text-center col-sortable">Město</th>
             <th scope="col" class="text-center">Ordinace</th>
-            <th scope="col" class="text-center">Adresa</th>
             <th scope="col" class="text-center">Kontakt</th>
+            <th scope="col" class="text-center">Expirace</th>
             <th scope="col" class="text-center">Poznámka</th>
         </tr>
         </thead>
         <tbody>
         {% for item in free_vaccines %}
-        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}">
+        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}" data-adults="{{ item.dospeli }}"
+            data-children="{{ item.deti }}">
             <td class="text-right">
                 {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
             </td>
@@ -57,14 +70,15 @@
                 {{ item.mesto }}
             </td>
             <td>
-                {{ item.nazev_ordinace }}
+                <p class="mb-0">{{ item.nazev_ordinace }}</p>
+                <p class="mb-0">{{ item.adresa }}</p>
             </td>
             <td>
-                {{ item.adresa }}
+                <p class="mb-0">{{ item.kontakt_tel }}</p>
+                <p class="mb-0">{{ item.kontakt_email }}</p>
             </td>
-            <td>
-                {{ item.kontakt_tel }}<br>
-                {{ item.kontakt_email }}
+            <td class="text-right">
+                {{ item.expirace | format_date if item.expirace else ""  }}
             </td>
             <td>
                 {{ item.poznamka }}
@@ -81,13 +95,19 @@
         const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
         const krajValue = $("#free-vaccines-kraj").val();
         const vaccineValue = $("#free-vaccines-vaccine").val();
+        const adultsValue = $("#free-vaccines-adults")[0].checked;
+        const childrenValue = $("#free-vaccines-children")[0].checked;
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const adults = $(this)[0].dataset.adults;
+            const children = $(this)[0].dataset.children;
+
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
                 && (!krajValue || $(this)[0].dataset.kraj === krajValue)
                 && (!vaccineValue || $(this)[0].dataset.vaccine === vaccineValue)
+                && ((adultsValue && adults === 'True') || (childrenValue && children === 'True'))
             )
         });
 
@@ -104,6 +124,18 @@
             filterChanged();
         });
         $("#free-vaccines-vaccine").change(function () {
+            filterChanged();
+        });
+        $("#free-vaccines-adults").change(function () {
+            if (!$("#free-vaccines-adults")[0].checked) {
+                $("#free-vaccines-children")[0].checked = true;
+            }
+            filterChanged();
+        });
+        $("#free-vaccines-children").change(function () {
+            if (!$("#free-vaccines-children")[0].checked) {
+                $("#free-vaccines-adults")[0].checked = true;
+            }
             filterChanged();
         });
         filterChanged();
