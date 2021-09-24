@@ -1,6 +1,6 @@
 {% from 'macros/common.html' import stitek %}
 
-{% macro prehled_mist(centers, days) -%}
+{% macro prehled_mist(centers, third_doses_centers) -%}
 <div class="row">
     <div class="col mb-2">
         <div class="input-group">
@@ -24,12 +24,16 @@
             <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
         </div>
         <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-thirddoses">třetí dávky</label>
+        </div>
+        <div class="custom-control custom-switch mr-3" style="display: inline-block">
             <input id="centers-active" type="checkbox" class="custom-control-input" checked>
-            <label class="custom-control-label" for="centers-active">jen aktivní</label>
+            <label class="custom-control-label" for="centers-active">aktivní</label>
         </div>
         <div class="custom-control custom-switch" style="display: inline-block">
             <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
-            <label class="custom-control-label" for="centers-barrierfree">jen bezbariérová</label>
+            <label class="custom-control-label" for="centers-barrierfree">bezbariérová</label>
         </div>
     </div>
 </div>
@@ -60,11 +64,13 @@
                 </thead>
                 <tbody>
                 {% for item in centers %}
-                <tr class="{{ 'table-warning' if not item.status }}" data-active="{{ item.status }}"
-                    data-barrierfree="{{ item.bezbarierovy_pristup }}"
+                <tr class="{{ 'table-warning' if not item.status }}"
                     data-children="{{ item.deti }}"
                     data-walkin="{{ item.typ == 'WALKIN' }}"
-                    data-selfpaid="{{ item.typ == 'SMPL' }}">
+                    data-selfpaid="{{ item.typ == 'SMPL' }}"
+                    data-thirddoses="{{ item.id in third_doses_centers }}"
+                    data-active="{{ item.status }}"
+                    data-barrierfree="{{ item.bezbarierovy_pristup }}">
                     <td data-value="{{ item.nazev }}">
                         <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
                     </td>
@@ -113,25 +119,28 @@
     const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     function filterChanged() {
         const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
+        const childrenValue = $("#centers-children")[0].checked;
+        const walkinValue = $("#centers-walkin")[0].checked;
+        const selfpaidValue = $("#centers-selfpaid")[0].checked;
+        const thirddosesValue = $("#centers-thirddoses")[0].checked;
         const activeValue = $("#centers-active")[0].checked;
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
-        const selfPaidValue = $("#centers-selfpaid")[0].checked;
-        const walkinValue = $("#centers-walkin")[0].checked;
-        const childrenValue = $("#centers-children")[0].checked;
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
-            const selfpaid = $(this)[0].dataset.selfpaid;
-            const walkin = $(this)[0].dataset.walkin;
             const children = $(this)[0].dataset.children;
+            const walkin = $(this)[0].dataset.walkin;
+            const selfpaid = $(this)[0].dataset.selfpaid;
+            const thirddoses = $(this)[0].dataset.thirddoses;
             const active = $(this)[0].dataset.active;
             const barrierfree = $(this)[0].dataset.barrierfree;
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && ((selfPaidValue && selfpaid === 'True') || (!selfPaidValue && selfpaid === 'False'))
-                && ((walkinValue && walkin === 'True') || (!walkinValue && walkin === 'False'))
                 && ((childrenValue && children === 'True') || (!childrenValue && (children === 'False' || selfpaid === 'True')))
+                && ((walkinValue && walkin === 'True') || (!walkinValue && walkin === 'False'))
+                && ((selfpaidValue && selfpaid === 'True') || (!selfpaidValue && selfpaid === 'False'))
+                && (!thirddosesValue || thirddoses === 'True')
                 && (!activeValue || active === 'True')
                 && (!barrierfreeValue || barrierfree === 'True')
             )
@@ -146,19 +155,22 @@
         $("#centers-searchbox").keyup(function () {
             filterChanged();
         });
+        $("#centers-children").change(function () {
+            filterChanged();
+        });
+        $("#centers-walkin").change(function () {
+            filterChanged();
+        });
         $("#centers-selfpaid").change(function () {
             filterChanged();
         });
-        $("#centers-children").change(function () {
+        $("#centers-thirddoses").change(function () {
             filterChanged();
         });
         $("#centers-active").change(function () {
             filterChanged();
         });
         $("#centers-barrierfree").change(function () {
-            filterChanged();
-        });
-        $("#centers-walkin").change(function () {
             filterChanged();
         });
         filterChanged();
