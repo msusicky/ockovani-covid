@@ -3,27 +3,57 @@
     <table class="table table-bordered table-striped table-sm">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="w-40 text-center">Datum</th>
-            <th scope="col" class="w-30 text-center">
+            <th scope="col" rowspan="2" class="w-20 text-center">Datum</th>
+            {% if 'volna_kapacita_1' in free_slots %}
+            <th colspan="2" class="text-center">1. dávky</th>
+            {% endif %}
+            {% if 'volna_kapacita_3' in free_slots %}
+            <th colspan="2" class="text-center">3. dávky</th>
+            {% endif %}
+        </tr>
+        <tr>
+            {% if 'volna_kapacita_1' in free_slots %}
+            <th scope="col" class="w-20 text-center">
                 Volná kapacita
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                    title="Volná kapacita pro očkování 1. dávkou.">
                 </i>
             </th>
-            <th scope="col" class="w-30 text-center">
+            <th scope="col" class="w-20 text-center">
                 Celková kapacita
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                    title="Celková kapacita pro očkování 1. dávkou uvedená v rezervačním systému.">
                 </i>
             </th>
+            {% endif %}
+            {% if 'volna_kapacita_3' in free_slots %}
+            <th scope="col" class="w-20 text-center">
+                Volná kapacita
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Volná kapacita pro očkování 3. dávkou.">
+                </i>
+            </th>
+            <th scope="col" class="w-20 text-center">
+                Celková kapacita
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Celková kapacita pro očkování 3. dávkou uvedená v rezervačním systému.">
+                </i>
+            </th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
         {% for datum, row in free_slots.iterrows() %}
         <tr class="{{ 'table-warning' if row['volna_kapacita'] == 0 }}">
             <td>{{ datum | format_date_wd }}</td>
-            <td class="text-right">{{ row['volna_kapacita'] | format_number }}</td>
-            <td class="text-right">{{ row['maximalni_kapacita'] | format_number }}</td>
+            {% if 'volna_kapacita_1' in free_slots %}
+            <td class="text-right">{{ row['volna_kapacita_1'] | format_number }}</td>
+            <td class="text-right">{{ row['maximalni_kapacita_1'] | format_number }}</td>
+            {% endif %}
+            {% if 'volna_kapacita_3' in free_slots %}
+            <td class="text-right">{{ row['volna_kapacita_3'] | format_number }}</td>
+            <td class="text-right">{{ row['maximalni_kapacita_3'] | format_number }}</td>
+            {% endif %}
         </tr>
         {% endfor %}
         {% if free_slots.empty %}
@@ -34,8 +64,12 @@
         </tbody>
     </table>
     <p class="card-text font-italic text-justify">
-        Počet volných míst pro očkování 1. dávkou je pouze orientační, aktualizuje se jedenkrát denně.
-        Volná místa jsou určena pouze pro registrované, kteří už obdrželi SMS s PIN2!
+        Počet volných míst je pouze orientační, aktualizuje se jedenkrát denně. Volná místa jsou určena pouze pro
+        registrované, kteří už obdrželi SMS s PIN2!
+    </p>
+    <p class="card-text font-italic text-justify">
+        Termíny na očkování 2. dávkou jsou přidělovány automaticky při výběru termínu 1. dávky. Volné termíny pro 3.
+        dávky se zobrazují pouze u míst, která pro ně uvádějí nenulovou kapacitu.
     </p>
     <p class="card-text font-italic text-justify">
         Oranžově jsou vyznačeny plně obsazené dny.
