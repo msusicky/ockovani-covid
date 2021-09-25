@@ -719,9 +719,9 @@ def count_interest():
 
 
 def count_free_slots(center_id=None):
-    rezervace = pd.read_sql_query(
+    rezervace_1 = pd.read_sql_query(
         """
-        select datum, volna_kapacita, maximalni_kapacita
+        select datum, volna_kapacita volna_kapacita_1, maximalni_kapacita maximalni_kapacita_1
         from ockovani_rezervace  
         where ockovaci_misto_id = '{}' and import_id = {} and datum >= '{}' and kalendar_ockovani = 'V1' and maximalni_kapacita != 0
         order by datum
@@ -729,8 +729,24 @@ def count_free_slots(center_id=None):
         db.engine
     )
 
-    if rezervace.empty:
-        return rezervace
+    rezervace_3 = pd.read_sql_query(
+        """
+        select datum, volna_kapacita volna_kapacita_3, maximalni_kapacita maximalni_kapacita_3
+        from ockovani_rezervace  
+        where ockovaci_misto_id = '{}' and import_id = {} and datum >= '{}' and kalendar_ockovani = 'V3' and maximalni_kapacita != 0
+        order by datum
+        """.format(center_id, get_import_id(), get_import_date()),
+        db.engine
+    )
+
+    if rezervace_1.empty and rezervace_3.empty:
+        return rezervace_1
+    elif rezervace_1.empty:
+        rezervace = rezervace_3
+    elif rezervace_3.empty:
+        rezervace = rezervace_1
+    else:
+        rezervace = pd.merge(rezervace_1, rezervace_3, how='outer', on='datum')
 
     rezervace = rezervace.set_index('datum')
 
