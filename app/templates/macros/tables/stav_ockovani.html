@@ -1,55 +1,31 @@
 {% macro stav_ockovani(vaccinated) -%}
-{% if 'podil_ockovani_v_kraji_plne' in vaccinated or 'podil_ockovani_plne' in vaccinated %}
-    {% set show_ratio = True %}
-{% else %}
-    {% set show_ratio = False %}
-{% endif %}
-{% if 'kategorie' in vaccinated %}
-    {% set kategorie = True %}
-{% else %}
-    {% set kategorie = False %}
-{% endif %}
-
-
 <div class="table-responsive">
     <table class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center" style="width: 8%" rowspan="{{'2' if show_ratio else '1'}}">
-                {% if kategorie %} Indikace {% else %} Věková skupina {% endif %}
+            <th scope="col" class="text-center" style="width: 8%" rowspan="2">
+                Věková skupina
             </th>
-            {% if not kategorie %}
-            <th scope="col" class="text-center" style="width: 12%" rowspan="{{'2' if show_ratio else '1'}}">
+            <th scope="col" class="text-center" style="width: 12%" rowspan="2">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                    title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 12%" rowspan="{{'2' if show_ratio else '1'}}">
+            <th scope="col" class="text-center" style="width: 12%" rowspan="2">
                 S termínem
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Počet lidí s PIN2, kteří ještě pravděpodobně nebyli očkováni - možná nepřesnost cca 1 den.">
                 </i>
             </th>
-            {% endif %}
-            <th scope="col" class="text-center" style="width: 28%" colspan="{{'2' if show_ratio else '1'}}">
+            <th scope="col" class="text-center" style="width: 28%" colspan="2">
                 Očkovaní
-                {% if not show_ratio %}
-                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                       title="Počet lidí, kterým byla aplikována alespoň jedna dávka (zahrnuje i plně očkované)">
-                    </i>
-                {% endif %}
             </th>
-            <th scope="col" class="text-center" style="width: 28%" colspan="{{'2' if show_ratio else '1'}}">
+            <th scope="col" class="text-center" style="width: 28%" colspan="2">
                 Plně očkovaní
-                {% if not show_ratio %}
-                    <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                       title="Počet očkovaných všemi potřebnými dávkami (typicky 2)">
-                    </i>
-                {% endif %}
             </th>
-            {% if not kategorie and 'zajem' in vaccinated %}
-            <th scope="col" class="text-center" style="width: 12%" rowspan="{{'2' if show_ratio else '1'}}">
+            {% if 'zajem' in vaccinated %}
+            <th scope="col" class="text-center" style="width: 12%" rowspan="2">
                 Aktuální zájem
                 <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Aktuální zájem o očkování podle počtu čekajících a očkovaných.<br>Dostupná data neobsahují čekající u praktických lékařů!">
@@ -57,7 +33,6 @@
             </th>
             {% endif %}
         </tr>
-        {% if show_ratio %}
         <tr>
             <th scope="col" class="text-center" style="width: 14%">
                 Počet
@@ -84,30 +59,20 @@
                 </i>
             </th>
         </tr>
-        {% endif %}
         </thead>
         <tbody>
         {% for idx, row in vaccinated.iterrows() %}
         <tr>
-            <td>
-                {% if kategorie %}
-                <span data-toggle="tooltip" data-placement="auto" data-html="true" title="{{ row['popis'] }}">
-                    {{ row['kategorie'] }}
-                </span>
-                {% else %}
-                {{ row['vekova_skupina'] }}
-                {% endif %}
-            </td>
-
-            {% if not kategorie %}
+            <td>{{ row['vekova_skupina'] }}</td>
             <td class="text-right">{{ row['pocet_fronta'] | format_number }}</td>
             <td class="text-right">{{ row['pocet_s_terminem'] | format_number }}</td>
-            {% endif %}
 
             <td class="text-right">{{ row['pocet_ockovani_castecne'] | format_number }}</td>
 
             {% if 'podil_ockovani_castecne' in vaccinated %}
-            <td class="text-right">{% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}</td>
+            <td class="text-right">
+                {% if row['podil_ockovani_castecne'] %} {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} % {% endif %}
+            </td>
             {% elif 'podil_ockovani_v_kraji_castecne' in vaccinated  %}
             <td class="text-right">
                 {% if row['podil_ockovani_v_kraji_castecne'] %}
@@ -122,7 +87,9 @@
             <td class="text-right">{{ row['pocet_ockovani_plne'] | format_number }}</td>
 
             {% if 'podil_ockovani_plne' in vaccinated %}
-            <td class="text-right">{% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %}</td>
+            <td class="text-right">
+                {% if row['podil_ockovani_plne'] %} {{ (100 * row['podil_ockovani_plne']) | format_decimal }} % {% endif %}
+            </td>
             {% elif 'podil_ockovani_v_kraji_plne' in vaccinated  %}
             <td class="text-right">
                 {% if row['podil_ockovani_v_kraji_plne'] %}
@@ -134,7 +101,7 @@
             </td>
             {% endif %}
 
-            {% if not kategorie and 'zajem' in vaccinated %}
+            {% if 'zajem' in vaccinated %}
             <td class="text-right">
                 {% if row['zajem'] and row['min_vek'] >= 18 %}
                 {{ (100 * row['zajem']) | format_decimal }} %
@@ -144,7 +111,6 @@
         </tr>
         {% endfor %}
         </tbody>
-        {% if not kategorie %}
         <tfoot class="font-weight-bold">
         <tr>
             <td>Celkem</td>
@@ -167,7 +133,6 @@
             {% endif %}
         </tr>
         </tfoot>
-        {% endif %}
     </table>
 </div>
 {%- endmacro %}
