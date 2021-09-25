@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import numpy as np
 import pandas as pd
@@ -74,6 +74,33 @@ def find_third_doses_centers():
         .all()
 
     return [center[0] for center in center_ids]
+
+
+def find_free_vaccines_available():
+    return db.session.query(PrakticiKapacity) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                  PrakticiKapacity.typ_vakciny) \
+        .all()
+
+
+def find_free_vaccines_vaccine_options():
+    return db.session.query(PrakticiKapacity.typ_vakciny) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .distinct(PrakticiKapacity.typ_vakciny) \
+        .order_by(PrakticiKapacity.typ_vakciny) \
+        .all()
+
+
+def find_free_vaccines_kraj_options():
+    return db.session.query(PrakticiKapacity.kraj) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .distinct(PrakticiKapacity.kraj) \
+        .order_by(PrakticiKapacity.kraj) \
+        .all()
 
 
 def count_vaccines_center(center_id):

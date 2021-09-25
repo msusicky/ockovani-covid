@@ -114,23 +114,11 @@ def mapa():
 def praktici():
     vaccination_doctors = queries.count_vaccinated_doctors()
 
-    free_vaccines = db.session.query(PrakticiKapacity) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
-                  PrakticiKapacity.typ_vakciny) \
-        .all()
+    free_vaccines = queries.find_free_vaccines_available()
 
-    vaccines_options = db.session.query(PrakticiKapacity.typ_vakciny) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .distinct(PrakticiKapacity.typ_vakciny) \
-        .order_by(PrakticiKapacity.typ_vakciny) \
-        .all()
+    vaccines_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = db.session.query(PrakticiKapacity.kraj) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .distinct(PrakticiKapacity.kraj) \
-        .order_by(PrakticiKapacity.kraj) \
-        .all()
+    kraj_options = queries.find_free_vaccines_kraj_options()
 
     return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
                            vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines,
@@ -318,26 +306,14 @@ def praktici_admin():
         user = None
         user_vaccines = None
 
-    all_vaccines = db.session.query(PrakticiKapacity) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
-                  PrakticiKapacity.typ_vakciny) \
-        .all()
+    free_vaccines = queries.find_free_vaccines_available()
 
-    vaccines_options = db.session.query(PrakticiKapacity.typ_vakciny) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .distinct(PrakticiKapacity.typ_vakciny) \
-        .order_by(PrakticiKapacity.typ_vakciny) \
-        .all()
+    vaccines_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = db.session.query(PrakticiKapacity.kraj) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .distinct(PrakticiKapacity.kraj) \
-        .order_by(PrakticiKapacity.kraj) \
-        .all()
+    kraj_options = queries.find_free_vaccines_kraj_options()
 
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
-                           user_vaccines=user_vaccines, all_vaccines=all_vaccines, vaccines_options=vaccines_options,
+                           user_vaccines=user_vaccines, all_vaccines=free_vaccines, vaccines_options=vaccines_options,
                            kraj_options=kraj_options)
 
 @bp.route("/bezregistrace")

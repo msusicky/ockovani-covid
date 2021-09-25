@@ -816,6 +816,9 @@ class PrakticiKapacity(db.Model):
     kontakt_email = Column(Unicode)
     kontakt_tel = Column(Unicode)
     poznamka = Column(Unicode)
+    deti = Column(Boolean, nullable=False)
+    dospeli = Column(Boolean, nullable=False)
+    expirace = Column(Date)
 
     def __repr__(self):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
