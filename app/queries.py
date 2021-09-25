@@ -454,16 +454,12 @@ def count_vaccinated(kraj_id=None):
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
     merged['pocet_s_terminem'] = merged['pocet_s_terminem'].fillna(0).astype('int')
 
-    merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']) \
-        .replace({np.nan: None})
-    merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
-        .replace({np.nan: None})
-    merged['podil_ockovani_posilujici'] = (merged['pocet_ockovani_posilujici'] / merged['pocet_vek']) \
-        .replace({np.nan: None})
+    merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).fillna(0)
+    merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).fillna(0)
+    merged['podil_ockovani_posilujici'] = (merged['pocet_ockovani_posilujici'] / merged['pocet_vek']).fillna(0)
 
-    if kraj_id is None:
-        merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
-                           + merged['pocet_ockovani_castecne']) / merged['pocet_vek']).replace({np.nan: None})
+    merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem'] + merged['pocet_ockovani_castecne'])
+                       / merged['pocet_vek']).replace({np.nan: None})
 
     return merged
 

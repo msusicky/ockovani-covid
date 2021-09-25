@@ -36,14 +36,12 @@
                    title="Podíl obyvatel žijících na daném území očkovaných posilující dávkou.<br>Najetím na číslo si můžete zobrazit přesný počet.">
                 </i>
             </th>
-            {% if 'zajem' in vaccinated %}
             <th scope="col" class="text-center" style="width: 15%">
                 Aktuální zájem
                 <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Aktuální zájem o očkování podle počtu čekajících a očkovaných.<br>Dostupná data neobsahují čekající u praktických lékařů!">
                 </i>
             </th>
-            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -54,39 +52,31 @@
             <td class="text-right">{{ row['pocet_s_terminem'] | format_number }}</td>
 
             <td class="text-right">
-                {% if row['podil_ockovani_castecne'] %}
                 <span data-toggle="tooltip" data-placement="auto" data-html="true"
                       title="{{ row['pocet_ockovani_castecne'] | format_number}}">
                     {{ (100 * row['podil_ockovani_castecne']) | format_decimal }} %
                 </span>
-                {% endif %}
             </td>
 
             <td class="text-right">
-                {% if row['podil_ockovani_plne'] %}
                 <span data-toggle="tooltip" data-placement="auto" data-html="true"
                       title="{{ row['pocet_ockovani_plne'] | format_number}}">
                     {{ (100 * row['podil_ockovani_plne']) | format_decimal }} %
                 </span>
-                {% endif %}
             </td>
 
             <td class="text-right">
-                {% if row['podil_ockovani_posilujici'] %}
                 <span data-toggle="tooltip" data-placement="auto" data-html="true"
                       title="{{ row['pocet_ockovani_posilujici'] | format_number}}">
                     {{ (100 * row['podil_ockovani_posilujici']) | format_decimal }} %
                 </span>
-                {% endif %}
             </td>
 
-            {% if 'zajem' in vaccinated %}
             <td class="text-right">
-                {% if row['zajem'] and row['min_vek'] >= 18 %}
+                {% if row['zajem'] %}
                 {{ (100 * row['zajem']) | format_decimal }} %
                 {% endif %}
             </td>
-            {% endif %}
         </tr>
         {% endfor %}
         </tbody>
@@ -117,9 +107,7 @@
                 </span>
             </td>
 
-            {% if 'zajem' in vaccinated %}
-                <td class="text-right">{{ (100 * (vaccinated['pocet_fronta'].sum() + vaccinated['pocet_s_terminem'].sum() + vaccinated['pocet_ockovani_castecne'].sum()) / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
-            {% endif %}
+            <td class="text-right">{{ (100 * (vaccinated['pocet_fronta'].sum() + vaccinated['pocet_s_terminem'].sum() + vaccinated['pocet_ockovani_castecne'].sum()) / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
         </tr>
         </tfoot>
     </table>
