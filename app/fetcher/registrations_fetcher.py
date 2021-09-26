@@ -84,4 +84,7 @@ class RegistrationsFetcher(Fetcher):
         if size > len(df):
             app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
+        # filter our duplicit category 0-17
+        df = df[df['vekova_skupina'] != '0-17']
+
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)

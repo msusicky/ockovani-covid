@@ -401,10 +401,11 @@ def count_vaccinated(kraj_id=None):
     ockovani = pd.read_sql_query(
         """
         select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_castecne, 
-            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne
+            coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_plne, 
+            coalesce(sum(pocet) filter(where poradi_davky = 3), 0) pocet_ockovani_posilujici
         from ockovani_lide o 
         join vakciny v on v.vakcina = o.vakcina
-        where datum < '{}' and (kraj_nuts_kod = '{}' or {})
+        where datum < '{}' and (kraj_bydl_nuts = '{}' or {})
         group by vekova_skupina
         order by vekova_skupina
         """.format(get_import_date(), kraj_id, kraj_id is None),
@@ -412,18 +413,6 @@ def count_vaccinated(kraj_id=None):
     )
 
     if kraj_id is not None:
-        ockovani_kraj = pd.read_sql_query(
-            """
-            select vekova_skupina, coalesce(sum(pocet) filter(where poradi_davky = 1), 0) pocet_ockovani_v_kraji_castecne, 
-                coalesce(sum(pocet) filter(where poradi_davky = davky), 0) pocet_ockovani_v_kraji_plne
-            from ockovani_lide o 
-            join vakciny v on v.vakcina = o.vakcina
-            where datum < '{}' and (kraj_bydl_nuts = '{}')
-            group by vekova_skupina
-            """.format(get_import_date(), kraj_id),
-            db.engine
-        )
-
         mista = pd.read_sql_query(
             """
             select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
@@ -433,7 +422,6 @@ def count_vaccinated(kraj_id=None):
         )
         mista_ids = ','.join("'" + misto + "'" for misto in mista['ockovaci_misto_id'].tolist())
     else:
-        ockovani_kraj = None
         mista_ids = "''"
 
     registrace = pd.read_sql_query(
@@ -466,22 +454,12 @@ def count_vaccinated(kraj_id=None):
     merged['pocet_fronta'] = merged['pocet_fronta'].fillna(0).astype('int')
     merged['pocet_s_terminem'] = merged['pocet_s_terminem'].fillna(0).astype('int')
 
-    if kraj_id is not None:
-        if ockovani_kraj is not None and not ockovani_kraj.empty:
-            ockovani_kraj['vekova_skupina'] = ockovani_kraj['vekova_skupina'].replace(['nezařazeno'], 'neuvedeno')
+    merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']).fillna(0)
+    merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']).fillna(0)
+    merged['podil_ockovani_posilujici'] = (merged['pocet_ockovani_posilujici'] / merged['pocet_vek']).fillna(0)
 
-            merged = pd.merge(merged, ockovani_kraj, how="left")
-            merged['podil_ockovani_v_kraji_castecne'] = (merged['pocet_ockovani_v_kraji_castecne'] / merged['pocet_vek']) \
-                .replace({np.nan: None})
-            merged['podil_ockovani_v_kraji_plne'] = (merged['pocet_ockovani_v_kraji_plne'] / merged['pocet_vek']) \
-                .replace({np.nan: None})
-    else:
-        merged['podil_ockovani_castecne'] = (merged['pocet_ockovani_castecne'] / merged['pocet_vek']) \
-            .replace({np.nan: None})
-        merged['podil_ockovani_plne'] = (merged['pocet_ockovani_plne'] / merged['pocet_vek']) \
-            .replace({np.nan: None})
-        merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem']
-                           + merged['pocet_ockovani_castecne']) / merged['pocet_vek']).replace({np.nan: None})
+    merged['zajem'] = ((merged['pocet_fronta'] + merged['pocet_s_terminem'] + merged['pocet_ockovani_castecne'])
+                       / merged['pocet_vek']).replace({np.nan: None})
 
     return merged
 
@@ -1021,7 +999,7 @@ def get_infected_graph_data():
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
          (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
          (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
-         df['vekova_skupina'] == '0-17'],
+         (df['vekova_skupina'] == '0-11') | (df['vekova_skupina'] == '12-15') | (df['vekova_skupina'] == '16-17')],
         ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
