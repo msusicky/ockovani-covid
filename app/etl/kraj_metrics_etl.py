@@ -143,6 +143,25 @@ class KrajMetricsEtl:
                 ockovani_pocet_3=vacc.ockovani_pocet_3
             ))
 
+        vaccinated_bydl = db.session.query(
+            Kraj.id,
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne_bydl'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne_bydl'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3_bydl')
+        ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_bydl_nuts == Kraj.id, OckovaniLide.datum < self._date)) \
+            .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
+            .group_by(Kraj.id) \
+            .all()
+
+        for vacc in vaccinated_bydl:
+            db.session.merge(KrajMetriky(
+                kraj_id=vacc.id,
+                datum=self._date,
+                ockovani_pocet_castecne_bydl=vacc.ockovani_pocet_castecne_bydl,
+                ockovani_pocet_plne_bydl=vacc.ockovani_pocet_plne_bydl,
+                ockovani_pocet_3_bydl=vacc.ockovani_pocet_3_bydl
+            ))
+
         app.logger.info('Computing kraj metrics - vaccinated people finished.')
 
     def _compute_distributed(self):
@@ -349,8 +368,11 @@ class KrajMetricsEtl:
                 registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
+                ockovani_pocet_castecne_bydl_zmena_den = t0.ockovani_pocet_castecne_bydl - t1.ockovani_pocet_castecne_bydl,
                 ockovani_pocet_plne_zmena_den = t0.ockovani_pocet_plne - t1.ockovani_pocet_plne,
+                ockovani_pocet_plne_bydl_zmena_den = t0.ockovani_pocet_plne_bydl - t1.ockovani_pocet_plne_bydl,
                 ockovani_pocet_3_zmena_den = t0.ockovani_pocet_3 - t1.ockovani_pocet_3,
+                ockovani_pocet_3_bydl_zmena_den = t0.ockovani_pocet_3_bydl - t1.ockovani_pocet_3_bydl,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
@@ -385,8 +407,11 @@ class KrajMetricsEtl:
                 registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,
+                ockovani_pocet_castecne_bydl_zmena_tyden = t0.ockovani_pocet_castecne_bydl - t7.ockovani_pocet_castecne_bydl,
                 ockovani_pocet_plne_zmena_tyden = t0.ockovani_pocet_plne - t7.ockovani_pocet_plne,
+                ockovani_pocet_plne_bydl_zmena_tyden = t0.ockovani_pocet_plne_bydl - t7.ockovani_pocet_plne_bydl,
                 ockovani_pocet_3_zmena_tyden = t0.ockovani_pocet_3 - t7.ockovani_pocet_3,
+                ockovani_pocet_3_bydl_zmena_tyden = t0.ockovani_pocet_3_bydl - t7.ockovani_pocet_3_bydl,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,
