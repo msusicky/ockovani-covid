@@ -5,8 +5,8 @@
     function grafUmrti() {
         {% set data_ostatni = data.filter(like = 'ostatni', axis=0) %}
         {% set data_80 = data.filter(like = '80+', axis=0) %}
-        {% set data_70 = data.filter(like = '70-79', axis=0) %}
-        {% set data_60 = data.filter(like = '60-69', axis=0) %}
+        {% set data_70_79 = data.filter(like = '70-79', axis=0) %}
+        {% set data_60_69 = data.filter(like = '60-69', axis=0) %}
 
         const umrti = {
             x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
@@ -25,16 +25,16 @@
         }
 
         const umrti_70 = {
-            x: [{% for idx, row in data_70.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_70.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            x: [{% for idx, row in data_70_79.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_70_79.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "70-79",
         }
 
         const umrti_60 = {
-            x: [{% for idx, row in data_60.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_60.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            x: [{% for idx, row in data_60_69.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_60_69.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "60-69",
