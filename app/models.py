@@ -64,6 +64,16 @@ class Populace(db.Model):
         return f"<Populace(orp_kod='{self.orp_kod}', vek={self.vek})>"
 
 
+class PopulaceOrp(db.Model):
+    __tablename__ = 'populace_orp'
+
+    orp_kod = Column(Unicode, primary_key=True)
+    pocet = Column(Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<Populace(orp_kod='{self.orp_kod}')>"
+
+
 class PopulaceKategorie(db.Model):
     __tablename__ = 'populace_kategorie'
 
@@ -277,6 +287,7 @@ class OckovaniLide(db.Model):
     poradi_davky = Column(Integer, primary_key=True)
     vekova_skupina = Column(Unicode, primary_key=True)
     kraj_bydl_nuts = Column(Unicode, primary_key=True, index=True)
+    orp_bydl_kod = Column(Unicode, primary_key=True)
     indikace_zdravotnik = Column(Boolean, primary_key=True)
     indikace_socialni_sluzby = Column(Boolean, primary_key=True)
     indikace_ostatni = Column(Boolean, primary_key=True)
@@ -392,6 +403,23 @@ class Nakazeni(db.Model):
 
     def __repr__(self):
         return f"<Nakazeni(datum='{self.datum}', vekova_skupina='{self.vekova_skupina}', kraj_nuts_kod='{self.kraj_nuts_kod}')>"
+
+
+class CharakteristikaObci(db.Model):
+    __tablename__ = 'charakteristika_obci'
+
+    datum = Column(Date, primary_key=True)
+    kraj_kod = Column(Unicode, primary_key=True)
+    okres_kod = Column(Unicode, primary_key=True)
+    orp_kod = Column(Unicode, primary_key=True)
+    nove_pripady = Column(Integer)
+    aktivni_pripady = Column(Integer)
+    nove_pripady_65 = Column(Integer)
+    nove_pripady_7_dni = Column(Integer)
+    nove_pripady_14_dni = Column(Integer)
+
+    def __repr__(self):
+        return f"<Nakazeni(datum='{self.datum}', kraj_kod='{self.kraj_kod}', okres_kod='{self.okres_kod}', orp_kod='{self.orp_kod}')>"
 
 
 class DodavkaVakcin(db.Model):

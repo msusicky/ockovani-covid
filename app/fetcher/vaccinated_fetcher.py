@@ -39,7 +39,7 @@ class VaccinatedFetcher(Fetcher):
         df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
 
         df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'zarizeni_nazev', 'poradi_davky',
-                 'vekova_skupina', 'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
+                 'vekova_skupina', 'kraj_bydl_nuts', 'orp_bydl_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
                  'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni',
                  'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni']]
 
