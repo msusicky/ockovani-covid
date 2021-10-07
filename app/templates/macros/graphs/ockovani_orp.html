@@ -1,8 +1,8 @@
-{% macro graf_nakazeni_orp(data) -%}
-<div id="graf-nakazeni-orp"></div>
+{% macro graf_ockovani_orp(data) -%}
+<div id="graf-ockovani-orp"></div>
 
 <script>
-    function grafNakazeniOrp() {
+    function grafOckovaniOrp() {
         const layout = {
             mapbox: {
                 style: 'white-bg',
@@ -23,9 +23,9 @@
             responsive: true,
         }
 
-        Plotly.newPlot("graf-nakazeni-orp", data, layout, config);
+        Plotly.newPlot("graf-ockovani-orp", data, layout, config);
     }
 
-    grafNakazeniOrp();
+    grafOckovaniOrp();
 </script>
 {%- endmacro %}

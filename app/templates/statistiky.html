@@ -13,8 +13,10 @@
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
 {% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
+{% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
 {% from 'macros/graphs/registrace.html' import graf_registrace %}
 {% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
+{% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
 
 {% block title %}
@@ -171,6 +173,15 @@ Statistiky |
             </div>
         </div>
     </div>-->
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {{ graf_nakazeni_orp(infected_orp_graph_data) }}
+    </div>
+    <div class="col-12">
+        {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
+    </div>
 </div>
 
 <div class="row mb-3">
