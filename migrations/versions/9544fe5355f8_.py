@@ -5,6 +5,7 @@ Revises: 5480e96df417
 Create Date: 2021-10-04 21:57:14.953973
 
 """
+import pandas as pd
 from alembic import op
 import sqlalchemy as sa
 
@@ -43,7 +44,10 @@ def upgrade():
         'indikace_zdravotnik', 'indikace_socialni_sluzby', 'indikace_ostatni', 'indikace_pedagog',
         'indikace_skolstvi_ostatni', 'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni'])
 
-    # ### end Alembic commands ###
+    connection = op.get_bind()
+    df = pd.read_csv('data/populace_orp.csv', delimiter=';')
+    df['orp_kod'] = df['orp_kod'].astype(str)
+    df.to_sql('populace_orp', connection, if_exists='replace', index=False)
 
 
 def downgrade():

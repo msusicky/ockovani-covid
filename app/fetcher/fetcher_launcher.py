@@ -9,6 +9,7 @@ from app.fetcher.deaths_fetcher import DeathsFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
 from app.fetcher.infected_fetcher import InfectedFetcher
+from app.fetcher.municipal_characteristics_fetcher import MunicipalCharacteristicsFetcher
 from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
@@ -79,6 +80,7 @@ class FetcherLauncher:
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
+            self._fetchers.append(MunicipalCharacteristicsFetcher())
             # self._fetchers.append(HospitalAnalysisFetcher())
             # self._fetchers.append(SuppliesFetcher())
         elif dataset == 'centers':
@@ -105,6 +107,8 @@ class FetcherLauncher:
             self._fetchers.append(InfectedFetcher())
         elif dataset == 'deaths':
             self._fetchers.append(DeathsFetcher())
+        elif dataset == 'municipal_characteristics':
+            self._fetchers.append(MunicipalCharacteristicsFetcher())
         elif dataset == 'hospital_analysis':
             self._fetchers.append(HospitalAnalysisFetcher())
         elif dataset == 'supplies':

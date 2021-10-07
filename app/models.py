@@ -41,6 +41,7 @@ class ObceORP(db.Model):
     kraj_nuts = Column(Unicode, ForeignKey('kraje.id'))
     aken = Column(Unicode, ForeignKey('okresy.id'))
     uzis_orp = Column(Unicode)
+    ruian_kod = Column(Integer)
 
     kraj = relationship("Kraj", back_populates="kraje_orp")
     okres = relationship("Okres", back_populates="okresy_orp")
