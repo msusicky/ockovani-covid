@@ -1,0 +1,52 @@
+{% macro graf_nakazeni_orp(data) -%}
+<div id="graf-nakazeni-orp"></div>
+
+<script>
+    function grafNakazeniOrp(json) {
+        const layout = {
+            title: "Nakažení ORP",
+            autosize: true,
+
+            mapbox: {
+                center: {
+                    lat: 28,
+                    lon: -84
+                },
+                style: 'light',
+                zoom: 4.8,
+                layers: [{
+                    sourcetype: 'geojson',
+                    source: json,
+                    type: 'fill',
+                    color: 'rgba(163,22,19,0.8)'
+                }]
+            }
+
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                y: -0.4,
+            },
+            height: 700,
+        }
+
+        const data = [{
+            type: 'scattermapbox',
+            lat: [46],
+            lon: [-74]
+        }]
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        Plotly.newPlot("graf-nakazeni-orp", data, layout, config);
+    }
+
+    d3.json('https://raw.githubusercontent.com/plotly/datasets/master/florida-red-data.json', function(json) {
+        grafNakazeniOrp(json);
+    }
+</script>
+{%- endmacro %}
