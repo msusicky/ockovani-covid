@@ -23,7 +23,7 @@ class VaccinatedFetcher(Fetcher):
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
                          usecols=lambda c: c.startswith('indikace_') or c in usecols)
 
-        df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4].replace({np.nan: '-'})
+        df['orp_bydl_kod'] = df['orp_bydliste_kod'].replace({np.nan: '-'}).astype(str).str[:4]
 
         df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
 
