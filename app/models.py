@@ -815,7 +815,7 @@ class Vakcinacka(db.Model):
     __tablename__ = 'vakcinacka'
 
     misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
-    url_mista = Column(Unicode)
+    url_mista = Column(Unicode, nullable=False)
 
     def __repr__(self):
         return f"<Vakcinacka(misto_id='{self.misto_id}')>"

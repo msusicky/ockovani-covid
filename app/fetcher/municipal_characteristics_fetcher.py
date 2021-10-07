@@ -28,6 +28,8 @@ class MunicipalCharacteristicsFetcher(Fetcher):
         df['okres_kod'] = df['okres_kod'].fillna('-')
         df['orp_kod'] = df['orp_kod'].fillna('-').astype(str).str[:4]
 
+        df.loc[(df['kraj_kod'] == 'CZ010') & (df['okres_kod'] == 'CZ0100'), 'orp_kod'] = '1000'
+
         df = df.groupby(['datum', 'kraj_kod', 'okres_kod', 'orp_kod'], dropna=False).sum().reset_index()
 
         self._truncate()
