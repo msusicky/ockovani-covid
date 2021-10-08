@@ -176,11 +176,21 @@ Statistiky |
 </div>
 
 <div class="row">
-    <div class="col-12">
-        {{ graf_nakazeni_orp(infected_orp_graph_data) }}
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Počet aktivních případů na 100 000 obyvatel</h5>
+                {{ graf_nakazeni_orp(infected_orp_graph_data) }}
+            </div>
+        </div>
     </div>
-    <div class="col-12">
-        {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Podíl plně očkovaných</h5>
+                {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
+            </div>
+        </div>
     </div>
 </div>
 

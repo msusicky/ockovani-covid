@@ -1015,7 +1015,7 @@ def get_infected_graph_data():
 def get_infected_orp_graph_data():
     df = pd.read_sql_query(
         f"""
-        select ruian_kod, ((100000.0 * nove_pripady_7_dni) / (7 * pocet)) nakazeni 
+        select ruian_kod, ((100000.0 * aktivni_pripady) / pocet) nakazeni, nazev_obce
         from charakteristika_obci n
         join obce_orp o on o.uzis_orp = n.orp_kod
         join populace_orp p on p.orp_kod = o.kod_obce_orp
@@ -1033,13 +1033,13 @@ def get_infected_orp_graph_data():
 def get_vaccinated_orp_graph_data():
     df = pd.read_sql_query(
         f"""
-        select ruian_kod, (100.0 * sum(l.pocet)) / min(p.pocet) ockovani 
+        select ruian_kod, (100.0 * sum(l.pocet)) / min(p.pocet) ockovani, nazev_obce 
         from ockovani_lide l
         join obce_orp o on o.uzis_orp = l.orp_bydl_kod
         join populace_orp p on p.orp_kod = o.kod_obce_orp
         join vakciny v on v.vakcina = l.vakcina
         where poradi_davky = davky
-        group by ruian_kod
+        group by ruian_kod, nazev_obce
         """,
         db.engine
     )
