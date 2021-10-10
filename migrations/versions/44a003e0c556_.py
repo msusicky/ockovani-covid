@@ -48,14 +48,14 @@ def upgrade():
     sa.PrimaryKeyConstraint('kod_obce_orp')
     )
     
-    with open('data/001_Ciselnik-ORP.csv', mode='r', encoding='utf-8') as orp_file:
-        reader = csv.reader(orp_file, delimiter=';')
-        next(reader, None)
-        orp_arr = [{'kod_obce_orp': row[0], 'nazev_obce': row[1], 'okres_nuts': row[2], 'kraj_nuts': row[4], 'aken': row[6], 'uzis_orp': row[7] } for row in reader]
+    # with open('data/001_Ciselnik-ORP.csv', mode='r', encoding='utf-8') as orp_file:
+    #     reader = csv.reader(orp_file, delimiter=';')
+    #     next(reader, None)
+    #     orp_arr = [{'kod_obce_orp': row[0], 'nazev_obce': row[1], 'okres_nuts': row[2], 'kraj_nuts': row[4], 'aken': row[6], 'uzis_orp': row[7] } for row in reader]
 
     # print(populace_arr)
 
-    op.bulk_insert(ObceORP.__table__, orp_arr)
+    # op.bulk_insert(ObceORP.__table__, orp_arr)
 
 
 
