@@ -1015,7 +1015,7 @@ def get_infected_graph_data():
 def get_infected_orp_graph_data():
     df = pd.read_sql_query(
         f"""
-        select ruian_kod, ((100000.0 * aktivni_pripady) / pocet) nakazeni, nazev_obce
+        select ruian_kod, ((100000.0 * aktivni_pripady) / pocet) nakazeni, aktivni_pripady, nazev_obce
         from charakteristika_obci n
         join obce_orp o on o.uzis_orp = n.orp_kod
         join populace_orp p on p.orp_kod = o.kod_obce_orp

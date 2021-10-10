@@ -3,13 +3,13 @@
 
 <script>
     function grafOckovaniOrp() {
-        let width = $("#graf-ockovani-orp").width() - 75;
+        let width = $("#graf-ockovani-orp").width() - 63;
 
         const layout = {
             mapbox: {
                 style: 'white-bg',
                 center: {lon: 15.4784, lat: 49.8203},
-                zoom: 12.3 - Math.log(490000 / width),
+                zoom: 15.6 - Math.log2(490000 / width),
             },
             height: width * 0.64,
             margin: {t: 0, r: 0, b: 0, l: 0},
@@ -20,10 +20,10 @@
             locations: [{% for idx, row in data.iterrows() %}"{{ row[0] }}",{% endfor %}],
             z: [{% for idx, row in data.iterrows() %}{{ row[1] }},{% endfor %}],
             text: [{% for idx, row in data.iterrows() %}"{{ row[2] }}",{% endfor %}],
-            hoverinfo: "text+z",
             colorscale: "Greens",
             colorbar: {
-                ticksuffix: ' %'
+                ticksuffix: ' %',
+                thickness: 5,
             },
             hovertemplate: '%{z} %<extra>%{text}</extra>',
             reversescale: true,
