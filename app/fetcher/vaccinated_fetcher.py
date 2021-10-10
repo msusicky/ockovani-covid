@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from app import db
@@ -22,7 +23,7 @@ class VaccinatedFetcher(Fetcher):
         df = pd.read_csv(self._url, dtype={'zarizeni_kod': 'object'},
                          usecols=lambda c: c.startswith('indikace_') or c in usecols)
 
-        df['orp_bydl_kod'] = df['orp_bydliste_kod'].astype(str).str[:4]
+        df['orp_bydl_kod'] = df['orp_bydliste_kod'].replace({np.nan: '-'}).astype(str).str[:4]
 
         df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
 
@@ -39,7 +40,7 @@ class VaccinatedFetcher(Fetcher):
         df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
 
         df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'zarizeni_nazev', 'poradi_davky',
-                 'vekova_skupina', 'kraj_bydl_nuts', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
+                 'vekova_skupina', 'kraj_bydl_nuts', 'orp_bydl_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
                  'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni',
                  'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni']]
 

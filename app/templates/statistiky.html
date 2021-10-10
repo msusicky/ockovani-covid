@@ -13,8 +13,10 @@
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
 {% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
+{% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
 {% from 'macros/graphs/registrace.html' import graf_registrace %}
 {% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
+{% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
 
 {% block title %}
@@ -82,6 +84,25 @@ Statistiky |
                     {{ metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
                     #}
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Počet aktivních případů na 100 000 obyvatel</h5>
+                {{ graf_nakazeni_orp(infected_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Podíl plně očkovaných</h5>
+                {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
             </div>
         </div>
     </div>
