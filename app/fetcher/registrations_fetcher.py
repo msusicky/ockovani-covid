@@ -23,7 +23,7 @@ class RegistrationsFetcher(Fetcher):
 
         df = pd.read_csv(self._url, usecols=lambda c: c in usecols)
 
-        app.logger.info("Download of the registration dataset finished.")
+        self._log_download_finished()
 
         # fitler out canceled registrations
         df = df.loc[(df['zablokovano'].isna()) | (df['duvod_blokace'] == 'Ztotožněn, ale již vakcinován')]
