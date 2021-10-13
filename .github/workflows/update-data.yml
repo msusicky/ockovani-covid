@@ -25,7 +25,7 @@ jobs:
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
       - name: Execute fetcher
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask fetch-data all"
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} -o ServerAliveInterval=120 "cd ${APP_DIR} && source venv/bin/activate && flask fetch-data all"
       - name: Compute metrics
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask compute-metrics all"
       - name: Verify data
