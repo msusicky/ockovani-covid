@@ -6,7 +6,7 @@ from typing import Optional
 
 import requests
 
-from app import db
+from app import db, app
 
 
 class Fetcher:
@@ -30,6 +30,9 @@ class Fetcher:
 
     def _truncate(self) -> None:
         db.engine.execute('truncate table {}'.format(self._table))
+
+    def _log_download_finished(self):
+        app.logger.info(f"Fetcher '{type(self).__name__}' source file downloaded.")
 
     @staticmethod
     def _psql_insert_copy(table, conn, keys, data_iter):

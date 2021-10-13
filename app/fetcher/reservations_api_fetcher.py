@@ -92,5 +92,6 @@ class ReservationsApiFetcher(Fetcher):
                     kalendar_ockovani=row['vaccine_round'].upper(),
                     import_id=import_id
                 ))
+
         app.logger.warning("Not able to find {} centers and {} responses were empty.".format(not_found, empty))
         db.session.commit()
