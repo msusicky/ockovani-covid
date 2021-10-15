@@ -420,7 +420,136 @@ class CharakteristikaObci(db.Model):
     nove_pripady_14_dni = Column(Integer)
 
     def __repr__(self):
-        return f"<Nakazeni(datum='{self.datum}', kraj_kod='{self.kraj_kod}', okres_kod='{self.okres_kod}', orp_kod='{self.orp_kod}')>"
+        return f"<CharakteristikaObci(datum='{self.datum}', kraj_kod='{self.kraj_kod}', okres_kod='{self.okres_kod}', orp_kod='{self.orp_kod}')>"
+
+
+class SituaceOrp(db.Model):
+    __tablename__ = 'situace_orp'
+
+    datum = Column(Date, primary_key=True)
+    orp_kod = Column(Unicode, primary_key=True)
+    incidence_7 = Column(Integer)
+    incidence_65_7 = Column(Integer)
+    incidence_75_7 = Column(Integer)
+    prevalence = Column(Integer)
+    prevalence_65 = Column(Integer)
+    prevalence_75 = Column(Integer)
+    pocet_hosp = Column(Integer)
+    nove_hosp_7 = Column(Integer)
+    testy_7 = Column(Integer)
+
+    def __repr__(self):
+        return f"<SituaceOrp(datum='{self.datum}', orp_kod='{self.orp_kod}')>"
+
+
+class NakazeniOckovani(db.Model):
+    __tablename__ = 'nakazeni_ockovani'
+
+    datum = Column(Date, primary_key=True)
+    celkem = Column(Integer)
+    bez_ockovani = Column(Integer)
+    bez_ockovani_relativni_pocet = Column(Float)
+    bez_ockovani_vek_prumer = Column(Integer)
+    nedokoncene_ockovani = Column(Integer)
+    nedokoncene_ockovani_relativni_pocet = Column(Float)
+    nedokoncene_ockovani_vek_prumer = Column(Integer)
+    dokoncene_ockovani = Column(Integer)
+    dokoncene_ockovani_relativni_pocet = Column(Float)
+    dokoncene_ockovani_vek_prumer = Column(Integer)
+    posilujici_davka = Column(Integer)
+    posilujici_davka_relativni_pocet = Column(Float)
+    posilujici_davka_vek_prumer = Column(Integer)
+
+    def __repr__(self):
+        return f"<NakazeniOckovani(datum='{self.datum}')>"
+
+
+class Nakazeni65Ockovani(db.Model):
+    __tablename__ = 'nakazeni_65_ockovani'
+
+    datum = Column(Date, primary_key=True)
+    celkem = Column(Integer)
+    bez_ockovani = Column(Integer)
+    bez_ockovani_relativni_pocet = Column(Float)
+    bez_ockovani_vek_prumer = Column(Integer)
+    nedokoncene_ockovani = Column(Integer)
+    nedokoncene_ockovani_relativni_pocet = Column(Float)
+    nedokoncene_ockovani_vek_prumer = Column(Integer)
+    dokoncene_ockovani = Column(Integer)
+    dokoncene_ockovani_relativni_pocet = Column(Float)
+    dokoncene_ockovani_vek_prumer = Column(Integer)
+    posilujici_davka = Column(Integer)
+    posilujici_davka_relativni_pocet = Column(Float)
+    posilujici_davka_vek_prumer = Column(Integer)
+
+    def __repr__(self):
+        return f"<Nakazeni65Ockovani(datum='{self.datum}')>"
+
+
+class UmrtiOckovani(db.Model):
+    __tablename__ = 'umrti_ockovani'
+
+    datum = Column(Date, primary_key=True)
+    celkem = Column(Integer)
+    bez_ockovani = Column(Integer)
+    bez_ockovani_relativni_pocet = Column(Float)
+    bez_ockovani_vek_prumer = Column(Integer)
+    nedokoncene_ockovani = Column(Integer)
+    nedokoncene_ockovani_relativni_pocet = Column(Float)
+    nedokoncene_ockovani_vek_prumer = Column(Integer)
+    dokoncene_ockovani = Column(Integer)
+    dokoncene_ockovani_relativni_pocet = Column(Float)
+    dokoncene_ockovani_vek_prumer = Column(Integer)
+    posilujici_davka = Column(Integer)
+    posilujici_davka_relativni_pocet = Column(Float)
+    posilujici_davka_vek_prumer = Column(Integer)
+
+    def __repr__(self):
+        return f"<UmrtiOckovani(datum='{self.datum}')>"
+
+
+class HospitalizaceOckovani(db.Model):
+    __tablename__ = 'hospitalizace_ockovani'
+
+    datum = Column(Date, primary_key=True)
+    celkem = Column(Integer)
+    bez_ockovani = Column(Integer)
+    bez_ockovani_relativni_pocet = Column(Float)
+    bez_ockovani_vek_prumer = Column(Integer)
+    nedokoncene_ockovani = Column(Integer)
+    nedokoncene_ockovani_relativni_pocet = Column(Float)
+    nedokoncene_ockovani_vek_prumer = Column(Integer)
+    dokoncene_ockovani = Column(Integer)
+    dokoncene_ockovani_relativni_pocet = Column(Float)
+    dokoncene_ockovani_vek_prumer = Column(Integer)
+    posilujici_davka = Column(Integer)
+    posilujici_davka_relativni_pocet = Column(Float)
+    posilujici_davka_vek_prumer = Column(Integer)
+
+    def __repr__(self):
+        return f"<HospitalizaceOckovani(datum='{self.datum}')>"
+
+
+class HospitalizaceJipOckovani(db.Model):
+    __tablename__ = 'hospitalizace_jip_ockovani'
+
+    datum = Column(Date, primary_key=True)
+    celkem = Column(Integer)
+    bez_ockovani = Column(Integer)
+    bez_ockovani_relativni_pocet = Column(Float)
+    bez_ockovani_vek_prumer = Column(Integer)
+    nedokoncene_ockovani = Column(Integer)
+    nedokoncene_ockovani_relativni_pocet = Column(Float)
+    nedokoncene_ockovani_vek_prumer = Column(Integer)
+    dokoncene_ockovani = Column(Integer)
+    dokoncene_ockovani_relativni_pocet = Column(Float)
+    dokoncene_ockovani_vek_prumer = Column(Integer)
+    posilujici_davka = Column(Integer)
+    posilujici_davka_relativni_pocet = Column(Float)
+    posilujici_davka_vek_prumer = Column(Integer)
+
+    def __repr__(self):
+        return f"<HospitalizaceJipOckovani(datum='{self.datum}')>"
 
 
 class DodavkaVakcin(db.Model):
