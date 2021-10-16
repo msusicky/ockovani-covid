@@ -33,6 +33,11 @@ class HospitalizedVaccinatedFetcher(Fetcher):
                                 'hospitalizovani_posilujici_davka': 'posilujici_davka',
                                 'hospitalizovani_posilujici_davka_vek_prumer': 'posilujici_davka_vek_prumer'})
 
+        df['bez_ockovani_vek_prumer'] = df['bez_ockovani_vek_prumer'].fillna(0).astype('int')
+        df['nedokoncene_ockovani_vek_prumer'] = df['nedokoncene_ockovani_vek_prumer'].fillna(0).astype('int')
+        df['dokoncene_ockovani_vek_prumer'] = df['dokoncene_ockovani_vek_prumer'].fillna(0).astype('int')
+        df['posilujici_davka_vek_prumer'] = df['posilujici_davka_vek_prumer'].fillna(0).astype('int')
+
         self._truncate()
 
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)
