@@ -1,9 +1,9 @@
-{% macro graf_nakazeni_orp(data) -%}
-<div id="graf-nakazeni-orp"></div>
+{% macro graf_testy_orp(data) -%}
+<div id="graf-testy-orp"></div>
 
 <script>
-    function grafNakazeniOrp() {
-        let width = $("#graf-nakazeni-orp").width() - 63;
+    function grafTestyOrp() {
+        let width = $("#graf-testy-orp").width() - 63;
 
         const layout = {
             mapbox: {
@@ -22,9 +22,10 @@
             customdata: [{% for idx, row in data.iterrows() %}{{ row[2] }},{% endfor %}],
             text: [{% for idx, row in data.iterrows() %}"{{ row[3] }}",{% endfor %}],
             colorbar: {
+                ticksuffix: ' %',
                 thickness: 5,
             },
-            hovertemplate: '%{z:.1f} (%{customdata} aktivních případů)<extra>%{text}</extra>',
+            hovertemplate: '%{z:.2f} % (%{customdata} testů)<extra>%{text}</extra>',
             geojson: "https://data.gov.cz/attachments/%C4%8Dl%C3%A1nky/kartogram-choropleth/data/orp-simple.json"
         }];
 
@@ -34,13 +35,13 @@
             scrollZoom: false,
         }
 
-        Plotly.newPlot("graf-nakazeni-orp", data, layout, config);
+        Plotly.newPlot("graf-testy-orp", data, layout, config);
     }
 
     $(window).resize(function() {
-        grafNakazeniOrp();
+        grafTestyOrp();
     });
 
-    grafNakazeniOrp();
+    grafTestyOrp();
 </script>
 {%- endmacro %}

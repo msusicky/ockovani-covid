@@ -19,6 +19,8 @@
 {% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
 {% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
+{% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
+{% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
 
 {% block title %}
 Statistiky |
@@ -96,6 +98,22 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title">Počet aktivních případů na 100 000 obyvatel</h5>
                 {{ graf_nakazeni_orp(infected_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Pozitivita testů</h5>
+                {{ graf_testy_orp(tests_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Počet hospitalizovaných na 100 000 obyvatel</h5>
+                {{ graf_hospitalizace_orp(hospitalized_orp_graph_data) }}
             </div>
         </div>
     </div>
