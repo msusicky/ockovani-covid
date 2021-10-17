@@ -1105,7 +1105,6 @@ def get_infected_orp_graph_data():
     )
 
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-    df['nakazeni'] = df['nakazeni'].round(1)
 
     return df
 
@@ -1125,7 +1124,6 @@ def get_vaccinated_orp_graph_data():
     )
 
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-    df['ockovani'] = df['ockovani'].round(1)
 
     return df
 
@@ -1175,5 +1173,39 @@ def get_deaths_graph_data():
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
     df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
+
+    return df
+
+
+def get_hospitalized_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, ((100000.0 * pocet_hosp) / pocet) hospitalizovani, pocet_hosp, nazev_obce
+        from situace_orp s
+        join obce_orp o on o.uzis_orp = s.orp_kod
+        join populace_orp p on p.orp_kod = o.kod_obce_orp
+        where datum = '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
+
+    return df
+
+
+def get_tests_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, case when testy_7 > 0 then (100.0 * nove_pripady_7_dni) / testy_7 else 0 end pozitivita, testy_7, nazev_obce
+        from situace_orp s
+        join charakteristika_obci c on (c.datum = s.datum and c.orp_kod = s.orp_kod) 
+        join obce_orp o on o.uzis_orp = s.orp_kod
+        where s.datum = '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df

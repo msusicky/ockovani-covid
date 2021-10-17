@@ -183,6 +183,10 @@ def statistiky():
 
     vaccinated_orp_graph_data = queries.get_vaccinated_orp_graph_data()
 
+    hospitalized_orp_graph_data = queries.get_hospitalized_orp_graph_data()
+
+    tests_orp_graph_data = queries.get_tests_orp_graph_data()
+
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            end_date=end_date, end_date_supplies=end_date_supplies,
                            end_date_interested=end_date_interested, interest=interest, vaccines=vaccines,
@@ -197,7 +201,9 @@ def statistiky():
                            registrations_graph_data=registrations_graph_data,
                            infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data,
                            pocet_opravneni=pocet_opravneni, infected_orp_graph_data=infected_orp_graph_data,
-                           vaccinated_orp_graph_data=vaccinated_orp_graph_data)
+                           vaccinated_orp_graph_data=vaccinated_orp_graph_data,
+                           hospitalized_orp_graph_data=hospitalized_orp_graph_data,
+                           tests_orp_graph_data=tests_orp_graph_data)
 
 
 @bp.route("/napoveda")
