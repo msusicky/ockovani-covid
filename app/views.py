@@ -107,7 +107,10 @@ def info_misto(misto_id):
 def mapa():
     mista = queries.find_centers(OckovaciMisto.status, True)
 
-    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
+    third_doses_centers = queries.find_third_doses_centers()
+
+    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
+                           third_doses_centers=third_doses_centers)
 
 
 @bp.route("/praktici")
