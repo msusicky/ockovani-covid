@@ -21,6 +21,7 @@
             z: [{% for idx, row in data.iterrows() %}{{ row[1] }},{% endfor %}],
             customdata: [{% for idx, row in data.iterrows() %}{{ row[2] }},{% endfor %}],
             text: [{% for idx, row in data.iterrows() %}"{{ row[3] }}",{% endfor %}],
+            colorscale: "Reds",
             colorbar: {
                 thickness: 5,
             },
