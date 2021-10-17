@@ -766,6 +766,86 @@ def couht_gp_vaccines():
     return db.session.query(func.sum(PrakticiKapacity.pocet_davek)).one()[0]
 
 
+def count_vaccinated_unvaccinated_comparison():
+    populace = pd.read_sql_query("select sum(pocet) populace from populace where orp_kod = 'CZ0'", db.engine)
+
+    ockovani = pd.read_sql_query(
+        f"""
+        select datum, 
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_castecne, 
+            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
+        from ockovani_lide o
+        join vakciny v on (o.vakcina = v.vakcina)
+        where datum < '{get_import_date()}'
+        group by datum
+        order by datum
+        """,
+        db.engine
+    )
+    ockovani[['populace_castecne', 'populace_plne', 'populace_posilujici']] = \
+        ockovani[['populace_castecne', 'populace_plne', 'populace_posilujici']].transform(pd.Series.cumsum)
+
+    srovnani = pd.read_sql_query(
+        f"""
+        select n.datum, 
+            n.celkem nakazeni_celkem, 
+            n.bez_ockovani nakazeni_bez, n.bez_ockovani_vek_prumer nakazeni_bez_vek,
+            n.nedokoncene_ockovani nakazeni_castecne, n.nedokoncene_ockovani_vek_prumer nakazeni_castecne_vek,
+            n.dokoncene_ockovani nakazeni_plne, n.dokoncene_ockovani_vek_prumer nakazeni_plne_vek,
+            n.posilujici_davka nakazeni_posilujici, n.posilujici_davka_vek_prumer nakazeni_posilujici_vek,
+            h.celkem hospitalizace_celkem,
+            h.bez_ockovani hospitalizace_bez, h.bez_ockovani_vek_prumer hospitalizace_bez_vek,
+            h.nedokoncene_ockovani hospitalizace_castecne, h.nedokoncene_ockovani_vek_prumer hospitalizace_castecne_vek,
+            h.dokoncene_ockovani hospitalizace_plne, h.dokoncene_ockovani_vek_prumer hospitalizace_plne_vek,
+            h.posilujici_davka hospitalizace_posilujici, h.posilujici_davka_vek_prumer hospitalizace_posilujici_vek,
+            j.celkem hospitalizace_jip_celkem,
+            j.bez_ockovani hospitalizace_jip_bez, j.bez_ockovani_vek_prumer hospitalizace_jip_bez_vek, 
+            j.nedokoncene_ockovani hospitalizace_jip_castecne, j.nedokoncene_ockovani_vek_prumer hospitalizace_jip_castecne_vek, 
+            j.dokoncene_ockovani hospitalizace_jip_plne, j.dokoncene_ockovani_vek_prumer hospitalizace_jip_plne_vek,
+            j.posilujici_davka hospitalizace_jip_posilujici, j.posilujici_davka_vek_prumer hospitalizace_jip_posilujici_vek, 
+            u.celkem umrti_celkem,
+            u.bez_ockovani umrti_bez, u.bez_ockovani_vek_prumer umrti_bez_vek, 
+            u.nedokoncene_ockovani umrti_castecne, u.nedokoncene_ockovani_vek_prumer umrti_castecne_vek, 
+            u.dokoncene_ockovani umrti_plne, u.dokoncene_ockovani_vek_prumer umrti_plne_vek,
+            u.posilujici_davka umrti_posilujici, u.posilujici_davka_vek_prumer umrti_posilujici_vek 
+        from nakazeni_ockovani n 
+        join hospitalizace_ockovani h on h.datum = n.datum
+        join hospitalizace_jip_ockovani j on j.datum = n.datum
+        join umrti_ockovani u on u.datum = n.datum
+        where n.datum < '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    ockovani['key'] = 0
+    populace['key'] = 0
+    df = pd.merge(ockovani, populace)
+    df = df.drop(columns=['key'])
+    df['populace_bez'] = df['populace'] - df['populace_castecne']
+    df = pd.merge(df, srovnani)
+
+    df_vek = df.copy()
+
+    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip', 'umrti']
+    groups = ['bez', 'castecne', 'plne', 'posilujici']
+
+    for d in datasets:
+        for g in groups:
+            df_vek[d + '_' + g + '_mult'] = df_vek[d + '_' + g] * df_vek[d + '_' + g + '_vek']
+
+    df_vek = df_vek.rolling(7, on='datum').sum()
+
+    for d in datasets:
+        for g in groups:
+            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_mult'] / df_vek[d + '_' + g]
+
+    for d in datasets:
+        df_vek[d + '_celkem_vek'] = sum([df_vek[d + '_' + g + '_mult'] for g in groups]) / df_vek[d + '_celkem']
+
+    return df_vek
+
+
 def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """
@@ -1025,7 +1105,6 @@ def get_infected_orp_graph_data():
     )
 
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-    df['nakazeni'] = df['nakazeni'].round(1)
 
     return df
 
@@ -1045,7 +1124,6 @@ def get_vaccinated_orp_graph_data():
     )
 
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-    df['ockovani'] = df['ockovani'].round(1)
 
     return df
 
@@ -1095,5 +1173,39 @@ def get_deaths_graph_data():
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
     df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
+
+    return df
+
+
+def get_hospitalized_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, ((100000.0 * pocet_hosp) / pocet) hospitalizovani, pocet_hosp, nazev_obce
+        from situace_orp s
+        join obce_orp o on o.uzis_orp = s.orp_kod
+        join populace_orp p on p.orp_kod = o.kod_obce_orp
+        where datum = '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
+
+    return df
+
+
+def get_tests_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, case when testy_7 > 0 then (100.0 * nove_pripady_7_dni) / testy_7 else 0 end pozitivita, testy_7, nazev_obce
+        from situace_orp s
+        join charakteristika_obci c on (c.datum = s.datum and c.orp_kod = s.orp_kod) 
+        join obce_orp o on o.uzis_orp = s.orp_kod
+        where s.datum = '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df

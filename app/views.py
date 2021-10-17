@@ -107,7 +107,10 @@ def info_misto(misto_id):
 def mapa():
     mista = queries.find_centers(OckovaciMisto.status, True)
 
-    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista)
+    third_doses_centers = queries.find_third_doses_centers()
+
+    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
+                           third_doses_centers=third_doses_centers)
 
 
 @bp.route("/praktici")
@@ -155,6 +158,8 @@ def statistiky():
 
     top_centers = queries.count_top_centers()
 
+    vaccinated_unvaccinated_comparison = queries.count_vaccinated_unvaccinated_comparison()
+
     # Source data for graph of received vaccines of the manufacturers
     received_vaccine_graph_data = queries.get_received_vaccine_graph_data()
 
@@ -178,19 +183,27 @@ def statistiky():
 
     vaccinated_orp_graph_data = queries.get_vaccinated_orp_graph_data()
 
+    hospitalized_orp_graph_data = queries.get_hospitalized_orp_graph_data()
+
+    tests_orp_graph_data = queries.get_tests_orp_graph_data()
+
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            end_date=end_date, end_date_supplies=end_date_supplies,
                            end_date_interested=end_date_interested, interest=interest, vaccines=vaccines,
                            vaccinated=vaccinated, vaccinated_category=vaccinated_category,
                            reservations_category=reservations_category, supplies=supplies,
                            end_date_category=end_date_category, vaccinated_week=vaccinated_week,
-                           top_centers=top_centers, received_vaccine_graph_data=received_vaccine_graph_data,
+                           top_centers=top_centers,
+                           vaccinated_unvaccinated_comparison=vaccinated_unvaccinated_comparison,
+                           received_vaccine_graph_data=received_vaccine_graph_data,
                            used_vaccine_graph_data=used_vaccine_graph_data, queue_graph_data=queue_graph_data,
                            vaccination_total_graph_data=vaccination_total_graph_data,
                            registrations_graph_data=registrations_graph_data,
                            infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data,
                            pocet_opravneni=pocet_opravneni, infected_orp_graph_data=infected_orp_graph_data,
-                           vaccinated_orp_graph_data=vaccinated_orp_graph_data)
+                           vaccinated_orp_graph_data=vaccinated_orp_graph_data,
+                           hospitalized_orp_graph_data=hospitalized_orp_graph_data,
+                           tests_orp_graph_data=tests_orp_graph_data)
 
 
 @bp.route("/napoveda")

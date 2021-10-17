@@ -9,6 +9,7 @@
 {% from 'macros/tables/odhad_konce.html' import odhad_konce %}
 {% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
 {% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
+{% from 'macros/tables/srovnani_ockovani_neockovani.html' import srovnani_ockovani_neockovani %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -18,6 +19,8 @@
 {% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
 {% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
+{% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
+{% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
 
 {% block title %}
 Statistiky |
@@ -101,8 +104,37 @@ Statistiky |
     <div class="col-xl-6 mb-3">
         <div class="card">
             <div class="card-body">
+                <h5 class="card-title">Pozitivita testů</h5>
+                {{ graf_testy_orp(tests_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Počet hospitalizovaných na 100 000 obyvatel</h5>
+                {{ graf_hospitalizace_orp(hospitalized_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body">
                 <h5 class="card-title">Podíl plně očkovaných</h5>
                 {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
+                    Srovnání očkovaných a neočkovaných za posledních 7 dní
+                </h5>
+                {{ srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison) }}
             </div>
         </div>
     </div>
@@ -119,6 +151,7 @@ Statistiky |
         </div>
     </div>
 </div>
+
 <div class="row">
     <div class="col-lg-7">
         <div class="card mb-3">
