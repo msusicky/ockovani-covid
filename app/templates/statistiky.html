@@ -9,6 +9,7 @@
 {% from 'macros/tables/odhad_konce.html' import odhad_konce %}
 {% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
 {% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
+{% from 'macros/tables/srovnani_ockovani_neockovani.html' import srovnani_ockovani_neockovani %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -108,6 +109,19 @@ Statistiky |
     </div>
 </div>
 
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
+                    Srovnání očkovaných a neočkovaných za posledních 7 dní
+                </h5>
+                {{ srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison) }}
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-3">
     <div class="col">
         <div class="card">
@@ -119,6 +133,7 @@ Statistiky |
         </div>
     </div>
 </div>
+
 <div class="row">
     <div class="col-lg-7">
         <div class="card mb-3">

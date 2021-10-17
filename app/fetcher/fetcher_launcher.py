@@ -6,11 +6,17 @@ from app import app, db
 from app.fetcher.centers_detail_fetcher import CentersDetailFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
 from app.fetcher.deaths_fetcher import DeathsFetcher
+from app.fetcher.deaths_vaccinated_fetcher import DeathsVaccinatedFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
+from app.fetcher.hospitalized_icu_vaccinated_fetcher import HospitalizedIcuVaccinatedFetcher
+from app.fetcher.hospitalized_vaccinated_fetcher import HospitalizedVaccinatedFetcher
+from app.fetcher.infected_65_vaccinated_fetcher import Infected65VaccinatedFetcher
 from app.fetcher.infected_fetcher import InfectedFetcher
+from app.fetcher.infected_vaccinated_fetcher import InfectedVaccinatedFetcher
 from app.fetcher.municipal_characteristics_fetcher import MunicipalCharacteristicsFetcher
 from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
+from app.fetcher.orp_situation_fetcher import OrpSituationFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.reservations_api_fetcher import ReservationsApiFetcher
@@ -81,8 +87,14 @@ class FetcherLauncher:
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
+            self._fetchers.append(OrpSituationFetcher())
             # self._fetchers.append(HospitalAnalysisFetcher())
             # self._fetchers.append(SuppliesFetcher())
+            self._fetchers.append(InfectedVaccinatedFetcher())
+            self._fetchers.append(Infected65VaccinatedFetcher())
+            self._fetchers.append(DeathsVaccinatedFetcher())
+            self._fetchers.append(HospitalizedVaccinatedFetcher())
+            self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_detail':
@@ -109,10 +121,22 @@ class FetcherLauncher:
             self._fetchers.append(DeathsFetcher())
         elif dataset == 'municipal_characteristics':
             self._fetchers.append(MunicipalCharacteristicsFetcher())
+        elif dataset == 'orp_situation':
+            self._fetchers.append(OrpSituationFetcher())
         elif dataset == 'hospital_analysis':
             self._fetchers.append(HospitalAnalysisFetcher())
         elif dataset == 'supplies':
             self._fetchers.append(SuppliesFetcher())
+        elif dataset == 'infected_vaccinated':
+            self._fetchers.append(InfectedVaccinatedFetcher())
+        elif dataset == 'infected_65_vaccinated':
+            self._fetchers.append(Infected65VaccinatedFetcher())
+        elif dataset == 'deaths_vaccinated':
+            self._fetchers.append(DeathsVaccinatedFetcher())
+        elif dataset == 'hospitalized_vaccinated':
+            self._fetchers.append(HospitalizedVaccinatedFetcher())
+        elif dataset == 'hospitalized_icu_vaccinated':
+            self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
