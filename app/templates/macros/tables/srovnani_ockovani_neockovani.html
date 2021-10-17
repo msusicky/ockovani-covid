@@ -65,37 +65,37 @@
         <tr>
             <td>Neočkovaní</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_bez'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_bez_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_bez_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_bez'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_bez_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_bez_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_bez'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_bez_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_bez_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_bez'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_bez_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_bez_vek'].iloc[-1] | format_number }}</td>
         </tr>
         <tr>
             <td>Plně očkovaní</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_plne'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_plne_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_plne_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_plne'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_plne_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_plne_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_plne'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_plne_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_plne_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_plne'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_plne_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_plne_vek'].iloc[-1] | format_number }}</td>
         </tr>
         </tbody>
         <tfoot class="font-weight-bold">
         <tr>
-            <td>Celkem</td>
+            <td>Všichni</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_celkem'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_celkem_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['nakazeni_celkem_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_celkem'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_celkem_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_celkem_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_celkem'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_celkem_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['hospitalizace_jip_celkem_vek'].iloc[-1] | format_number }}</td>
             <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_celkem'].iloc[-1] | format_number }}</td>
-            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_celkem_vek'].iloc[-1] | format_decimal }}</td>
+            <td class="text-right">{{ vaccinated_unvaccinated_comparison['umrti_celkem_vek'].iloc[-1] | format_number }}</td>
         </tr>
         </tfoot>
     </table>
