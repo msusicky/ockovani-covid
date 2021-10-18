@@ -40,7 +40,7 @@ def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                                Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
                                OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
-                               OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
+                               OckovaciMistoDetail.deti, OckovaciMistoDetail.typ, OckovaciMistoDetail.davky,
                                OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
                                OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
@@ -57,9 +57,9 @@ def find_centers(filter_column, filter_value):
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.longitude,
                   OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
                   OckovaciMisto.bezbarierovy_pristup, OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
-                  OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
-                  OckovaciMistoMetriky.ockovani_odhad_cekani, OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
-                  OckovaciMistoMetriky.registrace_pred_zavorou) \
+                  OckovaciMistoDetail.davky, OckovaciMistoMetriky.registrace_fronta,
+                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
+                  OckovaciMistoMetriky.registrace_fronta_prumer_cekani, OckovaciMistoMetriky.registrace_pred_zavorou) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
