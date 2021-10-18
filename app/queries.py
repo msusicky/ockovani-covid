@@ -772,7 +772,7 @@ def count_vaccinated_unvaccinated_comparison():
     ockovani = pd.read_sql_query(
         f"""
         select datum, 
-            sum(case when poradi_davky = 1 then pocet else 0 end) populace_castecne, 
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
             sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
             sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
         from ockovani_lide o
@@ -783,8 +783,8 @@ def count_vaccinated_unvaccinated_comparison():
         """,
         db.engine
     )
-    ockovani[['populace_castecne', 'populace_plne', 'populace_posilujici']] = \
-        ockovani[['populace_castecne', 'populace_plne', 'populace_posilujici']].transform(pd.Series.cumsum)
+    ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']] = \
+        ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']].transform(pd.Series.cumsum)
 
     srovnani = pd.read_sql_query(
         f"""
@@ -822,7 +822,9 @@ def count_vaccinated_unvaccinated_comparison():
     populace['key'] = 0
     df = pd.merge(ockovani, populace)
     df = df.drop(columns=['key'])
-    df['populace_bez'] = df['populace'] - df['populace_castecne']
+    df['populace_bez'] = df['populace'] - df['populace_ockovani']
+    df['populace_castecne'] = df['populace_ockovani'] - df['populace_plne']
+    df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
     df = pd.merge(df, srovnani)
 
     df_vek = df.copy()
@@ -839,9 +841,14 @@ def count_vaccinated_unvaccinated_comparison():
     for d in datasets:
         for g in groups:
             df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_mult'] / df_vek[d + '_' + g]
+            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_vek'].replace({np.nan: None})
 
     for d in datasets:
         df_vek[d + '_celkem_vek'] = sum([df_vek[d + '_' + g + '_mult'] for g in groups]) / df_vek[d + '_celkem']
+        df_vek[d + '_celkem_vek'] = df_vek[d + '_celkem_vek'].replace({np.nan: None})
+
+    for g in groups:
+        df_vek['populace_' + g + '_zastoupeni'] = df_vek['populace_' + g] / df_vek['populace']
 
     return df_vek
 
