@@ -75,7 +75,7 @@
                     data-children="{{ item.deti }}"
                     data-walkin="{{ item.typ == 'WALKIN' }}"
                     data-selfpaid="{{ item.typ == 'SMPL' }}"
-                    data-thirddoses="{{ item.id in third_doses_centers }}"
+                    data-thirddoses="{{ item.id in third_doses_centers or 3 in item.davky }}"
                     data-active="{{ item.status or item.typ == 'WALKIN' }}"
                     data-barrierfree="{{ item.bezbarierovy_pristup }}">
                     <td data-value="{{ item.nazev }}">
