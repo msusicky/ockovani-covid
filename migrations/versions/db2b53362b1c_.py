@@ -41,14 +41,14 @@ def upgrade():
     # ### end Alembic commands ###
     
     
-    with open('data/export-2021-03.csv', mode='r', encoding='utf-8') as populace_file:
-        reader = csv.reader(populace_file, delimiter=';')
-        next(reader, None)
-        zdrstr_arr = [{'zdravotnicke_zarizeni_id': row[0], 'pcz': row[1], 'pcdp': row[2], 'nazev_cely': row[3], 'zdravotnicke_zarizeni_kod': row[4], 'druh_zarizeni_kod': row[5], 'druh_zarizeni': row[6], 'obec': row[8], 'psc': row[9], 'ulice': row[10], 'cislo_domu': row[11], 'kraj': row[12], 'kraj_kod': row[13], 'okres': row[14], 'okres_kod': row[15], 'nrpzs_kod': row[4][:-3] } for row in reader]
+    # with open('data/export-2021-03.csv', mode='r', encoding='utf-8') as populace_file:
+    #     reader = csv.reader(populace_file, delimiter=';')
+    #     next(reader, None)
+    #     zdrstr_arr = [{'zdravotnicke_zarizeni_id': row[0], 'pcz': row[1], 'pcdp': row[2], 'nazev_cely': row[3], 'zdravotnicke_zarizeni_kod': row[4], 'druh_zarizeni_kod': row[5], 'druh_zarizeni': row[6], 'obec': row[8], 'psc': row[9], 'ulice': row[10], 'cislo_domu': row[11], 'kraj': row[12], 'kraj_kod': row[13], 'okres': row[14], 'okres_kod': row[15], 'nrpzs_kod': row[4][:-3] } for row in reader]
 
     # print(zdrstr_arr)
 
-    op.bulk_insert(ZdravotnickeStredisko.__table__, zdrstr_arr)
+    # op.bulk_insert(ZdravotnickeStredisko.__table__, zdrstr_arr)
 
 
 def downgrade():
