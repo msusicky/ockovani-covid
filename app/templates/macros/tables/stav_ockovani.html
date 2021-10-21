@@ -9,13 +9,13 @@
             <th scope="col" class="text-center" style="width: 15%">
                 Ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet čekajících ve frontě před závorou na SMS s PIN2 (výběr termínu).">
+                   title="Počet čekajících ve frontě (bez vybraného termínu) na očkování 1. nebo 3. dávkou.">
                 </i>
             </th>
             <th scope="col" class="text-center" style="width: 15%">
                 S termínem
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="Počet lidí s PIN2, kteří ještě pravděpodobně nebyli očkováni - možná nepřesnost cca 1 den.">
+                   title="Počet čekajících na očkování 1. nebo 3. dávkou s vybraným termínem.">
                 </i>
             </th>
             <th scope="col" class="text-center" style="width: 15%">
@@ -36,12 +36,14 @@
                    title="Podíl obyvatel žijících na daném území očkovaných posilující dávkou.<br>Najetím na číslo si můžete zobrazit přesný počet.">
                 </i>
             </th>
+            {#
             <th scope="col" class="text-center" style="width: 15%">
                 Aktuální zájem
                 <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Aktuální zájem o očkování podle počtu čekajících a očkovaných.<br>Dostupná data neobsahují čekající u praktických lékařů!">
                 </i>
             </th>
+            #}
         </tr>
         </thead>
         <tbody>
@@ -71,12 +73,13 @@
                     {{ (100 * row['podil_ockovani_posilujici']) | format_decimal }} %
                 </span>
             </td>
-
+            {#
             <td class="text-right">
                 {% if row['zajem'] %}
                 {{ (100 * row['zajem']) | format_decimal }} %
                 {% endif %}
             </td>
+            #}
         </tr>
         {% endfor %}
         </tbody>
@@ -106,8 +109,9 @@
                     {{ (100 * vaccinated['pocet_ockovani_posilujici'].sum() / vaccinated['pocet_vek'].sum()) | format_decimal }} %
                 </span>
             </td>
-
+            {#
             <td class="text-right">{{ (100 * (vaccinated['pocet_fronta'].sum() + vaccinated['pocet_s_terminem'].sum() + vaccinated['pocet_ockovani_castecne'].sum()) / vaccinated['pocet_vek'].sum()) | format_decimal }} %</td>
+            #}
         </tr>
         </tfoot>
     </table>

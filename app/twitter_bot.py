@@ -21,7 +21,7 @@ class TwitterBot():
         # self._end_date = queries.count_end_date_vaccinated()
         # self._end_date_supplies = queries.count_end_date_supplies()
         # self._end_date_interested = queries.couht_end_date_interested()
-        self._interest_all = queries.count_interest()[0]
+        # self._interest_all = queries.count_interest()[0]
         self._gp_vaccines = queries.couht_gp_vaccines()
 
     def post_tweet(self):
@@ -37,10 +37,10 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na termín (před závorou) čeká {} zájemců. O očkování má zájem {} % obyvatel. U praktiků čeká {} dávek. https://ockovani.opendatalab.cz" \
+        text = "{} plně očkováno ({} celkem, {} od včera). Na termín pro 1. nebo 3. dávku čeká před závorou {} zájemců. U praktiků čeká {} dávek. https://ockovani.opendatalab.cz" \
             .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
                     filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
-                    filters.format_decimal(self._interest_all * 100), filters.format_number(self._gp_vaccines))
+                    filters.format_number(self._gp_vaccines))
         return text
 
     def _generate_progressbar(self):
