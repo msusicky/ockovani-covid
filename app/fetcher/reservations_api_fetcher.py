@@ -65,12 +65,16 @@ class ReservationsApiFetcher(Fetcher):
 
             if r.status_code == 404:
                 # Place not found
+                ocm.reservatic_api_nenalezeno = True
+                db.session.merge(ocm)
                 not_found += 1
                 continue
 
             response_data = r.json()
 
             if len(response_data) == 0:
+                ocm.reservatic_api_prazdne = True
+                db.session.merge(ocm)
                 empty += 1
                 continue
 

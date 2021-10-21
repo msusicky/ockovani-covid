@@ -151,6 +151,8 @@ class OckovaciMisto(db.Model):
     nrpzs_kod = Column(Unicode, index=True)
     minimalni_kapacita = Column(Integer)
     bezbarierovy_pristup = Column(Boolean)
+    reservatic_api_nenalezeno = Column(Boolean)
+    reservatic_api_prazdne = Column(Boolean)
 
     okres = relationship("Okres", back_populates="ockovaci_mista")
     ockovaci_misto_detail = relationship("OckovaciMistoDetail", uselist=False, lazy='joined')
