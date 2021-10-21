@@ -29,13 +29,19 @@ def format_decimal_delta(number, digits=1):
 @app.template_filter()
 def format_date(date):
     """Converts date to string in d. m. Y format."""
-    return 'bez dat' if date is None else date.strftime('%d. %m. %Y').lower()
+    return 'bez dat' if date is None else date.strftime('%d. %m. %Y')
 
 
 @app.template_filter()
 def format_date_wd(date):
     """Converts date to string in a d. m. Y format."""
     return 'bez dat' if date is None else date.strftime('%a %d. %m. %Y').lower()
+
+
+@app.template_filter()
+def format_date_en(date):
+    """Converts date to string in Y-m-d format."""
+    return 'bez dat' if date is None else date.strftime('%Y-%m-%d')
 
 
 @app.template_filter()
