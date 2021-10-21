@@ -48,8 +48,10 @@ Statistiky |
             Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
             Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong>
             registrovaných zájemců.
+            {#
             Zájem o očkování má <strong>{{ (interest[0] * 100) | format_decimal }} %</strong> obyvatel
             (<strong>{{ (interest[1] * 100) | format_decimal }} %</strong> obyvatel starších 12 let).
+            #}
         </p>
         {% endif %}
     </div>
