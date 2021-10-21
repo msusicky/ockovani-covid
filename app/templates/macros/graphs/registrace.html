@@ -104,6 +104,38 @@
         }
 
         Plotly.newPlot("graf-registrace", data, layout, config);
+
+        // force relayout to rescale y
+        range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
+        Plotly.relayout('graf-registrace', range);
+    }
+
+
+    function grafRegistraceRescale(e) {
+        if (e.target.layout.stopRescale === true) {
+            e.target.layout.stopRescale = false;
+            return;
+        }
+
+        console.log(e);
+
+        var rangeX = e.target.layout.xaxis.range
+        var data = e.target.data
+        var maxY = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            var dataX = data[i].x
+            for (var j = 0; j < dataX.length; j++) {
+                if (dataX[j] >= rangeX[0] && dataX[j] <= rangeX[1]) {
+                    var dataY = data[i].y
+                    if (dataY[j] > maxY) {
+                        maxY = dataY[j];
+                    }
+                }
+            }
+        }
+
+        Plotly.relayout('graf-registrace', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafRegistrace();
@@ -114,5 +146,10 @@
             grafRegistrace();
         }
     });
+
+    $('#graf-registrace').on("plotly_relayout", function (e) {
+        grafRegistraceRescale(e)
+    });
+
 </script>
 {%- endmacro %}
