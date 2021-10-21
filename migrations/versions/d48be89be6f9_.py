@@ -29,13 +29,13 @@ def upgrade():
     )
     # ### end Alembic commands ###
 
-    with open('data/vakcinacka.csv', mode='r', encoding='utf-8') as vakcinacka_file:
-        reader = csv.reader(vakcinacka_file, delimiter=';')
-        next(reader, None)
-        vakcinacka_arr = [{'misto_id': row[0], 'url_mista': row[1] } for row in reader]
-
-
-    op.bulk_insert(Vakcinacka.__table__, vakcinacka_arr)
+    # with open('data/vakcinacka.csv', mode='r', encoding='utf-8') as vakcinacka_file:
+    #     reader = csv.reader(vakcinacka_file, delimiter=';')
+    #     next(reader, None)
+    #     vakcinacka_arr = [{'misto_id': row[0], 'url_mista': row[1] } for row in reader]
+    #
+    #
+    # op.bulk_insert(Vakcinacka.__table__, vakcinacka_arr)
 
 
 def downgrade():
