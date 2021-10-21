@@ -354,4 +354,4 @@ def _last_import_modified():
 
 
 def _now():
-    return filters.format_datetime_short_wd(datetime.now())
+    return datetime.now()
