@@ -135,4 +135,32 @@
     <a href="https://covid.gov.cz/situace/registrace-na-ockovani/ockovani-bez-predchozi-registrace" target="_blank">
         COVID portálu</a>.
 </div>
+
+<script>
+    $(document).ready(function () {
+        updateQueue();
+    });
+
+    function updateQueue() {
+        $title = $('#queue-title-Chodov');
+
+        $.get('https://occhodov.ikem.cz/api/semaphore')
+            .then(function (semaphoreData) {
+                if (semaphoreData) {
+                    var queueState = semaphoreData.queue_state;
+                    if (queueState == 'full') {
+                        $title.text('Nad hodinu');
+                    } else if (queueState == 'ok') {
+                        $title.text('20-60 minut');
+                    } else if (queueState == 'free') {
+                        $title.text('Do 20 minut');
+                    } else if (queueState == 'closed') {
+                        $title.text('Zavřeno');
+                    } else {
+                        $title.text('Žádné informace');
+                    }
+                }
+            });
+    }
+</script>
 {%- endmacro %}
