@@ -93,7 +93,7 @@
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <p class="mb-0">
                     Zdrojová data jsou aktualizována jen 1&times; denně, naposledy: <strong>{{ last_update }}</strong>.
-                    Web byl aktualizován: <strong>{{ now }}</strong>.
+                    Web byl aktualizován: <strong>{{ now | format_datetime_short_wd }}</strong>.
                 </p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -123,6 +123,9 @@
                 Data na tomto webu pochází z <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
                                                 target="_blank">opendat
                  Ministerstva zdravotnictví ČR</a> a od Centrálního řídícího týmu COVID-19 (CŘT).
+            </p>
+            <p class="mb-1">
+                Citace: Sušický M., Staněk J. <i>COVID-19 očkování</i> [online]. Praha: ČVUT, Fakulta informačních technologií, 2021 [cit. {{ now | format_date_en }}]. Dostupné z https://ockovani.opendatalab.cz
             </p>
             <p class="mb-0 font-italic">
                 Provozovatel neodpovídá za správnost a úplnost zpracovaných dat a informací, ani tato neověřuje a zříká
