@@ -309,7 +309,30 @@ def dataquality():
 @bp.route("/report")
 def report():
     # -- aktuální počet hospitalizovaných s covidem ve STR kraji
+    current_hospital_kraje = db.session.query("nazev", "pocet_hospital").from_statement(text(
+        """
+        select k.nazev , sum(pocet_hosp) pocet_hospital
+            from public.situace_orp so 
+            join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts)
+            where datum>=to_date('{}','yyyy-mm-dd') 
+        group by k.nazev order by sum(pocet_hosp) desc; 	
+        """.format(get_import_date())
+    )).all()
+
     # -- přírůstek hospitalizovaných s covidem za posledních 14 dní ve STR kraji
+    new_hospital_kraje = db.session.query("nazev", "nove_hosp_7").from_statement(text(
+        """
+        select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
+            from public.situace_orp so 
+            join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts 
+            )
+            where datum>=to_date('{}','yyyy-mm-dd') 
+        group by k.nazev
+        order by sum(so.nove_hosp_7) desc; 	
+        """.format(get_import_date())
+    )).all()
 
     # -- aktuální počet potvrzených případů nákazy v kraji
     current_active_kraje = db.session.query("aktivni_pripady", "nazev").from_statement(text(
@@ -354,14 +377,24 @@ def report():
     )).all()
 
     # -- 7denní incidence potvrzených případů nákazy na 100 000 obyvatel podle krajů
-
-    # -- aktuální počet hospitalizovaných podle krajů
+    incidence_7d_kraje = db.session.query("kraj_nazev", "incidence_7", "incidence_65_7", "incidence_75_7").from_statement(text(
+        """
+        select round(avg(incidence_7),1) incidence_7, round(avg(incidence_65_7),1) incidence_65_7, round(avg(incidence_75_7),1) incidence_75_7, k.nazev kraj_nazev
+            from public.situace_orp so join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts)
+            where datum>=to_date('{}','yyyy-mm-dd')
+        group by k.nazev 	
+        """.format(get_import_date())
+    )).all()
 
     return render_template('reporty.html', last_update=_last_import_modified(), now=_now(),
+                           current_hospital_kraje=current_hospital_kraje,
+                           new_hospital_kraje=new_hospital_kraje,
                            current_active_kraje=current_active_kraje,
                            new_14d_kraje=new_14d_kraje,
                            current_cases_okres_kraje=current_cases_okres_kraje,
-                           new_14d_okres_kraje=new_14d_okres_kraje
+                           new_14d_okres_kraje=new_14d_okres_kraje,
+                           incidence_7d_kraje=incidence_7d_kraje
                            )
 
 
