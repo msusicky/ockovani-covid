@@ -532,6 +532,29 @@ class HospitalizaceJipOckovani(db.Model):
         return f"<HospitalizaceJipOckovani(datum='{self.datum}')>"
 
 
+class SrovnaniOckovani(db.Model):
+    tyden = Column(Unicode, primary_key=True)
+    vekova_skupina = Column(Unicode, primary_key=True)
+    pozitivni_celkem = Column(Integer)
+    pozitivni_bez_ockovani = Column(Integer)
+    pozitivni_po_prvni = Column(Integer)
+    pozitivni_po_ukonceni = Column(Integer)
+    pozitivni_po_ukonceni_s_posilujici = Column(Integer)
+    hospitalizace_celkem = Column(Integer)
+    hospitalizace_bez_ockovani = Column(Integer)
+    hospitalizace_po_prvni = Column(Integer)
+    hospitalizace_po_ukonceni = Column(Integer)
+    hospitalizace_po_ukonceni_s_posilujici = Column(Integer)
+    JIP_celkem = Column(Integer)
+    JIP_bez_ockovani = Column(Integer)
+    JIP_po_prvni = Column(Integer)
+    JIP_po_ukonceni = Column(Integer)
+    JIP_po_ukonceni_s_posilujici = Column(Integer)
+
+    def __repr__(self):
+        return f"<SrovnaniOckovani(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+
+
 class DodavkaVakcin(db.Model):
     __tablename__ = 'dodavky_vakcin'
 
@@ -992,6 +1015,7 @@ class OckovaciMistoBezRegistrace(db.Model):
 
     def __repr__(self):
         return f"<OckovaciMistoBezRegistrace(nazev='{self.nazev}')>"
+
 
 class BezRegistraceFronta(db.Model):
     __tablename__ = 'bezregistrace_fronta'
