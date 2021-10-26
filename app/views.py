@@ -306,6 +306,98 @@ def dataquality():
                            susp_reservation_vaccination_low=susp_reservation_vaccination_low)
 
 
+@bp.route("/report")
+def report():
+    # -- aktuální počet hospitalizovaných s covidem ve STR kraji
+    current_hospital_kraje = db.session.query("nazev", "pocet_hospital").from_statement(text(
+        """
+        select k.nazev , sum(pocet_hosp) pocet_hospital
+            from public.situace_orp so 
+            join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts)
+            where datum='{}' 
+        group by k.nazev order by sum(pocet_hosp) desc; 	
+        """.format(get_import_date())
+    )).all()
+
+    # -- přírůstek hospitalizovaných s covidem za posledních 7 dní ve STR kraji
+    new_hospital_kraje = db.session.query("nazev", "nove_hosp_7").from_statement(text(
+        """
+        select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
+            from public.situace_orp so 
+            join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts 
+            )
+            where datum='{}' 
+        group by k.nazev
+        order by sum(so.nove_hosp_7) desc; 	
+        """.format(get_import_date())
+    )).all()
+
+    # -- aktuální počet potvrzených případů nákazy v kraji
+    current_active_kraje = db.session.query("aktivni_pripady", "nazev").from_statement(text(
+        """
+        select sum(co.aktivni_pripady) aktivni_pripady, k.nazev from charakteristika_obci co
+            join kraje k on (co.kraj_kod=k.id)
+            where datum ='{}'
+            group by k.nazev order by sum(co.aktivni_pripady) desc;
+        """.format(get_import_date())
+    )).all()
+
+    # -- přírůstek potvrzených případů nákazy za posledních 14 dní v kraji
+    new_14d_kraje = db.session.query("nove_pripady", "nazev").from_statement(text(
+        """
+        select sum(co.nove_pripady) nove_pripady, k.nazev from charakteristika_obci co
+            join kraje k on (co.kraj_kod=k.id)
+            where datum +'15 day'::interval> '{}' 
+            group by k.nazev order by sum(co.nove_pripady) desc;
+        """.format(get_import_date())
+    )).all()
+
+    # -- aktuální počet potvrzených případů nákazy podle okresů ve STR kraji
+    current_cases_okres_kraje = db.session.query("aktivni_pripady", "okres_nazev", "kraj_nazev").from_statement(text(
+        """
+        select sum(co.aktivni_pripady) aktivni_pripady, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
+            join okresy o on (co.okres_kod=o.id)
+            join kraje k on (co.kraj_kod=k.id)
+            where datum  ='{}' 
+        group by k.nazev, o.nazev order by k.nazev ,sum(co.aktivni_pripady) desc ;
+        """.format(get_import_date())
+    )).all()
+
+    # -- přírůstek potvrzených případů nákazy za posledních 14 dní podle okresů v STR kraji
+    new_14d_okres_kraje = db.session.query("nove_pripady_14_dni", "okres_nazev", "kraj_nazev").from_statement(text(
+        """
+        select sum(co.nove_pripady_14_dni) nove_pripady_14_dni, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
+            join okresy o on (co.okres_kod=o.id)
+            join kraje k on (co.kraj_kod=k.id)
+            where datum ='{}' 
+        group by k.nazev , o.nazev order by k.nazev ,sum(co.aktivni_pripady) desc ;
+        """.format(get_import_date())
+    )).all()
+
+    # -- 7denní incidence potvrzených případů nákazy na 100 000 obyvatel podle krajů
+    incidence_7d_kraje = db.session.query("kraj_nazev", "incidence_7", "incidence_65_7", "incidence_75_7").from_statement(text(
+        """
+        select round(avg(incidence_7),1) incidence_7, round(avg(incidence_65_7),1) incidence_65_7, round(avg(incidence_75_7),1) incidence_75_7, k.nazev kraj_nazev
+            from public.situace_orp so join obce_orp oo on (so.orp_kod=oo.uzis_orp)
+            join kraje k on (k.id=oo.kraj_nuts)
+            where datum='{}'
+        group by k.nazev 	
+        """.format(get_import_date())
+    )).all()
+
+    return render_template('reporty.html', last_update=_last_import_modified(), now=_now(),
+                           current_hospital_kraje=current_hospital_kraje,
+                           new_hospital_kraje=new_hospital_kraje,
+                           current_active_kraje=current_active_kraje,
+                           new_14d_kraje=new_14d_kraje,
+                           current_cases_okres_kraje=current_cases_okres_kraje,
+                           new_14d_okres_kraje=new_14d_okres_kraje,
+                           incidence_7d_kraje=incidence_7d_kraje
+                           )
+
+
 @bp.route("/praktici_admin")
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
@@ -334,6 +426,7 @@ def praktici_admin():
                            user_vaccines=user_vaccines, all_vaccines=free_vaccines, vaccines_options=vaccines_options,
                            kraj_options=kraj_options)
 
+
 @bp.route("/bezregistrace")
 def bez_registrace():
     without_registration = db.session.query(OckovaciMistoBezRegistrace) \
@@ -342,6 +435,7 @@ def bez_registrace():
 
     return render_template('bezregistrace.html', last_update=_last_import_modified(), now=_now(),
                            without_registration=without_registration)
+
 
 def _last_import_modified():
     """

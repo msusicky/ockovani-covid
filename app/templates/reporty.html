@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Reporty |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Reporty</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Aktuální počet hospitalizovaných v krajích</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Počet hospitalizovaných</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in current_hospital_kraje %}
+                        <tr>
+                            <td>{{ row['nazev'] }}</td>
+                            <td>{{ row['pocet_hospital'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Přírůstek hospitalizovaných s covidem za posledních 7 dní v kraji</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Nově hospitalizovaní</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in new_hospital_kraje %}
+                        <tr>
+                            <td>{{ row['nazev'] }}</td>
+                            <td>{{ row['nove_hosp_7'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Aktuální počet potvrzených případů nákazy v krajích</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Aktivní případy</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in current_active_kraje %}
+                        <tr>
+                            <td>{{ row['nazev'] }}</td>
+                            <td>{{ row['aktivni_pripady'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Přírůstek potvrzených případů nákazy za posledních 14 dní v krajích</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Nové případy</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in new_14d_kraje %}
+                        <tr>
+                            <td>{{ row['nazev'] }}</td>
+                            <td>{{ row['nove_pripady'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Aktuální počet potvrzených případů nákazy podle okresů v krajích</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Okres</th>
+                            <th scope="col" class="w-20 text-center">Aktivní případy</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in current_cases_okres_kraje %}
+                        <tr>
+                            <td>{{ row['kraj_nazev'] }}</td>
+                            <td>{{ row['okres_nazev'] }}</td>
+                            <td>{{ row['aktivni_pripady'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Přírůstek potvrzených případů nákazy za posledních 14 dní podle okresů v
+                    krajích</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Okres</th>
+                            <th scope="col" class="w-20 text-center">Nové případy za 14 dní</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in new_14d_okres_kraje %}
+                        <tr>
+                            <td>{{ row['kraj_nazev'] }}</td>
+                            <td>{{ row['okres_nazev'] }}</td>
+                            <td>{{ row['nove_pripady_14_dni'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">7denní incidence potvrzených případů nákazy na 100 000 obyvatel podle krajů</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm mb-0">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="w-20 text-center">Kraj</th>
+                            <th scope="col" class="w-20 text-center">Incidence</th>
+                            <th scope="col" class="w-20 text-center">Incidence 65+</th>
+                            <th scope="col" class="w-20 text-center">Incidence 75+</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in incidence_7d_kraje %}
+                        <tr>
+                            <td>{{ row['kraj_nazev'] }}</td>
+                            <td>{{ row['incidence_7'] }}</td>
+                            <td>{{ row['incidence_65_7'] }}</td>
+                            <td>{{ row['incidence_75_7'] }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
