@@ -315,12 +315,12 @@ def report():
             from public.situace_orp so 
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts)
-            where datum>=to_date('{}','yyyy-mm-dd') 
+            where datum='{}' 
         group by k.nazev order by sum(pocet_hosp) desc; 	
         """.format(get_import_date())
     )).all()
 
-    # -- přírůstek hospitalizovaných s covidem za posledních 14 dní ve STR kraji
+    # -- přírůstek hospitalizovaných s covidem za posledních 7 dní ve STR kraji
     new_hospital_kraje = db.session.query("nazev", "nove_hosp_7").from_statement(text(
         """
         select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
@@ -328,7 +328,7 @@ def report():
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts 
             )
-            where datum>=to_date('{}','yyyy-mm-dd') 
+            where datum='{}' 
         group by k.nazev
         order by sum(so.nove_hosp_7) desc; 	
         """.format(get_import_date())
@@ -339,7 +339,7 @@ def report():
         """
         select sum(co.aktivni_pripady) aktivni_pripady, k.nazev from charakteristika_obci co
             join kraje k on (co.kraj_kod=k.id)
-            where datum >= to_date('{}','yyyy-mm-dd') 
+            where datum ='{}'
             group by k.nazev order by sum(co.aktivni_pripady) desc;
         """.format(get_import_date())
     )).all()
@@ -349,7 +349,7 @@ def report():
         """
         select sum(co.nove_pripady) nove_pripady, k.nazev from charakteristika_obci co
             join kraje k on (co.kraj_kod=k.id)
-            where datum > to_date('{}','yyyy-mm-dd') -'15 day'::interval 
+            where datum +'15 day'::interval> '{}' 
             group by k.nazev order by sum(co.nove_pripady) desc;
         """.format(get_import_date())
     )).all()
@@ -360,7 +360,7 @@ def report():
         select sum(co.aktivni_pripady) aktivni_pripady, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
             join kraje k on (co.kraj_kod=k.id)
-            where datum  >= to_date('{}','yyyy-mm-dd') 
+            where datum  ='{}' 
         group by k.nazev, o.nazev order by k.nazev ,sum(co.aktivni_pripady) desc ;
         """.format(get_import_date())
     )).all()
@@ -371,7 +371,7 @@ def report():
         select sum(co.nove_pripady_14_dni) nove_pripady_14_dni, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
             join kraje k on (co.kraj_kod=k.id)
-            where datum >= to_date('{}','yyyy-mm-dd') 
+            where datum ='{}' 
         group by k.nazev , o.nazev order by k.nazev ,sum(co.aktivni_pripady) desc ;
         """.format(get_import_date())
     )).all()
@@ -382,7 +382,7 @@ def report():
         select round(avg(incidence_7),1) incidence_7, round(avg(incidence_65_7),1) incidence_65_7, round(avg(incidence_75_7),1) incidence_75_7, k.nazev kraj_nazev
             from public.situace_orp so join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts)
-            where datum>=to_date('{}','yyyy-mm-dd')
+            where datum='{}'
         group by k.nazev 	
         """.format(get_import_date())
     )).all()
