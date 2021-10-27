@@ -43,16 +43,16 @@
         }
 
         const umrti_18_29 = {
-            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            x: [{% for idx, row in data_18_29.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_18_29.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "18-29",
         }
 
         const umrti_0_17 = {
-            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            x: [{% for idx, row in data_0_17.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_0_17.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "0-17",
