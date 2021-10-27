@@ -12,21 +12,66 @@
         const traces = [
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
-                y: [{% for nakazeni_bez in data.nakazeni_bez_norm %}{{ nakazeni_bez }}, {% endfor %}],
-                name: "Neočkovaní",
+                y: [{% for value in data.nakazeni_bez_norm %}{{ value }}, {% endfor %}],
+                name: "Neočkovaní nakažení",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
-                y: [{% for nakazeni_plne in data.nakazeni_plne_norm %}{{ nakazeni_plne }}, {% endfor %}],
-                name: "Plně očkovaní",
+                y: [{% for value in data.nakazeni_plne_norm %}{{ value }}, {% endfor %}],
+                name: "Plně očkovaní nakažení",
+                type: "bar",
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_bez_norm %}{{ value }}, {% endfor %}],
+                name: "Neočkovaní hospitalizovaní",
+                type: "bar",
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_plne_norm %}{{ value }}, {% endfor %}],
+                name: "Plně očkovaní hospitalizovaní",
+                type: "bar",
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_jip_bez_norm %}{{ value }}, {% endfor %}],
+                name: "Neočkovaní hospitalizovaní na JIP",
+                type: "bar",
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_jip_plne_norm %}{{ value }}, {% endfor %}],
+                name: "Plně očkovaní hospitalizovaní na JIP",
                 type: "bar",
             },
         ];
 
+        const buttons = [];
+        for (let i = 0; i < traces.length; i++) {
+            let traceVisibility = new Array(traces.length).fill(false);
+            traceVisibility[i] = true;
+
+            buttons[i] = {
+                label: traces[i].name,
+                args: [
+                    {
+                        "visible": traceVisibility,
+                    },
+                    {
+                        "title": "Očkované dávky výrobce: " + traces[i].name
+                    }
+                ],
+                method: "update"
+            };
+        }
+
+        buttons[0]["activate"] = true;
+
         const layout = {
             title: "Srovnání očkovaných a neočkovaných",
-            barmode: "stack",
+            barmode: "group",
             autosize: true,
             xaxis: {
                 title: "Věková skupina",
@@ -45,6 +90,16 @@
                 y: -0.8,
             },
             height: 700,
+            updatemenus: [{
+                direction: "right",
+                xanchor: "center",
+                yanchor: "center",
+                y: 1.4,
+                x: 0.5,
+                type: "buttons",
+                showactive: true,
+                buttons: buttons,
+            }]
         };
 
         const config = {
