@@ -26,21 +26,21 @@ def upgrade():
     sa.Column('od', sa.Date(), nullable=False),
     sa.Column('do', sa.Date(), nullable=False),
     sa.Column('vekova_skupina', sa.Unicode(), nullable=False),
-    sa.Column('pozitivni_celkem', sa.Integer(), nullable=True),
-    sa.Column('pozitivni_bez_ockovani', sa.Integer(), nullable=True),
-    sa.Column('pozitivni_po_prvni', sa.Integer(), nullable=True),
-    sa.Column('pozitivni_po_ukonceni', sa.Integer(), nullable=True),
-    sa.Column('pozitivni_po_ukonceni_s_posilujici', sa.Integer(), nullable=True),
+    sa.Column('nakazeni_celkem', sa.Integer(), nullable=True),
+    sa.Column('nakazeni_bez', sa.Integer(), nullable=True),
+    sa.Column('nakazeni_castecne', sa.Integer(), nullable=True),
+    sa.Column('nakazeni_plne', sa.Integer(), nullable=True),
+    sa.Column('nakazeni_posilujici', sa.Integer(), nullable=True),
     sa.Column('hospitalizace_celkem', sa.Integer(), nullable=True),
-    sa.Column('hospitalizace_bez_ockovani', sa.Integer(), nullable=True),
-    sa.Column('hospitalizace_po_prvni', sa.Integer(), nullable=True),
-    sa.Column('hospitalizace_po_ukonceni', sa.Integer(), nullable=True),
-    sa.Column('hospitalizace_po_ukonceni_s_posilujici', sa.Integer(), nullable=True),
-    sa.Column('JIP_celkem', sa.Integer(), nullable=True),
-    sa.Column('JIP_bez_ockovani', sa.Integer(), nullable=True),
-    sa.Column('JIP_po_prvni', sa.Integer(), nullable=True),
-    sa.Column('JIP_po_ukonceni', sa.Integer(), nullable=True),
-    sa.Column('JIP_po_ukonceni_s_posilujici', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_bez', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_castecne', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_plne', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_posilujici', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_jip_celkem', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_jip_bez', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_jip_castecne', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_jip_plne', sa.Integer(), nullable=True),
+    sa.Column('hospitalizace_jip_posilujici', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('tyden', 'vekova_skupina')
     )
     # ### end Alembic commands ###
@@ -60,7 +60,22 @@ def upgrade():
     df = pd.merge(pozitivity, hospitalizace)
     df = pd.merge(df, jip)
 
-    df = df.rename({'vek_kategorie': 'vekova_skupina'}, axis='columns')
+    df = df.rename(columns={'vek_kategorie': 'vekova_skupina',
+                            'pozitivni_celkem': 'nakazeni_celkem',
+                            'pozitivni_bez_ockovani': 'nakazeni_bez',
+                            'pozitivni_po_prvni': 'nakazeni_castecne',
+                            'pozitivni_po_ukonceni': 'nakazeni_plne',
+                            'pozitivni_po_ukonceni_s_posilujici': 'nakazeni_posilujici',
+                            'hospitalizace_bez_ockovani': 'hospitalizace_bez',
+                            'hospitalizace_po_prvni': 'hospitalizace_castecne',
+                            'hospitalizace_po_ukonceni': 'hospitalizace_plne',
+                            'hospitalizace_po_ukonceni_s_posilujici': 'hospitalizace_posilujici',
+                            'JIP_celkem': 'hospitalizace_jip_celkem',
+                            'JIP_bez_ockovani': 'hospitalizace_jip_bez',
+                            'JIP_po_prvni': 'hospitalizace_jip_castecne',
+                            'JIP_po_ukonceni': 'hospitalizace_jip_plne',
+                            'JIP_po_ukonceni_s_posilujici': 'hospitalizace_jip_posilujici'})
+
     df['vekova_skupina'] = df['vekova_skupina'].str.replace(' let', '')
 
     df.to_sql(SrovnaniOckovani.__tablename__, op.get_bind(), if_exists='append', index=False)
