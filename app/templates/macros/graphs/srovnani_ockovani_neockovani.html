@@ -79,8 +79,10 @@
             yaxis: {
                 title: "Počet na 100 tisíc obyvatel ve skupině",
                 automargin: true,
-                tickformat: ",1f",
+                tickformat: ".f",
+                hoverformat: ".1f",
             },
+            hovermode: "x unified",
             showlegend: true,
             legend: {
                 orientation: "h",
@@ -89,7 +91,7 @@
                 yanchor: "bottom",
                 y: -0.25,
             },
-            height: 700,
+            height: 500,
             updatemenus: [{
                 direction: "right",
                 xanchor: "center",
