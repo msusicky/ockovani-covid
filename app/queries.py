@@ -650,7 +650,7 @@ def count_end_date_supplies():
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
-def couht_end_date_interested():
+def count_end_date_interested():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne, CrMetriky.ockovani_pocet_plne,
                                CrMetriky.ockovani_pocet_davek_zmena_tyden) \
         .filter(CrMetriky.datum == get_import_date()) \
@@ -1252,12 +1252,13 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
     srovnani = pd.read_sql_query(
         f"""
         select * from srovnani_ockovani 
-        where do < '{get_import_date()}'
+        where "do" < '{get_import_date()}'
         """,
         db.engine
     )
+    srovnani = srovnani[srovnani['od'] == srovnani['od'].max()]
     srovnani['vekova_skupina'] = srovnani['vekova_skupina'].replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
-    srovnani.groupby(['tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
+    srovnani = srovnani.groupby(['tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df = pd.merge(ockovani, populace)
     df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['od', 'vekova_skupina'])
@@ -1266,7 +1267,7 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
         {'25-29': '25-39', '30-34': '25-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
          '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
 
-    df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
+    df = df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
     df['populace_plne'] = df['populace_plne']
