@@ -1,11 +1,5 @@
 {% macro graf_srovnani_ockovani_neockovani(data) -%}
 <div id="graf-srovnani-ockovani-neockovani"></div>
-<div class="font-italic">
-    <h6>Poznámky</h6>
-    <p class="text-justify mb-0">
-        TODO
-    </p>
-</div>
 
 <script>
     function grafSrovnaniOckovaniNeockovani() {
@@ -13,73 +7,79 @@
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.nakazeni_bez_norm %}{{ value }}, {% endfor %}],
-                name: "Neočkovaní nakažení",
+                name: "Neočkovaní",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.nakazeni_plne_norm %}{{ value }}, {% endfor %}],
-                name: "Plně očkovaní nakažení",
+                name: "Plně očkovaní",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_bez_norm %}{{ value }}, {% endfor %}],
-                name: "Neočkovaní hospitalizovaní",
+                name: "Neočkovaní",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_plne_norm %}{{ value }}, {% endfor %}],
-                name: "Plně očkovaní hospitalizovaní",
+                name: "Plně očkovaní",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_jip_bez_norm %}{{ value }}, {% endfor %}],
-                name: "Neočkovaní hospitalizovaní na JIP",
+                name: "Neočkovaní",
                 type: "bar",
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_jip_plne_norm %}{{ value }}, {% endfor %}],
-                name: "Plně očkovaní hospitalizovaní na JIP",
+                name: "Plně očkovaní",
                 type: "bar",
             },
         ];
 
-        const buttons = [];
-        for (let i = 0; i < traces.length; i++) {
-            let traceVisibility = new Array(traces.length).fill(false);
-            traceVisibility[i] = true;
-
-            buttons[i] = {
-                label: traces[i].name,
-                args: [
-                    {
-                        "visible": traceVisibility,
-                    },
-                    {
-                        "title": "Očkované dávky výrobce: " + traces[i].name
-                    }
-                ],
+        const buttons = [
+            {
+                label: "Nakažení",
+                args: [{
+                    "visible": [true, true, false, false, false, false],
+                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
+                }],
                 method: "update"
-            };
-        }
-
+            },
+            {
+                label: "Hospitalizovaní",
+                args: [{
+                    "visible": [false, false, true, true, false, false],
+                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
+                }],
+                method: "update"
+            },
+            {
+                label: "Hospitalizovaní na JIP",
+                args: [{
+                    "visible": [false, false, false, false, true, true],
+                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
+                }],
+                method: "update"
+            },
+        ];
         buttons[0]["activate"] = true;
 
         const layout = {
-            title: "Srovnání očkovaných a neočkovaných",
             barmode: "group",
             autosize: true,
             xaxis: {
                 title: "Věková skupina",
             },
             yaxis: {
-                title: "Počet nakažených na 100 000",
+                title: "Počet na 100 tisíc obyvatel ve skupině",
                 automargin: true,
-                tickformat: ",f",
+                tickformat: ",1f",
             },
             showlegend: true,
             legend: {
@@ -87,7 +87,7 @@
                 xanchor: "center",
                 x: 0.5,
                 yanchor: "bottom",
-                y: -0.8,
+                y: -0.25,
             },
             height: 700,
             updatemenus: [{
@@ -108,6 +108,8 @@
         };
 
         Plotly.newPlot("graf-srovnani-ockovani-neockovani", traces, layout, config);
+
+        Plotly.update("graf-srovnani-ockovani-neockovani", buttons[0].args[0], buttons[0].args[1]);
     }
 
     grafSrovnaniOckovaniNeockovani();
