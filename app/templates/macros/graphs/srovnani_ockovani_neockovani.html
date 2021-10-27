@@ -45,26 +45,35 @@
         const buttons = [
             {
                 label: "Nakažení",
-                args: [{
-                    "visible": [true, true, false, false, false, false],
-                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
-                }],
+                args: [
+                    {
+                        "visible": [true, true, false, false, false, false],
+                    }, {
+                        "title": "Srovnání nakažených (přepočteno podle zastoupení v populaci)"
+                    }
+                ],
                 method: "update"
             },
             {
                 label: "Hospitalizovaní",
-                args: [{
-                    "visible": [false, false, true, true, false, false],
-                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
-                }],
+                args: [
+                    {
+                        "visible": [false, false, true, true, false, false],
+                    }, {
+                        "title": "Srovnání hospitalizovaných (přepočteno podle zastoupení v populaci)"
+                    }
+                ],
                 method: "update"
             },
             {
                 label: "Hospitalizovaní na JIP",
-                args: [{
-                    "visible": [false, false, false, false, true, true],
-                    "title": "Počet nakažených na 100 000 obyvatel ve skupině"
-                }],
+                args: [
+                    {
+                        "visible": [false, false, false, false, true, true],
+                    }, {
+                        "title": "Srovnání hospitalizovaných na JIP (přepočteno podle zastoupení v populaci)"
+                    }
+                ],
                 method: "update"
             },
         ];
@@ -89,14 +98,14 @@
                 xanchor: "center",
                 x: 0.5,
                 yanchor: "bottom",
-                y: -0.25,
+                y: -0.4,
             },
             height: 500,
             updatemenus: [{
                 direction: "right",
                 xanchor: "center",
                 yanchor: "center",
-                y: 1.4,
+                y: 1.6,
                 x: 0.5,
                 type: "buttons",
                 showactive: true,
