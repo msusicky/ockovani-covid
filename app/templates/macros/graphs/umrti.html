@@ -7,14 +7,8 @@
         {% set data_80 = data.filter(like = '80+', axis=0) %}
         {% set data_70_79 = data.filter(like = '70-79', axis=0) %}
         {% set data_60_69 = data.filter(like = '60-69', axis=0) %}
-
-        const umrti = {
-            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
-            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
-            mode: "lines",
-            type: "scatter",
-            name: "0-59",
-        }
+        {% set data_18_29 = data.filter(like = '18-29', axis=0) %}
+        {% set data_0_17 = data.filter(like = '0-17', axis=0) %}
 
         const umrti_80 = {
             x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
@@ -38,6 +32,30 @@
             mode: "lines",
             type: "scatter",
             name: "60-69",
+        }
+
+        const umrti_30_59 = {
+            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "30-59",
+        }
+
+        const umrti_18_29 = {
+            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "18-29",
+        }
+
+        const umrti_0_17 = {
+            x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
+            y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_umrti_norm'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "0-17",
         }
 
         const layout = {
@@ -93,7 +111,7 @@
             height: 700,
         }
 
-        const data = [umrti, umrti_60, umrti_70, umrti_80];
+        const data = [umrti_0_17, umrti_18_29, umrti_30_59, umrti_60, umrti_70, umrti_80];
 
         const config = {
             responsive: true,
