@@ -1222,11 +1222,20 @@ def get_tests_orp_graph_data():
 
 
 def get_vaccinated_unvaccinated_comparison_graph_data():
-    populace = pd.read_sql_query("select sum(pocet) populace from populace where orp_kod = 'CZ0' group by vekova_skupina", db.engine)
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) populace, min_vek
+            from populace p 
+            join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+            where orp_kod = 'CZ0'
+            group by vekova_skupina
+        """,
+        db.engine)
+    populace
 
     ockovani = pd.read_sql_query(
         f"""
-        select datum, 
+        select datum, vekova_skupina,
             sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
             sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
             sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
@@ -1238,45 +1247,41 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
         """,
         db.engine
     )
-    ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']] = \
-        ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']].group.transform(pd.Series.cumsum)
+    ockovani = ockovani.groupby(['vekova_skupina', 'datum']).sum().groupby(level=0).cumsum().reset_index()
 
     srovnani = pd.read_sql_query(
         f"""
-        select * from srovnani_ockovani s 
-        where n.datum < '{get_import_date()}'
+        select * from srovnani_ockovani 
+        where do < '{get_import_date()}'
         """,
         db.engine
     )
+    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
+    srovnani.groupby(['tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df = pd.merge(ockovani, populace)
-    df = df.drop(columns=['key'])
+    df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['od', 'vekova_skupina'])
+
+    df['vekova_skupina'] = df['vekova_skupina'].replace(
+        {'25-29': '25-39', '30-34': '25-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
+         '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
+
+    df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
+
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
     df['populace_castecne'] = df['populace_ockovani'] - df['populace_plne']
     df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
-    df = pd.merge(df, srovnani)
 
-    df_vek = df.copy()
+    df_norm = df.copy()
 
-    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip', 'umrti']
+    df_norm['vekova_skupina'] = df_norm['vekova_skupina'].replace({})
+
+    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
     groups = ['bez', 'castecne', 'plne', 'posilujici']
 
     for d in datasets:
         for g in groups:
-            df_vek[d + '_' + g + '_mult'] = df_vek[d + '_' + g] * df_vek[d + '_' + g + '_vek']
+            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]).replace(
+                {np.nan: 0})
 
-    df_vek = df_vek.rolling(7, on='datum').sum()
-
-    for d in datasets:
-        for g in groups:
-            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_mult'] / df_vek[d + '_' + g]
-            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_vek'].replace({np.nan: None})
-
-    for d in datasets:
-        df_vek[d + '_celkem_vek'] = sum([df_vek[d + '_' + g + '_mult'] for g in groups]) / df_vek[d + '_celkem']
-        df_vek[d + '_celkem_vek'] = df_vek[d + '_celkem_vek'].replace({np.nan: None})
-
-    for g in groups:
-        df_vek['populace_' + g + '_zastoupeni'] = df_vek['populace_' + g] / df_vek['populace']
-
-    return df_vek
+    return df_norm
