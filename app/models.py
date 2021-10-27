@@ -533,7 +533,11 @@ class HospitalizaceJipOckovani(db.Model):
 
 
 class SrovnaniOckovani(db.Model):
+    __tablename__ = 'srovnani_ockovani'
+
     tyden = Column(Unicode, primary_key=True)
+    od = Column(Date, nullable=False)
+    do = Column(Date, nullable=False)
     vekova_skupina = Column(Unicode, primary_key=True)
     pozitivni_celkem = Column(Integer)
     pozitivni_bez_ockovani = Column(Integer)

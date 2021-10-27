@@ -1216,3 +1216,64 @@ def get_tests_orp_graph_data():
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df
+
+
+def get_vaccinated_unvaccinated_comparison_graph_data():
+    populace = pd.read_sql_query("select sum(pocet) populace from populace where orp_kod = 'CZ0' group by vekova_skupina", db.engine)
+
+    ockovani = pd.read_sql_query(
+        f"""
+        select datum, 
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
+            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
+        from ockovani_lide o
+        join vakciny v on (o.vakcina = v.vakcina)
+        where datum < '{get_import_date()}'
+        group by datum, vekova_skupina
+        order by datum
+        """,
+        db.engine
+    )
+    ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']] = \
+        ockovani[['populace_ockovani', 'populace_plne', 'populace_posilujici']].group.transform(pd.Series.cumsum)
+
+    srovnani = pd.read_sql_query(
+        f"""
+        select * from srovnani_ockovani s 
+        where n.datum < '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df = pd.merge(ockovani, populace)
+    df = df.drop(columns=['key'])
+    df['populace_bez'] = df['populace'] - df['populace_ockovani']
+    df['populace_castecne'] = df['populace_ockovani'] - df['populace_plne']
+    df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
+    df = pd.merge(df, srovnani)
+
+    df_vek = df.copy()
+
+    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip', 'umrti']
+    groups = ['bez', 'castecne', 'plne', 'posilujici']
+
+    for d in datasets:
+        for g in groups:
+            df_vek[d + '_' + g + '_mult'] = df_vek[d + '_' + g] * df_vek[d + '_' + g + '_vek']
+
+    df_vek = df_vek.rolling(7, on='datum').sum()
+
+    for d in datasets:
+        for g in groups:
+            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_mult'] / df_vek[d + '_' + g]
+            df_vek[d + '_' + g + '_vek'] = df_vek[d + '_' + g + '_vek'].replace({np.nan: None})
+
+    for d in datasets:
+        df_vek[d + '_celkem_vek'] = sum([df_vek[d + '_' + g + '_mult'] for g in groups]) / df_vek[d + '_celkem']
+        df_vek[d + '_celkem_vek'] = df_vek[d + '_celkem_vek'].replace({np.nan: None})
+
+    for g in groups:
+        df_vek['populace_' + g + '_zastoupeni'] = df_vek['populace_' + g] / df_vek['populace']
+
+    return df_vek

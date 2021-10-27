@@ -1,0 +1,107 @@
+{% macro graf_prijatych_davek(data) -%}
+<div id="graf-prijato"></div>
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <p class="text-justify mb-0">
+        Data neobsahují vakcíny distribuované přímo praktickým lékařům.
+    </p>
+</div>
+
+<script>
+    function grafPrijatychDavek() {
+        const traces = [
+            {% for row in data %}
+                {
+                    x: [{% for date in row.datum %}"{{ date }}",{%  endfor %}],
+                    y: [{% for value in row.prijem %}{{ value }}, {% endfor %}],
+                    name: "{{ row.vyrobce }}",
+                    type: "bar",
+                    marker: {
+                        color: palette[{{ (loop.index - 1) % 10 }}]
+                    }
+                },
+            {% endfor %}
+        ];
+
+        const layout = {
+            title: "Dodané dávky",
+            barmode: "stack",
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "date",
+
+                // Tune ticks
+                tickformat: "%-d.%-m.%Y",
+                tickangle: -90,
+                nticks: 15,
+
+                // Set range to one month by default
+                range: [new Date(new Date().setMonth(new Date().getMonth() - 1)), new Date()],
+                rangeslider: {},
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 7,
+                            label: "1 týden",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 14,
+                            label: "2 týdny",
+                            step: "day",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 1,
+                            label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                }
+            },
+            yaxis: {
+                title: "Počet dodaných dávek",
+                automargin: true,
+                tickformat: ",f",
+            },
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                yanchor: "bottom",
+                y: -0.8,
+            },
+            height: 700,
+        };
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        };
+
+        Plotly.newPlot("graf-prijato", traces, layout, config);
+    }
+
+    // Initially show the chart
+    grafPrijatychDavek();
+
+    // Reset chart when tab is shown
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
+        let target = $(e.target).attr("href")
+
+        if (target==="#charts-tab-prijato") {
+            grafPrijatychDavek();
+        }
+    });
+</script>
+{%- endmacro %}
