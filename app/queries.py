@@ -1179,7 +1179,7 @@ def get_deaths_graph_data():
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
-    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
+    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(2)
 
     return df
 
