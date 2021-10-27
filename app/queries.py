@@ -1269,19 +1269,20 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
     df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
-    df['populace_castecne'] = df['populace_ockovani'] - df['populace_plne']
-    df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
+    df['populace_plne'] = df['populace_plne']
 
     df_norm = df.copy()
 
     df_norm['vekova_skupina'] = df_norm['vekova_skupina'].replace({})
 
     datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
-    groups = ['bez', 'castecne', 'plne', 'posilujici']
+    groups = ['bez', 'plne']
 
     for d in datasets:
+        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
+
         for g in groups:
-            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]).replace(
-                {np.nan: 0})
+            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
+                .replace({np.nan: 0})
 
     return df_norm
