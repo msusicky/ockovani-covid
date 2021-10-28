@@ -1266,11 +1266,11 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
     df['vekova_skupina'] = df['vekova_skupina'].replace(
         {'25-29': '25-39', '30-34': '25-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
          '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
-    df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
+    # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
     df = df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
-    df['populace_plne'] = df['populace_plne']
+    df['populace_plne'] = df['populace_plne'] + df['populace_posilujici']
 
     df_norm = df.copy()
 
