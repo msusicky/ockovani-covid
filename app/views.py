@@ -380,13 +380,20 @@ def report():
     )).all()
 
     # -- 7denní incidence potvrzených případů nákazy na 100 000 obyvatel podle krajů
-    incidence_7d_kraje = db.session.query("kraj_nazev", "incidence_7", "incidence_65_7", "incidence_75_7").from_statement(text(
-        """
-        select round(avg(incidence_7),1) incidence_7, round(avg(incidence_65_7),1) incidence_65_7, round(avg(incidence_75_7),1) incidence_75_7, k.nazev kraj_nazev
+    incidence_7d_kraje = db.session.query("kraj_nazev", "incidence_7", "incidence_65_7",
+                                          "incidence_75_7").from_statement(text(
+        """         
+        with pop as (select orp_kod kraj_nuts, sum(pocet) pocet from populace p where length(orp_kod)=5
+        group by orp_kod)
+        select round(incidence_7/(pop.pocet/100000),1) incidence_7, round(incidence_65_7/(pop.pocet/100000),1) incidence_65_7, 
+            round(incidence_75_7/(pop.pocet/100000),1) incidence_75_7, kraj_nazev from 
+        (
+        select sum(incidence_7) incidence_7, sum(incidence_65_7) incidence_65_7, sum(incidence_75_7) incidence_75_7, 
+            k.nazev kraj_nazev, k.id kraj_nuts
             from public.situace_orp so join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts)
             where datum='{}'
-        group by k.nazev 	
+        group by k.nazev, k.id ) incidence join pop on (incidence.kraj_nuts=pop.kraj_nuts);
         """.format(get_import_date())
     )).all()
 
