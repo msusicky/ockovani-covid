@@ -3,42 +3,56 @@
 
 <script>
     function grafSrovnaniOckovaniNeockovani() {
+        const hovertemplate = "%{y:.1f} (počet: %{customdata[0]}, zastoupení: %{customdata[1]:.1f} %)";
+
         const traces = [
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.nakazeni_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['nakazeni_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
                 name: "Neočkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.nakazeni_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['nakazeni_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
                 name: "Plně očkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
                 name: "Neočkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
                 name: "Plně očkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_jip_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_jip_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
                 name: "Neočkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
             {
                 x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
                 y: [{% for value in data.hospitalizace_jip_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_jip_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
                 name: "Plně očkovaní",
                 type: "bar",
+                hovertemplate: hovertemplate,
             },
         ];
 
@@ -49,7 +63,7 @@
                     {
                         "visible": [true, true, false, false, false, false],
                     }, {
-                        "title": "Srovnání nakažených (přepočteno podle zastoupení v populaci)"
+                        "title": "Počet nakažených na 100 tisíc obyvatel ve skupině"
                     }
                 ],
                 method: "update"
@@ -60,7 +74,7 @@
                     {
                         "visible": [false, false, true, true, false, false],
                     }, {
-                        "title": "Srovnání hospitalizovaných (přepočteno podle zastoupení v populaci)"
+                        "title": "Počet hospitalizovaných na 100 tisíc obyvatel ve skupině"
                     }
                 ],
                 method: "update"
@@ -71,7 +85,7 @@
                     {
                         "visible": [false, false, false, false, true, true],
                     }, {
-                        "title": "Srovnání hospitalizovaných na JIP (přepočteno podle zastoupení v populaci)"
+                        "title": "Počet hospitalizovaných na JIP na 100 tisíc obyvatel ve skupině"
                     }
                 ],
                 method: "update"
@@ -89,7 +103,6 @@
                 title: "Počet na 100 tisíc obyvatel ve skupině",
                 automargin: true,
                 tickformat: ".f",
-                hoverformat: ".1f",
             },
             hovermode: "x unified",
             showlegend: true,

@@ -1284,4 +1284,7 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
             df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
                 .replace({np.nan: 0})
 
+    for g in groups:
+        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
+
     return df_norm
