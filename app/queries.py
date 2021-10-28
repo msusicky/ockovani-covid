@@ -1270,7 +1270,6 @@ def get_vaccinated_unvaccinated_comparison_graph_data():
     df = df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
-    df['populace_plne'] = df['populace_plne'] + df['populace_posilujici']
 
     df_norm = df.copy()
 
