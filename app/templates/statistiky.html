@@ -21,6 +21,7 @@
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
 {% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
 {% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
+{% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
 
 {% block title %}
 Statistiky |
@@ -124,6 +125,19 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title">Podíl plně očkovaných</h5>
                 {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
+                    Srovnání očkovaných a neočkovaných za minulý týden podle zastoupení v populaci
+                </h5>
+                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_graph_data) }}
             </div>
         </div>
     </div>

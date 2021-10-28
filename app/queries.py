@@ -650,7 +650,7 @@ def count_end_date_supplies():
     return months[end_date[0].month - 1] + end_date[0].strftime(" %Y")
 
 
-def couht_end_date_interested():
+def count_end_date_interested():
     metrics = db.session.query(CrMetriky.ockovani_pocet_castecne, CrMetriky.ockovani_pocet_plne,
                                CrMetriky.ockovani_pocet_davek_zmena_tyden) \
         .filter(CrMetriky.datum == get_import_date()) \
@@ -1094,7 +1094,7 @@ def get_infected_graph_data():
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
-    df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000).round(1)
+    df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000)
 
     return df
 
@@ -1171,15 +1171,18 @@ def get_deaths_graph_data():
     df['vekova_skupina_grp'] = np.select(
         [df['vekova_skupina'] == '80+',
          (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
-         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69')],
-        ['80+', '70-79', '60-69'], default='ostatni')
+         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
+         (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
+         (df['vekova_skupina'] == '0-11') | (df['vekova_skupina'] == '12-15') | (df['vekova_skupina'] == '16-17')
+         ],
+        ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
     df = df.rolling(7).sum()
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
 
-    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000).round(1)
+    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000)
 
     return df
 
@@ -1216,3 +1219,72 @@ def get_tests_orp_graph_data():
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df
+
+
+def get_vaccinated_unvaccinated_comparison_graph_data():
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) populace, min_vek
+            from populace p 
+            join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+            where orp_kod = 'CZ0'
+            group by vekova_skupina
+        """,
+        db.engine)
+    populace
+
+    ockovani = pd.read_sql_query(
+        f"""
+        select datum, vekova_skupina,
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
+            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
+        from ockovani_lide o
+        join vakciny v on (o.vakcina = v.vakcina)
+        where datum < '{get_import_date()}'
+        group by datum, vekova_skupina
+        order by datum
+        """,
+        db.engine
+    )
+    ockovani = ockovani.groupby(['vekova_skupina', 'datum']).sum().groupby(level=0).cumsum().reset_index()
+
+    srovnani = pd.read_sql_query(
+        f"""
+        select * from srovnani_ockovani 
+        where "do" < '{get_import_date()}'
+        """,
+        db.engine
+    )
+    srovnani = srovnani[srovnani['od'] == srovnani['od'].max()]
+    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
+    srovnani = srovnani.groupby(['tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
+
+    df = pd.merge(ockovani, populace)
+    df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['od', 'vekova_skupina'])
+
+    df['vekova_skupina'] = df['vekova_skupina'].replace(
+        {'25-29': '25-39', '30-34': '25-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
+         '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
+    # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
+    df = df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
+
+    df['populace_bez'] = df['populace'] - df['populace_ockovani']
+    df['populace_plne'] = df['populace_plne'] + df['populace_posilujici']
+
+    df_norm = df.copy()
+
+    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
+    groups = ['bez', 'plne']
+
+    for d in datasets:
+        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
+
+        for g in groups:
+            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
+                .replace({np.nan: 0})
+
+    for g in groups:
+        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
+
+    return df_norm
