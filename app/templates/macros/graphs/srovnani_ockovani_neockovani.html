@@ -1,0 +1,141 @@
+{% macro graf_srovnani_ockovani_neockovani(data) -%}
+<div id="graf-srovnani-ockovani-neockovani"></div>
+
+<script>
+    function grafSrovnaniOckovaniNeockovani() {
+        const hovertemplate = "%{y:.1f} (počet: %{customdata[0]}, v populaci: %{customdata[1]:.1f} %)";
+
+        const traces = [
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.nakazeni_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['nakazeni_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
+                name: "Neočkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.nakazeni_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['nakazeni_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
+                name: "Plně očkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
+                name: "Neočkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
+                name: "Plně očkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_jip_bez_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_jip_bez'] }}, 1: {{ 100 * row['populace_bez_zastoupeni'] }}},{% endfor %}],
+                name: "Neočkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+            {
+                x: [{% for vekova_skupina in data.vekova_skupina %}"{{ vekova_skupina }}",{%  endfor %}],
+                y: [{% for value in data.hospitalizace_jip_plne_norm %}{{ value }}, {% endfor %}],
+                customdata: [{% for idx, row in data.iterrows() %}{0: {{ row['hospitalizace_jip_plne'] }}, 1: {{ 100 * row['populace_plne_zastoupeni'] }}},{% endfor %}],
+                name: "Plně očkovaní",
+                type: "bar",
+                hovertemplate: hovertemplate,
+            },
+        ];
+
+        const buttons = [
+            {
+                label: "Nakažení",
+                args: [
+                    {
+                        "visible": [true, true, false, false, false, false],
+                    }, {
+                        "title": "Počet nakažených na 100 tisíc obyvatel ve skupině"
+                    }
+                ],
+                method: "update"
+            },
+            {
+                label: "Hospitalizovaní",
+                args: [
+                    {
+                        "visible": [false, false, true, true, false, false],
+                    }, {
+                        "title": "Počet hospitalizovaných na 100 tisíc obyvatel ve skupině"
+                    }
+                ],
+                method: "update"
+            },
+            {
+                label: "Hospitalizovaní na JIP",
+                args: [
+                    {
+                        "visible": [false, false, false, false, true, true],
+                    }, {
+                        "title": "Počet hospitalizovaných na JIP na 100 tisíc obyvatel ve skupině"
+                    }
+                ],
+                method: "update"
+            },
+        ];
+        buttons[0]["activate"] = true;
+
+        const layout = {
+            barmode: "group",
+            autosize: true,
+            xaxis: {
+                title: "Věková skupina",
+            },
+            yaxis: {
+                title: "Počet na 100 tisíc obyvatel ve skupině",
+                automargin: true,
+                tickformat: ".f",
+            },
+            hovermode: "x unified",
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                yanchor: "bottom",
+                y: -0.4,
+            },
+            height: 500,
+            updatemenus: [{
+                direction: "right",
+                xanchor: "center",
+                yanchor: "center",
+                y: 1.6,
+                x: 0.5,
+                type: "buttons",
+                showactive: true,
+                buttons: buttons,
+            }]
+        };
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        };
+
+        Plotly.newPlot("graf-srovnani-ockovani-neockovani", traces, layout, config);
+
+        Plotly.update("graf-srovnani-ockovani-neockovani", buttons[0].args[0], buttons[0].args[1]);
+    }
+
+    grafSrovnaniOckovaniNeockovani();
+</script>
+{%- endmacro %}

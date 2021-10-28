@@ -19,28 +19,7 @@
             {% endfor %}
         ]
 
-        // Add buttons to switch between visibility of traces
         const buttons = [];
-        for (let i = 0; i < traces.length; i++) {
-            let traceVisibility = new Array(traces.length).fill(false);
-            traceVisibility[i] = true;
-
-            buttons[i] = {
-                label: traces[i].name,
-                args: [
-                    // Update data
-                    {
-                        "visible": traceVisibility,
-                    },
-
-                    // Update layout
-                    {
-                        "title": "Očkované dávky výrobce: " + traces[i].name
-                    }
-                ],
-                method: "update"
-            };
-        }
 
         // Add button to show all traces
         buttons.push(
@@ -60,6 +39,28 @@
                 method: "update"
             }
         );
+
+        // Add buttons to switch between visibility of traces
+        for (let i = 0; i < traces.length; i++) {
+            let traceVisibility = new Array(traces.length).fill(false);
+            traceVisibility[i] = true;
+
+            buttons[i + 1] = {
+                label: traces[i].name,
+                args: [
+                    // Update data
+                    {
+                        "visible": traceVisibility,
+                    },
+
+                    // Update layout
+                    {
+                        "title": "Očkované dávky výrobce: " + traces[i].name
+                    }
+                ],
+                method: "update"
+            };
+        }
 
         // Activate first button - only visually (action is activated by update of div)
         buttons[0]["activate"] = true;
@@ -107,8 +108,9 @@
             yaxis: {
                 title: "Počet očkovaných dávek",
                 automargin: true,
-                tickformat: ",f",
+                tickformat: ".f",
             },
+            hovermode: "x unified",
             showlegend: true,
             legend: {
                 orientation: "h",
