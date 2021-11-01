@@ -6,14 +6,14 @@ import numpy as np
 import requests
 from pandas import DataFrame
 
-from app import db, app
+from app import db
 from app.fetcher.fetcher import Fetcher
 from app.models import OckovaciMisto, OckovaciMistoDetail
 
 
-class CentersDetailFetcher(Fetcher):
+class CentersApiFetcher(Fetcher):
     """
-    Class for updating vaccination centers detail table.
+    Class for updating vaccination centers and vaccination centers detail table.
     """
 
     API_URL = 'https://cfa.uzis.cz/api/v1/'
@@ -38,24 +38,24 @@ class CentersDetailFetcher(Fetcher):
         df['min_vaccination_capacity'] = df['min_vaccination_capacity'].replace({np.nan: None})
         df['code'] = df['code'].str.zfill(11)
 
-        mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
+        # set all centers disabled to disable centers removed from the list
+        db.session.query(OckovaciMisto).update({OckovaciMisto.status: False})
 
         for idx, row in df.iterrows():
             id = row['id']
 
-            if id not in mista_ids:
-                db.session.merge(OckovaciMisto(
-                    id=id,
-                    nazev=row['name'],
-                    okres_id=row['district_nuts4_code'],
-                    status=row['operational_status'],
-                    adresa=row['address'],
-                    latitude=row['latitude'],
-                    longitude=row['longitude'],
-                    nrpzs_kod=row['code'],
-                    minimalni_kapacita=row['min_vaccination_capacity'],
-                    bezbarierovy_pristup=row['wheelchair_access']
-                ))
+            db.session.merge(OckovaciMisto(
+                id=id,
+                nazev=row['name'],
+                okres_id=row['district_nuts4_code'],
+                status=row['operational_status'],
+                adresa=row['address'],
+                latitude=row['latitude'],
+                longitude=row['longitude'],
+                nrpzs_kod=row['code'],
+                minimalni_kapacita=row['min_vaccination_capacity'],
+                bezbarierovy_pristup=row['wheelchair_access']
+            ))
 
             vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
 

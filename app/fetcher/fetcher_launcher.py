@@ -3,7 +3,7 @@ import time
 from datetime import date, datetime
 
 from app import app, db
-from app.fetcher.centers_detail_fetcher import CentersDetailFetcher
+from app.fetcher.centers_api_fetcher import CentersApiFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
 from app.fetcher.deaths_fetcher import DeathsFetcher
 from app.fetcher.deaths_vaccinated_fetcher import DeathsVaccinatedFetcher
@@ -74,22 +74,22 @@ class FetcherLauncher:
 
     def _init_fetchers(self, dataset: str) -> None:
         if dataset == 'all':
-            self._fetchers.append(CentersFetcher())
-            self._fetchers.append(CentersDetailFetcher())
-            # self._fetchers.append(OpeningHoursFetcher())
+            # self._fetchers.append(CentersFetcher()) - replaced by CentersApiFetcher
+            self._fetchers.append(CentersApiFetcher())
+            # self._fetchers.append(OpeningHoursFetcher()) - not needed, slow
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            # self._fetchers.append(ReservationsFetcher())
+            # self._fetchers.append(ReservationsFetcher()) - replaced by ReservationsApiFetcher
             self._fetchers.append(ReservationsApiFetcher())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher())
-            # self._fetchers.append(SuppliesFetcher())
+            # self._fetchers.append(HospitalAnalysisFetcher()) - not needed
+            # self._fetchers.append(SuppliesFetcher()) - data not updated anymore
             self._fetchers.append(InfectedVaccinatedFetcher())
             self._fetchers.append(Infected65VaccinatedFetcher())
             self._fetchers.append(DeathsVaccinatedFetcher())
@@ -97,8 +97,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
-        elif dataset == 'centers_detail':
-            self._fetchers.append(CentersDetailFetcher())
+        elif dataset == 'centers_api':
+            self._fetchers.append(CentersApiFetcher())
         elif dataset == 'opening_hours':
             self._fetchers.append(OpeningHoursFetcher())
         elif dataset == 'health_facilities':
