@@ -51,19 +51,19 @@ Mapa |
         {% if misto.longitude != None and misto.latitude != None %}
         var c = SMap.Coords.fromWGS84({{ misto.longitude }}, {{ misto.latitude }});
 
-        // var icon = JAK.mel("div");
-        // {% if misto.registrace_prumer_cekani == None %}
-        // var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"grayscale(1)"});
-        // {% elif misto.registrace_prumer_cekani/7 > 2 %}
-        // var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
-        // {% elif misto.registrace_prumer_cekani/7 < 1 %}
-        // var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"hue-rotate(80deg)"});
-        // {% else %}
-        // var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"});
-        // {% endif %}
-
         var icon = JAK.mel("div");
+        {% if misto.registrace_prumer_cekani == None %}
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"grayscale(1)"});
+        {% elif misto.registrace_prumer_cekani/7 > 2 %}
         var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
+        {% elif misto.registrace_prumer_cekani/7 < 1 %}
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"}, {filter:"hue-rotate(80deg)"});
+        {% else %}
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-yellow.png"});
+        {% endif %}
+
+        // var icon = JAK.mel("div");
+        // var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
         icon.appendChild(image);
 
         var options = {
@@ -77,7 +77,7 @@ Mapa |
         card.getHeader().innerHTML = "<strong>{{ misto.nazev }}</strong>";
         card.getBody().innerHTML = "<strong>Adresa:</strong> {{misto.adresa}}<br>" +
             "<strong>Bezbariérový přístup:</strong> {{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}<br>" +
-            // "<strong>Čekání na rezervaci získanou minulý týden:</strong> {{ (None if misto.registrace_prumer_cekani == None else (misto.registrace_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if misto.registrace_prumer_cekani != None }} <br>" +
+            "<strong>Čekání na rezervaci za poslední týden:</strong> {{ (None if misto.registrace_prumer_cekani == None else (misto.registrace_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if misto.registrace_prumer_cekani != None }} <br>" +
             // "<strong>Průměrná doba čekajících ve frontě:</strong> {{ (None if misto.registrace_fronta_prumer_cekani == None else (misto.registrace_fronta_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if misto.registrace_fronta_prumer_cekani != None }} <br>" +
             // "<strong>Zatížení místa:</strong> {{ (None if misto.ockovani_odhad_cekani == None else (misto.ockovani_odhad_cekani / 7)) | format_decimal }} {{ '' if misto.ockovani_odhad_cekani != None }} <br>" +
             '<a href="./misto/{{ misto.id }}" class="btn btn-primary mt-2">Detail místa</a>';
