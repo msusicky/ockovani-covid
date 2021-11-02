@@ -10,7 +10,8 @@ from app.models import CrMetriky
 class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
-                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_pred_zavorou) \
+                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_pred_zavorou,
+                                 CrMetriky.registrace_prumer_cekani) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
@@ -18,6 +19,7 @@ class TwitterBot():
         self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
         self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_celkem
         self._waiting = stats.registrace_pred_zavorou
+        self._average_reservation_waiting = stats.registrace_prumer_cekani
         # self._end_date = queries.count_end_date_vaccinated()
         # self._end_date_supplies = queries.count_end_date_supplies()
         # self._end_date_interested = queries.couht_end_date_interested()
@@ -37,11 +39,9 @@ class TwitterBot():
         return True
 
     def _generate_tweet(self):
-        text = "{} plně očkováno ({} celkem, {} od včera). Na termín pro 1. nebo 3. dávku čeká před závorou {} zájemců. U praktiků čeká {} dávek. https://ockovani.opendatalab.cz" \
-            .format(self._generate_progressbar(), filters.format_number(self._vaccinated),
-                    filters.format_number(self._vaccinated_diff), filters.format_number(self._waiting),
-                    filters.format_number(self._gp_vaccines))
-        return text
+        return f"{self._generate_progressbar()} plně očkováno ({filters.format_number(self._vaccinated)} celkem, {filters.format_number(self._vaccinated_diff)} od včera). " \
+               f"Na termín pro 1. nebo 3. dávku čeká před závorou {filters.format_number(self._waiting)} zájemců, průměrná doba čekání je {filters.format_number(self._average_reservation_waiting)} dní. " \
+               f"Praktici nabízejí {filters.format_number(self._gp_vaccines)} dávek. https://ockovani.opendatalab.cz"
 
     def _generate_progressbar(self):
         vaccinated_percent = self._vaccinated_ratio * 100

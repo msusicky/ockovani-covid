@@ -763,7 +763,9 @@ def count_top_centers():
 
 
 def couht_gp_vaccines():
-    return db.session.query(func.sum(PrakticiKapacity.pocet_davek)).one()[0]
+    return db.session.query(func.sum(PrakticiKapacity.pocet_davek)) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .one()[0]
 
 
 def count_vaccinated_unvaccinated_comparison():
