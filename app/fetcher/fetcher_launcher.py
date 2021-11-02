@@ -76,7 +76,7 @@ class FetcherLauncher:
         if dataset == 'all':
             # self._fetchers.append(CentersFetcher()) - replaced by CentersApiFetcher
             self._fetchers.append(CentersApiFetcher())
-            # self._fetchers.append(OpeningHoursFetcher()) - not needed, slow
+            self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())

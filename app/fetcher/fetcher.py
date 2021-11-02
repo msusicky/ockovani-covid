@@ -15,6 +15,7 @@ class Fetcher:
         self._url = url
         self.check_date = check_date
         self.ignore_errors = ignore_errors
+        self.finished = False
 
     def get_modified_date(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers
