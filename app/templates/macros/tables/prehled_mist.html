@@ -62,6 +62,13 @@
                            title="Počet registrovaných čekajících na možnost rezervace konkrétního termínu.">
                         </i>
                     </th>
+                    <th scope="col" class="text-center col-sortable">
+                        Čekání na rezervaci
+                        <i class="fas fa-exclamation-triangle" data-toggle="tooltip" data-placement="auto"
+                           data-html="true"
+                           title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na možnost výběru termínu).<br>Registrace na 1. a 3. dávku mohou mít různou prioritu.<br>Červená (>2), žlutá (>1), zelená (>0).">
+                        </i>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -99,6 +106,10 @@
                     </td>
                     <td class="text-right" data-value="{{ item.registrace_pred_zavorou }}">
                         {{ item.registrace_pred_zavorou | format_number }}
+                    </td>
+                    <td class="text-center" data-value="{{ item.registrace_prumer_cekani }}">
+                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7,
+                        rev_color=True, limits=(1, 2)) }}
                     </td>
                 </tr>
                 {% endfor %}
