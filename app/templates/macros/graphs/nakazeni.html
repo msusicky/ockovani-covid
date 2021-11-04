@@ -10,52 +10,66 @@
         {% set data_18_29 = data.filter(like = '18-29', axis=0) %}
         {% set data_0_17 = data.filter(like = '0-17', axis=0) %}
 
+        const hovertemplate = "%{y:.1f} (%{customdata})";
+
         const nakazeni = {
             x: [{% for idx, row in data_ostatni.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_ostatni.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "30-59",
+            hovertemplate: hovertemplate,
         }
 
         const nakazeni_80 = {
             x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_80.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "80+",
+            hovertemplate: hovertemplate,
         }
 
         const nakazeni_70 = {
             x: [{% for idx, row in data_70_79.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_70_79.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_70_79.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "70-79",
+            hovertemplate: hovertemplate,
         }
 
         const nakazeni_60 = {
             x: [{% for idx, row in data_60_69.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_60_69.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_60_69.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "60-69",
+            hovertemplate: hovertemplate,
         }
 
         const nakazeni_1829 = {
             x: [{% for idx, row in data_18_29.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_18_29.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_18_29.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "18-29",
+            hovertemplate: hovertemplate,
         }
 
         const nakazeni_0 = {
             x: [{% for idx, row in data_0_17.iterrows() %}"{{ idx[1] }}",{% endfor %}],
             y: [{% for idx, row in data_0_17.iterrows() %}{{ row['pocet_nakazeni_norm'] }},{% endfor %}],
+            customdata: [{% for idx, row in data_0_17.iterrows() %}{{ row['pocet_nakazeni'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
             name: "0-17",
+            hovertemplate: hovertemplate,
         }
 
         const layout = {
