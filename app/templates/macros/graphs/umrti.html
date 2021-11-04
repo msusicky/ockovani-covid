@@ -10,7 +10,7 @@
         {% set data_18_29 = data.filter(like = '18-29', axis=0) %}
         {% set data_0_17 = data.filter(like = '0-17', axis=0) %}
 
-        const hovertemplate = "%{y:.1f} (%{customdata})";
+        const hovertemplate = "%{y:.2f} (%{customdata})";
 
         const umrti_80 = {
             x: [{% for idx, row in data_80.iterrows() %}"{{ idx[1] }}",{% endfor %}],
@@ -114,7 +114,6 @@
                 title: "Počet na 100 tisíc obyvatel",
                 automargin: true,
                 tickformat: ".f",
-                hoverformat: ".2f",
             },
             hovermode: "x unified",
             showlegend: true,
