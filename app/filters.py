@@ -33,6 +33,12 @@ def format_date(date):
 
 
 @app.template_filter()
+def format_date_short(date):
+    """Converts date to string in d. m. Y format."""
+    return 'bez dat' if date is None else date.strftime('%d. %m.')
+
+
+@app.template_filter()
 def format_date_wd(date):
     """Converts date to string in a d. m. Y format."""
     return 'bez dat' if date is None else date.strftime('%a %d. %m. %Y').lower()
