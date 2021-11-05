@@ -1083,20 +1083,19 @@ def get_infected_graph_data():
 
     df = df.fillna(0)
 
-    df['vekova_skupina_grp'] = np.select(
-        [df['vekova_skupina'] == '80+',
-         (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
-         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
-         (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
-         (df['vekova_skupina'] == '0-11') | (df['vekova_skupina'] == '12-15') | (df['vekova_skupina'] == '16-17')],
-        ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
+    df['vekova_skupina_grp'] = df['vekova_skupina'].replace(
+        {'0-11': '0-17', '12-15': '0-17', '16-17': '0-17', '18-24': '18-29', '25-29': '18-29', '30-34': '30-39',
+         '35-39': '30-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59', '60-64': '60-69',
+         '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df = df.rolling(7).sum()
+    df_sum = df.rolling(7).sum()
+
+    df_sum['pocet_nakazeni_norm'] = ((df_sum['pocet_nakazeni'] / df_sum['pocet_vek']) * 100000)
+
+    df = pd.merge(df_sum[['pocet_nakazeni_norm']], df[['pocet_nakazeni']], left_index=True, right_index=True)
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
-
-    df['pocet_nakazeni_norm'] = ((df['pocet_nakazeni'] / df['pocet_vek']) * 100000)
 
     return df
 
@@ -1170,21 +1169,19 @@ def get_deaths_graph_data():
 
     df = df.fillna(0)
 
-    df['vekova_skupina_grp'] = np.select(
-        [df['vekova_skupina'] == '80+',
-         (df['vekova_skupina'] == '70-74') | (df['vekova_skupina'] == '75-79'),
-         (df['vekova_skupina'] == '60-64') | (df['vekova_skupina'] == '65-69'),
-         (df['vekova_skupina'] == '18-24') | (df['vekova_skupina'] == '25-29'),
-         (df['vekova_skupina'] == '0-11') | (df['vekova_skupina'] == '12-15') | (df['vekova_skupina'] == '16-17')
-         ],
-        ['80+', '70-79', '60-69', '18-29', '0-17'], default='ostatni')
+    df['vekova_skupina_grp'] = df['vekova_skupina'].replace(
+        {'0-11': '0-17', '12-15': '0-17', '16-17': '0-17', '18-24': '18-29', '25-29': '18-29', '30-34': '30-39',
+         '35-39': '30-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59', '60-64': '60-69',
+         '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df = df.rolling(7).sum()
+    df_sum = df.rolling(7).sum()
+
+    df_sum['pocet_umrti_norm'] = ((df_sum['pocet_umrti'] / df_sum['pocet_vek']) * 100000)
+
+    df = pd.merge(df_sum[['pocet_umrti_norm']], df[['pocet_umrti']], left_index=True, right_index=True)
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
-
-    df['pocet_umrti_norm'] = ((df['pocet_umrti'] / df['pocet_vek']) * 100000)
 
     return df
 
