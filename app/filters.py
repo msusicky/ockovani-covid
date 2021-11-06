@@ -57,7 +57,7 @@ def format_date_en(date):
 
 @app.template_filter()
 def format_datetime_short_wd(date):
-    """Converts time to string in a H:M format."""
+    """Converts datetime to string in a d. m. H:M format."""
     return 'bez dat' if date is None else date.strftime('%a %d. %m. %H:%M').lower()
 
 
@@ -69,7 +69,7 @@ def format_weekday(day):
 
 @app.template_filter()
 def format_time(time):
-    """Converts date to string in d. m. Y format."""
+    """Converts time to string in a H:M format."""
     return 'bez dat' if time is None else time.strftime('%H:%M')
 
 
