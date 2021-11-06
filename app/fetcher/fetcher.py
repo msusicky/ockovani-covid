@@ -10,14 +10,14 @@ from app import db, app
 
 
 class Fetcher:
-    def __init__(self, table: str, url: str, check_date=True, ignore_errors=False):
+    def __init__(self, table: str, url: str, check_date=True, historized=False):
         self._table = table
         self._url = url
         self.check_date = check_date
-        self.ignore_errors = ignore_errors
+        self.historized = historized
         self.finished = False
 
-    def get_modified_date(self) -> Optional[datetime]:
+    def get_modified_time(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers
         if 'last-modified' in headers:
             modified_tuple = eut.parsedate_tz(headers['last-modified'])

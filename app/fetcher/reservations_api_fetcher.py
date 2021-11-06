@@ -23,10 +23,10 @@ class ReservationsApiFetcher(Fetcher):
     VACCINE_SERVICES = 'vaccine_services/stats/'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES)
+        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES, historized=True)
         urllib3.disable_warnings()
 
-    def get_modified_date(self) -> Optional[datetime]:
+    def get_modified_time(self) -> Optional[datetime]:
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:

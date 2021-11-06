@@ -21,7 +21,7 @@ class OpeningHoursFetcher(Fetcher):
     def __init__(self):
         super().__init__(ProvozniDoba.__tablename__, self.API_URL + self.OPENING_HOURS)
 
-    def get_modified_date(self) -> Optional[datetime]:
+    def get_modified_time(self) -> Optional[datetime]:
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:

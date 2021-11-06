@@ -22,7 +22,7 @@ class CentersApiFetcher(Fetcher):
     def __init__(self):
         super().__init__(OckovaciMistoDetail.__tablename__, self.API_URL + self.CENTERS_LIST)
 
-    def get_modified_date(self) -> Optional[datetime]:
+    def get_modified_time(self) -> Optional[datetime]:
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:

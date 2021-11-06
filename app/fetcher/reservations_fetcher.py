@@ -13,7 +13,7 @@ class ReservationsFetcher(Fetcher):
     RESERVATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV)
+        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV, historized=True)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
