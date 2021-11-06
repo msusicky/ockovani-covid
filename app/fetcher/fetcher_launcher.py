@@ -30,7 +30,7 @@ from app.models import Import
 
 class FetcherLauncher:
 
-    ATTEMPTS_COUNT = 15
+    ATTEMPTS_COUNT = 20
     ATTEMPTS_MIN_DURATION = 300 # 5 minutes
 
     def __init__(self):
@@ -162,7 +162,7 @@ class FetcherLauncher:
     def _check_modified_time(self, fetcher: Fetcher) -> bool:
         modified_time = fetcher.get_modified_time()
 
-        if modified_time.date() < date.today():
+        if fetcher.check_date and modified_time.date() < date.today():
             app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified time: '{modified_time}' - no new data.")
             return False
 
