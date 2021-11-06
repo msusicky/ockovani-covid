@@ -47,12 +47,12 @@ def find_centers(filter_column, filter_value):
                                OckovaciMistoMetriky.registrace_pred_zavorou) \
         .join(OckovaciMistoMetriky) \
         .join(OckovaciMistoDetail) \
-        .outerjoin(Okres, (OckovaciMisto.okres_id == Okres.id)) \
-        .outerjoin(Kraj, (Okres.kraj_id == Kraj.id)) \
+        .outerjoin(Okres, OckovaciMisto.okres_id == Okres.id) \
+        .outerjoin(Kraj, Okres.kraj_id == Kraj.id) \
         .filter(filter_column == filter_value) \
         .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(or_(OckovaciMisto.status == True, OckovaciMistoMetriky.registrace_fronta > 0,
-                    OckovaciMistoMetriky.rezervace_cekajici > 0)) \
+                    OckovaciMistoMetriky.rezervace_cekajici > 0, OckovaciMistoDetail.typ == 'WALKIN')) \
         .filter(OckovaciMistoDetail.typ != 'AČR') \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.longitude,
                   OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,

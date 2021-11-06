@@ -105,7 +105,7 @@ def info_misto(misto_id):
 
 @bp.route("/mapa")
 def mapa():
-    mista = queries.find_centers(OckovaciMisto.status, True)
+    mista = queries.find_centers(True, True)
 
     third_doses_centers = queries.find_third_doses_centers()
 

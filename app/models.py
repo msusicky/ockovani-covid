@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey, Index, ARRAY
+from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, Float, Date, ForeignKey, Index, ARRAY, Time
 from sqlalchemy.orm import relationship
 
 from app import db
@@ -193,8 +193,8 @@ class ProvozniDoba(db.Model):
 
     ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     den = Column(Integer, primary_key=True)
-    od = Column(Unicode, primary_key=True)
-    do = Column(Unicode, primary_key=True)
+    od = Column(Time, primary_key=True)
+    do = Column(Time, primary_key=True)
 
 
 class OckovaciZarizeni(db.Model):
@@ -379,6 +379,7 @@ class ZdravotnickeStredisko(db.Model):
     telefon = Column(Unicode)
 
     def __repr__(self):
+        return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
         return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
 
 

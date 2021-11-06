@@ -18,7 +18,7 @@
     </div>
 </div>
 
-{% if not misto.status %}
+{% if not misto.status and misto.ockovaci_misto_detail.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="alert alert-warning" role="alert">
@@ -76,11 +76,6 @@
                         Registrace
                     </a>
                     {% endif %}
-                    {% if misto.vakcinacka %}
-                    <a href="{{ misto.vakcinacka.url_mista }}" class="btn btn-primary mb-1" target="_blank">
-                        Vakcinačka
-                    </a>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -95,6 +90,7 @@
     </div>
 </div>
 
+{% if misto.ockovaci_misto_detail.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="card">
@@ -176,6 +172,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
