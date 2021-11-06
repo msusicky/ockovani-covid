@@ -1,4 +1,9 @@
+import re
+from markupsafe import Markup, escape
 from app import app
+import calendar
+
+_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
 
 @app.template_filter()
@@ -34,7 +39,7 @@ def format_date(date):
 
 @app.template_filter()
 def format_date_short(date):
-    """Converts date to string in d. m. Y format."""
+    """Converts date to string in d. m. format."""
     return 'bez dat' if date is None else date.strftime('%d. %m.')
 
 
@@ -57,6 +62,18 @@ def format_datetime_short_wd(date):
 
 
 @app.template_filter()
+def format_weekday(day):
+    """Converts number to weekday name."""
+    return calendar.day_name[day - 1].capitalize()
+
+
+@app.template_filter()
+def format_time(time):
+    """Converts time to string in a H:M format."""
+    return 'bez dat' if time is None else time.strftime('%H:%M')
+
+
+@app.template_filter()
 def number_color(number, digits=1):
     return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, digits) < 0 else 'text-success'
 
@@ -64,3 +81,8 @@ def number_color(number, digits=1):
 @app.template_filter()
 def number_color_rev(number, digits=1):
     return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, digits) > 0 else 'text-success'
+
+
+@app.template_filter()
+def nl2br(text):
+    return '\n\n'.join(u'%s<br>' % p.replace('\n', Markup('<br>\n')) for p in _paragraph_re.split(escape(text)))

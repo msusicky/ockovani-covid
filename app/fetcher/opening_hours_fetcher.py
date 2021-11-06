@@ -7,7 +7,7 @@ from pandas import DataFrame
 
 from app import db
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaciMisto, ProvozniDoba
+from app.models import OckovaciMisto, ProvozniDoba, OckovaciMistoDetail
 
 
 class OpeningHoursFetcher(Fetcher):
@@ -28,7 +28,12 @@ class OpeningHoursFetcher(Fetcher):
         user = os.environ.get('CFA_USER')
         password = os.environ.get('CFA_PASS')
 
-        mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
+        # select only walkin centers
+        mista = db.session.query(OckovaciMisto.id) \
+            .join(OckovaciMistoDetail) \
+            .filter(OckovaciMistoDetail.typ == 'WALKIN') \
+            .all()
+        mista_ids = [r[0] for r in mista]
 
         self._truncate()
 

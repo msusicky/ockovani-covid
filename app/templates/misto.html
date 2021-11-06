@@ -18,7 +18,7 @@
     </div>
 </div>
 
-{% if not misto.status %}
+{% if not misto.status and misto.ockovaci_misto_detail.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="alert alert-warning" role="alert">
@@ -54,31 +54,59 @@
                         {% endfor %}
                     </dd>
 
+                    {% if misto.ockovaci_misto_detail.typ == 'WALKIN' %}
+                    {% if misto.ockovaci_misto_detail.telefon %}
+                    <dt>Telefon</dt>
+                    <dd>
+                        <a href="tel:{{ misto.ockovaci_misto_detail.telefon }}">
+                            {{ misto.ockovaci_misto_detail.telefon }}
+                        </a>
+                    </dd>
+                    {% endif %}
+
+                    {% if misto.ockovaci_misto_detail.email %}
+                    <dt>E-mail</dt>
+                    <dd>
+                        <a href="mailto:{{ misto.ockovaci_misto_detail.email }}">
+                            {{ misto.ockovaci_misto_detail.email }}
+                        </a>
+                    </dd>
+                    {% endif %}
+
+                    {% if misto.ockovaci_misto_detail.verejna_poznamka %}
+                    <dt>Poznámka</dt>
+                    <dd class="text-justify">
+                        {{ misto.ockovaci_misto_detail.verejna_poznamka | urlize(target='_blank') | nl2br |safe }}
+                    </dd>
+                    {% endif %}
+                    {% endif %}
+
                     {% if misto.okres %}
                         <dt>Okolní očkovací místa</dt>
                         <dd>
                             <span class="mr-1">
-                                Okres: <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">{{ misto.okres.nazev }}</a>
+                                Okres:
+                                <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">
+                                    {{ misto.okres.nazev }}
+                                </a>
                             </span>
                             <span>
-                                Kraj: <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev) }}">{{ misto.okres.kraj.nazev }}</a>
+                                Kraj:
+                                <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev) }}">
+                                    {{ misto.okres.kraj.nazev }}
+                                </a>
                             </span>
                         </dd>
                     {% endif %}
                 </dl>
                 <div class="mb-n1">
-                    {% if misto.status %}
                     <a href="https://ockoreport.uzis.cz/Detail?guid={{misto.id}}" class="btn btn-primary mb-1"
                        target="_blank">
                         Oficiální stránka místa
                     </a>
+                    {% if misto.status %}
                     <a href="https://registrace.mzcr.cz/" class="btn btn-primary mb-1" target="_blank">
                         Registrace
-                    </a>
-                    {% endif %}
-                    {% if misto.vakcinacka %}
-                    <a href="{{ misto.vakcinacka.url_mista }}" class="btn btn-primary mb-1" target="_blank">
-                        Vakcinačka
                     </a>
                     {% endif %}
                 </div>
@@ -87,14 +115,34 @@
     </div>
     <div class="col-md-6 px-2 mb-3">
         <div class="card h-100">
-            <div class="card-body">
+            <div class="card-body mb-n3">
+                {% if misto.longitude and misto.latitude %}
                 <h5 class="card-title">Mapa</h5>
-                <div id="center-map" style="height:330px;"></div>
+                <div id="center-map" class="mb-3" style="height:330px;"></div>
+                {% endif %}
+
+                {% if misto.ockovaci_misto_detail.typ == 'WALKIN' and opening_hours %}
+                <h5 class="card-title">Provozní doba</h5>
+                <table class="table table-bordered table-sm mb-3">
+                    {% for day in opening_hours %}
+                    <tr>
+                        <td>{{ day | format_weekday }}</td>
+                        <td>
+                            {% for hour in opening_hours[day] %}
+                            {{ hour[0] | format_time }}-{{ hour[1] | format_time }}
+                            {%- if not loop.last %}, {% endif -%}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
+{% if misto.ockovaci_misto_detail.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="card">
@@ -176,6 +224,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
