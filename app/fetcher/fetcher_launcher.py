@@ -184,7 +184,7 @@ class FetcherLauncher:
         # executes fetcher
         start = time.time()
         app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
-        fetcher.fetch(self._import.id if self._import.id else None)
+        fetcher.fetch(self._import.id if self._import else None)
         fetcher.finished = True
         app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
 
