@@ -97,10 +97,16 @@ def info_misto(misto_id):
 
     vaccination_graph_data = queries.get_vaccination_graph_data(misto_id)
 
+    opening_hours = {}
+    for oh in misto.provozni_doba:
+        if oh.den not in opening_hours:
+            opening_hours[oh.den] = []
+        opening_hours[oh.den].append((oh.od, oh.do))
+
     return render_template('misto.html', last_update=_last_import_modified(), now=_now(), misto=misto, metriky=metriky,
                            vaccines=vaccines, registrations=registrations, free_slots=free_slots,
                            queue_graph_data=queue_graph_data, registrations_graph_data=registrations_graph_data,
-                           vaccination_graph_data=vaccination_graph_data)
+                           vaccination_graph_data=vaccination_graph_data, opening_hours=opening_hours)
 
 
 @bp.route("/mapa")
