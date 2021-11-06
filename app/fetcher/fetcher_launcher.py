@@ -50,7 +50,7 @@ class FetcherLauncher:
                 start = time.time()
 
                 for f in self._fetchers:
-                    if not f.finished and self._check_modified_time(f):
+                    if (not f.finished or not f.check_date) and self._check_modified_time(f):
                         self._fetch(f)
 
                 if self._all_finished():
@@ -183,7 +183,7 @@ class FetcherLauncher:
 
     def _all_finished(self) -> bool:
         for f in self._fetchers:
-            if not f.finished and f.check_date:
+            if not f.finished:
                 return False
         return True
 
