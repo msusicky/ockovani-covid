@@ -3,11 +3,12 @@ import time
 from datetime import date, datetime
 
 from app import app, db
-from app.fetcher.centers_detail_fetcher import CentersDetailFetcher
+from app.fetcher.centers_api_fetcher import CentersApiFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
 from app.fetcher.deaths_fetcher import DeathsFetcher
 from app.fetcher.deaths_vaccinated_fetcher import DeathsVaccinatedFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
+from app.fetcher.fetcher import Fetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
 from app.fetcher.hospitalized_icu_vaccinated_fetcher import HospitalizedIcuVaccinatedFetcher
 from app.fetcher.hospitalized_vaccinated_fetcher import HospitalizedVaccinatedFetcher
@@ -28,42 +29,42 @@ from app.models import Import
 
 
 class FetcherLauncher:
-
-    ATTEMPTS = 10
+    ATTEMPTS_COUNT = 20
+    ATTEMPTS_MIN_DURATION = 300  # 5 minutes
 
     def __init__(self):
         self._fetchers = []
         self._import = None
-        self._last_modified_date = None
+        self._last_modified = None
+        self._historization_needed = False
 
     def fetch(self, dataset: str) -> bool:
-        try:
-            self._init_fetchers(dataset)
+        # starts fetching
+        self._init_fetchers(dataset)
+        self._historization_needed = self._is_historization_needed()
+        self._init_import()
 
-            for i in range(1, self.ATTEMPTS + 1):
-                try:
-                    self._check_modified_dates()
+        try:
+            for i in range(1, self.ATTEMPTS_COUNT + 1):
+                app.logger.info(f'Attempt {i} started.')
+                start = time.time()
+
+                # start not finished fetchers
+                # todo: fetchers with disabled check_date are executed in every attempt - it can be optimized
+                for f in self._fetchers:
+                    if (not f.finished or not f.check_date) and self._check_modified_time(f):
+                        self._fetch(f)
+
+                # check if all fetchers finished, if not start next attempt
+                if self._all_finished():
+                    app.logger.info(f'Attempt {i} finished - all fetchers finished.')
                     break
-                except OldDataException as e:
-                    if i < self.ATTEMPTS:
-                        app.logger.info(
-                            f'New data not available yet. Attempt {i}/{self.ATTEMPTS} failed, waiting 10 minutes...'
-                        )
-                        time.sleep(60)
-                        for j in range(9, 0, -1):
-                            app.logger.info(f'Waiting for new data, {j} minutes left...')
-                            time.sleep(60)
-                    else:
-                        raise e
+                elif i == self.ATTEMPTS_COUNT:
+                    raise Exception('All attempts used, new data not available.')
 
-            self._init_import()
+                app.logger.info(f'Attempt {i} finished - some fetchers skipped.')
+                self._wait(self.ATTEMPTS_MIN_DURATION - (time.time() - start))
 
-        except Exception as e:
-            app.logger.error(e)
-            return False
-
-        try:
-            self._fetch()
         except Exception as e:
             app.logger.error(e)
             self._set_import_failed()
@@ -73,23 +74,24 @@ class FetcherLauncher:
         return True
 
     def _init_fetchers(self, dataset: str) -> None:
+        # inits requested fetchers
         if dataset == 'all':
-            self._fetchers.append(CentersFetcher())
-            self._fetchers.append(CentersDetailFetcher())
+            # self._fetchers.append(CentersFetcher()) - replaced by CentersApiFetcher
+            self._fetchers.append(CentersApiFetcher())
             # self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            # self._fetchers.append(ReservationsFetcher())
+            # self._fetchers.append(ReservationsFetcher()) - replaced by ReservationsApiFetcher
             self._fetchers.append(ReservationsApiFetcher())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher())
-            # self._fetchers.append(SuppliesFetcher())
+            # self._fetchers.append(HospitalAnalysisFetcher()) - not needed
+            # self._fetchers.append(SuppliesFetcher()) - data not updated anymore
             self._fetchers.append(InfectedVaccinatedFetcher())
             self._fetchers.append(Infected65VaccinatedFetcher())
             self._fetchers.append(DeathsVaccinatedFetcher())
@@ -97,8 +99,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
-        elif dataset == 'centers_detail':
-            self._fetchers.append(CentersDetailFetcher())
+        elif dataset == 'centers_api':
+            self._fetchers.append(CentersApiFetcher())
         elif dataset == 'opening_hours':
             self._fetchers.append(OpeningHoursFetcher())
         elif dataset == 'health_facilities':
@@ -140,65 +142,80 @@ class FetcherLauncher:
         else:
             raise Exception('Invalid dataset argument.')
 
-    def _check_modified_dates(self) -> None:
-        modified_dates = []
-
-        for fetcher in self._fetchers:
-            try:
-                modified_date = fetcher.get_modified_date()
-                app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified date: '{modified_date}'.")
-
-                if fetcher.check_date and (modified_date is None or modified_date.date() < date.today()):
-                    raise OldDataException(f"Fetcher '{type(fetcher).__name__}' returned modified date older than today.")
-
-                if modified_date is not None:
-                    modified_dates.append(modified_date)
-
-            except Exception as e:
-                if fetcher.ignore_errors:
-                    app.logger.warning(f"Ignoring error: '{e}'")
-                else:
-                    raise e
-
-        self._last_modified_date = max(modified_dates)
-
-    def _fetch(self) -> None:
-        for fetcher in self._fetchers:
-            start = time.time()
-            app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
-
-            try:
-                fetcher.fetch(self._import.id)
-                app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
-            except Exception as e:
-                if fetcher.ignore_errors:
-                    app.logger.warning(f"Ignoring error: '{e}'")
-                else:
-                    raise e
+    def _is_historization_needed(self) -> bool:
+        # checks if we want to fetch some dataset which requires historization
+        for f in self._fetchers:
+            if f.historized:
+                return True
+        return False
 
     def _init_import(self) -> None:
-        # delete previous today's import if exists
-        db.session.query(Import).filter(Import.date == self._last_modified_date.date()).delete()
+        # creates import record if it's needed, if another one exists for the same day, it will be removed
+        if self._historization_needed:
+            # delete previous today's import if exists
+            db.session.query(Import).filter(Import.date == date.today()).delete()
 
-        self._import = Import(status='RUNNING')
-        self._import.last_modified = self._last_modified_date
-        self._import.date = self._last_modified_date.date()
-        db.session.add(self._import)
-        db.session.commit()
+            self._import = Import(status='RUNNING')
+            self._import.date = date.today()
+            db.session.add(self._import)
+            db.session.commit()
+
+            app.logger.info(f'New import record with id {self._import.id} created.')
+
+        else:
+            app.logger.info(f'New import record not needed.')
+
+    def _check_modified_time(self, fetcher: Fetcher) -> bool:
+        # checks if dataset was updated today, returns true if check_date is not enabled
+        modified_time = fetcher.get_modified_time()
+
+        if fetcher.check_date and modified_time.date() < date.today():
+            app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified time: '{modified_time}' - no new data.")
+            return False
+
+        app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified time: '{modified_time}' - ok.")
+
+        if self._last_modified is None or self._last_modified < modified_time:
+            self._last_modified = modified_time
+
+        return True
+
+    def _fetch(self, fetcher: Fetcher) -> None:
+        # executes fetcher
+        start = time.time()
+        app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
+        fetcher.fetch(self._import.id if self._import else None)
+        fetcher.finished = True
+        app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
+
+    def _all_finished(self) -> bool:
+        # checks if all fetchers finished
+        for f in self._fetchers:
+            if not f.finished:
+                return False
+        return True
+
+    def _wait(self, duration: time) -> None:
+        # wait before the next attempt
+        if duration > 0:
+            app.logger.info(f'Waiting {duration:.0f} s before the next attempt.')
+            time.sleep(duration)
 
     def _set_import_failed(self) -> None:
-        self._import.status = 'FAILED'
-        self._import.end = datetime.now()
-        db.session.commit()
+        # sets import record failed if some exception occurs
+        if self._historization_needed:
+            self._import.status = 'FAILED'
+            self._import.end = datetime.now()
+            self._import.last_modified = self._last_modified
+            db.session.commit()
 
     def _set_import_finished(self) -> None:
-        self._import.status = 'FINISHED'
-        self._import.end = datetime.now()
-        db.session.commit()
-
-
-class OldDataException(Exception):
-    pass
+        # sets import record finished if it succeeded
+        if self._historization_needed:
+            self._import.status = 'FINISHED'
+            self._import.end = datetime.now()
+            self._import.last_modified = self._last_modified
+            db.session.commit()
 
 
 if __name__ == '__main__':

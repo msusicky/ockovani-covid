@@ -15,7 +15,7 @@ class RegistrationsFetcher(Fetcher):
     REGISTRATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-registrace.csv'
 
     def __init__(self):
-        super().__init__(OckovaniRegistrace.__tablename__, self.REGISTRATIONS_CSV)
+        super().__init__(OckovaniRegistrace.__tablename__, self.REGISTRATIONS_CSV, historized=True)
 
     def fetch(self, import_id: int) -> None:
         usecols = ['datum', 'ockovaci_misto_id', 'vekova_skupina', 'povolani', 'stat', 'rezervace', 'datum_rezervace',
