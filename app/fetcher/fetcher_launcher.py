@@ -76,22 +76,22 @@ class FetcherLauncher:
     def _init_fetchers(self, dataset: str) -> None:
         # inits requested fetchers
         if dataset == 'all':
-            # self._fetchers.append(CentersFetcher()) - replaced by CentersApiFetcher
+            # self._fetchers.append(CentersFetcher())  # replaced by CentersApiFetcher
             self._fetchers.append(CentersApiFetcher())
-            # self._fetchers.append(OpeningHoursFetcher())
+            self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            # self._fetchers.append(ReservationsFetcher()) - replaced by ReservationsApiFetcher
+            # self._fetchers.append(ReservationsFetcher())  # replaced by ReservationsApiFetcher
             self._fetchers.append(ReservationsApiFetcher())
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher()) - not needed
-            # self._fetchers.append(SuppliesFetcher()) - data not updated anymore
+            # self._fetchers.append(HospitalAnalysisFetcher())  # not needed
+            # self._fetchers.append(SuppliesFetcher())  # data not updated anymore
             self._fetchers.append(InfectedVaccinatedFetcher())
             self._fetchers.append(Infected65VaccinatedFetcher())
             self._fetchers.append(DeathsVaccinatedFetcher())
