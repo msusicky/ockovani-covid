@@ -29,9 +29,8 @@ from app.models import Import
 
 
 class FetcherLauncher:
-
     ATTEMPTS_COUNT = 20
-    ATTEMPTS_MIN_DURATION = 300 # 5 minutes
+    ATTEMPTS_MIN_DURATION = 300  # 5 minutes
 
     def __init__(self):
         self._fetchers = []
@@ -40,6 +39,7 @@ class FetcherLauncher:
         self._historization_needed = False
 
     def fetch(self, dataset: str) -> bool:
+        # starts fetching
         self._init_fetchers(dataset)
         self._historization_needed = self._is_historization_needed()
         self._init_import()
@@ -49,10 +49,13 @@ class FetcherLauncher:
                 app.logger.info(f'Attempt {i} started.')
                 start = time.time()
 
+                # start not finished fetchers
+                # todo: fetchers with disabled check_date are executed in every attempt - it can be optimized
                 for f in self._fetchers:
                     if (not f.finished or not f.check_date) and self._check_modified_time(f):
                         self._fetch(f)
 
+                # check if all fetchers finished, if not start next attempt
                 if self._all_finished():
                     app.logger.info(f'Attempt {i} finished - all fetchers finished.')
                     break
@@ -71,6 +74,7 @@ class FetcherLauncher:
         return True
 
     def _init_fetchers(self, dataset: str) -> None:
+        # inits requested fetchers
         if dataset == 'all':
             # self._fetchers.append(CentersFetcher()) - replaced by CentersApiFetcher
             self._fetchers.append(CentersApiFetcher())
@@ -139,12 +143,14 @@ class FetcherLauncher:
             raise Exception('Invalid dataset argument.')
 
     def _is_historization_needed(self) -> bool:
+        # checks if we want to fetch some dataset which requires historization
         for f in self._fetchers:
             if f.historized:
                 return True
         return False
 
     def _init_import(self) -> None:
+        # creates import record if it's needed, if another one exists for the same day, it will be removed
         if self._historization_needed:
             # delete previous today's import if exists
             db.session.query(Import).filter(Import.date == date.today()).delete()
@@ -160,6 +166,7 @@ class FetcherLauncher:
             app.logger.info(f'New import record not needed.')
 
     def _check_modified_time(self, fetcher: Fetcher) -> bool:
+        # checks if dataset was updated today, returns true if check_date is not enabled
         modified_time = fetcher.get_modified_time()
 
         if fetcher.check_date and modified_time.date() < date.today():
@@ -168,13 +175,13 @@ class FetcherLauncher:
 
         app.logger.info(f"Fetcher '{type(fetcher).__name__}' modified time: '{modified_time}' - ok.")
 
-        self._last_modified = modified_time \
-            if self._last_modified is None or self._last_modified < modified_time \
-            else self._last_modified
+        if self._last_modified is None or self._last_modified < modified_time:
+            self._last_modified = modified_time
 
         return True
 
     def _fetch(self, fetcher: Fetcher) -> None:
+        # executes fetcher
         start = time.time()
         app.logger.info(f"Fetcher '{type(fetcher).__name__}' started.")
         fetcher.fetch(self._import.id if self._import.id else None)
@@ -182,17 +189,20 @@ class FetcherLauncher:
         app.logger.info(f"Fetcher '{type(fetcher).__name__}' finished in {(time.time() - start):.1f} s.")
 
     def _all_finished(self) -> bool:
+        # checks if all fetchers finished
         for f in self._fetchers:
             if not f.finished:
                 return False
         return True
 
     def _wait(self, duration: time) -> None:
+        # wait before the next attempt
         if duration > 0:
             app.logger.info(f'Waiting {duration:.0f} s before the next attempt.')
             time.sleep(duration)
 
     def _set_import_failed(self) -> None:
+        # sets import record failed if some exception occurs
         if self._historization_needed:
             self._import.status = 'FAILED'
             self._import.end = datetime.now()
@@ -200,6 +210,7 @@ class FetcherLauncher:
             db.session.commit()
 
     def _set_import_finished(self) -> None:
+        # sets import record finished if it succeeded
         if self._historization_needed:
             self._import.status = 'FINISHED'
             self._import.end = datetime.now()
