@@ -18,7 +18,7 @@ class SuppliesFetcher(Fetcher):
     def __init__(self):
         super().__init__(DodavkaVakcin.__tablename__, self.SUPPLIES_CSV, check_date=False)
 
-    def get_modified_date(self) -> Optional[datetime]:
+    def get_modified_time(self) -> Optional[datetime]:
         return None
 
     def fetch(self, import_id: int) -> None:

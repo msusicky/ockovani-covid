@@ -8,6 +8,18 @@ Očkování bez registrace |
 {% block body %}
 <div class="row">
     <div class="col">
+        <div class="alert alert-danger" role="alert">
+            <p class="mb-0">
+                Tato tabulka již není aktualizována - očkovací místa bez registrace najdete v
+                <a href="{{ url_for('view.info_mista') }}" class="alert-link">přehledu očkovacích míst</a>
+                s použitím filtru <i>bez registrace</i>.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
         <h3>Očkovací místa bez registrace</h3>
     </div>
 </div>
