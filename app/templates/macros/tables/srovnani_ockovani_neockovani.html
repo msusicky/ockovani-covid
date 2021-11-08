@@ -1,4 +1,5 @@
 {% macro srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison) -%}
+{#
 <div class="table-responsive">
     <table class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
@@ -131,15 +132,25 @@
         </tr>
         </tfoot>
     </table>
-    <p class="card-text font-italic text-justify mt-3">
-        Při intepretaci dat je třeba si uvědomit, že zastoupení očkovaných a neočkovaných v různých věkových skupinách
-        není stejné, například ve věkové skupině nad 70 let je plně očkováno přibližně 85 % obyvatel.
-    </p>
-    <p class="card-text font-italic text-justify">
-        Detailní vysvětlení:
-        <a href="https://vtm.zive.cz/clanky/ockovani-nefunguje-vzdyt-na-covid-minuly-tyden-zemrelo-vic-ockovanych-jenze-je-to-presne-naopak/sc-870-a-213083/default.aspx" target="_blank">
-            VTM: Očkování nefunguje, vždyť na covid minulý týden zemřelo víc očkovaných. Jenže je to přesně naopak
-        </a>
-    </p>
 </div>
+#}
+
+<p class="card-text font-italic text-justify mt-3">
+    Z důvodu častého nepochopení významu dat v tabulce a jejich dezinterpretaci odpůrci očkování jsme se rozhodli tabulku dočasně skrýt.
+    V současné době je přislíbena nová datová sada obsahující navíc informaci o věkové skupině, až bude k dispozici přidáme novou názornější tabulku.
+</p>
+
+{#
+<p class="card-text font-italic text-justify mt-3">
+    Při intepretaci dat je třeba si uvědomit, že zastoupení očkovaných a neočkovaných v různých věkových skupinách
+    není stejné, například ve věkové skupině nad 70 let je plně očkováno přibližně 85 % obyvatel.
+</p>
+#}
+
+<p class="card-text font-italic text-justify">
+    Detailní vysvětlení:
+    <a href="https://vtm.zive.cz/clanky/ockovani-nefunguje-vzdyt-na-covid-minuly-tyden-zemrelo-vic-ockovanych-jenze-je-to-presne-naopak/sc-870-a-213083/default.aspx" target="_blank">
+        VTM: Očkování nefunguje, vždyť na covid minulý týden zemřelo víc očkovaných. Jenže je to přesně naopak
+    </a>
+</p>
 {%- endmacro %}
