@@ -1031,3 +1031,40 @@ class BezRegistraceFronta(db.Model):
 
     def __repr__(self):
         return f"<BezRegistraceFronta(id='{self.id}')>"
+
+class KapacityNemocnic(db.Model):
+    __tablename__ = 'kapacity_nemocnic'
+
+    datum = Column(DateTime, primary_key=True)
+    zz_kod = Column(Unicode, primary_key=True)
+    zz_nazev = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode)
+    luzka_standard_kyslik_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_standard_kyslik_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_standard_kyslik_kapacita_celkem = Column(Integer)
+    luzka_hfno_cpap_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_hfno_cpap_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_hfno_cpap_kapacita_celkem = Column(Integer)
+    luzka_upv_niv_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_upv_niv_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_upv_niv_kapacita_celkem = Column(Integer)
+    inf_luzka_kyslik_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_kyslik_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_kyslik_kapacita_celkem = Column(Integer)
+    inf_luzka_hfno_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_hfno_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_hfno_kapacita_celkem = Column(Integer)
+    inf_luzka_upv_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_upv_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_upv_kapacita_celkem = Column(Integer)
+    ventilatory_operacni_sal_kapacita_volna = Column(Integer)
+    ventilatory_operacni_sal_kapacita_celkem = Column(Integer)
+    ecmo_kapacita_volna = Column(Integer)
+    ecmo_kapacita_celkem = Column(Integer)
+    cvvhd_kapacita_volna = Column(Integer)
+    cvvhd_kapacita_celkem = Column(Integer)
+    ventilatory_prenosne_kapacita_volna = Column(Integer)
+    ventilatory_prenosne_kapacita_celkem = Column(Integer)
+
+    def __repr__(self):
+        return f"<KapacityNemocnic(id='{self.datum} - {self.zz_kod} - {self.zz_nazev}: {self.kraj_nuts_kod}')>"

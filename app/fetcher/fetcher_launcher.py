@@ -25,6 +25,7 @@ from app.fetcher.supplies_fetcher import SuppliesFetcher
 from app.fetcher.used_fetcher import UsedFetcher
 from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.vaccinated_fetcher import VaccinatedFetcher
+from app.fetcher.hospital_capacities_fetcher import HospitalCapacitiesFetcher
 from app.models import Import
 
 
@@ -97,6 +98,7 @@ class FetcherLauncher:
             self._fetchers.append(DeathsVaccinatedFetcher())
             self._fetchers.append(HospitalizedVaccinatedFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+            self._fetchers.append(HospitalCapacitiesFetcher())
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_api':
@@ -139,6 +141,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedVaccinatedFetcher())
         elif dataset == 'hospitalized_icu_vaccinated':
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+        elif dataset == 'hospital_capacities':
+            self._fetchers.append(HospitalCapacitiesFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
