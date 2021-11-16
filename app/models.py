@@ -533,23 +533,47 @@ class HospitalizaceJipOckovani(db.Model):
         return f"<HospitalizaceJipOckovani(datum='{self.datum}')>"
 
 
-class SrovnaniOckovani(db.Model):
-    __tablename__ = 'srovnani_ockovani'
+class NakazeniOckovaniVek(db.Model):
+    __tablename__ = 'nakazeni_ockovani_vek'
 
     tyden = Column(Unicode, primary_key=True)
-    od = Column(Date, nullable=False)
-    do = Column(Date, nullable=False)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
     vekova_skupina = Column(Unicode, primary_key=True)
     nakazeni_celkem = Column(Integer)
     nakazeni_bez = Column(Integer)
     nakazeni_castecne = Column(Integer)
     nakazeni_plne = Column(Integer)
     nakazeni_posilujici = Column(Integer)
+
+    def __repr__(self):
+        return f"<NakazeniOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+
+
+class HospitalizaceOckovaniVek(db.Model):
+    __tablename__ = 'hospitalizace_ockovani_vek'
+
+    tyden = Column(Unicode, primary_key=True)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
+    vekova_skupina = Column(Unicode, primary_key=True)
     hospitalizace_celkem = Column(Integer)
     hospitalizace_bez = Column(Integer)
     hospitalizace_castecne = Column(Integer)
     hospitalizace_plne = Column(Integer)
     hospitalizace_posilujici = Column(Integer)
+
+    def __repr__(self):
+        return f"<HospitalizaceOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+
+
+class HospitalizaceJipOckovaniVek(db.Model):
+    __tablename__ = 'hospitalizace_jip_ockovani_vek'
+
+    tyden = Column(Unicode, primary_key=True)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
+    vekova_skupina = Column(Unicode, primary_key=True)
     hospitalizace_jip_celkem = Column(Integer)
     hospitalizace_jip_bez = Column(Integer)
     hospitalizace_jip_castecne = Column(Integer)
@@ -557,7 +581,7 @@ class SrovnaniOckovani(db.Model):
     hospitalizace_jip_posilujici = Column(Integer)
 
     def __repr__(self):
-        return f"<SrovnaniOckovani(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+        return f"<HospitalizaceJipOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
 
 
 class DodavkaVakcin(db.Model):

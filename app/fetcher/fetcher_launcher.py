@@ -27,6 +27,9 @@ from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.vaccinated_fetcher import VaccinatedFetcher
 from app.fetcher.hospital_capacities_fetcher import HospitalCapacitiesFetcher
 from app.models import Import
+from fetcher.hospitalized_icu_vaccinated_age_fetcher import HospitalizedIcuVaccinatedAgeFetcher
+from fetcher.hospitalized_vaccinated_age_fetcher import HospitalizedVaccinatedAgeFetcher
+from fetcher.infected_vaccinated_age_fetcher import InfectedVaccinatedAgeFetcher
 
 
 class FetcherLauncher:
@@ -92,13 +95,17 @@ class FetcherLauncher:
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
             # self._fetchers.append(HospitalAnalysisFetcher())  # not needed
+            # self._fetchers.append(HospitalCapacitiesFetcher()) # not needed
             # self._fetchers.append(SuppliesFetcher())  # data not updated anymore
             self._fetchers.append(InfectedVaccinatedFetcher())
             self._fetchers.append(Infected65VaccinatedFetcher())
             self._fetchers.append(DeathsVaccinatedFetcher())
             self._fetchers.append(HospitalizedVaccinatedFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
-            self._fetchers.append(HospitalCapacitiesFetcher())
+            self._fetchers.append(InfectedVaccinatedAgeFetcher())
+            self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
+            self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_api':
@@ -129,6 +136,8 @@ class FetcherLauncher:
             self._fetchers.append(OrpSituationFetcher())
         elif dataset == 'hospital_analysis':
             self._fetchers.append(HospitalAnalysisFetcher())
+        elif dataset == 'hospital_capacities':
+            self._fetchers.append(HospitalCapacitiesFetcher())
         elif dataset == 'supplies':
             self._fetchers.append(SuppliesFetcher())
         elif dataset == 'infected_vaccinated':
@@ -141,8 +150,12 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedVaccinatedFetcher())
         elif dataset == 'hospitalized_icu_vaccinated':
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
-        elif dataset == 'hospital_capacities':
-            self._fetchers.append(HospitalCapacitiesFetcher())
+        elif dataset == 'infected_vaccinated_age':
+            self._fetchers.append(InfectedVaccinatedAgeFetcher())
+        elif dataset == 'hospitalized_vaccinated_age':
+            self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
+        elif dataset == 'hospitalized_icu_vaccinated_age':
+            self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
