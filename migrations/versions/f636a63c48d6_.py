@@ -55,6 +55,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('tyden', 'vekova_skupina')
     )
     op.drop_table('srovnani_ockovani')
+
+    op.execute("UPDATE vakciny SET vakcina='SPIKEVAX' WHERE vyrobce='Moderna'")
     # ### end Alembic commands ###
 
 
