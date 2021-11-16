@@ -56,7 +56,9 @@ def upgrade():
     )
     op.drop_table('srovnani_ockovani')
 
-    op.execute("UPDATE vakciny SET vakcina='SPIKEVAX' WHERE vyrobce='Moderna'")
+    connection = op.get_bind()
+    connection.execute("truncate table ockovani_lide")
+    connection.execute("update vakciny set vakcina='SPIKEVAX' where vyrobce='Moderna'")
     # ### end Alembic commands ###
 
 
