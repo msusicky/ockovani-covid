@@ -22,7 +22,7 @@ class HealthFacilitiesFetcher(Fetcher):
         df['provoz_zahajen'] = df['provoz_zahajen'].fillna(False).astype('bool')
         df['prakticky_lekar'] = df['prakticky_lekar'].fillna(False).astype('bool')
 
-        df = df.drop(['kraj_nuts_kod', 'kraj_nazev', 'okres_nazev'], axis=1)
+        df = df.drop(['id', 'kraj_nuts_kod', 'kraj_nazev', 'okres_nazev'], axis=1)
         df = df.rename(columns={'zarizeni_kod': 'id', 'okres_lau_kod': 'okres_id'})
 
         self._truncate()
