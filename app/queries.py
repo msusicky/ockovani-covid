@@ -855,6 +855,81 @@ def count_vaccinated_unvaccinated_comparison():
     return df_vek
 
 
+def count_vaccinated_unvaccinated_comparison_age():
+    populace = pd.read_sql_query(
+        """
+        select vekova_skupina, sum(pocet) populace, min_vek
+            from populace p 
+            join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
+            where orp_kod = 'CZ0'
+            group by vekova_skupina
+        """,
+        db.engine)
+
+    ockovani = pd.read_sql_query(
+        f"""
+        select datum, vekova_skupina,
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
+            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
+        from ockovani_lide o
+        join vakciny v on (o.vakcina = v.vakcina)
+        where datum < '{get_import_date()}'
+        group by datum, vekova_skupina
+        order by datum
+        """,
+        db.engine
+    )
+    ockovani = ockovani.groupby(['vekova_skupina', 'datum']).sum().groupby(level=0).cumsum().reset_index()
+
+    srovnani = pd.read_sql_query(
+        f"""
+        select n.tyden, n.tyden_od, n.tyden_do, n.vekova_skupina,
+            nakazeni_celkem, nakazeni_bez, nakazeni_castecne, nakazeni_plne, nakazeni_posilujici,
+            hospitalizace_celkem, hospitalizace_bez, hospitalizace_castecne, hospitalizace_plne, hospitalizace_posilujici, 
+            hospitalizace_jip_celkem, hospitalizace_jip_bez, hospitalizace_jip_castecne, hospitalizace_jip_plne, hospitalizace_jip_posilujici
+        from nakazeni_ockovani_vek n 
+        join hospitalizace_ockovani_vek h on (h.tyden = n.tyden and h.vekova_skupina = n.vekova_skupina)
+        join hospitalizace_jip_ockovani_vek j on (j.tyden = n.tyden and j.vekova_skupina = n.vekova_skupina)
+        where n.tyden_do < '{get_import_date()}'
+        """,
+        db.engine
+    )
+    srovnani = srovnani[srovnani['tyden'] == srovnani['tyden'].max()]
+    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].str.replace(' let', '').replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
+    srovnani = srovnani.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
+
+    df = pd.merge(ockovani, populace)
+    df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['tyden_od', 'vekova_skupina'])
+
+    df['vekova_skupina'] = df['vekova_skupina'].replace(
+        {'16-17': '16-29', '18-24': '16-29', '25-29': '16-29', '30-34': '30-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
+         '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
+    # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
+    df = df.groupby(['datum', 'tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
+
+    df['populace_bez'] = df['populace'] - df['populace_ockovani']
+
+    df_norm = df.copy()
+
+    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
+    groups = ['bez', 'plne']
+
+    for d in datasets:
+        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
+
+        for g in groups:
+            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
+                .replace({np.nan: 0})
+
+        df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: None})
+
+    for g in groups:
+        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
+
+    return df_norm
+
+
 def get_registrations_graph_data(center_id=None):
     registrace = pd.read_sql_query(
         """
@@ -1218,71 +1293,3 @@ def get_tests_orp_graph_data():
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df
-
-
-def get_vaccinated_unvaccinated_comparison_graph_data():
-    populace = pd.read_sql_query(
-        """
-        select vekova_skupina, sum(pocet) populace, min_vek
-            from populace p 
-            join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
-            where orp_kod = 'CZ0'
-            group by vekova_skupina
-        """,
-        db.engine)
-    populace
-
-    ockovani = pd.read_sql_query(
-        f"""
-        select datum, vekova_skupina,
-            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
-            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
-            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
-        from ockovani_lide o
-        join vakciny v on (o.vakcina = v.vakcina)
-        where datum < '{get_import_date()}'
-        group by datum, vekova_skupina
-        order by datum
-        """,
-        db.engine
-    )
-    ockovani = ockovani.groupby(['vekova_skupina', 'datum']).sum().groupby(level=0).cumsum().reset_index()
-
-    srovnani = pd.read_sql_query(
-        f"""
-        select * from srovnani_ockovani 
-        where "do" < '{get_import_date()}'
-        """,
-        db.engine
-    )
-    srovnani = srovnani[srovnani['od'] == srovnani['od'].max()]
-    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
-    srovnani = srovnani.groupby(['tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
-
-    df = pd.merge(ockovani, populace)
-    df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['od', 'vekova_skupina'])
-
-    df['vekova_skupina'] = df['vekova_skupina'].replace(
-        {'25-29': '25-39', '30-34': '25-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
-         '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
-    # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
-    df = df.groupby(['datum', 'tyden', 'od', 'do', 'vekova_skupina']).sum().reset_index()
-
-    df['populace_bez'] = df['populace'] - df['populace_ockovani']
-
-    df_norm = df.copy()
-
-    datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
-    groups = ['bez', 'plne']
-
-    for d in datasets:
-        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
-
-        for g in groups:
-            df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
-                .replace({np.nan: 0})
-
-    for g in groups:
-        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
-
-    return df_norm
