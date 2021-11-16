@@ -533,23 +533,47 @@ class HospitalizaceJipOckovani(db.Model):
         return f"<HospitalizaceJipOckovani(datum='{self.datum}')>"
 
 
-class SrovnaniOckovani(db.Model):
-    __tablename__ = 'srovnani_ockovani'
+class NakazeniOckovaniVek(db.Model):
+    __tablename__ = 'nakazeni_ockovani_vek'
 
     tyden = Column(Unicode, primary_key=True)
-    od = Column(Date, nullable=False)
-    do = Column(Date, nullable=False)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
     vekova_skupina = Column(Unicode, primary_key=True)
     nakazeni_celkem = Column(Integer)
     nakazeni_bez = Column(Integer)
     nakazeni_castecne = Column(Integer)
     nakazeni_plne = Column(Integer)
     nakazeni_posilujici = Column(Integer)
+
+    def __repr__(self):
+        return f"<NakazeniOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+
+
+class HospitalizaceOckovaniVek(db.Model):
+    __tablename__ = 'hospitalizace_ockovani_vek'
+
+    tyden = Column(Unicode, primary_key=True)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
+    vekova_skupina = Column(Unicode, primary_key=True)
     hospitalizace_celkem = Column(Integer)
     hospitalizace_bez = Column(Integer)
     hospitalizace_castecne = Column(Integer)
     hospitalizace_plne = Column(Integer)
     hospitalizace_posilujici = Column(Integer)
+
+    def __repr__(self):
+        return f"<HospitalizaceOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+
+
+class HospitalizaceJipOckovaniVek(db.Model):
+    __tablename__ = 'hospitalizace_jip_ockovani_vek'
+
+    tyden = Column(Unicode, primary_key=True)
+    tyden_od = Column(Date, nullable=False)
+    tyden_do = Column(Date, nullable=False)
+    vekova_skupina = Column(Unicode, primary_key=True)
     hospitalizace_jip_celkem = Column(Integer)
     hospitalizace_jip_bez = Column(Integer)
     hospitalizace_jip_castecne = Column(Integer)
@@ -557,7 +581,7 @@ class SrovnaniOckovani(db.Model):
     hospitalizace_jip_posilujici = Column(Integer)
 
     def __repr__(self):
-        return f"<SrovnaniOckovani(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
+        return f"<HospitalizaceJipOckovaniVek(tyden='{self.tyden}', vekova_skupina='{self.vekova_skupina}')>"
 
 
 class DodavkaVakcin(db.Model):
@@ -1031,3 +1055,40 @@ class BezRegistraceFronta(db.Model):
 
     def __repr__(self):
         return f"<BezRegistraceFronta(id='{self.id}')>"
+
+class KapacityNemocnic(db.Model):
+    __tablename__ = 'kapacity_nemocnic'
+
+    datum = Column(DateTime, primary_key=True)
+    zz_kod = Column(Unicode, primary_key=True)
+    zz_nazev = Column(Unicode, primary_key=True)
+    kraj_nuts_kod = Column(Unicode)
+    luzka_standard_kyslik_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_standard_kyslik_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_standard_kyslik_kapacita_celkem = Column(Integer)
+    luzka_hfno_cpap_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_hfno_cpap_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_hfno_cpap_kapacita_celkem = Column(Integer)
+    luzka_upv_niv_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_upv_niv_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_upv_niv_kapacita_celkem = Column(Integer)
+    inf_luzka_kyslik_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_kyslik_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_kyslik_kapacita_celkem = Column(Integer)
+    inf_luzka_hfno_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_hfno_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_hfno_kapacita_celkem = Column(Integer)
+    inf_luzka_upv_kapacita_volna_covid_pozitivni = Column(Integer)
+    inf_luzka_upv_kapacita_volna_covid_negativni = Column(Integer)
+    inf_luzka_upv_kapacita_celkem = Column(Integer)
+    ventilatory_operacni_sal_kapacita_volna = Column(Integer)
+    ventilatory_operacni_sal_kapacita_celkem = Column(Integer)
+    ecmo_kapacita_volna = Column(Integer)
+    ecmo_kapacita_celkem = Column(Integer)
+    cvvhd_kapacita_volna = Column(Integer)
+    cvvhd_kapacita_celkem = Column(Integer)
+    ventilatory_prenosne_kapacita_volna = Column(Integer)
+    ventilatory_prenosne_kapacita_celkem = Column(Integer)
+
+    def __repr__(self):
+        return f"<KapacityNemocnic(id='{self.datum} - {self.zz_kod} - {self.zz_nazev}: {self.kraj_nuts_kod}')>"

@@ -10,20 +10,24 @@ from app.fetcher.deaths_vaccinated_fetcher import DeathsVaccinatedFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
 from app.fetcher.fetcher import Fetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
+from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
+from app.fetcher.hospital_capacities_fetcher import HospitalCapacitiesFetcher
+from app.fetcher.hospitalized_icu_vaccinated_age_fetcher import HospitalizedIcuVaccinatedAgeFetcher
 from app.fetcher.hospitalized_icu_vaccinated_fetcher import HospitalizedIcuVaccinatedFetcher
+from app.fetcher.hospitalized_vaccinated_age_fetcher import HospitalizedVaccinatedAgeFetcher
 from app.fetcher.hospitalized_vaccinated_fetcher import HospitalizedVaccinatedFetcher
 from app.fetcher.infected_65_vaccinated_fetcher import Infected65VaccinatedFetcher
 from app.fetcher.infected_fetcher import InfectedFetcher
+from app.fetcher.infected_vaccinated_age_fetcher import InfectedVaccinatedAgeFetcher
 from app.fetcher.infected_vaccinated_fetcher import InfectedVaccinatedFetcher
 from app.fetcher.municipal_characteristics_fetcher import MunicipalCharacteristicsFetcher
 from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
 from app.fetcher.orp_situation_fetcher import OrpSituationFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
-from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.reservations_api_fetcher import ReservationsApiFetcher
+from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.supplies_fetcher import SuppliesFetcher
 from app.fetcher.used_fetcher import UsedFetcher
-from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.vaccinated_fetcher import VaccinatedFetcher
 from app.models import Import
 
@@ -91,12 +95,17 @@ class FetcherLauncher:
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
             # self._fetchers.append(HospitalAnalysisFetcher())  # not needed
+            # self._fetchers.append(HospitalCapacitiesFetcher()) # not needed
             # self._fetchers.append(SuppliesFetcher())  # data not updated anymore
             self._fetchers.append(InfectedVaccinatedFetcher())
             self._fetchers.append(Infected65VaccinatedFetcher())
             self._fetchers.append(DeathsVaccinatedFetcher())
             self._fetchers.append(HospitalizedVaccinatedFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+            self._fetchers.append(InfectedVaccinatedAgeFetcher())
+            self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
+            self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_api':
@@ -127,6 +136,8 @@ class FetcherLauncher:
             self._fetchers.append(OrpSituationFetcher())
         elif dataset == 'hospital_analysis':
             self._fetchers.append(HospitalAnalysisFetcher())
+        elif dataset == 'hospital_capacities':
+            self._fetchers.append(HospitalCapacitiesFetcher())
         elif dataset == 'supplies':
             self._fetchers.append(SuppliesFetcher())
         elif dataset == 'infected_vaccinated':
@@ -139,6 +150,12 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedVaccinatedFetcher())
         elif dataset == 'hospitalized_icu_vaccinated':
             self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+        elif dataset == 'infected_vaccinated_age':
+            self._fetchers.append(InfectedVaccinatedAgeFetcher())
+        elif dataset == 'hospitalized_vaccinated_age':
+            self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
+        elif dataset == 'hospitalized_icu_vaccinated_age':
+            self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 

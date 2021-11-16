@@ -5,13 +5,11 @@ Revises: cb94fb60af8b
 Create Date: 2021-10-27 00:12:45.839199
 
 """
-import pandas as pd
 from alembic import op
 import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-from app.models import SrovnaniOckovani
 
 revision = 'e9abc8ce056d'
 down_revision = 'cb94fb60af8b'
@@ -45,40 +43,40 @@ def upgrade():
     )
     # ### end Alembic commands ###
 
-    pozitivity = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=0,
-                               usecols=['tyden', 'od', 'do', 'vek_kategorie', 'pozitivni_celkem',
-                                        'pozitivni_bez_ockovani', 'pozitivni_po_prvni', 'pozitivni_po_ukonceni',
-                                        'pozitivni_po_ukonceni_s_posilujici'])
-    hospitalizace = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=1,
-                                  usecols=['tyden', 'od', 'do', 'vek_kategorie', 'hospitalizace_celkem',
-                                           'hospitalizace_bez_ockovani', 'hospitalizace_po_prvni',
-                                           'hospitalizace_po_ukonceni', 'hospitalizace_po_ukonceni_s_posilujici'])
-    jip = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=2,
-                        usecols=['tyden', 'od', 'do', 'vek_kategorie', 'JIP_celkem', 'JIP_bez_ockovani', 'JIP_po_prvni',
-                                 'JIP_po_ukonceni', 'JIP_po_ukonceni_s_posilujici'])
-
-    df = pd.merge(pozitivity, hospitalizace)
-    df = pd.merge(df, jip)
-
-    df = df.rename(columns={'vek_kategorie': 'vekova_skupina',
-                            'pozitivni_celkem': 'nakazeni_celkem',
-                            'pozitivni_bez_ockovani': 'nakazeni_bez',
-                            'pozitivni_po_prvni': 'nakazeni_castecne',
-                            'pozitivni_po_ukonceni': 'nakazeni_plne',
-                            'pozitivni_po_ukonceni_s_posilujici': 'nakazeni_posilujici',
-                            'hospitalizace_bez_ockovani': 'hospitalizace_bez',
-                            'hospitalizace_po_prvni': 'hospitalizace_castecne',
-                            'hospitalizace_po_ukonceni': 'hospitalizace_plne',
-                            'hospitalizace_po_ukonceni_s_posilujici': 'hospitalizace_posilujici',
-                            'JIP_celkem': 'hospitalizace_jip_celkem',
-                            'JIP_bez_ockovani': 'hospitalizace_jip_bez',
-                            'JIP_po_prvni': 'hospitalizace_jip_castecne',
-                            'JIP_po_ukonceni': 'hospitalizace_jip_plne',
-                            'JIP_po_ukonceni_s_posilujici': 'hospitalizace_jip_posilujici'})
-
-    df['vekova_skupina'] = df['vekova_skupina'].str.replace(' let', '')
-
-    df.to_sql(SrovnaniOckovani.__tablename__, op.get_bind(), if_exists='append', index=False)
+    # pozitivity = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=0,
+    #                            usecols=['tyden', 'od', 'do', 'vek_kategorie', 'pozitivni_celkem',
+    #                                     'pozitivni_bez_ockovani', 'pozitivni_po_prvni', 'pozitivni_po_ukonceni',
+    #                                     'pozitivni_po_ukonceni_s_posilujici'])
+    # hospitalizace = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=1,
+    #                               usecols=['tyden', 'od', 'do', 'vek_kategorie', 'hospitalizace_celkem',
+    #                                        'hospitalizace_bez_ockovani', 'hospitalizace_po_prvni',
+    #                                        'hospitalizace_po_ukonceni', 'hospitalizace_po_ukonceni_s_posilujici'])
+    # jip = pd.read_excel('data/ockovani-pozitivity-hospitalizace-jip.xlsx', sheet_name=2,
+    #                     usecols=['tyden', 'od', 'do', 'vek_kategorie', 'JIP_celkem', 'JIP_bez_ockovani', 'JIP_po_prvni',
+    #                              'JIP_po_ukonceni', 'JIP_po_ukonceni_s_posilujici'])
+    #
+    # df = pd.merge(pozitivity, hospitalizace)
+    # df = pd.merge(df, jip)
+    #
+    # df = df.rename(columns={'vek_kategorie': 'vekova_skupina',
+    #                         'pozitivni_celkem': 'nakazeni_celkem',
+    #                         'pozitivni_bez_ockovani': 'nakazeni_bez',
+    #                         'pozitivni_po_prvni': 'nakazeni_castecne',
+    #                         'pozitivni_po_ukonceni': 'nakazeni_plne',
+    #                         'pozitivni_po_ukonceni_s_posilujici': 'nakazeni_posilujici',
+    #                         'hospitalizace_bez_ockovani': 'hospitalizace_bez',
+    #                         'hospitalizace_po_prvni': 'hospitalizace_castecne',
+    #                         'hospitalizace_po_ukonceni': 'hospitalizace_plne',
+    #                         'hospitalizace_po_ukonceni_s_posilujici': 'hospitalizace_posilujici',
+    #                         'JIP_celkem': 'hospitalizace_jip_celkem',
+    #                         'JIP_bez_ockovani': 'hospitalizace_jip_bez',
+    #                         'JIP_po_prvni': 'hospitalizace_jip_castecne',
+    #                         'JIP_po_ukonceni': 'hospitalizace_jip_plne',
+    #                         'JIP_po_ukonceni_s_posilujici': 'hospitalizace_jip_posilujici'})
+    #
+    # df['vekova_skupina'] = df['vekova_skupina'].str.replace(' let', '')
+    #
+    # df.to_sql(SrovnaniOckovani.__tablename__, op.get_bind(), if_exists='append', index=False)
 
 
 def downgrade():
