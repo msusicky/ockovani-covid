@@ -9,7 +9,7 @@
 {% from 'macros/tables/odhad_konce.html' import odhad_konce %}
 {% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
 {% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
-{% from 'macros/tables/srovnani_ockovani_neockovani.html' import srovnani_ockovani_neockovani %}
+{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
 {% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
 {% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
@@ -140,10 +140,10 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
                     Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
-                    {{ vaccinated_unvaccinated_comparison_graph_data['od'][0] | format_date_short }} -
-                    {{ vaccinated_unvaccinated_comparison_graph_data['do'][0] | format_date_short }}
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
                 </h5>
-                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_graph_data) }}
+                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age) }}
             </div>
         </div>
     </div>
@@ -154,9 +154,11 @@ Statistiky |
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
-                    Srovnání očkovaných a neočkovaných za posledních 7 dní
+                    Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
                 </h5>
-                {{ srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison) }}
+                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
             </div>
         </div>
     </div>
