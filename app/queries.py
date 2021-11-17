@@ -66,6 +66,16 @@ def find_centers(filter_column, filter_value):
     return centers
 
 
+def find_third_doses_centers():
+    center_ids = db.session.query(OckovaniRezervace.ockovaci_misto_id) \
+        .distinct() \
+        .filter(OckovaniRezervace.import_id == get_import_id()) \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'V3') \
+        .all()
+
+    return [center[0] for center in center_ids]
+
+
 def find_free_vaccines_available():
     return db.session.query(PrakticiKapacity) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
