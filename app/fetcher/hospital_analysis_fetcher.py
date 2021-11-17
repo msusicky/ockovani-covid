@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import Optional
 
-import modin.pandas as pd
+import pandas as pd
 import requests
 
 from app import db

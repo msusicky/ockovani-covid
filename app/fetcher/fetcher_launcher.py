@@ -2,6 +2,8 @@ import sys
 import time
 from datetime import date, datetime
 
+import ray
+
 from app import app, db
 from app.fetcher.centers_api_fetcher import CentersApiFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
@@ -41,6 +43,7 @@ class FetcherLauncher:
         self._import = None
         self._last_modified = None
         self._historization_needed = False
+        ray.init()
 
     def fetch(self, dataset: str) -> bool:
         # starts fetching
@@ -81,8 +84,8 @@ class FetcherLauncher:
         # inits requested fetchers
         if dataset == 'all':
             # self._fetchers.append(CentersFetcher())  # replaced by CentersApiFetcher
-            self._fetchers.append(CentersApiFetcher())
-            self._fetchers.append(OpeningHoursFetcher())
+            # self._fetchers.append(CentersApiFetcher())
+            # self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-import modin.pandas as pd
+import pandas as pd
 
 from app import db
 from app.fetcher.fetcher import Fetcher
