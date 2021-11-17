@@ -903,8 +903,8 @@ def count_vaccinated_unvaccinated_comparison_age():
     df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['tyden_od', 'vekova_skupina'])
 
     df['vekova_skupina'] = df['vekova_skupina'].replace(
-        {'16-17': '16-29', '18-24': '16-29', '25-29': '16-29', '30-34': '30-39', '35-39': '25-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59',
-         '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
+        {'16-17': '16-29', '18-24': '16-29', '25-29': '16-29', '30-34': '30-39', '35-39': '30-39', '40-44': '40-49', '45-49': '40-49',
+         '50-54': '50-59', '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
     # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
     df = df.groupby(['datum', 'tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
