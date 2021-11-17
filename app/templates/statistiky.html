@@ -144,20 +144,7 @@ Statistiky |
                     {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
                 </h5>
                 {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age) }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
-                    Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
-                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
-                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
-                </h5>
+                <br>
                 {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
             </div>
         </div>
