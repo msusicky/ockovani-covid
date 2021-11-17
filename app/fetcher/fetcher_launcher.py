@@ -2,8 +2,6 @@ import sys
 import time
 from datetime import date, datetime
 
-import ray
-
 from app import app, db
 from app.fetcher.centers_api_fetcher import CentersApiFetcher
 from app.fetcher.centers_fetcher import CentersFetcher
@@ -43,7 +41,6 @@ class FetcherLauncher:
         self._import = None
         self._last_modified = None
         self._historization_needed = False
-        ray.init()
 
     def fetch(self, dataset: str) -> bool:
         # starts fetching
