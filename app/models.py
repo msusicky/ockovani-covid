@@ -186,6 +186,7 @@ class OckovaciMistoDetail(db.Model):
     presun_2davky_email = Column(Unicode)
     presun_2davky_online = Column(Boolean)
     presun_2davky_poznamka = Column(Unicode)
+    davky = Column(ARRAY(Integer))
 
 
 class ProvozniDoba(db.Model):
