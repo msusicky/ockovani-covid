@@ -1,4 +1,4 @@
-import pandas as pd
+import modin.pandas as pd
 
 from app import db
 from app.fetcher.fetcher import Fetcher

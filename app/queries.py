@@ -1,7 +1,7 @@
 from datetime import date, timedelta, datetime
 
+import modin.pandas as pd
 import numpy as np
-import pandas as pd
 from sqlalchemy import func, or_, and_, text, column
 
 from app import db

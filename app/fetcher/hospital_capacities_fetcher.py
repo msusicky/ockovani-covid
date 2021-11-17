@@ -1,8 +1,8 @@
-import pandas as pd
+import modin.pandas as pd
 
-from app import db, app
+from app import db
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaniSpotreba, OckovaciMisto, KapacityNemocnic
+from app.models import KapacityNemocnic
 
 
 class HospitalCapacitiesFetcher(Fetcher):
