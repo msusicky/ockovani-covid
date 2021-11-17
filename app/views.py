@@ -252,7 +252,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_vaccination = db.session.query(column("vakciny_prijate_pocet"), column("ockovani_pocet_davek"), column("nazev")).from_statement(text(
+    susp_vaccination = db.session.query(column("vakciny_prijate_pocet"), column("ockovani_pocet_davek"),
+                                        column("nazev")).from_statement(text(
         """
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -271,7 +272,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_reservation_vaccination = db.session.query(column("nazev"), column("nrpzs_kod"), column("sum30_mimo_rezervace")).from_statement(text(
+    susp_reservation_vaccination = db.session.query(column("nazev"), column("nrpzs_kod"),
+                                                    column("sum30_mimo_rezervace")).from_statement(text(
         """
         select nazev, nrpzs_kod, sum( ockovani-pocet_rezervaci) sum30_mimo_rezervace
             from (
@@ -289,7 +291,8 @@ def dataquality():
         """.format(get_import_id(), get_import_date())
     )).all()
 
-    susp_reservation_vaccination_low = db.session.query(column("nazev"), column("nrpzs_kod"), column("datum"), column("pocet_rezervaci"), column("ockovani"),
+    susp_reservation_vaccination_low = db.session.query(column("nazev"), column("nrpzs_kod"), column("datum"),
+                                                        column("pocet_rezervaci"), column("ockovani"),
                                                         column("pomer")).from_statement(text(
         """
         select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
@@ -363,7 +366,8 @@ def report():
     )).all()
 
     # -- aktuální počet potvrzených případů nákazy podle okresů ve STR kraji
-    current_cases_okres_kraje = db.session.query(column("aktivni_pripady"), column("okres_nazev"), column("kraj_nazev")).from_statement(text(
+    current_cases_okres_kraje = db.session.query(column("aktivni_pripady"), column("okres_nazev"),
+                                                 column("kraj_nazev")).from_statement(text(
         """
         select sum(co.aktivni_pripady) aktivni_pripady, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
@@ -374,7 +378,8 @@ def report():
     )).all()
 
     # -- přírůstek potvrzených případů nákazy za posledních 14 dní podle okresů v STR kraji
-    new_14d_okres_kraje = db.session.query(column("nove_pripady_14_dni"), column("okres_nazev"), column("kraj_nazev")).from_statement(text(
+    new_14d_okres_kraje = db.session.query(column("nove_pripady_14_dni"), column("okres_nazev"),
+                                           column("kraj_nazev")).from_statement(text(
         """
         select sum(co.nove_pripady_14_dni) nove_pripady_14_dni, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
