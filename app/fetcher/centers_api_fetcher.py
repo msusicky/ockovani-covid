@@ -79,7 +79,8 @@ class CentersApiFetcher(Fetcher):
                 presun_2davky_telefon=row['v2_term_change_vaccination_center_phone'],
                 presun_2davky_email=row['v2_term_change_vaccination_center_email'],
                 presun_2davky_online=row['v2_term_change_online_request'],
-                presun_2davky_poznamka=row['v2_term_change_comment']
+                presun_2davky_poznamka=row['v2_term_change_comment'],
+                davky=row['vaccine_round']
             ))
 
         db.session.commit()
