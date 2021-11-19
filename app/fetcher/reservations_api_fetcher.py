@@ -34,10 +34,12 @@ class ReservationsApiFetcher(Fetcher):
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:
-        ocm_ids = db.session.query(OckovaciMisto.id) \
+        ocms = db.session.query(OckovaciMisto.id) \
             .filter(or_(OckovaciMisto.status == True, self._full_update)) \
             .order_by(OckovaciMisto.id) \
             .all()
+
+        ocm_ids = [ocm[0] for ocm in ocms]
 
         date_from = self._count_date_from()
         date_to = self._count_date_to()
