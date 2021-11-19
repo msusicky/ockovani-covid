@@ -52,8 +52,8 @@ class ReservationsApiFetcher(Fetcher):
         db.session.execute(text(
             """INSERT INTO public.ockovani_rezervace
                 (datum, ockovaci_misto_id, volna_kapacita, maximalni_kapacita, kalendar_ockovani, import_id)
-                SELECT datum, ockovaci_misto_id, volna_kapacita, maximalni_kapacita, kalendar_ockovani, :import_id 
-                FROM ockovani_rezervace WHERE import_id=:last_import_id"""
+                SELECT datum, ockovaci_misto_id, volna_kapacita, maximalni_kapacita, kalendar_ockovani 
+                FROM ockovani_rezervace"""
         ), {'import_id': import_id, 'last_import_id': last_import_id})
 
         for ocm in ocms:

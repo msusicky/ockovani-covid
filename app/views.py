@@ -5,7 +5,7 @@ from sqlalchemy import func, text
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
-from app.context import get_import_date, get_import_id, STATUS_FINISHED
+from app.context import get_import_date, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
     PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciMistoBezRegistrace
 
@@ -276,7 +276,7 @@ def dataquality():
             select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
                         select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
                         from ockovani_rezervace o join ockovaci_mista ocm on (o.ockovaci_misto_id=ocm.id)
-                        where import_id={} and o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
+                        where o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
                         select datum, zarizeni_kod, sum(pocet) ockovani from ockovani_lide 
                         group by datum, zarizeni_kod) ocko on (rez.nrpzs_kod=ocko.zarizeni_kod and rez.datum=ocko.datum)
                         join (select min(nazev) nazev, nrpzs_kod from ockovaci_mista group by nrpzs_kod) om on (om.nrpzs_kod=ocko.zarizeni_kod)
@@ -284,7 +284,7 @@ def dataquality():
                         and rez.datum+'31 days'::interval>'{}' and ockovani>100
                         --order by round(ockovani*1.0/pocet_rezervaci, 2) desc
             ) pomery group by nazev, nrpzs_kod order by sum( ockovani-pocet_rezervaci) desc
-        """.format(get_import_id(), get_import_date())
+        """.format(get_import_date())
     )).all()
 
     susp_reservation_vaccination_low = db.session.query("nazev", "nrpzs_kod", "datum", "pocet_rezervaci", "ockovani",
@@ -293,14 +293,14 @@ def dataquality():
         select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
             select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
             from ockovani_rezervace o join ockovaci_mista ocm on (o.ockovaci_misto_id=ocm.id)
-            where import_id={} and o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
+            where o.datum<now() group by ocm.nrpzs_kod, o.datum) rez join (
             select datum, zarizeni_kod, sum(pocet) ockovani from ockovani_lide 
             group by datum, zarizeni_kod) ocko on (rez.nrpzs_kod=ocko.zarizeni_kod and rez.datum=ocko.datum)
             join (select min(nazev) nazev, nrpzs_kod from ockovaci_mista group by nrpzs_kod) om on (om.nrpzs_kod=ocko.zarizeni_kod)
             where pocet_rezervaci>100 and ockovani*1.0/pocet_rezervaci<0.3
             and rez.datum+'31 days'::interval>'{}'  
             order by round(ockovani*1.0/pocet_rezervaci, 2) desc
-        """.format(get_import_id(), get_import_date())
+        """.format(get_import_date())
     )).all()
 
     return render_template('dataquality.html', last_update=_last_import_modified(), now=_now(),

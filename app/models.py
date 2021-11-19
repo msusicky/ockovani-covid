@@ -342,9 +342,7 @@ class OckovaniRezervace(db.Model):
     volna_kapacita = Column(Integer)
     maximalni_kapacita = Column(Integer)
     kalendar_ockovani = Column(Unicode, primary_key=True)
-    import_id = Column(Integer, ForeignKey('importy.id', ondelete='CASCADE'), primary_key=True)
 
-    import_ = relationship('Import', back_populates='ockovani_rezervace')
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
 
     def __repr__(self):
@@ -353,7 +351,6 @@ class OckovaniRezervace(db.Model):
                f"kalendar_ockovani='{self.kalendar_ockovani}')>"
 
 
-Import.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="import_", cascade="delete")
 OckovaciMisto.ockovani_rezervace = relationship("OckovaniRezervace", back_populates="misto")
 
 
