@@ -87,8 +87,12 @@ class FetcherLauncher:
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            # self._fetchers.append(ReservationsFetcher())  # replaced by ReservationsApiFetcher
-            self._fetchers.append(ReservationsApiFetcher())
+
+            if app.debug:
+                self._fetchers.append(ReservationsFetcher())
+            else:
+                self._fetchers.append(ReservationsApiFetcher())
+
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
@@ -105,6 +109,10 @@ class FetcherLauncher:
             self._fetchers.append(InfectedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+
+        elif dataset == 'all_hourly':
+            self._fetchers.append(CentersApiFetcher())
+            self._fetchers.append(ReservationsApiFetcher(full_update=False))
 
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())

@@ -6,11 +6,11 @@ import requests
 import urllib3
 from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
-from sqlalchemy import func, text
+from sqlalchemy import or_
 
 from app import db, app
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaciMisto, OckovaniRezervace, Import
+from app.models import OckovaciMisto, OckovaniRezervace
 
 
 class ReservationsApiFetcher(Fetcher):
@@ -22,55 +22,43 @@ class ReservationsApiFetcher(Fetcher):
     # API_URL = 'https://dev.reservatic.com/api/nakit/v2/'
     VACCINE_SERVICES = 'vaccine_services/stats/'
 
-    def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES, historized=True)
+    def __init__(self, full_update: bool = True):
+        super().__init__(OckovaniRezervace.__tablename__, self.API_URL + self.VACCINE_SERVICES)
+        self._full_update = full_update
+        self._token = os.environ.get('ODL_RESERVATIC_API')
+        if self._token is None:
+            raise ValueError("ODL_RESERVATIC_API variable is empty")
         urllib3.disable_warnings()
 
     def get_modified_time(self) -> Optional[datetime]:
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:
-        token = os.environ.get('ODL_RESERVATIC_API')
-        if token is None:
-            raise ValueError("ODL_RESERVATIC_API variable is empty")
-
-        ocms = db.session.query(OckovaciMisto) \
+        ocm_ids = db.session.query(OckovaciMisto.id) \
+            .filter(or_(OckovaciMisto.status == True, self._full_update)) \
             .order_by(OckovaciMisto.id) \
             .all()
 
-        # create the right date interval
-        week_before = datetime.now() + relativedelta(days=-7)
-        date_from = week_before.strftime('%Y-%m-%d')
-        month_after = datetime.now() + relativedelta(days=31)
-        date_to = month_after.strftime('%Y-%m-%d')
+        date_from = self._count_date_from()
+        date_to = self._count_date_to()
+
         not_found = 0
         empty = 0
 
-        last_import_id = db.session.query(func.max(Import.id)).filter(Import.status == 'FINISHED').one()
-
-        # Create all rows first
-        db.session.execute(text(
-            """INSERT INTO public.ockovani_rezervace
-                (datum, ockovaci_misto_id, volna_kapacita, maximalni_kapacita, kalendar_ockovani, import_id)
-                SELECT datum, ockovaci_misto_id, volna_kapacita, maximalni_kapacita, kalendar_ockovani 
-                FROM ockovani_rezervace"""
-        ), {'import_id': import_id, 'last_import_id': last_import_id})
-
-        for ocm in ocms:
+        for ocm_id in ocm_ids:
             '''iterate through all centers'''
-            center = ocm.id
+            request_url = self._url + f'{ocm_id}?date_from={date_from}&date_to={date_to}'
+            response = requests.get(request_url, headers={'Api-Token': '{}'.format(self._token)}, verify=False)
 
-            request_url = self._url + '{}?date_from={}&date_to={}'.format(center, date_from, date_to)
-            r = requests.get(request_url, headers={'Api-Token': '{}'.format(token)}, verify=False)
-
-            if r.status_code == 404:
-                # Place not found
+            if response.status_code == 404:
+                # center not found
                 not_found += 1
                 continue
 
-            response_data = r.json()
+            response_data = response.json()
 
             if len(response_data) == 0:
+                # no calendar
                 empty += 1
                 continue
 
@@ -86,12 +74,19 @@ class ReservationsApiFetcher(Fetcher):
 
                 db.session.merge(OckovaniRezervace(
                     datum=row['date'],
-                    ockovaci_misto_id=center,
+                    ockovaci_misto_id=ocm_id,
                     volna_kapacita=row['available_slots'],
                     maximalni_kapacita=row['available_slots'] + row['reservations_count'],
-                    kalendar_ockovani=row['vaccine_round'].upper(),
-                    import_id=import_id
+                    kalendar_ockovani=row['vaccine_round'].upper()
                 ))
 
         app.logger.warning("Not able to find {} centers and {} responses were empty.".format(not_found, empty))
         db.session.commit()
+
+    def _count_date_from(self) -> str:
+        days = -7 if self._full_update else 0
+        return (datetime.now() + relativedelta(days=days)).strftime('%Y-%m-%d')
+
+    def _count_date_to(self) -> str:
+        days = 31
+        return (datetime.now() + relativedelta(days=days)).strftime('%Y-%m-%d')

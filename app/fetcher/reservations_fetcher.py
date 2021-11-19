@@ -13,7 +13,7 @@ class ReservationsFetcher(Fetcher):
     RESERVATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV, historized=True)
+        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
@@ -21,8 +21,6 @@ class ReservationsFetcher(Fetcher):
         df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
 
         df = df.groupby(['datum', 'ockovaci_misto_id', 'kalendar_ockovani'], dropna=False).sum().reset_index()
-
-        df['import_id'] = import_id
 
         # filter out missing centers
         size = len(df)
