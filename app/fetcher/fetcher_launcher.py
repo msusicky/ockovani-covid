@@ -188,6 +188,12 @@ class FetcherLauncher:
             app.logger.info(f'New import record with id {self._import.id} created.')
 
         else:
+            # load previous today's import if exists to update its modified time
+            self._import = db.session.query(Import) \
+                .filter(Import.date == date.today(), Import.status == 'FINISHED') \
+                .first()
+            self._last_modified = self._import.last_modified if self._import is not None else None
+
             app.logger.info(f'New import record not needed.')
 
     def _check_modified_time(self, fetcher: Fetcher) -> bool:
@@ -228,7 +234,7 @@ class FetcherLauncher:
 
     def _set_import_failed(self) -> None:
         # sets import record failed if some exception occurs
-        if self._historization_needed:
+        if self._import is not None:
             self._import.status = 'FAILED'
             self._import.end = datetime.now()
             self._import.last_modified = self._last_modified
@@ -236,7 +242,7 @@ class FetcherLauncher:
 
     def _set_import_finished(self) -> None:
         # sets import record finished if it succeeded
-        if self._historization_needed:
+        if self._import is not None:
             self._import.status = 'FINISHED'
             self._import.end = datetime.now()
             self._import.last_modified = self._last_modified
