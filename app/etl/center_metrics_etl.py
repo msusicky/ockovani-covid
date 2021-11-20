@@ -77,7 +77,7 @@ class CenterMetricsEtl:
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_2"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
             func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
-        ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
+        ).outerjoin(OckovaniRezervace, OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -279,12 +279,12 @@ class CenterMetricsEtl:
             """
             select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / 
                 nullif((select sum(maximalni_kapacita-volna_kapacita) from ockovani_rezervace or2 
-                where datum >= :datum_7 and datum < :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id), 0)
+                where datum >= :datum_7 and datum < :datum and ockovaci_misto_id =m.misto_id), 0)
                 ) ockovani_odhad_cekani
             from ockovaci_mista_metriky m
             where m.datum = :datum
             """
-        )).params(datum=self._date, datum_7=self._date - timedelta(7), import_id=self._import_id) \
+        )).params(datum=self._date, datum_7=self._date - timedelta(7)) \
             .all()
 
         for wait in vacc_est_waiting:

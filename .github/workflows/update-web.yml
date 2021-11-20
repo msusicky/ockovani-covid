@@ -2,9 +2,11 @@ name: update-web
 
 on:
   workflow_run:
-    workflows: [update-data]
+    workflows: [update-data-daily, update-data-hourly]
     types:
       - completed
+
+concurrency: production_env
 
 jobs:
   deploy:

@@ -6,6 +6,8 @@ on:
     types:
       - completed
 
+concurrency: acceptance_env
+
 jobs:
   deploy:
     name: Acceptance tests

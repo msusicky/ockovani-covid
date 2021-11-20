@@ -1,7 +1,9 @@
-name: update-data
+name: update-data-daily
 
 on:
   workflow_dispatch
+
+concurrency: production_env
 
 jobs:
   deploy:

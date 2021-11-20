@@ -6,6 +6,8 @@ on:
     types:
       - completed
 
+concurrency: production_env
+
 jobs:
   deploy:
     name: Post tweet with statistics

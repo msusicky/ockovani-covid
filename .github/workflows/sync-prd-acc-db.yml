@@ -2,7 +2,9 @@ name: sync-prd-acc-db
 
 on:
   workflow_dispatch
-    
+
+concurrency: production_env
+
 jobs:
   deploy:
     name: Sync databases - PRD to ACC
