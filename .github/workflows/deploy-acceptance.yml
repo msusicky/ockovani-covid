@@ -4,6 +4,10 @@ on:
   push:
     branches: [develop]
 
+concurrency:
+  group: acceptance_env
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy to acceptance

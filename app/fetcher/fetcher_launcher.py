@@ -70,7 +70,7 @@ class FetcherLauncher:
                 self._wait(self.ATTEMPTS_MIN_DURATION - (time.time() - start))
 
         except Exception as e:
-            app.logger.error(e)
+            app.logger.exception(e)
             self._set_import_failed()
             return False
 
@@ -87,24 +87,32 @@ class FetcherLauncher:
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-            # self._fetchers.append(ReservationsFetcher())  # replaced by ReservationsApiFetcher
-            self._fetchers.append(ReservationsApiFetcher())
+        
+            if app.debug:
+                self._fetchers.append(ReservationsFetcher())
+            else:
+                self._fetchers.append(ReservationsApiFetcher())
+
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher())  # not needed
-            # self._fetchers.append(HospitalCapacitiesFetcher()) # not needed
-            # self._fetchers.append(SuppliesFetcher())  # data not updated anymore
-            self._fetchers.append(InfectedVaccinatedFetcher())
-            self._fetchers.append(Infected65VaccinatedFetcher())
-            self._fetchers.append(DeathsVaccinatedFetcher())
-            self._fetchers.append(HospitalizedVaccinatedFetcher())
-            self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+            # self._fetchers.append(HospitalAnalysisFetcher())          # not needed
+            # self._fetchers.append(HospitalCapacitiesFetcher())        # not needed
+            # self._fetchers.append(SuppliesFetcher())                  # data not updated anymore
+            # self._fetchers.append(InfectedVaccinatedFetcher())        # not needed
+            # self._fetchers.append(Infected65VaccinatedFetcher())      # not needed
+            # self._fetchers.append(DeathsVaccinatedFetcher())          # not needed
+            # self._fetchers.append(HospitalizedVaccinatedFetcher())    # not needed
+            # self._fetchers.append(HospitalizedIcuVaccinatedFetcher()) # not needed
             self._fetchers.append(InfectedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+
+        elif dataset == 'all_hourly':
+            self._fetchers.append(CentersApiFetcher())
+            self._fetchers.append(ReservationsApiFetcher(full_update=False))
 
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
@@ -180,7 +188,17 @@ class FetcherLauncher:
             app.logger.info(f'New import record with id {self._import.id} created.')
 
         else:
-            app.logger.info(f'New import record not needed.')
+            # load previous today's import to update its modified time
+            self._import = db.session.query(Import) \
+                .filter(Import.date == date.today(), Import.status == 'FINISHED') \
+                .first()
+
+            if self._import is None:
+                raise Exception('No full update today.')
+
+            self._last_modified = self._import.last_modified if self._import is not None else None
+
+            app.logger.info('New import record not needed.')
 
     def _check_modified_time(self, fetcher: Fetcher) -> bool:
         # checks if dataset was updated today, returns true if check_date is not enabled
@@ -220,7 +238,7 @@ class FetcherLauncher:
 
     def _set_import_failed(self) -> None:
         # sets import record failed if some exception occurs
-        if self._historization_needed:
+        if self._import is not None:
             self._import.status = 'FAILED'
             self._import.end = datetime.now()
             self._import.last_modified = self._last_modified
@@ -228,7 +246,7 @@ class FetcherLauncher:
 
     def _set_import_finished(self) -> None:
         # sets import record finished if it succeeded
-        if self._historization_needed:
+        if self._import is not None:
             self._import.status = 'FINISHED'
             self._import.end = datetime.now()
             self._import.last_modified = self._last_modified

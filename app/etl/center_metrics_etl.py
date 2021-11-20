@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from sqlalchemy import func, case, text, or_, and_
+from sqlalchemy import func, case, text, or_, and_, column
 
 from app import db, app, queries
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniRezervace, OckovaniLide, \
@@ -77,7 +77,7 @@ class CenterMetricsEtl:
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_2"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
             func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
-        ).outerjoin(OckovaniRezervace, and_(OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id, OckovaniRezervace.import_id == self._import_id)) \
+        ).outerjoin(OckovaniRezervace, OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -204,7 +204,7 @@ class CenterMetricsEtl:
                 registrace_fronta_prumer_cekani=queue_wait.registrace_fronta_prumer_cekani
             ))
 
-        est_waiting = db.session.query("id", "registrace_odhad_cekani").from_statement(text(
+        est_waiting = db.session.query(column("id"), column("registrace_odhad_cekani")).from_statement(text(
             """
             select id, 7.0 * sum(case when rezervace = false then pocet else 0 end) 
                 / nullif(sum(case when rezervace = true and datum_rezervace >= :datum_7 then pocet else 0 end), 0)
@@ -275,16 +275,16 @@ class CenterMetricsEtl:
                 registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
-        vacc_est_waiting = db.session.query("misto_id", "ockovani_odhad_cekani").from_statement(text(
+        vacc_est_waiting = db.session.query(column("misto_id"), column("ockovani_odhad_cekani")).from_statement(text(
             """
             select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / 
                 nullif((select sum(maximalni_kapacita-volna_kapacita) from ockovani_rezervace or2 
-                where datum >= :datum_7 and datum < :datum and import_id=:import_id and ockovaci_misto_id =m.misto_id), 0)
+                where datum >= :datum_7 and datum < :datum and ockovaci_misto_id =m.misto_id), 0)
                 ) ockovani_odhad_cekani
             from ockovaci_mista_metriky m
             where m.datum = :datum
             """
-        )).params(datum=self._date, datum_7=self._date - timedelta(7), import_id=self._import_id) \
+        )).params(datum=self._date, datum_7=self._date - timedelta(7)) \
             .all()
 
         for wait in vacc_est_waiting:

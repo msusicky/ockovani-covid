@@ -13,7 +13,7 @@ class ReservationsFetcher(Fetcher):
     RESERVATIONS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovani-rezervace.csv'
 
     def __init__(self):
-        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV, historized=True)
+        super().__init__(OckovaniRezervace.__tablename__, self.RESERVATIONS_CSV)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
@@ -22,8 +22,6 @@ class ReservationsFetcher(Fetcher):
 
         df = df.groupby(['datum', 'ockovaci_misto_id', 'kalendar_ockovani'], dropna=False).sum().reset_index()
 
-        df['import_id'] = import_id
-
         # filter out missing centers
         size = len(df)
         mista_ids = [r[0] for r in db.session.query(OckovaciMisto.id).all()]
@@ -31,5 +29,7 @@ class ReservationsFetcher(Fetcher):
 
         if size > len(df):
             app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
+
+        self._truncate()
 
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)
