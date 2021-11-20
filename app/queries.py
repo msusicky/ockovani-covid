@@ -888,22 +888,24 @@ def count_vaccinated_unvaccinated_comparison_age():
             hospitalizace_celkem, hospitalizace_bez, hospitalizace_castecne, hospitalizace_plne, hospitalizace_posilujici, 
             hospitalizace_jip_celkem, hospitalizace_jip_bez, hospitalizace_jip_castecne, hospitalizace_jip_plne, hospitalizace_jip_posilujici
         from nakazeni_ockovani_vek n 
-        join hospitalizace_ockovani_vek h on (h.tyden = n.tyden and h.vekova_skupina = n.vekova_skupina)
-        join hospitalizace_jip_ockovani_vek j on (j.tyden = n.tyden and j.vekova_skupina = n.vekova_skupina)
+        left join hospitalizace_ockovani_vek h on (h.tyden = n.tyden and h.vekova_skupina = n.vekova_skupina)
+        left join hospitalizace_jip_ockovani_vek j on (j.tyden = n.tyden and j.vekova_skupina = n.vekova_skupina)
         where n.tyden_do < '{get_import_date()}'
         """,
         db.engine
     )
     srovnani = srovnani[srovnani['tyden'] == srovnani['tyden'].max()]
-    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].str.replace(' let', '').replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
+    srovnani['vekova_skupina'] = srovnani['vekova_skupina'].str.replace(' let', '') \
+        .replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
     srovnani = srovnani.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
     df = pd.merge(ockovani, populace)
     df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['tyden_od', 'vekova_skupina'])
 
     df['vekova_skupina'] = df['vekova_skupina'].replace(
-        {'16-17': '16-29', '18-24': '16-29', '25-29': '16-29', '30-34': '30-39', '35-39': '30-39', '40-44': '40-49', '45-49': '40-49',
-         '50-54': '50-59', '55-59': '50-59', '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
+        {'12-15': '12-17', '16-17': '12-17', '18-24': '18-29', '25-29': '18-29', '30-34': '30-39', '35-39': '30-39',
+         '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59', '60-64': '60-69', '65-69': '60-69',
+         '70-74': '70-79', '75-79': '70-79'})
     # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
     df = df.groupby(['datum', 'tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
