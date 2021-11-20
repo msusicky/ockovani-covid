@@ -21,7 +21,7 @@ def upgrade():
     connection = op.get_bind()
     connection.execute("truncate table ockovani_rezervace")
     connection.execute("alter table ockovani_rezervace drop CONSTRAINT if exists ockovani_rezervace_pkey")
-    op.drop_constraint('ockovani_rezervace_import_id_fkey', 'ockovani_rezervace', type_='foreignkey')
+    connection.execute("alter table ockovani_rezervace drop CONSTRAINT if exists ockovani_rezervace_import_id_fkey")
     op.drop_column('ockovani_rezervace', 'import_id')
     connection.execute("alter table ockovani_rezervace add CONSTRAINT ockovani_rezervace_pkey PRIMARY KEY (datum, ockovaci_misto_id, kalendar_ockovani)")
     # ### end Alembic commands ###
