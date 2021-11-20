@@ -865,22 +865,6 @@ def count_vaccinated_unvaccinated_comparison_age():
         """,
         db.engine)
 
-    ockovani = pd.read_sql_query(
-        f"""
-        select datum, vekova_skupina,
-            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
-            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
-            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
-        from ockovani_lide o
-        join vakciny v on (o.vakcina = v.vakcina)
-        where datum < '{get_import_date()}'
-        group by datum, vekova_skupina
-        order by datum
-        """,
-        db.engine
-    )
-    ockovani = ockovani.groupby(['vekova_skupina', 'datum']).sum().groupby(level=0).cumsum().reset_index()
-
     srovnani = pd.read_sql_query(
         f"""
         select n.tyden, n.tyden_od, n.tyden_do, n.vekova_skupina,
@@ -894,20 +878,35 @@ def count_vaccinated_unvaccinated_comparison_age():
         """,
         db.engine
     )
-    srovnani = srovnani[srovnani['tyden'] == srovnani['tyden'].max()]
+    srovnani_max_datum = srovnani['tyden_od'].max()
+    srovnani = srovnani[srovnani['tyden_od'] == srovnani_max_datum]
     srovnani['vekova_skupina'] = srovnani['vekova_skupina'].str.replace(' let', '') \
         .replace({'80-84': '80+', '85-89': '80+', '90+': '80+'})
     srovnani = srovnani.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
+    ockovani = pd.read_sql_query(
+        f"""
+        select vekova_skupina,
+            sum(case when poradi_davky = 1 then pocet else 0 end) populace_ockovani, 
+            sum(case when poradi_davky = v.davky then pocet else 0 end) populace_plne, 
+            sum(case when poradi_davky = 3 then pocet else 0 end) populace_posilujici
+        from ockovani_lide o
+        join vakciny v on (o.vakcina = v.vakcina)
+        where datum < '{srovnani_max_datum}'
+        group by vekova_skupina
+        """,
+        db.engine
+    )
+    ockovani = ockovani.groupby(['vekova_skupina']).sum().reset_index()
+
     df = pd.merge(ockovani, populace)
-    df = pd.merge(df, srovnani, left_on=['datum', 'vekova_skupina'], right_on=['tyden_od', 'vekova_skupina'])
+    df = pd.merge(df, srovnani)
 
     df['vekova_skupina'] = df['vekova_skupina'].replace(
         {'12-15': '12-17', '16-17': '12-17', '18-24': '18-29', '25-29': '18-29', '30-34': '30-39', '35-39': '30-39',
          '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59', '60-64': '60-69', '65-69': '60-69',
          '70-74': '70-79', '75-79': '70-79'})
-    # df[['vekova_skupina', 'min_vek']] = df[['vekova_skupina', 'min_vek']].groupby('vekova_skupina').min().reset_index()
-    df = df.groupby(['datum', 'tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
+    df = df.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
 
@@ -923,7 +922,9 @@ def count_vaccinated_unvaccinated_comparison_age():
             df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
                 .replace({np.nan: 0})
 
-        df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: None})
+        df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: np.nan})
+        df_norm.loc[df_norm[d + '_ratio'] < 0.1, d + '_ratio'] = np.nan
+        df_norm[d + '_ratio'] = df_norm[d + '_ratio'].replace({np.nan: None})
 
     for g in groups:
         df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
