@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from sqlalchemy import func, case, text, or_, and_
+from sqlalchemy import func, case, text, or_, and_, column
 
 from app import db, app, queries
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, OckovaniRezervace, OckovaniLide, \
@@ -204,7 +204,7 @@ class CenterMetricsEtl:
                 registrace_fronta_prumer_cekani=queue_wait.registrace_fronta_prumer_cekani
             ))
 
-        est_waiting = db.session.query("id", "registrace_odhad_cekani").from_statement(text(
+        est_waiting = db.session.query(column("id"), column("registrace_odhad_cekani")).from_statement(text(
             """
             select id, 7.0 * sum(case when rezervace = false then pocet else 0 end) 
                 / nullif(sum(case when rezervace = true and datum_rezervace >= :datum_7 then pocet else 0 end), 0)
@@ -275,7 +275,7 @@ class CenterMetricsEtl:
                 registrace_30denni_uspesnost=ratio.registrace_30denni_uspesnost
             ))
 
-        vacc_est_waiting = db.session.query("misto_id", "ockovani_odhad_cekani").from_statement(text(
+        vacc_est_waiting = db.session.query(column("misto_id"), column("ockovani_odhad_cekani")).from_statement(text(
             """
             select m.misto_id, (7.0 * (m.registrace_fronta + m.rezervace_cekajici) / 
                 nullif((select sum(maximalni_kapacita-volna_kapacita) from ockovani_rezervace or2 

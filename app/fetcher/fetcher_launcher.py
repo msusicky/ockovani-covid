@@ -87,7 +87,7 @@ class FetcherLauncher:
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-
+        
             if app.debug:
                 self._fetchers.append(ReservationsFetcher())
             else:
