@@ -111,9 +111,6 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
 
         elif dataset == 'all_hourly':
-            if self._import is None:
-                raise Exception('No full update today.')
-
             self._fetchers.append(CentersApiFetcher())
             self._fetchers.append(ReservationsApiFetcher(full_update=False))
 
@@ -191,13 +188,17 @@ class FetcherLauncher:
             app.logger.info(f'New import record with id {self._import.id} created.')
 
         else:
-            # load previous today's import if exists to update its modified time
+            # load previous today's import to update its modified time
             self._import = db.session.query(Import) \
                 .filter(Import.date == date.today(), Import.status == 'FINISHED') \
                 .first()
+
+            if self._import is None:
+                raise Exception('No full update today.')
+
             self._last_modified = self._import.last_modified if self._import is not None else None
 
-            app.logger.info(f'New import record not needed.')
+            app.logger.info('New import record not needed.')
 
     def _check_modified_time(self, fetcher: Fetcher) -> bool:
         # checks if dataset was updated today, returns true if check_date is not enabled
