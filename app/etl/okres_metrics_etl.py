@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from sqlalchemy import func, case, text, and_
+from sqlalchemy import func, case, text, and_, column
 
 from app import db, app
 from app.models import OckovaciMisto, OckovaciMistoMetriky, OckovaniRegistrace, Okres, OkresMetriky, Populace
@@ -118,7 +118,7 @@ class OkresMetricsEtl:
 
     def _compute_distributed(self):
         """Computes metrics based on distributed vaccines dataset for each okres."""
-        distributed = db.session.query("okres_id", "vakciny_prijate_pocet").from_statement(text(
+        distributed = db.session.query(column("okres_id"), column("vakciny_prijate_pocet")).from_statement(text(
             """
             select m.okres_id okres_id, ( 
                 coalesce(sum(case

@@ -1,6 +1,4 @@
 import pandas as pd
-import requests
-import os
 
 from app import db, app
 from app.fetcher.fetcher import Fetcher

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask import render_template, session
-from sqlalchemy import func, text
+from sqlalchemy import func, text, column
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -224,24 +224,26 @@ def odkazy():
 
 @bp.route("/dataquality")
 def dataquality():
-    susp_vaccination_type = db.session.query("datum", "vakcina", "zarizeni_kod", "zarizeni_nazev", "vekova_skupina",
-                                             "pocet").from_statement(text(
+    susp_vaccination_type = db.session.query(column("datum"), column("vakcina"), column("zarizeni_kod"),
+                                             column("zarizeni_nazev"), column("vekova_skupina"),
+                                             column("pocet")).from_statement(text(
         """
         select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
         from ockovani_lide where vakcina not in ('Comirnaty','VAXZEVRIA','Spikevax', 'COVID-19 Vaccine Janssen')
         """
     )).all()
 
-    susp_vaccination_age = db.session.query("datum", "vakcina", "zarizeni_kod", "zarizeni_nazev", "vekova_skupina",
-                                            "pocet").from_statement(text(
+    susp_vaccination_age = db.session.query(column("datum"), column("vakcina"), column("zarizeni_kod"),
+                                            column("zarizeni_nazev"), column("vekova_skupina"), column("pocet")
+                                            ).from_statement(text(
         """
         select datum, vakcina, zarizeni_kod, zarizeni_nazev, vekova_skupina, pocet 
         from ockovani_lide where vakcina !='Comirnaty' and vekova_skupina='0-17'
         """
     )).all()
 
-    susp_storage_vacc = db.session.query("pomer", "vakciny_skladem_pocet", "ockovani_pocet_davek",
-                                         "nazev").from_statement(text(
+    susp_storage_vacc = db.session.query(column("pomer"), column("vakciny_skladem_pocet"),
+                                         column("ockovani_pocet_davek"), column("nazev")).from_statement(text(
         """
         select ockovani_pocet_davek/vakciny_skladem_pocet pomer,vakciny_skladem_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -250,7 +252,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_vaccination = db.session.query("vakciny_prijate_pocet", "ockovani_pocet_davek", "nazev").from_statement(text(
+    susp_vaccination = db.session.query(column("vakciny_prijate_pocet"), column("ockovani_pocet_davek"),
+                                        column("nazev")).from_statement(text(
         """
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -259,8 +262,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_vaccination_accepted = db.session.query("vakciny_prijate_pocet", "ockovani_pocet_davek",
-                                                 "nazev").from_statement(text(
+    susp_vaccination_accepted = db.session.query(column("vakciny_prijate_pocet"), column("ockovani_pocet_davek"),
+                                                 column("nazev")).from_statement(text(
         """
         select vakciny_prijate_pocet, ockovani_pocet_davek, om.nazev from ockovaci_mista_metriky omm
             join ockovaci_mista om on (omm.misto_id=om.id)
@@ -269,7 +272,8 @@ def dataquality():
         """.format(get_import_date())
     )).all()
 
-    susp_reservation_vaccination = db.session.query("nazev", "nrpzs_kod", "sum30_mimo_rezervace").from_statement(text(
+    susp_reservation_vaccination = db.session.query(column("nazev"), column("nrpzs_kod"),
+                                                    column("sum30_mimo_rezervace")).from_statement(text(
         """
         select nazev, nrpzs_kod, sum( ockovani-pocet_rezervaci) sum30_mimo_rezervace
             from (
@@ -287,8 +291,9 @@ def dataquality():
         """.format(get_import_id(), get_import_date())
     )).all()
 
-    susp_reservation_vaccination_low = db.session.query("nazev", "nrpzs_kod", "datum", "pocet_rezervaci", "ockovani",
-                                                        "pomer").from_statement(text(
+    susp_reservation_vaccination_low = db.session.query(column("nazev"), column("nrpzs_kod"), column("datum"),
+                                                        column("pocet_rezervaci"), column("ockovani"),
+                                                        column("pomer")).from_statement(text(
         """
         select om.nazev, rez.nrpzs_kod, rez.datum, rez.pocet_rezervaci, ocko.ockovani, round(ockovani*1.0/pocet_rezervaci, 2) pomer from (
             select ocm.nrpzs_kod, o.datum, sum(maximalni_kapacita-volna_kapacita) pocet_rezervaci 
@@ -315,7 +320,7 @@ def dataquality():
 @bp.route("/report")
 def report():
     # -- aktuální počet hospitalizovaných s covidem ve STR kraji
-    current_hospital_kraje = db.session.query("nazev", "pocet_hospital").from_statement(text(
+    current_hospital_kraje = db.session.query(column("nazev"), column("pocet_hospital")).from_statement(text(
         """
         select k.nazev , sum(pocet_hosp) pocet_hospital
             from public.situace_orp so 
@@ -327,7 +332,7 @@ def report():
     )).all()
 
     # -- přírůstek hospitalizovaných s covidem za posledních 7 dní ve STR kraji
-    new_hospital_kraje = db.session.query("nazev", "nove_hosp_7").from_statement(text(
+    new_hospital_kraje = db.session.query(column("nazev"), column("nove_hosp_7")).from_statement(text(
         """
         select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
             from public.situace_orp so 
@@ -341,7 +346,7 @@ def report():
     )).all()
 
     # -- aktuální počet potvrzených případů nákazy v kraji
-    current_active_kraje = db.session.query("aktivni_pripady", "nazev").from_statement(text(
+    current_active_kraje = db.session.query(column("aktivni_pripady"), column("nazev")).from_statement(text(
         """
         select sum(co.aktivni_pripady) aktivni_pripady, k.nazev from charakteristika_obci co
             join kraje k on (co.kraj_kod=k.id)
@@ -351,7 +356,7 @@ def report():
     )).all()
 
     # -- přírůstek potvrzených případů nákazy za posledních 14 dní v kraji
-    new_14d_kraje = db.session.query("nove_pripady", "nazev").from_statement(text(
+    new_14d_kraje = db.session.query(column("nove_pripady"), column("nazev")).from_statement(text(
         """
         select sum(co.nove_pripady) nove_pripady, k.nazev from charakteristika_obci co
             join kraje k on (co.kraj_kod=k.id)
@@ -361,7 +366,8 @@ def report():
     )).all()
 
     # -- aktuální počet potvrzených případů nákazy podle okresů ve STR kraji
-    current_cases_okres_kraje = db.session.query("aktivni_pripady", "okres_nazev", "kraj_nazev").from_statement(text(
+    current_cases_okres_kraje = db.session.query(column("aktivni_pripady"), column("okres_nazev"),
+                                                 column("kraj_nazev")).from_statement(text(
         """
         select sum(co.aktivni_pripady) aktivni_pripady, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
@@ -372,7 +378,8 @@ def report():
     )).all()
 
     # -- přírůstek potvrzených případů nákazy za posledních 14 dní podle okresů v STR kraji
-    new_14d_okres_kraje = db.session.query("nove_pripady_14_dni", "okres_nazev", "kraj_nazev").from_statement(text(
+    new_14d_okres_kraje = db.session.query(column("nove_pripady_14_dni"), column("okres_nazev"),
+                                           column("kraj_nazev")).from_statement(text(
         """
         select sum(co.nove_pripady_14_dni) nove_pripady_14_dni, o.nazev okres_nazev, k.nazev kraj_nazev from charakteristika_obci co
             join okresy o on (co.okres_kod=o.id)
@@ -383,8 +390,8 @@ def report():
     )).all()
 
     # -- 7denní incidence potvrzených případů nákazy na 100 000 obyvatel podle krajů
-    incidence_7d_kraje = db.session.query("kraj_nazev", "incidence_7", "incidence_65_7",
-                                          "incidence_75_7").from_statement(text(
+    incidence_7d_kraje = db.session.query(column("kraj_nazev"), column("incidence_7"), column("incidence_65_7"),
+                                          column("incidence_75_7")).from_statement(text(
         """         
         with pop as (select orp_kod kraj_nuts, sum(pocet) pocet from populace p where length(orp_kod)=5
         group by orp_kod)

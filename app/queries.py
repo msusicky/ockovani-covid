@@ -2,7 +2,7 @@ from datetime import date, timedelta, datetime
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import func, or_, and_, text
+from sqlalchemy import func, or_, and_, text, column
 
 from app import db
 from app.context import get_import_date, get_import_id
@@ -624,7 +624,7 @@ def count_end_date_supplies():
 
     population_to_vaccinate = metrics.pocet_obyvatel_celkem * 0.7
 
-    end_date = db.session.query("datum").from_statement(text(
+    end_date = db.session.query(column('datum')).from_statement(text(
         f"""
         select datum from (
             select datum, sum(pocet) over (order by datum rows between unbounded preceding and current row) as celkem_lidi 
@@ -734,7 +734,7 @@ def count_free_slots(center_id=None):
 
 
 def count_vaccinated_week():
-    return db.session.query('datum', 'pocet_1', 'pocet_2', 'pocet_3', 'pocet_celkem').from_statement(text(
+    return db.session.query(column('datum'), column('pocet_1'), column('pocet_2'), column('pocet_3'), column('pocet_celkem')).from_statement(text(
         f"""
         select datum, 
             sum(case when poradi_davky = 1 then pocet else 0 end) pocet_1, 
@@ -750,7 +750,7 @@ def count_vaccinated_week():
 
 
 def count_top_centers():
-    return db.session.query("zarizeni_nazev", "pocet").from_statement(text(
+    return db.session.query(column('zarizeni_nazev'), column('pocet')).from_statement(text(
         f"""
         select zarizeni_nazev, sum(pocet) pocet
         from ockovani_lide 
@@ -1088,7 +1088,7 @@ def get_vaccination_total_graph_data():
 
 
 def get_received_vaccine_graph_data():
-    return db.session.query("vyrobce", "datum", "prijem").from_statement(text(
+    return db.session.query(column('vyrobce'), column('datum'), column('prijem')).from_statement(text(
         """
         select 
             vyrobce,
@@ -1110,7 +1110,7 @@ def get_received_vaccine_graph_data():
 
 
 def get_used_vaccine_graph_data():
-    return db.session.query("vyrobce", "datum", "ockovano").from_statement(text(
+    return db.session.query(column('vyrobce'), column('datum'), column('ockovano')).from_statement(text(
         """
         select vyrobce, array_agg(base.datum) as datum, array_agg(base.ockovano) as ockovano 
         from (
