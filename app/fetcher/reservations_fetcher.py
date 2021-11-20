@@ -30,4 +30,6 @@ class ReservationsFetcher(Fetcher):
         if size > len(df):
             app.logger.warning("Some centers doesn't exist - {} rows skipped.".format(size - len(df)))
 
+        self._truncate()
+
         df.to_sql(self._table, db.engine, if_exists='append', index=False, method=Fetcher._psql_insert_copy)

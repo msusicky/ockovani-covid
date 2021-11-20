@@ -70,7 +70,7 @@ class FetcherLauncher:
                 self._wait(self.ATTEMPTS_MIN_DURATION - (time.time() - start))
 
         except Exception as e:
-            app.logger.error(e)
+            app.logger.exception(e)
             self._set_import_failed()
             return False
 
