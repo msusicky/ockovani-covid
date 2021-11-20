@@ -98,19 +98,22 @@ class FetcherLauncher:
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher())  # not needed
-            # self._fetchers.append(HospitalCapacitiesFetcher()) # not needed
-            # self._fetchers.append(SuppliesFetcher())  # data not updated anymore
-            self._fetchers.append(InfectedVaccinatedFetcher())
-            self._fetchers.append(Infected65VaccinatedFetcher())
-            self._fetchers.append(DeathsVaccinatedFetcher())
-            self._fetchers.append(HospitalizedVaccinatedFetcher())
-            self._fetchers.append(HospitalizedIcuVaccinatedFetcher())
+            # self._fetchers.append(HospitalAnalysisFetcher())          # not needed
+            # self._fetchers.append(HospitalCapacitiesFetcher())        # not needed
+            # self._fetchers.append(SuppliesFetcher())                  # data not updated anymore
+            # self._fetchers.append(InfectedVaccinatedFetcher())        # not needed
+            # self._fetchers.append(Infected65VaccinatedFetcher())      # not needed
+            # self._fetchers.append(DeathsVaccinatedFetcher())          # not needed
+            # self._fetchers.append(HospitalizedVaccinatedFetcher())    # not needed
+            # self._fetchers.append(HospitalizedIcuVaccinatedFetcher()) # not needed
             self._fetchers.append(InfectedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
 
         elif dataset == 'all_hourly':
+            if self._import is None:
+                raise Exception('No full update today.')
+
             self._fetchers.append(CentersApiFetcher())
             self._fetchers.append(ReservationsApiFetcher(full_update=False))
 
