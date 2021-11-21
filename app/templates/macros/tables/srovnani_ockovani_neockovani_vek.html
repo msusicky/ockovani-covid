@@ -1,6 +1,6 @@
 {% macro srovnani_ockovani_neockovani_vek(data) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm mb-0">
+    <table class="table table-bordered table-striped table-sm">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center" rowspan="2" style="width: 7%">Věková skupina</th>
@@ -106,7 +106,7 @@
     </table>
 </div>
 
-<p class="card-text font-italic text-justify mt-3">
+<p class="card-text font-italic text-justify">
     Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 10 %, pro ně poměr nepočítáme kvůli nízké přesnosti.
 </p>
 {%- endmacro %}
