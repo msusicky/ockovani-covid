@@ -1,7 +1,11 @@
+ACC: 
 [![deploy-acceptance](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-acceptance.yml)
 [![test](https://github.com/msusicky/ockovani-covid/actions/workflows/test.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/test.yml)
+
+PRD:
 [![deploy-production](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/deploy-production.yml)
-[![update-data](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data.yml)
+[![update-data-daily](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data-daily.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data-daily.yml)
+[![update-data-hourly](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data-hourly.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-data-hourly.yml)
 [![update-web](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/update-web.yml)
 [![post-tweet](https://github.com/msusicky/ockovani-covid/actions/workflows/post-tweet.yml/badge.svg)](https://github.com/msusicky/ockovani-covid/actions/workflows/post-tweet.yml)
 
