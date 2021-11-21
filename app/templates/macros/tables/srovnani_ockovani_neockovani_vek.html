@@ -1,6 +1,6 @@
 {% macro srovnani_ockovani_neockovani_vek(data) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm mb-0">
+    <table class="table table-bordered table-striped table-sm">
         <thead class="thead-dark">
         <tr>
             <th scope="col" class="text-center" rowspan="2" style="width: 7%">Věková skupina</th>
@@ -73,21 +73,44 @@
         </thead>
         <tbody>
         {% for idx, row in data.iterrows() %}
-        <tr>
+        <tr class="{{ 'table-warning' if row['populace_plne_zastoupeni'] < 0.1 }}">
             <td>{{ row['vekova_skupina'] }}</td>
             <td class="text-right">{{ (100 * row['populace_plne_zastoupeni']) | format_decimal }} %</td>
             <td class="text-right">{{ row['nakazeni_bez'] | format_number }}</td>
             <td class="text-right">{{ row['nakazeni_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['nakazeni_ratio'] | format_decimal }} &times;</td>
+            <td class="text-right">{{ row['nakazeni_ratio'] | format_decimal }}{% if row['nakazeni_ratio'] %}&times;{% endif %}</td>
             <td class="text-right">{{ row['hospitalizace_bez'] | format_number }}</td>
             <td class="text-right">{{ row['hospitalizace_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_ratio'] | format_decimal }} &times;</td>
+            <td class="text-right">{{ row['hospitalizace_ratio'] | format_decimal }}{% if row['hospitalizace_ratio'] %}&times;{% endif %}</td>
             <td class="text-right">{{ row['hospitalizace_jip_bez'] | format_number }}</td>
             <td class="text-right">{{ row['hospitalizace_jip_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_jip_ratio'] | format_decimal }} &times;</td>
+            <td class="text-right">{{ row['hospitalizace_jip_ratio'] | format_decimal }}{% if row['hospitalizace_jip_ratio'] %}&times;{% endif %}</td>
         </tr>
         {% endfor %}
         </tbody>
+        <tfoot class="font-weight-bold">
+        <tr>
+            <td>Celkem</td>
+            <td class="text-right">{{ (100 * data['populace_plne'].sum() / data['populace'].sum()) | format_decimal }} %</td>
+            <td class="text-right">{{ data['nakazeni_bez'].sum() | format_number }}</td>
+            <td class="text-right">{{ data['nakazeni_plne'].sum() | format_number }}</td>
+            <td></td>
+            <td class="text-right">{{ data['hospitalizace_bez'].sum() | format_number }}</td>
+            <td class="text-right">{{ data['hospitalizace_plne'].sum() | format_number }}</td>
+            <td></td>
+            <td class="text-right">{{ data['hospitalizace_jip_bez'].sum() | format_number }}</td>
+            <td class="text-right">{{ data['hospitalizace_jip_plne'].sum() | format_number }}</td>
+            <td></td>
+        </tr>
+        </tfoot>
     </table>
 </div>
+
+<p class="card-text font-italic text-justify">
+    Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 10 %, pro ně poměr nepočítáme kvůli nízké přesnosti.
+    Poměry vycházející z nízkého počtu případů také nemusí být přesné.
+</p>
+<p class="card-text font-italic text-justify">
+    Pro úmrtí nejsou v současné době k dispozici data obsahující věkové skupiny.
+</p>
 {%- endmacro %}

@@ -149,32 +149,32 @@
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#stats">Statistiky</a>
+                        <a class="nav-link active" data-toggle="tab" href="#statistiky">Statistiky</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link" data-toggle="tab" href="#registrace">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav vakcín</a>
+                        <a class="nav-link" data-toggle="tab" href="#vakciny">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#free_slots">Volné termíny</a>
+                        <a class="nav-link" data-toggle="tab" href="#volne-terminy">Volné termíny</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination_graph">Vývoj očkování</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-ockovani">Vývoj očkování</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registrations_graph">Vývoj registrací</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-registrace">Vývoj registrací</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="stats">
+                    <div class="tab-pane active" id="statistiky">
                         <div class="row px-2 mb-n2">
                             {{ metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných zdravotnickým zařízením podle dat o vykázaných očkováních.<br>Zdravotnické zařízení může mít více očkovacích míst, proto údaj uvádíme pouze u těch zařízení, která mají jen jedno aktivní očkovací místo. Pokud toto očkovací místo v minulosti nahradilo jiné, zahrnuje počet i očkované na původním místě.") }}
                             {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centrum.<br>Dávky vydané mimo očkovací místa (např. praktickým lékařům) jsou odečtené.') }}
@@ -201,22 +201,22 @@
                             #}
                         </div>
                     </div>
-                    <div class="tab-pane" id="registration">
+                    <div class="tab-pane" id="registrace">
                         {{ stav_registraci(registrations) }}
                     </div>
-                    <div class="tab-pane" id="vaccination">
+                    <div class="tab-pane" id="vakciny">
                         {{ stav_vakcin(vaccines) }}
                     </div>
-                    <div class="tab-pane" id="free_slots">
+                    <div class="tab-pane" id="volne-terminy">
                         {{ volna_mista(free_slots) }}
                     </div>
-                    <div class="tab-pane" id="queue_graph">
+                    <div class="tab-pane" id="graf-fronta">
                         {{ graf_fronta(queue_graph_data) }}
                     </div>
-                    <div class="tab-pane" id="vaccination_graph">
+                    <div class="tab-pane" id="graf-ockovani">
                         {{ graf_ockovani(vaccination_graph_data) }}
                     </div>
-                    <div class="tab-pane" id="registrations_graph">
+                    <div class="tab-pane" id="graf-registrace">
                         {{ graf_registrace(registrations_graph_data) }}
                     </div>
                 </div>

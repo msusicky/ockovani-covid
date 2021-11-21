@@ -166,6 +166,8 @@ def statistiky():
 
     vaccinated_unvaccinated_comparison_age = queries.count_vaccinated_unvaccinated_comparison_age()
 
+    vaccinated_unvaccinated_comparison_age_graph_data = vaccinated_unvaccinated_comparison_age[vaccinated_unvaccinated_comparison_age['vekova_skupina'] != '0-11']
+
     # Source data for graph of received vaccines of the manufacturers
     received_vaccine_graph_data = queries.get_received_vaccine_graph_data()
 
@@ -209,7 +211,8 @@ def statistiky():
                            pocet_opravneni=pocet_opravneni, infected_orp_graph_data=infected_orp_graph_data,
                            vaccinated_orp_graph_data=vaccinated_orp_graph_data,
                            hospitalized_orp_graph_data=hospitalized_orp_graph_data,
-                           tests_orp_graph_data=tests_orp_graph_data)
+                           tests_orp_graph_data=tests_orp_graph_data,
+                           vaccinated_unvaccinated_comparison_age_graph_data=vaccinated_unvaccinated_comparison_age_graph_data)
 
 
 @bp.route("/napoveda")

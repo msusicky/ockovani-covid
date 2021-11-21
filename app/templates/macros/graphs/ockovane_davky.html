@@ -19,53 +19,8 @@
             {% endfor %}
         ]
 
-        const buttons = [];
-
-        // Add button to show all traces
-        buttons.push(
-            {
-                label: "Všichni výrobci",
-                args: [
-                    // Update data
-                    {
-                        "visible": new Array(traces.length).fill(true),
-                    },
-
-                    // Update layout
-                    {
-                        "title": "Očkované dávky všech výrobců",
-                    }
-                ],
-                method: "update"
-            }
-        );
-
-        // Add buttons to switch between visibility of traces
-        for (let i = 0; i < traces.length; i++) {
-            let traceVisibility = new Array(traces.length).fill(false);
-            traceVisibility[i] = true;
-
-            buttons[i + 1] = {
-                label: traces[i].name,
-                args: [
-                    // Update data
-                    {
-                        "visible": traceVisibility,
-                    },
-
-                    // Update layout
-                    {
-                        "title": "Očkované dávky výrobce: " + traces[i].name
-                    }
-                ],
-                method: "update"
-            };
-        }
-
-        // Activate first button - only visually (action is activated by update of div)
-        buttons[0]["activate"] = true;
-
         const layout = {
+            title: "Očkované dávky",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
@@ -102,7 +57,6 @@
                     ],
                     xanchor: "center",
                     x: 0.5,
-                    y: 1.1,
                 }
             },
             yaxis: {
@@ -120,16 +74,6 @@
                 y: -0.5,
             },
             height: 700,
-            updatemenus: [{
-                direction: "right",
-                xanchor: "center",
-                yanchor: "center",
-                y: 1.4,
-                x: 0.5,
-                type: "buttons",
-                showactive: true,
-                buttons: buttons,
-            }]
         }
 
         const config = {
@@ -140,8 +84,36 @@
         // Render original chart
         Plotly.newPlot("graf-ockovano", traces, layout, config);
 
-        // Activate first button action
-        Plotly.update("graf-ockovano", buttons[0].args[0], buttons[0].args[1]);
+        // force relayout to rescale y
+        range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
+        Plotly.relayout('graf-ockovano', range);
+    }
+
+    function grafOckovanychDavekRescale(e) {
+        if (e.target.layout.stopRescale === true) {
+            e.target.layout.stopRescale = false;
+            return;
+        }
+
+        console.log(e);
+
+        var rangeX = e.target.layout.xaxis.range
+        var data = e.target.data
+        var maxY = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            var dataX = data[i].x
+            for (var j = 0; j < dataX.length; j++) {
+                if (dataX[j] >= rangeX[0] && dataX[j] <= rangeX[1]) {
+                    var dataY = data[i].y
+                    if (dataY[j] > maxY) {
+                        maxY = dataY[j];
+                    }
+                }
+            }
+        }
+
+        Plotly.relayout('graf-ockovano', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafOckovanychDavek();
@@ -149,9 +121,14 @@
     // Fix autosizing when tab turns to be active
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         let target = $(e.target).attr("href") // activated tab
-        if(target==="#charts-tab-ockovano") {
+        if(target==="#graf-ockovane-davky") {
             grafOckovanychDavek();
         }
     });
+
+    $('#graf-ockovano').on("plotly_relayout", function (e) {
+        grafOckovanychDavekRescale(e)
+    });
+
 </script>
 {%- endmacro %}

@@ -103,7 +103,10 @@ Statistiky |
     <div class="col-xl-6 mb-3">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Počet aktivních případů na 100 000 obyvatel</h5>
+                <h5 class="card-title" id="mapa-aktivni-pripady">
+                    Počet aktivních případů na 100 000 obyvatel
+                    <a href="#mapa-aktivni-pripady" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ graf_nakazeni_orp(infected_orp_graph_data) }}
             </div>
         </div>
@@ -111,7 +114,10 @@ Statistiky |
     <div class="col-xl-6 mb-3">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Pozitivita testů</h5>
+                <h5 class="card-title" id="mapa-pozitivita-testu">
+                    Pozitivita testů
+                    <a href="#mapa-pozitivita-testu" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ graf_testy_orp(tests_orp_graph_data) }}
             </div>
         </div>
@@ -119,7 +125,10 @@ Statistiky |
     <div class="col-xl-6 mb-3">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Počet hospitalizovaných na 100 000 obyvatel</h5>
+                <h5 class="card-title" id="mapa-hospitalizace">
+                    Počet hospitalizovaných na 100 000 obyvatel
+                    <a href="#mapa-hospitalizace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ graf_hospitalizace_orp(hospitalized_orp_graph_data) }}
             </div>
         </div>
@@ -127,7 +136,10 @@ Statistiky |
     <div class="col-xl-6 mb-3">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Podíl plně očkovaných</h5>
+                <h5 class="card-title" id="mapa-proockovanost">
+                    Podíl plně očkovaných
+                    <a href="#mapa-proockovanost" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ graf_ockovani_orp(vaccinated_orp_graph_data) }}
             </div>
         </div>
@@ -138,12 +150,13 @@ Statistiky |
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom">
+                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
                     Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
                     {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
                     {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
-                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age) }}
+                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age_graph_data) }}
                 <br>
                 {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
             </div>
@@ -155,8 +168,11 @@ Statistiky |
     <div class="col">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle věku</h5>
+                <h5 class="card-title" id="ockovani" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počty očkovaných dle věku
+                    <a href="#ockovani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ stav_ockovani(vaccinated) }}
             </div>
         </div>
@@ -167,8 +183,11 @@ Statistiky |
     <div class="col-lg-7">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset registrovaných dle profesí.">Stav registrací dle prioritních skupin</h5>
+                <h5 class="card-title" id="registrace" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset registrovaných dle profesí.">
+                    Stav registrací dle prioritních skupin
+                    <a href="#registrace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ stav_registraci_kategorie(reservations_category) }}                
             </div>
         </div>
@@ -176,8 +195,11 @@ Statistiky |
     <div class="col-lg-5">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počty očkovaných dle indikací</h5>
+                <h5 class="card-title" id="ockovani-indikace" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počty očkovaných dle indikací
+                    <a href="#ockovani-indikace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ stav_ockovani_indikace(vaccinated_category) }}
                 <p class="card-text font-italic text-justify mt-3">Lidé s více indikacemi jsou započteni v každé.</p>
             </div>
@@ -189,8 +211,11 @@ Statistiky |
     <div class="col-lg-6">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Počet očkovaných v posledních 10 dnech</h5>
+                <h5 class="card-title" id="ockovani-10-dni" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počet očkovaných v posledních 10 dnech
+                    <a href="#ockovani-10-dni" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ prehled_ockovani_tyden(vaccinated_week) }}
             </div>
         </div>
@@ -198,21 +223,25 @@ Statistiky |
     <div class="col-lg-6">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">Nejvýkonnější místa</h5>
+                <h5 class="card-title" id="ockovani-nejvykonnejsi" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Nejvýkonnější místa
+                    <a href="#ockovani-nejvykonnejsi" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
                 {{ nejvykonnejsi_mista(top_centers) }}
             </div>
         </div>
     </div>
 </div>
 
+{#
 <div class="row">
     <div class="col-lg-6 mb-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Předpokládané dodávky vakcín</h5>
                 <i>Dočasně nedostupné - neaktuální data</i>
-                {# {{ dodavky_vakcin(supplies) }} #}
+                {{ dodavky_vakcin(supplies) }}
             </div>
         </div>
     </div>
@@ -221,7 +250,7 @@ Statistiky |
             <div class="card-body">
                 <h5 class="card-title">Počty vakcín</h5>
                 <i>Dočasně nedostupné - pracujeme na přesnější verzi</i>
-                {# {{ stav_vakcin(vaccines) }} #}
+                {{ stav_vakcin(vaccines) }}
             </div>
         </div>
     </div>
@@ -237,6 +266,7 @@ Statistiky |
         </div>
     </div>-->
 </div>
+#}
 
 <div class="row mb-3">
     <div class="col">
@@ -244,50 +274,50 @@ Statistiky |
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#charts-tab-prijato">Dodávky vakcín</a>
+                        <a class="nav-link active" data-toggle="tab" href="#graf-ockovani">Vývoj očkování</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#charts-tab-ockovano">Očkované dávky</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-nakazeni">Vývoj počtu nakažených</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-umrti">Vývoj počtu úmrtí</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination_total_graph">Vývoj očkování</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registrations_graph">Vývoj registrací</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-registrace">Vývoj registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#infected_graph">Vývoj počtu nakažených</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-dodavky">Dodávky vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#deaths_graph">Vývoj počtu úmrtí</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-ockovane-davky">Očkované dávky</a>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="charts-tab-prijato">
-                        {{ graf_prijatych_davek(received_vaccine_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="charts-tab-ockovano">
-                        {{ graf_ockovanych_davek(used_vaccine_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="queue_graph">
-                        {{ graf_fronta(queue_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="vaccination_total_graph">
+                    <div class="tab-pane active" id="graf-ockovani">
                         {{ graf_ockovani_celkem(vaccination_total_graph_data) }}
                     </div>
-                    <div class="tab-pane" id="registrations_graph">
-                        {{ graf_registrace(registrations_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="infected_graph">
+                    <div class="tab-pane" id="graf-nakazeni">
                         {{ graf_nakazeni(infected_graph_data) }}
                     </div>
-                    <div class="tab-pane" id="deaths_graph">
+                    <div class="tab-pane" id="graf-umrti">
                         {{ graf_umrti(deaths_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="graf-fronta">
+                        {{ graf_fronta(queue_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="graf-registrace">
+                        {{ graf_registrace(registrations_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="graf-dodavky">
+                        {{ graf_prijatych_davek(received_vaccine_graph_data) }}
+                    </div>
+                    <div class="tab-pane" id="graf-ockovane-davky">
+                        {{ graf_ockovanych_davek(used_vaccine_graph_data) }}
                     </div>
                 </div>
             </div>
