@@ -1,10 +1,7 @@
 name: post-tweet
 
 on:
-  workflow_run:
-    workflows: [update-data]
-    types:
-      - completed
+  workflow_dispatch
 
 concurrency: production_env
 
@@ -30,5 +27,7 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+      - name: Verify data
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask verify-data"
       - name: Post tweet
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask post-tweet"

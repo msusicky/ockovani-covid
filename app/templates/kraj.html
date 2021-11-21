@@ -24,35 +24,35 @@
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#centers">Očkovací místa</a>
+                        <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#stats">Statistiky</a>
+                        <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link" data-toggle="tab" href="#registrace">Stav registrací</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccines">Stav vakcín</a>
+                        <a class="nav-link" data-toggle="tab" href="#vakciny">Stav vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination">Stav očkování</a>
+                        <a class="nav-link" data-toggle="tab" href="#ockovani">Stav očkování</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#vaccination_doctors">Očkování praktiky</a>
+                        <a class="nav-link" data-toggle="tab" href="#ockovani-praktici">Očkování praktiky</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#queue_graph">Vývoj fronty</a>
+                        <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="centers">
+                    <div class="tab-pane active" id="ockovaci-mista">
                         {{ prehled_mist(mista, third_doses_centers) }}
                     </div>
-                    <div class="tab-pane" id="stats">
+                    <div class="tab-pane" id="statistiky">
                         <div class="row px-2 mb-n2">
                             {{ metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
                             {{ metrika('Očkovaní', metriky.ockovani_pocet_castecne, delta_day=metriky.ockovani_pocet_castecne_zmena_den, delta_week=metriky.ockovani_pocet_castecne_zmena_tyden, color='std', info='Počet lidí očkovaných v kraji alespoň jednou dávkou.') }}
@@ -83,19 +83,19 @@
                             #}
                         </div>
                     </div>
-                    <div class="tab-pane" id="registration">
+                    <div class="tab-pane" id="registrace">
                         {{ stav_registraci(registrations) }}
                     </div>
-                    <div class="tab-pane" id="vaccines">
+                    <div class="tab-pane" id="vakciny">
                         {{ stav_vakcin(vaccines) }}
                     </div>
-                    <div class="tab-pane" id="vaccination">
+                    <div class="tab-pane" id="ockovani">
                         {{ stav_ockovani(vaccinated) }}
                     </div>
-                    <div class="tab-pane" id="vaccination_doctors">
+                    <div class="tab-pane" id="ockovani-praktici">
                         {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
-                    <div class="tab-pane" id="queue_graph">
+                    <div class="tab-pane" id="graf-fronta">
                         {{ graf_fronta(queue_graph_data) }}
                     </div>
                 </div>
