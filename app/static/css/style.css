@@ -2,6 +2,13 @@
     padding-top: 5rem;
 }
 
+.card-title:before {
+    padding-top: 5rem;
+    margin-top: -5rem;
+    content: "";
+    display:block;
+}
+
 .ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;

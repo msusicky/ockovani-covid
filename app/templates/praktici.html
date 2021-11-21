@@ -19,17 +19,17 @@ Praktici |
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#free_vaccines">Nabídka vakcín</a>
+                        <a class="nav-link active" data-toggle="tab" href="#nabidka">Nabídka vakcín</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#overview">Přehled očkování</a>
+                        <a class="nav-link" data-toggle="tab" href="#prehled">Přehled očkování</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="free_vaccines">
+                    <div class="tab-pane active" id="nabidka">
                         <div class="alert alert-info alert-dismissible fade show" role="alert">
                             <p>
                                 V této tabulce je nabídka očkování v jednotlivých ordinacích s uvedením typu očkovací
@@ -48,7 +48,7 @@ Praktici |
                         </div>
                         {{ volne_vakciny(free_vaccines, kraj_options, vaccines_options) }}
                     </div>
-                    <div class="tab-pane" id="overview">
+                    <div class="tab-pane" id="prehled">
                         {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
                 </div>

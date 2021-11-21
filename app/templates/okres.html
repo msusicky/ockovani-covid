@@ -20,23 +20,23 @@
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#centers">Očkovací místa</a>
+                        <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#stats">Statistiky</a>
+                        <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registration">Stav registrací</a>
+                        <a class="nav-link" data-toggle="tab" href="#registrace">Stav registrací</a>
                     </li>
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="centers">
+                    <div class="tab-pane active" id="ockovaci-mista">
                         {{ prehled_mist(mista, third_doses_centers) }}
                     </div>
-                    <div class="tab-pane" id="stats">
+                    <div class="tab-pane" id="statistiky">
                         <div class="row px-2 mb-n2">
                             {{ metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
                             {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra v okrese.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném okrese. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
@@ -60,7 +60,7 @@
                             #}
                         </div>
                     </div>
-                    <div class="tab-pane" id="registration">
+                    <div class="tab-pane" id="registrace">
                         {{ stav_registraci(registrations) }}
                     </div>
                 </div>
