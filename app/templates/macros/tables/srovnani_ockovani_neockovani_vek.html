@@ -73,7 +73,7 @@
         </thead>
         <tbody>
         {% for idx, row in data.iterrows() %}
-        <tr>
+        <tr class="{{ 'table-warning' if row['populace_plne_zastoupeni'] < 0.1 }}">
             <td>{{ row['vekova_skupina'] }}</td>
             <td class="text-right">{{ (100 * row['populace_plne_zastoupeni']) | format_decimal }} %</td>
             <td class="text-right">{{ row['nakazeni_bez'] | format_number }}</td>
@@ -105,4 +105,8 @@
         </tfoot>
     </table>
 </div>
+
+<p class="card-text font-italic text-justify mt-3">
+    Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 10 %, pro ně poměr nepočítáme kvůli nízké přesnosti.
+</p>
 {%- endmacro %}
