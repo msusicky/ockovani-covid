@@ -915,6 +915,9 @@ def count_vaccinated_unvaccinated_comparison_age():
     datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
     groups = ['bez', 'plne']
 
+    for g in groups:
+        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
+
     for d in datasets:
         df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
 
@@ -923,11 +926,8 @@ def count_vaccinated_unvaccinated_comparison_age():
                 .replace({np.nan: 0})
 
         df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: np.nan})
-        df_norm.loc[df_norm[d + '_ratio'] < 0.1, d + '_ratio'] = np.nan
+        df_norm.loc[df_norm['populace_plne_zastoupeni'] < 0.1, d + '_ratio'] = np.nan
         df_norm[d + '_ratio'] = df_norm[d + '_ratio'].replace({np.nan: None})
-
-    for g in groups:
-        df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
 
     return df_norm
 
