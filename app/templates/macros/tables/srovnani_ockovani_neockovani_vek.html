@@ -73,7 +73,7 @@
         </thead>
         <tbody>
         {% for idx, row in data.iterrows() %}
-        <tr class="{{ 'table-warning' if row['populace_plne_zastoupeni'] < 0.5 }}">
+        <tr class="{{ 'table-warning' if row['populace_plne_zastoupeni'] < 0.1 }}">
             <td>{{ row['vekova_skupina'] }}</td>
             <td class="text-right">{{ (100 * row['populace_plne_zastoupeni']) | format_decimal }} %</td>
             <td class="text-right">{{ row['nakazeni_bez'] | format_number }}</td>
@@ -107,6 +107,10 @@
 </div>
 
 <p class="card-text font-italic text-justify">
-    Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 50 %. Pro proočkovanost pod 10% poměr nepočítáme kvůli nízké přesnosti.
+    Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 10 %, pro ně poměr nepočítáme kvůli nízké přesnosti.
+    Poměry vycházející z nízkého počtu případů nejsou přesné.
+</p>
+<p class="card-text font-italic text-justify">
+    Pro úmrtí nejsou v současné době k dispozici data obsahující věkové skupiny.
 </p>
 {%- endmacro %}
