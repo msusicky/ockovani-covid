@@ -14,8 +14,7 @@ def unique_nrpzs_subquery():
     """Returns unique NRPZS within all centers."""
     return db.session.query(OckovaciMisto.nrpzs_kod) \
         .group_by(OckovaciMisto.nrpzs_kod) \
-        .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
-        .subquery()
+        .having(func.count(OckovaciMisto.nrpzs_kod) == 1)
 
 
 def unique_nrpzs_active_subquery():
@@ -23,8 +22,7 @@ def unique_nrpzs_active_subquery():
     return db.session.query(OckovaciMisto.nrpzs_kod) \
         .filter(OckovaciMisto.status == True) \
         .group_by(OckovaciMisto.nrpzs_kod) \
-        .having(func.count(OckovaciMisto.nrpzs_kod) == 1) \
-        .subquery()
+        .having(func.count(OckovaciMisto.nrpzs_kod) == 1)
 
 
 def has_unique_nrpzs(center_id):
