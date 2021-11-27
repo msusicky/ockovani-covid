@@ -1,0 +1,121 @@
+{% macro graf_kapacita(data, kraj, typ) -%}
+<div id="plotly-kapacita-{{ kraj }}-{{ typ }}"></div>
+
+<script>
+    function grafKapacita{{ kraj }}{{ typ }}() {
+        let data = [];
+
+        const obsazena = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
+            type: "bar",
+            name: "Obsazená kapacita",
+        }
+        traces.push(obsazena);
+
+        {% if typ + 'volna' in data %}
+        const volna = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
+            type: "bar",
+            name: "Volná kapacita",
+        }
+        traces.push(volna);
+
+        {% else %}
+        const volna_pozitivni = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
+            type: "bar",
+            name: "Volná kapacita pozitivní",
+        }
+        traces.push(volna_pozitivni);
+
+        const volna_negativni = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
+            type: "bar",
+            name: "Volná kapacita negativní",
+        }
+        traces.push(volna_negativni);
+        {% endif %}
+
+        const layout = {
+            barmode: "stack",
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "date",
+
+                // Tune ticks
+                tickformat: "%-d.%-m.%Y",
+                tickangle: 90,
+                nticks: 15,
+
+                // Set range to one month by default
+                range: [new Date(new Date().setMonth(new Date().getMonth()-1)), new Date()],
+                rangeslider: true,
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 1,
+                            label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                }
+            },
+            yaxis: {
+                title: "Počet",
+                automargin: true,
+                tickformat: '.f',
+            },
+            hovermode: "x unified",
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                y: -0.42,
+            },
+            height: 600,
+        }
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        Plotly.newPlot("plotly-kapacita-{{ kraj }}-{{ typ }}", data, layout, config);
+    }
+
+    grafKapacita{{ kraj }}{{ typ }}()
+
+    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+        let target = $(e.target).attr("href")
+        if(target==="#kraj-{{ kraj }}") {
+            grafKapacita{{ kraj }}{{ typ }}();
+        }
+    });
+
+</script>
+{%- endmacro %}

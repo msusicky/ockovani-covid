@@ -1,27 +1,5 @@
 {% extends 'base.html' %}
-{% from 'macros/common.html' import metrika %}
-{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
-{% from 'macros/tables/stav_ockovani_indikace.html' import stav_ockovani_indikace %}
-{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
-{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
-{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
-{% from 'macros/tables/odhad_konce.html' import odhad_konce %}
-{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
-{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
-{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
-{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
-{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
-{% from 'macros/graphs/fronta.html' import graf_fronta %}
-{% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
-{% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
-{% from 'macros/graphs/registrace.html' import graf_registrace %}
-{% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
-{% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
-{% from 'macros/graphs/umrti.html' import graf_umrti %}
-{% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
-{% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
-{% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
+{% from 'macros/graphs/kapacita.html' import graf_kapacita %}
 
 {% block title %}
 Kapacita nemocnic |
@@ -36,12 +14,54 @@ Kapacita nemocnic |
 
 <div class="row">
     <div class="col">
-        <div class="card mb-3">
+        <div class="card">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#registrace">Stav registrací</a>
+                    </li>
+                </ul>
+            </div>
+
             <div class="card-body">
-                <h5 class="card-title" id="todo" data-toggle="tooltip" data-placement="bottom">
-                    TODO
-                    <a href="#todo" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="ockovaci-mista">
+                        {{ prehled_mist(mista, third_doses_centers) }}
+                    </div>
+                    <div class="tab-pane" id="statistiky">
+                        <div class="row px-2 mb-n2">
+                            {{ metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
+                            {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra v okrese.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném okrese. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
+                            {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných bez rezervovaného termínu.') }}
+                            {{ metrika('Čekající před závorou', metriky.registrace_pred_zavorou, delta_day=metriky.registrace_pred_zavorou_zmena_den, delta_week=metriky.registrace_pred_zavorou_zmena_tyden, color='rev', info='Počet registrovaných čekajících na možnost rezervace konkrétního termínu.') }}
+                            {{ metrika('Rezervací denně', metriky.registrace_rezervace_prumer, delta_day=metriky.registrace_rezervace_prumer_zmena_den, delta_week=metriky.registrace_rezervace_prumer_zmena_tyden, info='Průměrný počet rezervací uvolněných za posledních 7 dnů.') }}
+                            {{ metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
+                            {{ metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.<br>Rezervace na 2.&nbsp;dávku se vytváří společně s rezervací na 1.&nbsp;dávku, zahrnuti jsou tedy i ti, kteří čekají na obě dávky.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
+                            {{ metrika('Čekající na 3. dávku', metriky.rezervace_cekajici_3, delta_day=metriky.rezervace_cekajici_3_zmena_den, delta_week=metriky.rezervace_cekajici_3_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 3.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
+                            {{ metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                            {#
+                            {{ metrika('Dnešní kapacita 2. dávky', metriky.rezervace_kapacita_2, delta_day=metriky.rezervace_kapacita_2_zmena_den, delta_week=metriky.rezervace_kapacita_2_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 2.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                            #}
+                            {{ metrika('Dnešní kapacita 3. dávky', metriky.rezervace_kapacita_3, delta_day=metriky.rezervace_kapacita_3_zmena_den, delta_week=metriky.rezervace_kapacita_3_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 3.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
+                            {{ metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na možnost výběru termínu).<br>Registrace na 1. a 3. dávku mohou mít různou prioritu.') }}
+                            {#
+                            {{ metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
+                            {{ metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
+                            {{ metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
+                            {{ metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
+                            #}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="registrace">
+                        {{ stav_registraci(registrations) }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
