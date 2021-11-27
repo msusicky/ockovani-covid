@@ -1,21 +1,7 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
-{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
-{% from 'macros/tables/stav_ockovani_indikace.html' import stav_ockovani_indikace %}
-{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
-{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
-{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
-{% from 'macros/tables/odhad_konce.html' import odhad_konce %}
-{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
-{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
-{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
-{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
-{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
-{% from 'macros/graphs/fronta.html' import graf_fronta %}
 {% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
 {% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
-{% from 'macros/graphs/registrace.html' import graf_registrace %}
 {% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
 {% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
 {% from 'macros/graphs/umrti.html' import graf_umrti %}
@@ -24,18 +10,18 @@
 {% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
 
 {% block title %}
-Statistiky |
+Souhrnné statistiky |
 {% endblock %}
 
 {% block body %}
 <div class="row">
     <div class="col">
         <div class="alert alert-warning" role="alert">
-            <p class="mb-0">
-                Pro lepší přehlednost byly statistiky rozděleny na několik samostatných stránek
-                (<a href="{{ url_for('view.statistiky_ockovani') }}" class="alert-link">statistiky očkování</a>,
-                <a href="{{ url_for('view.statistiky_srovnani') }}" class="alert-link">srovnání očkovaných a neočkovaných</a>,
-                <a href="{{ url_for('view.statistiky_nemocnice') }}" class="alert-link">kapacita nemocnic</a>),
+            <p class="text-justify mb-0">
+                Pro lepší přehlednost byly statistiky rozděleny na několik samostatných stránek: souhrnné statistiky,
+                <a href="{{ url_for('view.statistiky_ockovani') }}" class="alert-link">statistiky očkování</a>,
+                <a href="{{ url_for('view.statistiky_srovnani') }}" class="alert-link">srovnání očkovaných a neočkovaných</a>,
+                <a href="{{ url_for('view.statistiky_nemocnice') }}" class="alert-link">kapacita nemocnic</a>,
                 všechny najdete také v menu.
             </p>
         </div>
@@ -55,10 +41,10 @@ Statistiky |
             K datu poslední aktualizace bylo kompletně naočkováno
             <strong>{{ metriky.ockovani_pocet_plne | format_number }}</strong> lidí
             (<strong>{{ (100 * metriky.ockovani_pocet_plne / metriky.pocet_obyvatel_celkem) | format_decimal }} %</strong>,
-            <strong>{{ (100 * metriky.ockovani_pocet_plne / pocet_opravneni) | format_decimal }} %</strong> starších 12 let) a
+            <strong>{{ (100 * metriky.ockovani_pocet_plne / eligible_count) | format_decimal }} %</strong> starších 12 let) a
             <strong>{{ metriky.ockovani_pocet_castecne | format_number }}</strong> lidí
             (<strong>{{ (100 * metriky.ockovani_pocet_castecne / metriky.pocet_obyvatel_celkem) | format_decimal }} %</strong>,
-            <strong>{{ (100 * metriky.ockovani_pocet_castecne / pocet_opravneni) | format_decimal }} %</strong> starších 12 let)
+            <strong>{{ (100 * metriky.ockovani_pocet_castecne / eligible_count) | format_decimal }} %</strong> starších 12 let)
             alespoň jednou dávkou.
             Celkem bylo podáno <strong>{{ metriky.ockovani_pocet_davek | format_number }}</strong> dávek.
             Ve frontě na rezervaci aktuálně čeká <strong>{{ metriky.registrace_fronta | format_number }}</strong>
@@ -164,176 +150,68 @@ Statistiky |
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                <h5 class="card-title" id="srovnani">
                     Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
-                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
-                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    {{ vaccinated_unvaccinated_comparison_age_graph_data['tyden_od'].iloc[0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age_graph_data['tyden_do'].iloc[0] | format_date_short }}
                     <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age_graph_data) }}
-                <br>
-                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-3">
-    <div class="col">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title" id="ockovani" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">
-                    Počty očkovaných dle věku
-                    <a href="#ockovani" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
-                {{ stav_ockovani(vaccinated) }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-7">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title" id="registrace" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset registrovaných dle profesí.">
-                    Stav registrací dle prioritních skupin
-                    <a href="#registrace" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
-                {{ stav_registraci_kategorie(reservations_category) }}                
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-5">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title" id="ockovani-indikace" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">
-                    Počty očkovaných dle indikací
-                    <a href="#ockovani-indikace" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
-                {{ stav_ockovani_indikace(vaccinated_category) }}
-                <p class="card-text font-italic text-justify mt-3">Lidé s více indikacemi jsou započteni v každé.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title" id="ockovani-10-dni" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">
-                    Počet očkovaných v posledních 10 dnech
-                    <a href="#ockovani-10-dni" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
-                {{ prehled_ockovani_tyden(vaccinated_week) }}
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title" id="ockovani-nejvykonnejsi" data-toggle="tooltip" data-placement="bottom"
-                    title="Dataset očkování, data se postupně doplňují.">
-                    Nejvýkonnější místa
-                    <a href="#ockovani-nejvykonnejsi" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
-                {{ nejvykonnejsi_mista(top_centers) }}
-            </div>
-        </div>
-    </div>
-</div>
-
-{#
-<div class="row">
-    <div class="col-lg-6 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Předpokládané dodávky vakcín</h5>
-                <i>Dočasně nedostupné - neaktuální data</i>
-                {{ dodavky_vakcin(supplies) }}
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Počty vakcín</h5>
-                <i>Dočasně nedostupné - pracujeme na přesnější verzi</i>
-                {{ stav_vakcin(vaccines) }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!--<div class="col-lg-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Odhad dostupnosti vakcín pro věkové skupiny</h5>
-                {{ odhad_konce(end_date_category) }}
-            </div>
-        </div>
-    </div>-->
-</div>
-#}
-
-<div class="row mb-3">
-    <div class="col">
-        <div class="card">
-            <div class="card-header" id="cards">
-                <ul class="nav nav-tabs card-header-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#graf-ockovani">Vývoj očkování</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-nakazeni">Vývoj počtu nakažených</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-umrti">Vývoj počtu úmrtí</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-registrace">Vývoj registrací</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-dodavky">Dodávky vakcín</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#graf-ockovane-davky">Očkované dávky</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content">
-                    <div class="tab-pane active" id="graf-ockovani">
-                        {{ graf_ockovani_celkem(vaccination_total_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-nakazeni">
-                        {{ graf_nakazeni(infected_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-umrti">
-                        {{ graf_umrti(deaths_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-fronta">
-                        {{ graf_fronta(queue_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-registrace">
-                        {{ graf_registrace(registrations_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-dodavky">
-                        {{ graf_prijatych_davek(received_vaccine_graph_data) }}
-                    </div>
-                    <div class="tab-pane" id="graf-ockovane-davky">
-                        {{ graf_ockovanych_davek(used_vaccine_graph_data) }}
-                    </div>
+                <div class="font-italic">
+                    <h6>Poznámky</h6>
+                    <p class="card-text text-justify">
+                        Mezi plně očkované řadíme i očkované posilující dávkou, podíl očkovaných posilující dávkou je
+                        zatím příliš malý pro samostatné srovnání. Ze stejného důvodu nezahrnujeme částečně očkované v
+                        žádné kategorii.
+                    </p>
+                    <p class="card-text text-justify">
+                        Detailní tabulka s poměry a počty případů byla přesunuta na
+                        <a href="{{ url_for('view.statistiky_srovnani') }}">samostatnou stránku</a>, která bude později
+                        rozšířena o další grafy.
+                    </p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-ockovani">
+                    Vývoj počtu očkovaných
+                    <a href="#graf-ockovani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_ockovani_celkem(vaccination_total_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-nakazeni">
+                    Vývoj počtu nakažených
+                    <a href="#graf-nakazeni" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_nakazeni(infected_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-umrti">
+                    Vývoj počtu úmrtí
+                    <a href="#graf-umrti" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_umrti(deaths_graph_data) }}
             </div>
         </div>
     </div>

@@ -1,9 +1,9 @@
 {% macro graf_hospitalizace_orp(data) -%}
-<div id="graf-hospitalizace-orp"></div>
+<div id="plotly-hospitalizace-orp"></div>
 
 <script>
     function grafHospitalizaceOrp() {
-        let width = $("#graf-hospitalizace-orp").width() - 63;
+        let width = $("#plotly-hospitalizace-orp").width() - 63;
 
         const layout = {
             mapbox: {
@@ -36,7 +36,7 @@
             scrollZoom: false,
         }
 
-        Plotly.newPlot("graf-hospitalizace-orp", data, layout, config);
+        Plotly.newPlot("plotly-hospitalizace-orp", data, layout, config);
     }
 
     $(window).resize(function() {

@@ -3,8 +3,8 @@
 }
 
 .card-title:before {
-    padding-top: 5rem;
-    margin-top: -5rem;
+    padding-top: 3.5rem;
+    margin-top: -3.5rem;
     content: "";
     display:block;
 }

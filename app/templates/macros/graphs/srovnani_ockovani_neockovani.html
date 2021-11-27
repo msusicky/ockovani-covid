@@ -1,5 +1,5 @@
 {% macro graf_srovnani_ockovani_neockovani(data) -%}
-<div id="graf-srovnani-ockovani-neockovani"></div>
+<div id="plotly-srovnani-ockovani-neockovani"></div>
 
 <script>
     function grafSrovnaniOckovaniNeockovani() {
@@ -116,16 +116,15 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                yanchor: "bottom",
-                y: -0.4,
+                y: -0.18,
             },
-            height: 500,
+            height: 600,
             updatemenus: [{
                 direction: "right",
                 xanchor: "center",
                 yanchor: "center",
-                y: 1.6,
                 x: 0.5,
+                y: 1.5,
                 type: "buttons",
                 showactive: true,
                 buttons: buttons,
@@ -137,9 +136,9 @@
             displayModeBar: false,
         };
 
-        Plotly.newPlot("graf-srovnani-ockovani-neockovani", traces, layout, config);
+        Plotly.newPlot("plotly-srovnani-ockovani-neockovani", traces, layout, config);
 
-        Plotly.update("graf-srovnani-ockovani-neockovani", buttons[0].args[0], buttons[0].args[1]);
+        Plotly.update("plotly-srovnani-ockovani-neockovani", buttons[0].args[0], buttons[0].args[1]);
     }
 
     grafSrovnaniOckovaniNeockovani();

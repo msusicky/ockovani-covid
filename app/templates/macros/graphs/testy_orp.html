@@ -1,9 +1,9 @@
 {% macro graf_testy_orp(data) -%}
-<div id="graf-testy-orp"></div>
+<div id="plotly-testy-orp"></div>
 
 <script>
     function grafTestyOrp() {
-        let width = $("#graf-testy-orp").width() - 63;
+        let width = $("#plotly-testy-orp").width() - 63;
 
         const layout = {
             mapbox: {
@@ -36,7 +36,7 @@
             scrollZoom: false,
         }
 
-        Plotly.newPlot("graf-testy-orp", data, layout, config);
+        Plotly.newPlot("plotly-testy-orp", data, layout, config);
     }
 
     $(window).resize(function() {

@@ -1,5 +1,5 @@
 {% macro graf_ockovanych_davek(data) -%}
-<div id="graf-ockovano"></div>
+<div id="plotly-ockovano"></div>
 
 <script>
     function grafOckovanychDavek() {
@@ -33,20 +33,20 @@
                 rangeselector: {
                     buttons: [
                         {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
                             count: 1,
                             label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
                             step: "month",
                             stepmode: "backward",
                         },
@@ -70,10 +70,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                yanchor: "bottom",
-                y: -0.5,
+                y: -0.42,
             },
-            height: 700,
+            height: 600,
         }
 
         const config = {
@@ -82,11 +81,11 @@
         }
 
         // Render original chart
-        Plotly.newPlot("graf-ockovano", traces, layout, config);
+        Plotly.newPlot("plotly-ockovano", traces, layout, config);
 
         // force relayout to rescale y
         range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
-        Plotly.relayout('graf-ockovano', range);
+        Plotly.relayout('plotly-ockovano', range);
     }
 
     function grafOckovanychDavekRescale(e) {
@@ -94,8 +93,6 @@
             e.target.layout.stopRescale = false;
             return;
         }
-
-        console.log(e);
 
         var rangeX = e.target.layout.xaxis.range
         var data = e.target.data
@@ -113,20 +110,12 @@
             }
         }
 
-        Plotly.relayout('graf-ockovano', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+        Plotly.relayout('plotly-ockovano', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafOckovanychDavek();
 
-    // Fix autosizing when tab turns to be active
-    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-        let target = $(e.target).attr("href") // activated tab
-        if(target==="#graf-ockovane-davky") {
-            grafOckovanychDavek();
-        }
-    });
-
-    $('#graf-ockovano').on("plotly_relayout", function (e) {
+    $('#plotly-ockovano').on("plotly_relayout", function (e) {
         grafOckovanychDavekRescale(e)
     });
 

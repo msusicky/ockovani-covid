@@ -1,9 +1,12 @@
 {% macro graf_umrti(data) -%}
-<div id="graf-umrti"></div>
+<div id="plotly-umrti"></div>
+
 <div class="font-italic">
     <h6>Poznámky</h6>
-    Data za poslední dny nejsou úplná, úmrtí se doplňují se zpožděním, které může být až několik dní (zejména o
-    víkendech a svátcích).
+    <p class="card-text text-justify">
+        Data za poslední dny nejsou úplná, úmrtí se doplňují se zpožděním, které může být až několik dní (zejména o
+        víkendech a svátcích).
+    </p>
 </div>
 
 <script>
@@ -148,9 +151,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                y: -0.4,
+                y: -0.42,
             },
-            height: 700,
+            height: 600,
         }
 
         const data = [
@@ -162,11 +165,11 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-umrti", data, layout, config);
+        Plotly.newPlot("plotly-umrti", data, layout, config);
 
         // force relayout to rescale y
         range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
-        Plotly.relayout('graf-umrti', range);
+        Plotly.relayout('plotly-umrti', range);
     }
 
     function grafUmrtiRescale(e) {
@@ -174,8 +177,6 @@
             e.target.layout.stopRescale = false;
             return;
         }
-
-        console.log(e);
 
         var rangeX = e.target.layout.xaxis.range
         var data = e.target.data
@@ -193,19 +194,12 @@
             }
         }
 
-        Plotly.relayout('graf-umrti', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+        Plotly.relayout('plotly-umrti', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafUmrti();
 
-    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-        let target = $(e.target).attr("href")
-        if(target==="#graf-umrti") {
-            grafUmrti();
-        }
-    });
-
-    $('#graf-umrti').on("plotly_relayout", function (e) {
+    $('#plotly-umrti').on("plotly_relayout", function (e) {
         grafUmrtiRescale(e)
     });
 </script>

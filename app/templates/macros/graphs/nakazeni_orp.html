@@ -1,9 +1,9 @@
 {% macro graf_nakazeni_orp(data) -%}
-<div id="graf-nakazeni-orp"></div>
+<div id="plotly-nakazeni-orp"></div>
 
 <script>
     function grafNakazeniOrp() {
-        let width = $("#graf-nakazeni-orp").width() - 63;
+        let width = $("#plotly-nakazeni-orp").width() - 63;
 
         const layout = {
             mapbox: {
@@ -35,7 +35,7 @@
             scrollZoom: false,
         }
 
-        Plotly.newPlot("graf-nakazeni-orp", data, layout, config);
+        Plotly.newPlot("plotly-nakazeni-orp", data, layout, config);
     }
 
     $(window).resize(function() {
