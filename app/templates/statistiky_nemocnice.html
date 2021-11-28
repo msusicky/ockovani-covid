@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% from 'macros/common.html' import metrika %}
+{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
+{% from 'macros/tables/stav_ockovani_indikace.html' import stav_ockovani_indikace %}
+{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
+{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
+{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
+{% from 'macros/tables/odhad_konce.html' import odhad_konce %}
+{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
+{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
+{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
+{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
+{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
+{% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
+{% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
+{% from 'macros/graphs/registrace.html' import graf_registrace %}
+{% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
+{% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
+{% from 'macros/graphs/umrti.html' import graf_umrti %}
+{% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
+{% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
+{% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
+
+{% block title %}
+Kapacita nemocnic |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Kapacita nemocnic</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="todo" data-toggle="tooltip" data-placement="bottom">
+                    TODO
+                    <a href="#todo" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

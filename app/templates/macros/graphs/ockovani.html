@@ -1,19 +1,20 @@
 {% macro graf_ockovani(data) -%}
-<div id="graf-ockovani"></div>
+<div id="plotly-ockovani"></div>
+
 <div class="font-italic">
     <h6>Poznámky</h6>
-    <p class="text-justify">
+    <p class="card-text text-justify">
         U očkovacích míst, která patří pod zdravotnická zařízení s více aktivními očkovacími místy, není možné
         jednoznačně určit, ve kterém z nich byli lidé očkováni.
         V&nbsp;tomto případě se zobrazuje alespoň počet použitých dávek, který ale nemusí být tak přesný.
         Pokud pod zdravotnické zařízení spadají další očkovací místa, která již nejsou aktivní (např. očkovací místo
         v nemocnici nahrazené novým velkokapacitním), zobrazujeme počet očkovaných ze všech těchto míst.
     </p>
-    <p class="text-justify">
+    <p class="card-text text-justify">
         Maximální kapacita pro jednotlivé dávky je uvedena v rezervačním systému a slouží k omezení počtu rezervací na
         konkrétní den.
     </p>
-    <p class="text-justify mb-0">
+    <p class="card-text text-justify">
         Kliknutím na popisek v legendě si můžete zobrazit nebo skrýt další údaje.
     </p>
 </div>
@@ -163,20 +164,20 @@
                 rangeselector: {
                     buttons: [
                         {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
                             count: 1,
                             label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
                             step: "month",
                             stepmode: "backward",
                         },
@@ -200,9 +201,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                y: -0.4,
+                y: -0.48,
             },
-            height: 700,
+            height: 600,
         }
 
         {% if 'ockovane' in data %}
@@ -220,7 +221,7 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-ockovani", data, layout, config);
+        Plotly.newPlot("plotly-ockovani", data, layout, config);
     }
 
     grafOckovani();

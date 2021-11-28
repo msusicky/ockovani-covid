@@ -1,9 +1,9 @@
 {% macro graf_ockovani_orp(data) -%}
-<div id="graf-ockovani-orp"></div>
+<div id="plotly-ockovani-orp"></div>
 
 <script>
     function grafOckovaniOrp() {
-        let width = $("#graf-ockovani-orp").width() - 63;
+        let width = $("#plotly-ockovani-orp").width() - 63;
 
         const layout = {
             mapbox: {
@@ -36,7 +36,7 @@
             scrollZoom: false,
         }
 
-        Plotly.newPlot("graf-ockovani-orp", data, layout, config);
+        Plotly.newPlot("plotly-ockovani-orp", data, layout, config);
     }
 
     $(window).resize(function() {

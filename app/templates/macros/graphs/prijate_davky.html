@@ -1,8 +1,9 @@
 {% macro graf_prijatych_davek(data) -%}
-<div id="graf-prijato"></div>
+<div id="plotly-prijato"></div>
+
 <div class="font-italic">
     <h6>Poznámky</h6>
-    <p class="text-justify mb-0">
+    <p class="card-text text-justify">
         Data neobsahují vakcíny distribuované přímo praktickým lékařům.
     </p>
 </div>
@@ -33,7 +34,7 @@
 
                 // Tune ticks
                 tickformat: "%-d.%-m.%Y",
-                tickangle: -90,
+                tickangle: 90,
                 nticks: 15,
 
                 // Set range to one month by default
@@ -42,20 +43,20 @@
                 rangeselector: {
                     buttons: [
                         {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
                             count: 1,
                             label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
                             step: "month",
                             stepmode: "backward",
                         },
@@ -79,10 +80,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                yanchor: "bottom",
-                y: -0.8,
+                y: -0.65,
             },
-            height: 700,
+            height: 600,
         };
 
         const config = {
@@ -90,11 +90,11 @@
             displayModeBar: false,
         };
 
-        Plotly.newPlot("graf-prijato", traces, layout, config);
+        Plotly.newPlot("plotly-prijato", traces, layout, config);
 
         // force relayout to rescale y
         range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
-        Plotly.relayout('graf-prijato', range);
+        Plotly.relayout('plotly-prijato', range);
     }
 
     function grafPrijatychDavekRescale(e) {
@@ -102,8 +102,6 @@
             e.target.layout.stopRescale = false;
             return;
         }
-
-        console.log(e);
 
         var rangeX = e.target.layout.xaxis.range
         var data = e.target.data
@@ -121,22 +119,13 @@
             }
         }
 
-        Plotly.relayout('graf-prijato', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+        Plotly.relayout('plotly-prijato', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     // Initially show the chart
     grafPrijatychDavek();
 
-    // Reset chart when tab is shown
-    $('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
-        let target = $(e.target).attr("href")
-
-        if (target==="#graf-dodavky") {
-            grafPrijatychDavek();
-        }
-    });
-
-    $('#graf-prijato').on("plotly_relayout", function (e) {
+    $('#plotly-prijato').on("plotly_relayout", function (e) {
         grafPrijatychDavekRescale(e)
     });
 
