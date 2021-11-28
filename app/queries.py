@@ -1296,7 +1296,7 @@ def get_tests_orp_graph_data():
 
 
 def get_hospital_capacities_graph_data():
-    capacities = pd.read_sql_query("select * from kapacity_nemocnic", db.engine).fillna(0)
+    capacities = pd.read_sql_query(f"select * from kapacity_nemocnic where datum < '{get_import_date()}'", db.engine).fillna(0)
     capacities['luzka_standard_kyslik_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_pozitivni']
     capacities['luzka_standard_kyslik_kapacita_volna_covid_negativni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_negativni']
     capacities['luzka_standard_kyslik_kapacita_celkem'] += capacities['inf_luzka_kyslik_kapacita_celkem']
