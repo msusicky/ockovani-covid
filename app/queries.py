@@ -1331,6 +1331,8 @@ def get_hospital_capacities_graph_data():
 
     df = pd.concat([df_cr, df])
 
+    df = df.sort_index()
+
     df['ventilatory_volno'] = df['ventilatory_prenosne_kapacita_volna'] + df['ventilatory_operacni_sal_kapacita_volna']
     df['ventilatory_celkem'] = df['ventilatory_prenosne_kapacita_celkem'] + df[
         'ventilatory_operacni_sal_kapacita_celkem']
