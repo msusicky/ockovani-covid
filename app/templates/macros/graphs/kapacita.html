@@ -2,46 +2,57 @@
 <div id="plotly-kapacita-{{ kraj }}-{{ typ }}"></div>
 
 <script>
-    function grafKapacita{{ kraj }}{{ typ }}() {
+    function grafKapacita_{{ kraj }}_{{ typ }}() {
         let data = [];
 
-        const obsazena = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
-            type: "bar",
-            name: "Obsazená kapacita",
-        }
-        traces.push(obsazena);
-
-        {% if typ + 'volna' in data %}
+        {% if typ + '_volno' in data %}
         const volna = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
-            type: "bar",
-            name: "Volná kapacita",
+            y: [{% for idx, row in data.iterrows() %}{{ row[typ + '_volno'] }},{% endfor %}],
+            type: "scatter",
+            fill: "tonexty",
+            stackgroup: 'one',
+            name: "Volno",
+            line: {color: "#2ca02c"},
         }
-        traces.push(volna);
+        data.push(volna);
 
         {% else %}
         const volna_pozitivni = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
-            type: "bar",
-            name: "Volná kapacita pozitivní",
+            y: [{% for idx, row in data.iterrows() %}{{ row[typ + '_volno_poz'] }},{% endfor %}],
+            type: "scatter",
+            fill: "tonexty",
+            stackgroup: 'one',
+            name: "Volno COVID",
+            line: {color: "#1f77b4"},
         }
-        traces.push(volna_pozitivni);
+        data.push(volna_pozitivni);
 
         const volna_negativni = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['registrace_fronta'] }},{% endfor %}],
-            type: "bar",
-            name: "Volná kapacita negativní",
+            y: [{% for idx, row in data.iterrows() %}{{ row[typ + '_volno_neg'] }},{% endfor %}],
+            type: "scatter",
+            fill: "tonexty",
+            stackgroup: 'one',
+            name: "Volno neCOVID",
+            line: {color: "#2ca02c"},
         }
-        traces.push(volna_negativni);
+        data.push(volna_negativni);
         {% endif %}
 
+        const obsazena = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row[typ + '_obsazeno'] }},{% endfor %}],
+            type: "scatter",
+            fill: "tonexty",
+            stackgroup: 'one',
+            name: "Obsazeno",
+            line: {color: "#d62728"},
+        }
+        data.push(obsazena);
+
         const layout = {
-            barmode: "stack",
             autosize: true,
             xaxis: {
                 title: "Datum [den]",
@@ -52,8 +63,7 @@
                 tickangle: 90,
                 nticks: 15,
 
-                // Set range to one month by default
-                range: [new Date(new Date().setMonth(new Date().getMonth()-1)), new Date()],
+                range: [new Date(new Date().setMonth(new Date().getMonth() - 3)), new Date()],
                 rangeslider: true,
                 rangeselector: {
                     buttons: [
@@ -95,9 +105,10 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                y: -0.42,
+                y: -1.02,
             },
-            height: 600,
+            height: 400,
+            margin: {t: 0, r: 0, b: 0, l: 55},
         }
 
         const config = {
@@ -108,12 +119,12 @@
         Plotly.newPlot("plotly-kapacita-{{ kraj }}-{{ typ }}", data, layout, config);
     }
 
-    grafKapacita{{ kraj }}{{ typ }}()
+    grafKapacita_{{ kraj }}_{{ typ }}()
 
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         let target = $(e.target).attr("href")
-        if(target==="#kraj-{{ kraj }}") {
-            grafKapacita{{ kraj }}{{ typ }}();
+        if(target==="#{{ kraj }}") {
+            grafKapacita_{{ kraj }}_{{ typ }}();
         }
     });
 

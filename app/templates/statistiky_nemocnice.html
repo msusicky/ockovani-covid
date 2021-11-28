@@ -17,50 +17,117 @@ Kapacita nemocnic |
         <div class="card">
             <div class="card-header" id="cards">
                 <ul class="nav nav-tabs card-header-tabs">
+                    {% for kraj in hospital_capacities_graph_data.index.unique('nazev_norm') %}
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
+                        <a class="nav-link {% if loop.first %}active{% endif %}" data-toggle="tab" href="#{{ kraj }}">
+                            {% set df = hospital_capacities_graph_data[hospital_capacities_graph_data.index.get_level_values('nazev_norm') == kraj].droplevel('nazev_norm') %}
+                            {{ df['nazev'].iloc[0] }}
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#registrace">Stav registrací</a>
-                    </li>
+                    {% endfor %}
                 </ul>
             </div>
 
             <div class="card-body">
                 <div class="tab-content">
-                    <div class="tab-pane active" id="ockovaci-mista">
-                        {{ prehled_mist(mista, third_doses_centers) }}
-                    </div>
-                    <div class="tab-pane" id="statistiky">
-                        <div class="row px-2 mb-n2">
-                            {{ metrika('Počet obyvatel', metriky.pocet_obyvatel_celkem) }}
-                            {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centra v okrese.<br>U dávek vydaných mimo očkovací místa (např. praktickým lékařům) předpokládáme, že zůstaly ve stejném okrese. Data neobsahují dávky distribuované praktickým lékařům přímo.') }}
-                            {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných bez rezervovaného termínu.') }}
-                            {{ metrika('Čekající před závorou', metriky.registrace_pred_zavorou, delta_day=metriky.registrace_pred_zavorou_zmena_den, delta_week=metriky.registrace_pred_zavorou_zmena_tyden, color='rev', info='Počet registrovaných čekajících na možnost rezervace konkrétního termínu.') }}
-                            {{ metrika('Rezervací denně', metriky.registrace_rezervace_prumer, delta_day=metriky.registrace_rezervace_prumer_zmena_den, delta_week=metriky.registrace_rezervace_prumer_zmena_tyden, info='Průměrný počet rezervací uvolněných za posledních 7 dnů.') }}
-                            {{ metrika('Čekající na 1. dávku', metriky.rezervace_cekajici_1, delta_day=metriky.rezervace_cekajici_1_zmena_den, delta_week=metriky.rezervace_cekajici_1_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 1.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
-                            {{ metrika('Čekající na 2. dávku', metriky.rezervace_cekajici_2, delta_day=metriky.rezervace_cekajici_2_zmena_den, delta_week=metriky.rezervace_cekajici_2_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 2.&nbsp;dávku očkování.<br>Rezervace na 2.&nbsp;dávku se vytváří společně s rezervací na 1.&nbsp;dávku, zahrnuti jsou tedy i ti, kteří čekají na obě dávky.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
-                            {{ metrika('Čekající na 3. dávku', metriky.rezervace_cekajici_3, delta_day=metriky.rezervace_cekajici_3_zmena_den, delta_week=metriky.rezervace_cekajici_3_zmena_tyden, warning='Počet registrovaných s rezervovaným termínem na 3.&nbsp;dávku očkování.<br>V současnosti jsou k dispozici data jen pro následující měsíc!') }}
-                            {{ metrika('Dnešní kapacita 1. dávky', metriky.rezervace_kapacita_1, delta_day=metriky.rezervace_kapacita_1_zmena_den, delta_week=metriky.rezervace_kapacita_1_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 1.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
-                            {#
-                            {{ metrika('Dnešní kapacita 2. dávky', metriky.rezervace_kapacita_2, delta_day=metriky.rezervace_kapacita_2_zmena_den, delta_week=metriky.rezervace_kapacita_2_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 2.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
-                            #}
-                            {{ metrika('Dnešní kapacita 3. dávky', metriky.rezervace_kapacita_3, delta_day=metriky.rezervace_kapacita_3_zmena_den, delta_week=metriky.rezervace_kapacita_3_zmena_tyden, color='std', info='Dnešní kapacita pro očkování 3.&nbsp;dávkou.<br>Získáno z maximální kapacity uvedené v rezervačním systému.') }}
-                            {{ metrika('Čekání na rezervaci', metriky.registrace_prumer_cekani, delta_day=metriky.registrace_prumer_cekani_zmena_den, delta_week=metriky.registrace_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na možnost výběru termínu).<br>Registrace na 1. a 3. dávku mohou mít různou prioritu.') }}
-                            {#
-                            {{ metrika('Doba ve frontě', metriky.registrace_fronta_prumer_cekani, delta_day=metriky.registrace_fronta_prumer_cekani_zmena_den, delta_week=metriky.registrace_fronta_prumer_cekani_zmena_tyden, decimal=True, unit='týdne', divide=7, color='rev', info='Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.') }}
-                            {{ metrika('7denní úspěšnost', metriky.registrace_tydenni_uspesnost, delta_day=metriky.registrace_tydenni_uspesnost_zmena_den, delta_week=metriky.registrace_tydenni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 7 dní s vybraným termínem ku počtu všech registrovaných za posledních 7 dní.') }}
-                            {{ metrika('14denní úspěšnost', metriky.registrace_14denni_uspesnost, delta_day=metriky.registrace_14denni_uspesnost_zmena_den, delta_week=metriky.registrace_14denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 14 dní s vybraným termínem ku počtu všech registrovaných za posledních 14 dní.') }}
-                            {{ metrika('30denní úspěšnost', metriky.registrace_30denni_uspesnost, delta_day=metriky.registrace_30denni_uspesnost_zmena_den, delta_week=metriky.registrace_30denni_uspesnost_zmena_tyden, decimal=True, unit='%', multiply=100, color='std', info='Poměr počtu registrovaných za posledních 30 dní s vybraným termínem ku počtu všech registrovaných za posledních 30 dní.') }}
-                            #}
+                    {% for kraj in hospital_capacities_graph_data.index.unique('nazev_norm') %}
+                    <div class="tab-pane {% if loop.first %}active{% endif %}" id="{{ kraj }}">
+                        {% set df = hospital_capacities_graph_data[hospital_capacities_graph_data.index.get_level_values('nazev_norm') == kraj].droplevel('nazev_norm') %}
+
+                        <div class="row">
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s kyslíkem
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka vybavená zdrojem kyslíku (rozvodem kapalného kyslíku nebo koncentrátorem kyslíku).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'kyslik') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s možností HFNO
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka, u kterých je používán přístroj HFNO (vysokoprůtoková aplikace kyslíku) nebo CPAP (trvalý pozitivní přetlak v dýchacích cestách).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'hfno') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s možností UPV
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka, u kterých je používán přístroj UPV (umělá plicní ventilace) a NIV (neinvazivní ventilace).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'upv') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Ventilátory (přenosné + operační sál)
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Přenosné ventilátory a anesteziologické přístroje s ventilátorem.">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'ventilatory') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Přístroje CVVHD
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Kontinuální venovenózní hemodialýza.">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'cvvhd') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Přístroje ECMO
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Extrakorporální membránová oxygenace (mimotělní podpora života).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'ecmo') }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <p class="card-text text-justify">
+                            Pro zjednodušení a možnost porovnání s daty zveřejňovanými před 21. říjnem 2021
+                            nerozlišujeme lůžka na infekční a neinfekční, u ventilátorů nerozlišujeme, jestli jsou
+                            přenosné nebo součástí anesteziologických přístrojů. Detailní přehled je možné najít na
+                            <a href="https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece" target="_blank">webu Ministerstva zdravotnictví</a>.
+                        </p>
                     </div>
-                    <div class="tab-pane" id="registrace">
-                        {{ stav_registraci(registrations) }}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

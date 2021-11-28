@@ -1293,3 +1293,70 @@ def get_tests_orp_graph_data():
     df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df
+
+
+def get_hospital_capacities_graph_data():
+    capacities = pd.read_sql_query("select * from kapacity_nemocnic", db.engine).fillna(0)
+    capacities['luzka_standard_kyslik_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_pozitivni']
+    capacities['luzka_standard_kyslik_kapacita_volna_covid_negativni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_negativni']
+    capacities['luzka_standard_kyslik_kapacita_celkem'] += capacities['inf_luzka_kyslik_kapacita_celkem']
+    capacities['luzka_hfno_cpap_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_hfno_kapacita_volna_covid_pozitivni']
+    capacities['luzka_hfno_cpap_kapacita_volna_covid_negativni'] += capacities['inf_luzka_hfno_kapacita_volna_covid_negativni']
+    capacities['luzka_hfno_cpap_kapacita_celkem'] += capacities['inf_luzka_hfno_kapacita_celkem']
+    capacities['luzka_upv_niv_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_upv_kapacita_volna_covid_pozitivni']
+    capacities['luzka_upv_niv_kapacita_volna_covid_negativni'] += capacities['inf_luzka_upv_kapacita_volna_covid_negativni']
+    capacities['luzka_upv_niv_kapacita_celkem'] += capacities['inf_luzka_upv_kapacita_celkem']
+
+    capacities_old = pd.read_sql_query("select * from kapacity_nemocnic_stare where datum >= '2021-03-30'", db.engine).fillna(0)
+
+    kraje = pd.read_sql_query("select * from kraje", db.engine)
+    kraje['nazev_norm'] = kraje['nazev'].str.normalize('NFKD') \
+        .str.encode('ascii', errors='ignore') \
+        .str.decode('utf-8') \
+        .str.lower()
+
+    df = pd.concat([capacities_old, capacities])
+
+    df = pd.merge(df, kraje, left_on='kraj_nuts_kod', right_on='id')
+    df = df.drop(columns=['zz_kod', 'zz_nazev', 'id'])
+    df = df.groupby(['kraj_nuts_kod', 'datum', 'nazev', 'nazev_norm']).sum().reset_index()
+
+    df_cr = df.groupby('datum').sum().reset_index()
+    df_cr['kraj_nuts_kod'] = 'CZ0'
+    df_cr['nazev'] = 'ČR'
+    df_cr['nazev_norm'] = 'cr'
+
+    df = df.set_index(['nazev_norm', 'datum'])
+    df_cr = df_cr.set_index(['nazev_norm', 'datum'])
+
+    df = pd.concat([df_cr, df])
+
+    df['ventilatory_volno'] = df['ventilatory_prenosne_kapacita_volna'] + df['ventilatory_operacni_sal_kapacita_volna']
+    df['ventilatory_celkem'] = df['ventilatory_prenosne_kapacita_celkem'] + df[
+        'ventilatory_operacni_sal_kapacita_celkem']
+
+    df = df.drop(columns=['ventilatory_prenosne_kapacita_volna', 'ventilatory_operacni_sal_kapacita_volna',
+                          'ventilatory_prenosne_kapacita_celkem', 'ventilatory_operacni_sal_kapacita_celkem'])
+
+    df = df.rename(columns={'luzka_standard_kyslik_kapacita_volna_covid_pozitivni': 'kyslik_volno_poz',
+                            'luzka_standard_kyslik_kapacita_volna_covid_negativni': 'kyslik_volno_neg',
+                            'luzka_standard_kyslik_kapacita_celkem': 'kyslik_celkem',
+                            'luzka_hfno_cpap_kapacita_volna_covid_pozitivni': 'hfno_volno_poz',
+                            'luzka_hfno_cpap_kapacita_volna_covid_negativni': 'hfno_volno_neg',
+                            'luzka_hfno_cpap_kapacita_celkem': 'hfno_celkem',
+                            'luzka_upv_niv_kapacita_volna_covid_pozitivni': 'upv_volno_poz',
+                            'luzka_upv_niv_kapacita_volna_covid_negativni': 'upv_volno_neg',
+                            'luzka_upv_niv_kapacita_celkem': 'upv_celkem',
+                            'ecmo_kapacita_volna': 'ecmo_volno',
+                            'ecmo_kapacita_celkem': 'ecmo_celkem',
+                            'cvvhd_kapacita_volna': 'cvvhd_volno',
+                            'cvvhd_kapacita_celkem': 'cvvhd_celkem'})
+
+    df['kyslik_obsazeno'] = df['kyslik_celkem'] - df['kyslik_volno_poz'] - df['kyslik_volno_neg']
+    df['hfno_obsazeno'] = df['hfno_celkem'] - df['hfno_volno_poz'] - df['hfno_volno_neg']
+    df['upv_obsazeno'] = df['upv_celkem'] - df['upv_volno_poz'] - df['upv_volno_neg']
+    df['ecmo_obsazeno'] = df['ecmo_celkem'] - df['ecmo_volno']
+    df['cvvhd_obsazeno'] = df['cvvhd_celkem'] - df['cvvhd_volno']
+    df['ventilatory_obsazeno'] = df['ventilatory_celkem'] - df['ventilatory_volno']
+
+    return df
