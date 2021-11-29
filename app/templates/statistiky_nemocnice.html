@@ -1,27 +1,5 @@
 {% extends 'base.html' %}
-{% from 'macros/common.html' import metrika %}
-{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
-{% from 'macros/tables/stav_ockovani_indikace.html' import stav_ockovani_indikace %}
-{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
-{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
-{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/tables/dodavky_vakcin.html' import dodavky_vakcin %}
-{% from 'macros/tables/odhad_konce.html' import odhad_konce %}
-{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
-{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
-{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
-{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
-{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
-{% from 'macros/graphs/fronta.html' import graf_fronta %}
-{% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
-{% from 'macros/graphs/ockovani_orp.html' import graf_ockovani_orp %}
-{% from 'macros/graphs/registrace.html' import graf_registrace %}
-{% from 'macros/graphs/nakazeni.html' import graf_nakazeni %}
-{% from 'macros/graphs/nakazeni_orp.html' import graf_nakazeni_orp %}
-{% from 'macros/graphs/umrti.html' import graf_umrti %}
-{% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
-{% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
-{% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
+{% from 'macros/graphs/kapacita.html' import graf_kapacita %}
 
 {% block title %}
 Kapacita nemocnic |
@@ -36,12 +14,121 @@ Kapacita nemocnic |
 
 <div class="row">
     <div class="col">
-        <div class="card mb-3">
+        <div class="card">
+            <div class="card-header" id="cards">
+                <ul class="nav nav-tabs card-header-tabs">
+                    {% for kraj in hospital_capacities_graph_data.index.unique('nazev_norm') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if loop.first %}active{% endif %}" data-toggle="tab" href="#{{ kraj }}">
+                            {% set df = hospital_capacities_graph_data[hospital_capacities_graph_data.index.get_level_values('nazev_norm') == kraj].droplevel('nazev_norm') %}
+                            {{ df['nazev'].iloc[0] }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
             <div class="card-body">
-                <h5 class="card-title" id="todo" data-toggle="tooltip" data-placement="bottom">
-                    TODO
-                    <a href="#todo" class="text-secondary"><i class="fas fa-link"></i></a>
-                </h5>
+                <div class="tab-content">
+                    {% for kraj in hospital_capacities_graph_data.index.unique('nazev_norm') %}
+                    <div class="tab-pane {% if loop.first %}active{% endif %}" id="{{ kraj }}">
+                        {% set df = hospital_capacities_graph_data[hospital_capacities_graph_data.index.get_level_values('nazev_norm') == kraj].droplevel('nazev_norm') %}
+
+                        <div class="row">
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s kyslíkem
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka vybavená zdrojem kyslíku (rozvodem kapalného kyslíku nebo koncentrátorem kyslíku).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'kyslik') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s možností HFNO
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka, u kterých je používán přístroj HFNO (vysokoprůtoková aplikace kyslíku) nebo CPAP (trvalý pozitivní přetlak v dýchacích cestách).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'hfno') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Lůžka s možností UPV
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Standardní a infekční lůžka, u kterých je používán přístroj UPV (umělá plicní ventilace) a NIV (neinvazivní ventilace).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'upv') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Ventilátory (přenosné + operační sál)
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Přenosné ventilátory a anesteziologické přístroje s ventilátorem.">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'ventilatory') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Přístroje CVVHD
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Kontinuální venovenózní hemodialýza.">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'cvvhd') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Přístroje ECMO
+                                            <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                                               title="Extrakorporální membránová oxygenace (mimotělní podpora života).">
+                                            </i>
+                                        </h5>
+                                        {{ graf_kapacita(df, kraj, 'ecmo') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="card-text text-justify">
+                            Pro zjednodušení a možnost porovnání s daty zveřejňovanými před 21. říjnem 2021
+                            nerozlišujeme lůžka na infekční a neinfekční, u ventilátorů nerozlišujeme, jestli jsou
+                            přenosné nebo součástí anesteziologických přístrojů. Detailní přehled je možné najít na
+                            <a href="https://onemocneni-aktualne.mzcr.cz/kapacity-luzkove-pece" target="_blank">webu Ministerstva zdravotnictví</a>.
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

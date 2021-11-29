@@ -215,9 +215,10 @@ def statistiky_srovnani():
 
 @bp.route("/statistiky_nemocnice")
 def statistiky_nemocnice():
+    hospital_capacities_graph_data = queries.get_hospital_capacities_graph_data()
 
-
-    return render_template('statistiky_nemocnice.html', last_update=_last_import_modified(), now=_now())
+    return render_template('statistiky_nemocnice.html', last_update=_last_import_modified(), now=_now(),
+                           hospital_capacities_graph_data=hospital_capacities_graph_data)
 
 
 @bp.route("/napoveda")
