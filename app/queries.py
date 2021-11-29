@@ -1307,7 +1307,9 @@ def get_hospital_capacities_graph_data():
     capacities['luzka_upv_niv_kapacita_volna_covid_negativni'] += capacities['inf_luzka_upv_kapacita_volna_covid_negativni']
     capacities['luzka_upv_niv_kapacita_celkem'] += capacities['inf_luzka_upv_kapacita_celkem']
 
-    capacities_old = pd.read_sql_query("select * from kapacity_nemocnic_stare where datum >= '2021-03-30'", db.engine).fillna(0)
+    capacities_21 = pd.read_sql_query("select * from kapacity_nemocnic_21 where datum >= '2021-03-30'", db.engine).fillna(0)
+
+    capacities_20 = pd.read_sql_query("select * from kapacity_nemocnic_20", db.engine).fillna(0)
 
     kraje = pd.read_sql_query("select * from kraje", db.engine)
     kraje['nazev_norm'] = kraje['nazev'].str.normalize('NFKD') \
@@ -1315,7 +1317,7 @@ def get_hospital_capacities_graph_data():
         .str.decode('utf-8') \
         .str.lower()
 
-    df = pd.concat([capacities_old, capacities])
+    df = pd.concat([capacities_20, capacities_21, capacities])
 
     df = pd.merge(df, kraje, left_on='kraj_nuts_kod', right_on='id')
     df = df.drop(columns=['zz_kod', 'zz_nazev', 'id'])
