@@ -1,5 +1,6 @@
 {% macro graf_ockovani_celkem(data) -%}
-<div id="graf-ockovani-celkem"></div>
+<div id="plotly-ockovani-celkem"></div>
+
 <script>
     function grafOckovaniCelkem() {
         const ockovani_castecne = {
@@ -50,7 +51,7 @@
                 x: 0.5,
                 y: -0.15,
             },
-            height: 700,
+            height: 600,
         }
 
         const data = [ockovani_castecne, ockovani_plne, ockovani_3];
@@ -60,16 +61,9 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-ockovani-celkem", data, layout, config);
+        Plotly.newPlot("plotly-ockovani-celkem", data, layout, config);
     }
 
     grafOckovaniCelkem();
-
-    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-        let target = $(e.target).attr("href")
-        if(target==="#graf-ockovani") {
-            grafOckovaniCelkem();
-        }
-    });
 </script>
 {%- endmacro %}

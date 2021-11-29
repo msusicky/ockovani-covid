@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/srovnani_ockovani_neockovani_vek.html' import srovnani_ockovani_neockovani_vek %}
+{% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
+
+{% block title %}
+Srovnání očkovaní &times; neočkovaní |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Srovnání očkovaní &times; neočkovaní</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                    Srovnání očkovaných a neočkovaných podle zastoupení v populaci za týden
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age_graph_data) }}
+                <br>
+                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

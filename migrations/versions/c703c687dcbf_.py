@@ -46,12 +46,12 @@ def upgrade():
     op.create_foreign_key(None, 'ockovani_lide', 'vakciny', ['vakcina'], ['vakcina'])
     op.create_foreign_key(None, 'ockovani_spotreba', 'vakciny', ['vyrobce'], ['vyrobce'])
 
-    df = pd.read_csv('./data/dodavky_vakcin/2021-04-10.csv')
-    df['datum'] = pd.to_datetime(df['Měsíc'], format='%d. %m. %Y')
-    df = df.rename({'AZ': 'AstraZeneca'}, axis=1)
-    df = df.melt(id_vars=['datum'], value_vars=['Pfizer', 'Moderna', 'AstraZeneca', 'CureVac', 'Janssen', 'Novavax', 'GSK'],
-                 var_name='vyrobce', value_name='pocet')
-    df.to_sql('dodavky_vakcin', connection, if_exists='replace', index=False)
+    # df = pd.read_csv('./data/dodavky_vakcin/2021-04-10.csv')
+    # df['datum'] = pd.to_datetime(df['Měsíc'], format='%d. %m. %Y')
+    # df = df.rename({'AZ': 'AstraZeneca'}, axis=1)
+    # df = df.melt(id_vars=['datum'], value_vars=['Pfizer', 'Moderna', 'AstraZeneca', 'CureVac', 'Janssen', 'Novavax', 'GSK'],
+    #              var_name='vyrobce', value_name='pocet')
+    # df.to_sql('dodavky_vakcin', connection, if_exists='replace', index=False)
 
 
 def downgrade():

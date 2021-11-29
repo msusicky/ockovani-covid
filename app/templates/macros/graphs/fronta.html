@@ -1,31 +1,41 @@
 {% macro graf_fronta(data) -%}
-<div id="graf-fronta"></div>
+<div id="plotly-fronta"></div>
+
 <div class="font-italic">
     <h6>Poznámky</h6>
     <p class="text-justify">
         V současnosti jsou k dispozici pouze data o rezervacích pro následující měsíc - počet čekajících na 1. a 2.
         dávku nemusí být úplný!
     </p>
-    <ul class="mb-0">
-        <li>15. 1. 2021 - otevření registrace pro starší 80 let</li>
-        <li>27. 2. 2021 - otevření registrace pro zaměstnance škol a školských zařízení</li>
-        <li>1. 3. 2021 - otevření registrace pro starší 70 let</li>
-        <li>24. 3. 2021 - otevření registrace pro chronicky nemocné či s vysokým rizikem těžkého průběhu</li>
-        <li>29. 3. 2021 - otevření registrace pro pracovníky kritické infrastruktury</li>
-        <li>7. 4. 2021 - otevření registrace pro pracovníky v sociálních službách</li>
-        <li>14. 4. 2021 - otevření registrace pro starší 65 let</li>
-        <li>23. 4. 2021 - otevření registrace pro starší 60 let</li>
-        <li>28. 4. 2021 - otevření registrace pro starší 55 let</li>
-        <li>3. 5. 2021 - otevření registrace pro akademické pracovníky</li>
-        <li>5. 5. 2021 - otevření registrace pro starší 50 let</li>
-        <li>11. 5. 2021 - otevření registrace pro starší 45 let</li>
-        <li>17. 5. 2021 - otevření registrace pro starší 40 let</li>
-        <li>24. 5. 2021 - otevření registrace pro starší 35 let</li>
-        <li>26. 5. 2021 - otevření registrace pro starší 30 let</li>
-        <li>4. 6. 2021 - otevření registrace pro starší 16 let</li>
-        <li>1. 7. 2021 - otevření registrace pro starší 12 let</li>
-        <li>18. 10. 2021 - zkrácení intervalu mezi 2. a 3. dávkou na 6 měsíců</li>
-    </ul>
+    <p class="mb-0">
+        <button class="btn btn-sm btn-secondary" type="button" data-toggle="collapse" data-target="#collapse-fronta">
+            Harmonogram registrací
+        </button>
+    </p>
+    <div class="collapse" id="collapse-fronta">
+        <div class="card card-body mt-3">
+            <ul class="mb-0">
+                <li>15. 1. 2021 - otevření registrace pro starší 80 let</li>
+                <li>27. 2. 2021 - otevření registrace pro zaměstnance škol a školských zařízení</li>
+                <li>1. 3. 2021 - otevření registrace pro starší 70 let</li>
+                <li>24. 3. 2021 - otevření registrace pro chronicky nemocné či s vysokým rizikem těžkého průběhu</li>
+                <li>29. 3. 2021 - otevření registrace pro pracovníky kritické infrastruktury</li>
+                <li>7. 4. 2021 - otevření registrace pro pracovníky v sociálních službách</li>
+                <li>14. 4. 2021 - otevření registrace pro starší 65 let</li>
+                <li>23. 4. 2021 - otevření registrace pro starší 60 let</li>
+                <li>28. 4. 2021 - otevření registrace pro starší 55 let</li>
+                <li>3. 5. 2021 - otevření registrace pro akademické pracovníky</li>
+                <li>5. 5. 2021 - otevření registrace pro starší 50 let</li>
+                <li>11. 5. 2021 - otevření registrace pro starší 45 let</li>
+                <li>17. 5. 2021 - otevření registrace pro starší 40 let</li>
+                <li>24. 5. 2021 - otevření registrace pro starší 35 let</li>
+                <li>26. 5. 2021 - otevření registrace pro starší 30 let</li>
+                <li>4. 6. 2021 - otevření registrace pro starší 16 let</li>
+                <li>1. 7. 2021 - otevření registrace pro starší 12 let</li>
+                <li>18. 10. 2021 - zkrácení intervalu mezi 2. a 3. dávkou na 6 měsíců</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -78,20 +88,20 @@
                 rangeselector: {
                     buttons: [
                         {
-                            count: 7,
-                            label: "1 týden",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
-                            count: 14,
-                            label: "2 týdny",
-                            step: "day",
-                            stepmode: "backward"
-                        },
-                        {
                             count: 1,
                             label: "1 měsíc",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward",
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
                             step: "month",
                             stepmode: "backward",
                         },
@@ -115,9 +125,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                y: -0.4,
+                y: -0.42,
             },
-            height: 700,
+            height: 600,
         }
 
         const data = [fronta, rezervace_1, rezervace_2, rezervace_3];
@@ -127,11 +137,11 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-fronta", data, layout, config);
+        Plotly.newPlot("plotly-fronta", data, layout, config);
 
         // force relayout to rescale y
         range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
-        Plotly.relayout('graf-fronta', range);
+        Plotly.relayout('plotly-fronta', range);
     }
 
     function grafFrontaRescale(e) {
@@ -139,8 +149,6 @@
             e.target.layout.stopRescale = false;
             return;
         }
-
-        console.log(e);
 
         var rangeX = e.target.layout.xaxis.range
         var data = e.target.data
@@ -158,7 +166,7 @@
             }
         }
 
-        Plotly.relayout('graf-fronta', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+        Plotly.relayout('plotly-fronta', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafFronta()
@@ -170,7 +178,7 @@
         }
     });
 
-    $('#graf-fronta').on("plotly_relayout", function (e) {
+    $('#plotly-fronta').on("plotly_relayout", function (e) {
         grafFrontaRescale(e)
     });
 

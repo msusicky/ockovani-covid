@@ -1,5 +1,5 @@
 {% macro graf_nakazeni(data) -%}
-<div id="graf-nakazeni"></div>
+<div id="plotly-nakazeni"></div>
 
 <script>
     function grafNakazeni() {
@@ -143,9 +143,9 @@
                 orientation: "h",
                 xanchor: "center",
                 x: 0.5,
-                y: -0.4,
+                y: -0.42,
             },
-            height: 700,
+            height: 600,
         }
 
         const data = [
@@ -158,11 +158,11 @@
             displayModeBar: false,
         }
 
-        Plotly.newPlot("graf-nakazeni", data, layout, config);
+        Plotly.newPlot("plotly-nakazeni", data, layout, config);
 
         // force relayout to rescale y
         range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
-        Plotly.relayout('graf-nakazeni', range);
+        Plotly.relayout('plotly-nakazeni', range);
     }
 
     function grafNakazeniRescale(e) {
@@ -170,8 +170,6 @@
             e.target.layout.stopRescale = false;
             return;
         }
-
-        console.log(e);
 
         var rangeX = e.target.layout.xaxis.range
         var data = e.target.data
@@ -189,19 +187,12 @@
             }
         }
 
-        Plotly.relayout('graf-nakazeni', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+        Plotly.relayout('plotly-nakazeni', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
     grafNakazeni();
 
-    $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
-        let target = $(e.target).attr("href")
-        if(target==="#graf-nakazeni") {
-            grafNakazeni();
-        }
-    });
-
-    $('#graf-nakazeni').on("plotly_relayout", function (e) {
+    $('#plotly-nakazeni').on("plotly_relayout", function (e) {
         grafNakazeniRescale(e)
     });
 

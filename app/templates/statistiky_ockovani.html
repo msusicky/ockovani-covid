@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
+{% from 'macros/tables/stav_ockovani_indikace.html' import stav_ockovani_indikace %}
+{% from 'macros/tables/stav_registraci_kategorie.html' import stav_registraci_kategorie %}
+{% from 'macros/tables/prehled_ockovani_tyden.html' import prehled_ockovani_tyden %}
+{% from 'macros/tables/nejvykonnejsi_mista.html' import nejvykonnejsi_mista %}
+{% from 'macros/graphs/prijate_davky.html' import graf_prijatych_davek %}
+{% from 'macros/graphs/ockovane_davky.html' import graf_ockovanych_davek %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
+{% from 'macros/graphs/ockovani_celkem.html' import graf_ockovani_celkem %}
+{% from 'macros/graphs/registrace.html' import graf_registrace %}
+
+{% block title %}
+Statistiky očkování |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Statistiky očkování</h3>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="ockovani" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počty očkovaných dle věku
+                    <a href="#ockovani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ stav_ockovani(vaccinated) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-ockovani">
+                    Vývoj počtu očkovaných
+                    <a href="#graf-ockovani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_ockovani_celkem(vaccination_total_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="registrace" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset registrovaných dle profesí.">
+                    Stav registrací dle prioritních skupin
+                    <a href="#registrace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ stav_registraci_kategorie(reservations_category) }}                
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="ockovani-indikace" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počty očkovaných dle indikací
+                    <a href="#ockovani-indikace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ stav_ockovani_indikace(vaccinated_category) }}
+                <p class="card-text font-italic text-justify mt-3">Lidé s více indikacemi jsou započteni v každé.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-fronta">
+                    Vývoj fronty
+                    <a href="#graf-fronta" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_fronta(queue_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-registrace">
+                    Vývoj registrací
+                    <a href="#graf-registrace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_registrace(registrations_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="ockovani-10-dni" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Počet očkovaných v posledních 10 dnech
+                    <a href="#ockovani-10-dni" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ prehled_ockovani_tyden(vaccinated_week) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="ockovani-nejvykonnejsi" data-toggle="tooltip" data-placement="bottom"
+                    title="Dataset očkování, data se postupně doplňují.">
+                    Nejvýkonnější místa
+                    <a href="#ockovani-nejvykonnejsi" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ nejvykonnejsi_mista(top_centers) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-ockovane-davky">
+                    Očkované dávky
+                    <a href="#graf-ockovane-davky" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                 {{ graf_ockovanych_davek(used_vaccine_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-dodavky">
+                    Dodávky vakcín
+                    <a href="#graf-dodavky" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_prijatych_davek(received_vaccine_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
