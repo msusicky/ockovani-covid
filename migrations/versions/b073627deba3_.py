@@ -5,14 +5,10 @@ Revises: eb41821d2f4c
 Create Date: 2021-11-27 22:42:17.123695
 
 """
-import pandas as pd
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-from app.models import KapacityNemocnicStare
-
 revision = 'b073627deba3'
 down_revision = 'eb41821d2f4c'
 branch_labels = None
@@ -47,14 +43,14 @@ def upgrade():
     )
     # ### end Alembic commands ###
 
-    df = pd.read_csv('data/kapacity_nemocnic_stare.csv')
-
-    for col in df.columns:
-        if col not in ['datum', 'zz_kod', 'zz_nazev', 'kraj_nuts_kod', 'kraj_nazev']:
-            df[col] = df[col].fillna('0').astype('int')
-
-    df = df.drop('kraj_nazev', axis=1)
-    df.to_sql(KapacityNemocnicStare.__tablename__, op.get_bind(), if_exists='append', index=False)
+    # df = pd.read_csv('data/kapacity_nemocnic_stare.csv')
+    #
+    # for col in df.columns:
+    #     if col not in ['datum', 'zz_kod', 'zz_nazev', 'kraj_nuts_kod', 'kraj_nazev']:
+    #         df[col] = df[col].fillna('0').astype('int')
+    #
+    # df = df.drop('kraj_nazev', axis=1)
+    # df.to_sql(KapacityNemocnicStare.__tablename__, op.get_bind(), if_exists='append', index=False)
 
 
 def downgrade():

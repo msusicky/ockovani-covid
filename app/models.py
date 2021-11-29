@@ -1093,8 +1093,8 @@ class KapacityNemocnic(db.Model):
         return f"<KapacityNemocnic(id='{self.datum} - {self.zz_kod} - {self.zz_nazev}: {self.kraj_nuts_kod}')>"
 
 
-class KapacityNemocnicStare(db.Model):
-    __tablename__ = 'kapacity_nemocnic_stare'
+class KapacityNemocnic21(db.Model):
+    __tablename__ = 'kapacity_nemocnic_21'
 
     datum = Column(DateTime, primary_key=True)
     zz_kod = Column(Unicode, primary_key=True)
@@ -1119,4 +1119,38 @@ class KapacityNemocnicStare(db.Model):
     ventilatory_operacni_sal_kapacita_celkem = Column(Integer)
 
     def __repr__(self):
-        return f"<KapacityNemocnicStare(id='{self.datum} - {self.zz_kod} - {self.zz_nazev}: {self.kraj_nuts_kod}')>"
+        return f"<KapacityNemocnic21(id='{self.datum} - {self.zz_kod} - {self.zz_nazev}: {self.kraj_nuts_kod}')>"
+
+
+class KapacityNemocnic20(db.Model):
+    __tablename__ = 'kapacity_nemocnic_20'
+
+    datum = Column(DateTime, primary_key=True)
+    kraj_nuts_kod = Column(Unicode, primary_key=True)
+    ecmo_kapacita_volna = Column(Integer)
+    ecmo_kapacita_celkem = Column(Integer)
+    upv_kapacita_volna = Column(Integer)
+    upv_kapacita_celkem = Column(Integer)
+    crrt_kapacita_volna = Column(Integer)
+    crrt_kapacita_celkem = Column(Integer)
+    ihd_kapacita_volna = Column(Integer)
+    ihd_kapacita_celkem = Column(Integer)
+    luzka_aro_jip_kapacita_celkem = Column(Integer)
+    luzka_aro_jip_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_aro_jip_kapacita_volna_covid_negativni = Column(Integer)
+    luzka_standard_kyslik_kapacita_celkem = Column(Integer)
+    luzka_standard_kyslik_kapacita_volna_covid_pozitivni = Column(Integer)
+    luzka_standard_kyslik_kapacita_volna_covid_negativni = Column(Integer)
+    ventilatory_prenosne_kapacita_volna = Column(Integer)
+    ventilatory_prenosne_kapacita_celkem = Column(Integer)
+    ventilatory_operacni_sal_kapacita_volna = Column(Integer)
+    ventilatory_operacni_sal_kapacita_celkem = Column(Integer)
+    reprofilizovana_kapacita_luzka_aro_jip_kapacita_volna = Column(Integer)
+    reprofilizovana_kapacita_luzka_aro_jip_kapacita_celkem = Column(Integer)
+    reprofilizovana_kapacita_luzka_aro_jip_kapacita_planovana = Column(Integer)
+    reprofilizovana_kapacita_luzka_standard_kyslik_kapacita_volna = Column(Integer)
+    reprofilizovana_kapacita_luzka_standard_kyslik_kapacita_celkem = Column(Integer)
+    reprofilizovana_kapacita_luzka_standard_kyslik_kapacita_planovana = Column(Integer)
+
+    def __repr__(self):
+        return f"<KapacityNemocnic20(id='{self.datum}: {self.kraj_nuts_kod}')>"
