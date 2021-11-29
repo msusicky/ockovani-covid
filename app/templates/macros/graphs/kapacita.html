@@ -3,6 +3,8 @@
 
 <script>
     function grafKapacita_{{ kraj }}_{{ typ }}() {
+        {% set data=data[data[typ + '_celkem'] > 0] %}
+
         let data = [];
 
         {% if typ + '_volno' in data %}
