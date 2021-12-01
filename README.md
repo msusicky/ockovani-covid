@@ -41,6 +41,7 @@ Web: https://ockovani.opendatalab.cz
 * [ČT24: Lékaři nabízejí na internetu očkování vakcínami proti koronaviru, kterým se blíží expirace. Chrání je před likvidací](https://ct24.ceskatelevize.cz/domaci/3360582-lekari-nabizeji-na-internetu-ockovani-vakcinami-proti-koronaviru-kterym-se-blizi)
 * [LIDOVKY: Lékaři zachraňují vakcíny před vylitím. Speciální web nabízí volné dávky, kterým brzy končí trvanlivost](https://www.lidovky.cz/domov/lekari-zachranuji-vakciny-pred-vylitim-specialni-web-nabizi-volne-davky-kterym-brzy-konci-trvanlivos.A210901_114738_ln_domov_lros)
 * [VTM: Očkování nefunguje, vždyť na covid minulý týden zemřelo víc očkovaných. Jenže je to přesně naopak](https://vtm.zive.cz/clanky/ockovani-nefunguje-vzdyt-na-covid-minuly-tyden-zemrelo-vic-ockovanych-jenze-je-to-presne-naopak/sc-870-a-213083/default.aspx)
+* [Aktuálně: "O osudu si rozhodli sami." Pohled do nemocnic ukazuje na epidemii neočkovaných](https://zpravy.aktualne.cz/domaci/o-osudu-si-rozhodli-sami-pohled-do-nemocnic-ukazuje-na-epide)
 
 ## Poznámky k fungování
 Pro získávání dat využívala metody scrapingu. Nyní využíváme oficiálních dat od UZIS.

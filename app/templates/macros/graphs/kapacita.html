@@ -3,7 +3,8 @@
 
 <script>
     function grafKapacita_{{ kraj }}_{{ typ }}() {
-        {% set data=data[data[typ + '_celkem'] > 0] %}
+        {% set first_idx = data.index[data[typ + '_celkem'] > 0].tolist()[0] %}
+        {% set data = data.loc[first_idx:] if first_idx else data %}
 
         let data = [];
 
