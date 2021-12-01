@@ -649,6 +649,9 @@ class KrajMetriky(db.Model):
     registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
     registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
     registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_median_cekani = Column(Float)                    # median doby cekani na rezervaci z poslednich 7 dni
+    registrace_median_cekani_zmena_den = Column(Float)          # median doby cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_median_cekani_zmena_tyden = Column(Float)        # median doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
@@ -755,6 +758,9 @@ class OkresMetriky(db.Model):
     registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
     registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
     registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_median_cekani = Column(Float)                    # median doby cekani na rezervaci z poslednich 7 dni
+    registrace_median_cekani_zmena_den = Column(Float)          # median doby cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_median_cekani_zmena_tyden = Column(Float)        # median doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
@@ -835,6 +841,9 @@ class OckovaciMistoMetriky(db.Model):
     registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
     registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
     registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_median_cekani = Column(Float)                    # median doby cekani na rezervaci z poslednich 7 dni
+    registrace_median_cekani_zmena_den = Column(Float)          # median doby cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_median_cekani_zmena_tyden = Column(Float)        # median doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
     registrace_odhad_cekani = Column(Float)                     # odhadovana doba cekani na rezervaci
     registrace_odhad_cekani_zmena_den = Column(Float)           # odhadovana doba cekani na rezervaci - zmena za den
     registrace_odhad_cekani_zmena_tyden = Column(Float)         # odhadovana doba cekani na rezervaci - zmena za tyden
@@ -935,6 +944,9 @@ class CrMetriky(db.Model):
     registrace_prumer_cekani = Column(Float)                    # prumerna doba cekani na rezervaci z poslednich 7 dni
     registrace_prumer_cekani_zmena_den = Column(Float)          # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za den
     registrace_prumer_cekani_zmena_tyden = Column(Float)        # prumerna doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
+    registrace_median_cekani = Column(Float)                    # median doby cekani na rezervaci z poslednich 7 dni
+    registrace_median_cekani_zmena_den = Column(Float)          # median doby cekani na rezervaci z poslednich 7 dni - zmena za den
+    registrace_median_cekani_zmena_tyden = Column(Float)        # median doba cekani na rezervaci z poslednich 7 dni - zmena za tyden
     registrace_fronta_prumer_cekani = Column(Float)             # prumerna doba ve fronte
     registrace_fronta_prumer_cekani_zmena_den = Column(Float)   # prumerna doba ve fronte - zmena za den
     registrace_fronta_prumer_cekani_zmena_tyden = Column(Float) # prumerna doba ve fronte - zmena za tyden
