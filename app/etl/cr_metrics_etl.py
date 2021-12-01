@@ -165,6 +165,7 @@ class CrMetricsEtl:
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_prumer_cekani'),
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .one()
 
         db.session.merge(CrMetriky(
@@ -177,6 +178,7 @@ class CrMetricsEtl:
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .one()
 
         db.session.merge(CrMetriky(
