@@ -209,7 +209,7 @@ class OkresMetricsEtl:
             .all()
 
         for wait in med_waiting:
-            db.session.merge(OckovaciMistoMetriky(
+            db.session.merge(OkresMetriky(
                 okres_id=wait.id,
                 datum=self._date,
                 registrace_median_cekani=wait.registrace_median_cekani
