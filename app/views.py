@@ -161,6 +161,8 @@ def statistiky():
 
     deaths_graph_data = queries.get_deaths_graph_data()
 
+    hospitalized_graph_data = queries.get_hospitalized_graph_data()
+
     return render_template('statistiky.html', last_update=_last_import_modified(), now=_now(), metriky=metriky,
                            eligible_count=eligible_count, infected_orp_graph_data=infected_orp_graph_data,
                            tests_orp_graph_data=tests_orp_graph_data,
@@ -168,7 +170,8 @@ def statistiky():
                            vaccinated_orp_graph_data=vaccinated_orp_graph_data,
                            vaccinated_unvaccinated_comparison_age_graph_data=vaccinated_unvaccinated_comparison_age_graph_data,
                            vaccination_total_graph_data=vaccination_total_graph_data,
-                           infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data)
+                           infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data,
+                           hospitalized_graph_data=hospitalized_graph_data)
 
 
 @bp.route("/statistiky_ockovani")
