@@ -11,7 +11,7 @@ class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
                                  CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_pred_zavorou,
-                                 CrMetriky.registrace_prumer_cekani) \
+                                 CrMetriky.registrace_median_cekani) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
@@ -19,7 +19,7 @@ class TwitterBot():
         self._vaccinated_diff = stats.ockovani_pocet_plne_zmena_den
         self._vaccinated_ratio = (1.0 * stats.ockovani_pocet_plne) / stats.pocet_obyvatel_celkem
         self._waiting = stats.registrace_pred_zavorou
-        self._average_reservation_waiting = stats.registrace_prumer_cekani
+        self._average_reservation_waiting = stats.registrace_median_cekani
         # self._end_date = queries.count_end_date_vaccinated()
         # self._end_date_supplies = queries.count_end_date_supplies()
         # self._end_date_interested = queries.couht_end_date_interested()
