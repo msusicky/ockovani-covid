@@ -351,7 +351,7 @@ def count_registrations(filter_column, filter_value):
         select *
         from ockovani_registrace
         where import_id = {get_import_id()} and ockovaci_misto_id in({mista_ids}) 
-        and datum >= '{get_import_date()}' - interval (90 days)
+        and datum + '90 days'::interval >= '{get_import_date()}' 
         """,
         db.engine
     )
