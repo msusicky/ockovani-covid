@@ -177,6 +177,7 @@ class CenterMetricsEtl:
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(OckovaciMisto.id) \
             .all()
 
@@ -194,6 +195,7 @@ class CenterMetricsEtl:
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(OckovaciMisto.id) \
             .all()
 

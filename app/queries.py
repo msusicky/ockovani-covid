@@ -347,11 +347,12 @@ def count_registrations(filter_column, filter_value):
         return pd.DataFrame()
 
     df = pd.read_sql_query(
-        """
+        f"""
         select *
         from ockovani_registrace
-        where import_id = {} and ockovaci_misto_id in({})
-        """.format(get_import_id(), mista_ids),
+        where import_id = {get_import_id()} and ockovaci_misto_id in({mista_ids}) 
+        and datum >= '{get_import_date()}' - interval (90 days)
+        """,
         db.engine
     )
 
