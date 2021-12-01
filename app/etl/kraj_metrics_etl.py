@@ -239,6 +239,7 @@ class KrajMetricsEtl:
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(Kraj.id) \
             .all()
 
@@ -258,6 +259,7 @@ class KrajMetricsEtl:
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(Kraj.id,) \
             .all()
 

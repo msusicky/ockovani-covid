@@ -22,13 +22,13 @@
             <th scope="col" class="w-15 text-center col-sortable">
                 Čekání na rezervaci
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na možnost výběru termínu).<br>Registrace na 1. a 3. dávku mohou mít různou prioritu.<br>Červená (>2), žlutá (>1), zelená (>0).">
+                   title="Průměrná doba mezi registrací a rezervací konkrétního termínu za posledních 7 dní (přibližně odpovídá čekání na možnost výběru termínu).<br>Registrace na 1. a 3. dávku mohou mít různou prioritu.<br>Pro výpočet používáme jen registrace vytvořené před 90 dny a novější.<br>Červená (>2), žlutá (>1), zelená (>0).">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center col-sortable">
                 Doba ve frontě
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
-                   title="Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.<br>Červená (>2), žlutá (>1), zelená (>0).">
+                   title="Průměrná doba strávená čekajícími ve frontě k dnešnímu dni.<br>Pro výpočet používáme jen registrace vytvořené před 90 dny a novější.<br>Červená (>2), žlutá (>1), zelená (>0).">
                 </i>
             </th>
             <th scope="col" class="w-15 text-center col-sortable">
@@ -75,6 +75,9 @@
     </table>
     <p class="card-text font-italic text-justify">
         Oranžově jsou vyznačeny kategorie, kterým nebyla za posledních 14 dní umožněna žádná rezervace.
+    </p>
+    <p class="card-text font-italic text-justify">
+        V tabulce uvažujeme pouze registrace vytvořené před 90 dny a novější.
     </p>
 </div>
 {%- endmacro %}
