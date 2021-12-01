@@ -249,6 +249,24 @@ class KrajMetricsEtl:
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
             ))
 
+        med_waiting = db.session.query(
+            Kraj.id,
+            func.percentile_cont(0.5).within_group(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label("registrace_median_cekani")
+        ).join(Okres, Okres.kraj_id == Kraj.id) \
+            .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id)\
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .group_by(Kraj.id) \
+            .all()
+
+        for wait in med_waiting:
+            db.session.merge(OckovaciMistoMetriky(
+                kraj_id=wait.id,
+                datum=self._date,
+                registrace_median_cekani=wait.registrace_median_cekani
+            ))
+
         avg_queue_waiting = db.session.query(
             Kraj.id,
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
@@ -365,6 +383,7 @@ class KrajMetricsEtl:
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_den = t0.registrace_median_cekani - t1.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
@@ -404,6 +423,7 @@ class KrajMetricsEtl:
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_tyden = t0.registrace_median_cekani - t7.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,

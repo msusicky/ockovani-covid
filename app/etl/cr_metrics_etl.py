@@ -172,6 +172,17 @@ class CrMetricsEtl:
             registrace_prumer_cekani=avg_waiting.registrace_prumer_cekani
         ))
 
+        med_waiting = db.session.query(
+            func.percentile_cont(0.5).within_group(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label("registrace_median_cekani")
+        ).filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .one()
+
+        db.session.merge(CrMetriky(
+            datum=self._date,
+            registrace_median_cekani=med_waiting.registrace_median_cekani
+        ))
+
         avg_queue_waiting = db.session.query(
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
@@ -254,6 +265,7 @@ class CrMetricsEtl:
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_den = t0.registrace_median_cekani - t1.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
@@ -289,6 +301,7 @@ class CrMetricsEtl:
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_tyden = t0.registrace_median_cekani - t7.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
                 ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
                 ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,

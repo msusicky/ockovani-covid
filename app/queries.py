@@ -40,6 +40,7 @@ def find_centers(filter_column, filter_value):
                                OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
                                OckovaciMistoDetail.deti, OckovaciMistoDetail.typ, OckovaciMistoDetail.davky,
                                OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
+                               OckovaciMistoMetriky.registrace_median_cekani,
                                OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
                                OckovaciMistoMetriky.registrace_pred_zavorou) \
@@ -56,8 +57,9 @@ def find_centers(filter_column, filter_value):
                   OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
                   OckovaciMisto.bezbarierovy_pristup, OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
                   OckovaciMistoDetail.davky, OckovaciMistoMetriky.registrace_fronta,
-                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
-                  OckovaciMistoMetriky.registrace_fronta_prumer_cekani, OckovaciMistoMetriky.registrace_pred_zavorou) \
+                  OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.registrace_median_cekani,
+                  OckovaciMistoMetriky.ockovani_odhad_cekani, OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
+                  OckovaciMistoMetriky.registrace_pred_zavorou) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 

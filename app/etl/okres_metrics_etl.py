@@ -198,6 +198,23 @@ class OkresMetricsEtl:
                 registrace_prumer_cekani=wait.registrace_prumer_cekani
             ))
 
+        med_waiting = db.session.query(
+            Okres.id,
+            func.percentile_cont(0.5).within_group(OckovaniRegistrace.datum_rezervace - OckovaniRegistrace.datum).label("registrace_median_cekani")
+        ).join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
+            .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
+            .filter(OckovaniRegistrace.import_id == self._import_id) \
+            .filter(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7)) \
+            .group_by(Okres.id) \
+            .all()
+
+        for wait in med_waiting:
+            db.session.merge(OckovaciMistoMetriky(
+                okres_id=wait.id,
+                datum=self._date,
+                registrace_median_cekani=wait.registrace_median_cekani
+            ))
+
         avg_queue_waiting = db.session.query(
             Okres.id,
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
@@ -294,6 +311,7 @@ class OkresMetricsEtl:
                 registrace_14denni_uspesnost_zmena_den = t0.registrace_14denni_uspesnost - t1.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_den = t0.registrace_30denni_uspesnost - t1.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_den = t0.registrace_prumer_cekani - t1.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_den = t0.registrace_median_cekani - t1.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_den = t0.registrace_fronta_prumer_cekani - t1.registrace_fronta_prumer_cekani,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
@@ -325,6 +343,7 @@ class OkresMetricsEtl:
                 registrace_14denni_uspesnost_zmena_tyden = t0.registrace_14denni_uspesnost - t7.registrace_14denni_uspesnost,
                 registrace_30denni_uspesnost_zmena_tyden = t0.registrace_30denni_uspesnost - t7.registrace_30denni_uspesnost,
                 registrace_prumer_cekani_zmena_tyden = t0.registrace_prumer_cekani - t7.registrace_prumer_cekani,
+                registrace_median_cekani_zmena_tyden = t0.registrace_median_cekani - t7.registrace_median_cekani,
                 registrace_fronta_prumer_cekani_zmena_tyden = t0.registrace_fronta_prumer_cekani - t7.registrace_fronta_prumer_cekani,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,

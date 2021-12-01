@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciMistoBezRegistrace
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
 
 
 @bp.route('/')

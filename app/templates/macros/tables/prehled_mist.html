@@ -105,8 +105,8 @@
                     <td class="text-right" data-value="{{ item.registrace_pred_zavorou }}">
                         {{ item.registrace_pred_zavorou | format_number }}
                     </td>
-                    <td class="text-center" data-value="{{ item.registrace_prumer_cekani }}">
-                        {{ stitek(item.registrace_prumer_cekani, decimal=True, unit='týdne', unit_short='t', divide=7,
+                    <td class="text-center" data-value="{{ item.registrace_median_cekani }}">
+                        {{ stitek(item.registrace_median_cekani, decimal=True, unit='týdne', unit_short='t', divide=7,
                         rev_color=True, limits=(1, 2)) }}
                     </td>
                 </tr>
