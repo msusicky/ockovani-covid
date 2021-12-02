@@ -1,6 +1,13 @@
 {% macro graf_hospitalizace(data) -%}
 <div id="plotly-hospitalizace"></div>
 
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <p class="card-text text-justify">
+        Kliknutím na popisek v legendě si můžete zobrazit nebo skrýt další údaje.
+    </p>
+</div>
+
 <script>
     function grafHospitalizace() {
         let data = [];
