@@ -8,7 +8,6 @@ concurrency: production_env
 jobs:
   deploy:
     name: Post tweet with statistics
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: production
     runs-on: ubuntu-18.04
     env:
