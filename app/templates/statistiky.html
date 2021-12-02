@@ -8,6 +8,7 @@
 {% from 'macros/graphs/hospitalizace_orp.html' import graf_hospitalizace_orp %}
 {% from 'macros/graphs/testy_orp.html' import graf_testy_orp %}
 {% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
+{% from 'macros/graphs/hospitalizace.html' import graf_hospitalizace %}
 
 {% block title %}
 Souhrnné statistiky |
@@ -212,6 +213,20 @@ Souhrnné statistiky |
                     <a href="#graf-umrti" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ graf_umrti(deaths_graph_data) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="graf-hospitalizace">
+                    Vývoj počtu hospitalizací
+                    <a href="#graf-hospitalizace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ graf_hospitalizace(hospitalized_graph_data) }}
             </div>
         </div>
     </div>

@@ -1154,3 +1154,24 @@ class KapacityNemocnic20(db.Model):
 
     def __repr__(self):
         return f"<KapacityNemocnic20(id='{self.datum}: {self.kraj_nuts_kod}')>"
+
+
+class Hospitalizace(db.Model):
+    __tablename__ = 'hospitalizace'
+
+    datum = Column(Date, primary_key=True)
+    pacient_prvni_zaznam = Column(Integer)
+    kum_pacient_prvni_zaznam = Column(Integer)
+    pocet_hosp = Column(Integer)
+    stav_bez_priznaku = Column(Integer)
+    stav_lehky = Column(Integer)
+    stav_stredni = Column(Integer)
+    stav_tezky = Column(Integer)
+    jip = Column(Integer)
+    kyslik = Column(Integer)
+    hfno = Column(Integer)
+    upv = Column(Integer)
+    ecmo = Column(Integer)
+    tezky_upv_ecmo = Column(Integer)
+    umrti = Column(Integer)
+    kum_umrti = Column(Integer)

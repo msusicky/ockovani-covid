@@ -12,6 +12,7 @@ from app.fetcher.fetcher import Fetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
 from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.hospital_capacities_fetcher import HospitalCapacitiesFetcher
+from app.fetcher.hospitalized_fetcher import HospitalizedFetcher
 from app.fetcher.hospitalized_icu_vaccinated_age_fetcher import HospitalizedIcuVaccinatedAgeFetcher
 from app.fetcher.hospitalized_icu_vaccinated_fetcher import HospitalizedIcuVaccinatedFetcher
 from app.fetcher.hospitalized_vaccinated_age_fetcher import HospitalizedVaccinatedAgeFetcher
@@ -109,6 +110,7 @@ class FetcherLauncher:
             self._fetchers.append(InfectedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+            self._fetchers.append(HospitalizedFetcher())
 
         elif dataset == 'all_hourly':
             self._fetchers.append(CentersApiFetcher())
@@ -164,6 +166,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
         elif dataset == 'hospitalized_icu_vaccinated_age':
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
+        elif dataset == 'hospitalized':
+            self._fetchers.append(HospitalizedFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 

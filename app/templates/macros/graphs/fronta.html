@@ -170,17 +170,17 @@
         Plotly.relayout('plotly-fronta', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
     }
 
-    grafFronta()
+    grafFronta();
 
     $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
         let target = $(e.target).attr("href")
         if(target==="#graf-fronta") {
-            grafFronta()
+            grafFronta();
         }
     });
 
     $('#plotly-fronta').on("plotly_relayout", function (e) {
-        grafFrontaRescale(e)
+        grafFrontaRescale(e);
     });
 
 </script>

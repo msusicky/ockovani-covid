@@ -1,0 +1,192 @@
+{% macro graf_hospitalizace(data) -%}
+<div id="plotly-hospitalizace"></div>
+
+<script>
+    function grafHospitalizace() {
+        let data = [];
+
+        const stav_bez_priznaku = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['stav_bez_priznaku'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Bez příznaků",
+        }
+        data.push(stav_bez_priznaku);
+
+        const stav_lehky = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['stav_lehky'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Lehký stav",
+        }
+        data.push(stav_lehky);
+
+        const stav_stredni = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['stav_stredni'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Středně těžký stav",
+        }
+        data.push(stav_stredni);
+
+        const stav_tezky = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['stav_tezky'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Těžký stav",
+        }
+        data.push(stav_tezky);
+
+        const jip = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['jip'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "JIP",
+            visible: "legendonly",
+        }
+        data.push(jip);
+
+        const kyslik = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['kyslik'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "O2",
+            visible: "legendonly",
+        }
+        data.push(kyslik);
+
+        const hfno = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['hfno'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "HFNO",
+            visible: "legendonly",
+        }
+        data.push(hfno);
+
+        const upv = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['upv'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "UPV",
+            visible: "legendonly",
+        }
+        data.push(upv);
+
+        const ecmo = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ecmo'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "ECMO",
+            visible: "legendonly",
+        }
+        data.push(ecmo);
+
+        const layout = {
+            title: "Počet hospitalizovaných podle stavu a přístrojů",
+            autosize: true,
+            xaxis: {
+                title: "Datum [den]",
+                type: "day",
+                tickformat: "%-d.%-m.%Y",
+                range: [new Date(new Date().setMonth(new Date().getMonth()-3)), new Date()],
+                rangeslider: true,
+                rangeselector: {
+                    buttons: [
+                        {
+                            count: 3,
+                            label: "3 měsíce",
+                            step: "month",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 6,
+                            label: "6 měsíců",
+                            step: "month",
+                            stepmode: "backward"
+                        },
+                        {
+                            count: 1,
+                            label: "1 rok",
+                            step: "year",
+                            stepmode: "backward"
+                        },
+                        {
+                            label: "všechna data",
+                            step: "all"
+                        }
+                    ],
+                    xanchor: "center",
+                    x: 0.5,
+                }
+            },
+            yaxis: {
+                title: "Počet hospitalizovaných",
+                automargin: true,
+                tickformat: ".f",
+            },
+            hovermode: "x unified",
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                xanchor: "center",
+                x: 0.5,
+                y: -0.42,
+            },
+            height: 600,
+        }
+
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+        }
+
+        Plotly.newPlot("plotly-hospitalizace", data, layout, config);
+
+        // force relayout to rescale y
+        range = {'xaxis.range[0]': layout.xaxis.range[0].toISOString(), 'xaxis.range[1]': layout.xaxis.range[1].toISOString()}
+        Plotly.relayout('plotly-hospitalizace', range);
+    }
+
+    function grafHospitalizaceRescale(e) {
+        if (e.target.layout.stopRescale === true) {
+            e.target.layout.stopRescale = false;
+            return;
+        }
+
+        var rangeX = e.target.layout.xaxis.range
+        var data = e.target.data
+        var maxY = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            var dataX = data[i].x
+            for (var j = 0; j < dataX.length; j++) {
+                if (dataX[j] >= rangeX[0] && dataX[j] <= rangeX[1]) {
+                    var dataY = data[i].y
+                    if (dataY[j] > maxY) {
+                        maxY = dataY[j];
+                    }
+                }
+            }
+        }
+
+        Plotly.relayout('plotly-hospitalizace', {'yaxis.range[0]': 0, 'yaxis.range[1]': maxY * 1.05, 'stopRescale': true});
+    }
+
+    grafHospitalizace();
+
+    $('#plotly-hospitalizace').on("plotly_relayout", function (e) {
+        grafHospitalizaceRescale(e);
+    });
+
+</script>
+{%- endmacro %}
