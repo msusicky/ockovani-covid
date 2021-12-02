@@ -1176,42 +1176,6 @@ def get_infected_graph_data():
     return df
 
 
-def get_infected_orp_graph_data():
-    df = pd.read_sql_query(
-        f"""
-        select ruian_kod, ((100000.0 * aktivni_pripady) / pocet) nakazeni, aktivni_pripady, nazev_obce
-        from charakteristika_obci n
-        join obce_orp o on o.uzis_orp = n.orp_kod
-        join populace_orp p on p.orp_kod = o.kod_obce_orp
-        where datum = '{get_import_date()}'
-        """,
-        db.engine
-    )
-
-    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-
-    return df
-
-
-def get_vaccinated_orp_graph_data():
-    df = pd.read_sql_query(
-        f"""
-        select ruian_kod, (100.0 * sum(l.pocet)) / min(p.pocet) ockovani, nazev_obce 
-        from ockovani_lide l
-        join obce_orp o on o.uzis_orp = l.orp_bydl_kod
-        join populace_orp p on p.orp_kod = o.kod_obce_orp
-        join vakciny v on v.vakcina = l.vakcina
-        where poradi_davky = davky
-        group by ruian_kod, nazev_obce
-        """,
-        db.engine
-    )
-
-    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
-
-    return df
-
-
 def get_deaths_graph_data():
     umrti = pd.read_sql_query(
         """
@@ -1258,6 +1222,50 @@ def get_deaths_graph_data():
     df = pd.merge(df_sum[['pocet_umrti_norm']], df[['pocet_umrti']], left_index=True, right_index=True)
 
     df = df[df.index.get_level_values(1) >= df.index.get_level_values(1).min() + timedelta(7)]
+
+    return df
+
+
+def get_hospitalized_graph_data():
+    hospitalizace = pd.read_sql_query("select * from hospitalizace", db.engine)
+
+    hospitalizace = hospitalizace.set_index('datum')
+
+    return hospitalizace
+
+
+def get_infected_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, ((100000.0 * aktivni_pripady) / pocet) nakazeni, aktivni_pripady, nazev_obce
+        from charakteristika_obci n
+        join obce_orp o on o.uzis_orp = n.orp_kod
+        join populace_orp p on p.orp_kod = o.kod_obce_orp
+        where datum = '{get_import_date()}'
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
+
+    return df
+
+
+def get_vaccinated_orp_graph_data():
+    df = pd.read_sql_query(
+        f"""
+        select ruian_kod, (100.0 * sum(l.pocet)) / min(p.pocet) ockovani, nazev_obce 
+        from ockovani_lide l
+        join obce_orp o on o.uzis_orp = l.orp_bydl_kod
+        join populace_orp p on p.orp_kod = o.kod_obce_orp
+        join vakciny v on v.vakcina = l.vakcina
+        where poradi_davky = davky
+        group by ruian_kod, nazev_obce
+        """,
+        db.engine
+    )
+
+    df['ruian_kod'] = df['ruian_kod'].round(0).astype('str')
 
     return df
 
