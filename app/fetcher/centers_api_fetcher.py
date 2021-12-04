@@ -48,7 +48,7 @@ class CentersApiFetcher(Fetcher):
 
             vekove_skupiny = []
             if row['children']:
-                vekove_skupiny.append('deti')
+                vekove_skupiny.append('děti')
             if row['vaccionation_group_16']:
                 vekove_skupiny.append('16-17')
             if row['vaccionation_group_18']:

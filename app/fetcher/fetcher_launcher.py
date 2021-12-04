@@ -28,6 +28,7 @@ from app.fetcher.registrations_fetcher import RegistrationsFetcher
 from app.fetcher.reservations_api_fetcher import ReservationsApiFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.supplies_fetcher import SuppliesFetcher
+from app.fetcher.tests_fetcher import TestsFetcher
 from app.fetcher.used_fetcher import UsedFetcher
 from app.fetcher.vaccinated_fetcher import VaccinatedFetcher
 from app.models import Import
@@ -111,6 +112,7 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedFetcher())
+            self._fetchers.append(TestsFetcher())
 
         elif dataset == 'all_hourly':
             self._fetchers.append(CentersApiFetcher())
@@ -168,6 +170,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
         elif dataset == 'hospitalized':
             self._fetchers.append(HospitalizedFetcher())
+        elif dataset == 'tests':
+            self._fetchers.append(TestsFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
