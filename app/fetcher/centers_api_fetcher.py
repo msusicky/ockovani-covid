@@ -44,27 +44,23 @@ class CentersApiFetcher(Fetcher):
         for idx, row in df.iterrows():
             id = row['id']
 
-            vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
+            vakciny = []
+            for v in row['vaccine_type']:
+                vyrobce_str = v['name']
+                vyrobce_arr = vyrobce_str.split('/')
+                vyrobce = vyrobce_arr[1] if len(vyrobce_arr) == 2 else vyrobce_str
+                vyrobce = 'Janssen' if (vyrobce == 'Johnson&Johnson') else vyrobce
+                vakciny.append(vyrobce)
 
             vekove_skupiny = []
             if row['children']:
-                vekove_skupiny.append('děti')
+                vekove_skupiny.append('5-15')
             if row['vaccionation_group_16']:
                 vekove_skupiny.append('16-17')
-            if row['vaccionation_group_18']:
-                vekove_skupiny.append('18-29')
-            if row['vaccionation_group_30']:
-                vekove_skupiny.append('30-39')
-            if row['vaccionation_group_40']:
-                vekove_skupiny.append('40-49')
-            if row['vaccionation_group_50']:
-                vekove_skupiny.append('50-59')
-            if row['vaccionation_group_60']:
-                vekove_skupiny.append('60-69')
-            if row['vaccionation_group_70']:
-                vekove_skupiny.append('70-79')
-            if row['vaccionation_group_80']:
-                vekove_skupiny.append('80+')
+            if row['vaccionation_group_18'] or row['vaccionation_group_30'] or row['vaccionation_group_40'] \
+                    or row['vaccionation_group_50'] or row['vaccionation_group_60'] or row['vaccionation_group_70'] \
+                    or row['vaccionation_group_80']:
+                vekove_skupiny.append('18+')
 
             db.session.merge(OckovaciMisto(
                 id=id,

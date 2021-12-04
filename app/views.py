@@ -21,8 +21,10 @@ def info_mista():
 
     third_doses_centers = queries.find_third_doses_centers()
 
+    vaccines_options = queries.find_centers_vaccine_options()
+
     return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now(),
-                           third_doses_centers=third_doses_centers)
+                           third_doses_centers=third_doses_centers, vaccines_options=vaccines_options)
 
 
 @bp.route("/okres/<okres_name>")
@@ -35,6 +37,8 @@ def info_okres(okres_name):
 
     third_doses_centers = queries.find_third_doses_centers()
 
+    vaccines_options = queries.find_centers_vaccine_options()
+
     metriky = db.session.query(OkresMetriky) \
         .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == get_import_date()) \
         .one_or_none()
@@ -42,7 +46,8 @@ def info_okres(okres_name):
     registrations = queries.count_registrations('okres_id', okres.id)
 
     return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, metriky=metriky,
-                           mista=mista, third_doses_centers=third_doses_centers, registrations=registrations)
+                           mista=mista, third_doses_centers=third_doses_centers, vaccines_options=vaccines_options,
+                           registrations=registrations)
 
 
 @bp.route("/kraj/<kraj_name>")
@@ -54,6 +59,8 @@ def info_kraj(kraj_name):
     mista = queries.find_centers(Kraj.id, kraj.id)
 
     third_doses_centers = queries.find_third_doses_centers()
+
+    vaccines_options = queries.find_centers_vaccine_options()
 
     metriky = db.session.query(KrajMetriky) \
         .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == get_import_date()) \
@@ -70,9 +77,9 @@ def info_kraj(kraj_name):
     queue_graph_data = queries.get_queue_graph_data(kraj_id=kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, third_doses_centers=third_doses_centers, vaccines=vaccines,
-                           registrations=registrations, vaccinated=vaccinated, vaccination_doctors=vaccination_doctors,
-                           queue_graph_data=queue_graph_data)
+                           mista=mista, third_doses_centers=third_doses_centers, vaccines_options=vaccines_options,
+                           vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
+                           vaccination_doctors=vaccination_doctors, queue_graph_data=queue_graph_data)
 
 
 @bp.route("/misto/<misto_id>")
@@ -115,8 +122,10 @@ def mapa():
 
     third_doses_centers = queries.find_third_doses_centers()
 
+    vaccines_options = queries.find_centers_vaccine_options()
+
     return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
-                           third_doses_centers=third_doses_centers)
+                           third_doses_centers=third_doses_centers, vaccines_options=vaccines_options)
 
 
 @bp.route("/praktici")

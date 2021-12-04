@@ -91,6 +91,7 @@ Mapa |
 
         marker.filter_data = {
             children: {{ misto.deti | lower }},
+            adults: {{ misto.dospeli | lower }}
             selfpaid: {{ (misto.typ == 'SMPL') | lower }},
             walkin: {{ (misto.typ == 'WALKIN') | lower }},
             thirddoses: {{ (misto.id in third_doses_centers or 3 in misto.davky) | lower }},
