@@ -11,8 +11,6 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-from app.models import OckovaciMistoBezRegistrace
-
 revision = 'ebc18e6bef86'
 down_revision = 'dd9f6e3ad7c1'
 branch_labels = None

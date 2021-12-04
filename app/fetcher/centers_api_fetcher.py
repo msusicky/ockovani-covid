@@ -8,7 +8,7 @@ from pandas import DataFrame
 
 from app import db
 from app.fetcher.fetcher import Fetcher
-from app.models import OckovaciMisto, OckovaciMistoDetail
+from app.models import OckovaciMisto
 
 
 class CentersApiFetcher(Fetcher):
@@ -20,7 +20,7 @@ class CentersApiFetcher(Fetcher):
     CENTERS_LIST = 'vaccination-center/'
 
     def __init__(self):
-        super().__init__(OckovaciMistoDetail.__tablename__, self.API_URL + self.CENTERS_LIST)
+        super().__init__(OckovaciMisto.__tablename__, self.API_URL + self.CENTERS_LIST)
 
     def get_modified_time(self) -> Optional[datetime]:
         return datetime.today()
@@ -44,6 +44,28 @@ class CentersApiFetcher(Fetcher):
         for idx, row in df.iterrows():
             id = row['id']
 
+            vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
+
+            vekove_skupiny = []
+            if row['children']:
+                vekove_skupiny.append('deti')
+            if row['vaccionation_group_16']:
+                vekove_skupiny.append('16-17')
+            if row['vaccionation_group_18']:
+                vekove_skupiny.append('18-29')
+            if row['vaccionation_group_30']:
+                vekove_skupiny.append('30-39')
+            if row['vaccionation_group_40']:
+                vekove_skupiny.append('40-49')
+            if row['vaccionation_group_50']:
+                vekove_skupiny.append('50-59')
+            if row['vaccionation_group_60']:
+                vekove_skupiny.append('60-69')
+            if row['vaccionation_group_70']:
+                vekove_skupiny.append('70-79')
+            if row['vaccionation_group_80']:
+                vekove_skupiny.append('80+')
+
             db.session.merge(OckovaciMisto(
                 id=id,
                 nazev=row['name'],
@@ -54,15 +76,9 @@ class CentersApiFetcher(Fetcher):
                 longitude=row['longitude'],
                 nrpzs_kod=row['code'],
                 minimalni_kapacita=row['min_vaccination_capacity'],
-                bezbarierovy_pristup=row['wheelchair_access']
-            ))
-
-            vakciny = [vaccine['name'] for vaccine in row['vaccine_type']]
-
-            db.session.merge(OckovaciMistoDetail(
-                ockovaci_misto_id=id,
+                bezbarierovy_pristup=row['wheelchair_access'],
                 typ=row['center_type_name'],
-                deti=row['children'],
+                vekove_skupiny=vekove_skupiny,
                 drive_in=row['drive_in'],
                 upresneni_polohy=row['location_additional_info'],
                 platba_karta=row['card_payment'],
