@@ -1238,6 +1238,23 @@ def get_hospitalized_graph_data():
     return hospitalizace
 
 
+def get_tests_graph_data():
+    df = pd.read_sql_query("select * from testy", db.engine)
+
+    df = df.set_index('datum')
+    df_sum = df.rolling(7).sum()
+
+    df_sum['pozitivita_diagnosticka'] = (df_sum['pozit_typologie_test_indik_diagnosticka'] / df_sum['typologie_test_indik_diagnosticka']) * 100
+    df_sum['pozitivita_epidemiologicka'] = (df_sum['pozit_typologie_test_indik_epidemiologicka'] / df_sum['typologie_test_indik_epidemiologicka']) * 100
+    df_sum['pozitivita_preventivni'] = (df_sum['pozit_typologie_test_indik_preventivni'] / df_sum['typologie_test_indik_preventivni']) * 100
+
+    df = pd.merge(df_sum[['pozitivita_diagnosticka', 'pozitivita_epidemiologicka', 'pozitivita_preventivni']], df, left_index=True, right_index=True)
+
+    df = df[df.index >= df.index.min() + timedelta(7)]
+
+    return df
+
+
 def get_infected_orp_graph_data():
     df = pd.read_sql_query(
         f"""
