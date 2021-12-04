@@ -7,26 +7,46 @@ Mapa |
 {% block body %}
     <div class="row">
         <div class="col">
-            <h3>Očkovací místa</h3>
+            <h3>Očkovací místa na mapě</h3>
         </div>
     </div>
-    <div class="row">
-        <div class="col text-center mb-3">
-            <div class="custom-control custom-switch mr-3" style="display: inline-block">
-                <input id="centers-children" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-children">děti</label>
+    <div class="row mb-1">
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mr-auto">
+            <select id="centers-vaccines" class="custom-select">
+                <option value="">Všechny vakcíny</option>
+                {% for option in vaccines_options %}
+                <option value="{{ option[0] }}">{{ option[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
+            <div class="custom-control custom-switch mr-2" style="display: inline-block">
+                <input id="centers-5" type="checkbox" class="custom-control-input">
+                <label class="custom-control-label" for="centers-5">5-15</label>
             </div>
-            <div class="custom-control custom-switch mr-3" style="display: inline-block">
-                <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
+            <div class="custom-control custom-switch mr-2" style="display: inline-block">
+                <input id="centers-16" type="checkbox" class="custom-control-input">
+                <label class="custom-control-label" for="centers-16">16-17</label>
             </div>
-            <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <div class="custom-control custom-switch" style="display: inline-block">
+                <input id="centers-18" type="checkbox" class="custom-control-input" checked>
+                <label class="custom-control-label" for="centers-18">18+</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
+            <div class="custom-control custom-switch mr-2" style="display: inline-block">
                 <input id="centers-walkin" type="checkbox" class="custom-control-input" >
                 <label class="custom-control-label" for="centers-walkin">bez registrace</label>
             </div>
-            <div class="custom-control custom-switch mr-3" style="display: inline-block">
+            <div class="custom-control custom-switch" style="display: inline-block">
+                <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
+                <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-12 col-xl-auto text-center mb-1">
+            <div class="custom-control custom-switch mr-2" style="display: inline-block">
                 <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-thirddoses">třetí dávky</label>
+                <label class="custom-control-label" for="centers-thirddoses">3. dávky</label>
             </div>
             <div class="custom-control custom-switch" style="display: inline-block">
                 <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
@@ -90,8 +110,8 @@ Mapa |
         marker.decorate(SMap.Marker.Feature.Card, card);
 
         marker.filter_data = {
-            children: {{ misto.deti | lower }},
-            adults: {{ misto.dospeli | lower }}
+            vaccines: '{{ misto.vakciny | tojson | safe }}',
+            age: '{{ misto.vekove_skupiny | tojson | safe }}',
             selfpaid: {{ (misto.typ == 'SMPL') | lower }},
             walkin: {{ (misto.typ == 'WALKIN') | lower }},
             thirddoses: {{ (misto.id in third_doses_centers or 3 in misto.davky) | lower }},
@@ -111,7 +131,10 @@ Mapa |
     m.setCenterZoom(cz[0], cz[1]);
 
     function filterMarkers() {
-        const childrenValue = $("#centers-children")[0].checked;
+        const vaccinesValue = $("#centers-vaccines").val()
+        const age5Value = $("#centers-5")[0].checked;
+        const age16Value = $("#centers-16")[0].checked;
+        const age18Value = $("#centers-18")[0].checked;
         const walkinValue = $("#centers-walkin")[0].checked;
         const selfpaidValue = $("#centers-selfpaid")[0].checked;
         const thirddosesValue = $("#centers-thirddoses")[0].checked;
@@ -122,7 +145,14 @@ Mapa |
         for (var i=0;i<markers.length;i++) {
             marker = markers[i];
 
-            if (((childrenValue && marker.filter_data.children) || (!childrenValue && (!marker.filter_data.children || marker.filter_data.selfpaid || marker.filter_data.walkin)))
+            const vaccines = JSON.parse(marker.filter_data.vaccines);
+            const age = JSON.parse(marker.filter_data.age);
+            const age5 = age.includes('5-15');
+            const age16 = age.includes('16-17');
+            const age18 = age.includes('18+') || !age.length;
+
+            if ((!vaccinesValue || vaccines.includes(vaccinesValue))
+                && ((age5Value && age5) || (age16Value && age16) || (age18Value && age18))
                 && ((walkinValue && marker.filter_data.walkin) || (!walkinValue && !marker.filter_data.walkin))
                 && ((selfpaidValue && marker.filter_data.selfpaid) || (!selfpaidValue && !marker.filter_data.selfpaid))
                 && (!thirddosesValue || marker.filter_data.thirddoses)
@@ -133,10 +163,16 @@ Mapa |
     }
 
     $(document).ready(function () {
-        $("#centers-searchbox").keyup(function () {
+        $("#centers-vaccines").change(function () {
             filterMarkers();
         });
-        $("#centers-children").change(function () {
+        $("#centers-5").change(function () {
+            filterMarkers();
+        });
+        $("#centers-16").change(function () {
+            filterMarkers();
+        });
+        $("#centers-18").change(function () {
             filterMarkers();
         });
         $("#centers-walkin").change(function () {
