@@ -7,8 +7,6 @@ Create Date: 2021-07-19 21:59:21.675860
 """
 from alembic import op
 import sqlalchemy as sa
-import csv
-from app.models import OckovaciMistoBezRegistrace
 
 # revision identifiers, used by Alembic.
 revision = 'f06bc0ec884b'

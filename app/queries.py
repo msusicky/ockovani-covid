@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_, text, column
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaciMistoDetail, OckovaniRezervace
+    PrakticiKapacity, OckovaniRezervace, Vakcina
 
 
 def unique_nrpzs_subquery():
@@ -38,24 +38,24 @@ def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
                                Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
                                OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
-                               OckovaciMistoDetail.deti, OckovaciMistoDetail.typ, OckovaciMistoDetail.davky,
+                               OckovaciMisto.vekove_skupiny, OckovaciMisto.typ, OckovaciMisto.davky,
+                               OckovaciMisto.vakciny,
                                OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
                                OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
                                OckovaciMistoMetriky.registrace_pred_zavorou) \
         .join(OckovaciMistoMetriky) \
-        .join(OckovaciMistoDetail) \
         .outerjoin(Okres, OckovaciMisto.okres_id == Okres.id) \
         .outerjoin(Kraj, Okres.kraj_id == Kraj.id) \
         .filter(filter_column == filter_value) \
         .filter(OckovaciMistoMetriky.datum == get_import_date()) \
         .filter(or_(OckovaciMisto.status == True, OckovaciMistoMetriky.registrace_fronta > 0,
-                    OckovaciMistoMetriky.rezervace_cekajici > 0, OckovaciMistoDetail.typ == 'WALKIN')) \
-        .filter(OckovaciMistoDetail.typ != 'AČR') \
+                    OckovaciMistoMetriky.rezervace_cekajici > 0, OckovaciMisto.typ == 'WALKIN')) \
+        .filter(OckovaciMisto.typ != 'AČR') \
         .group_by(OckovaciMisto.id, OckovaciMisto.nazev, Okres.id, Kraj.id, OckovaciMisto.longitude,
                   OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
-                  OckovaciMisto.bezbarierovy_pristup, OckovaciMistoDetail.deti, OckovaciMistoDetail.typ,
-                  OckovaciMistoDetail.davky, OckovaciMistoMetriky.registrace_fronta,
+                  OckovaciMisto.bezbarierovy_pristup, OckovaciMisto.vekove_skupiny, OckovaciMisto.typ,
+                  OckovaciMisto.davky, OckovaciMisto.vakciny, OckovaciMistoMetriky.registrace_fronta,
                   OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
                   OckovaciMistoMetriky.registrace_fronta_prumer_cekani, OckovaciMistoMetriky.registrace_pred_zavorou) \
         .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
@@ -98,6 +98,10 @@ def find_free_vaccines_kraj_options():
         .distinct(PrakticiKapacity.kraj) \
         .order_by(PrakticiKapacity.kraj) \
         .all()
+
+
+def find_centers_vaccine_options():
+    return db.session.query(func.unnest(OckovaciMisto.vakciny).label('vyrobce')).order_by('vyrobce').distinct().all()
 
 
 def count_vaccines_center(center_id):
