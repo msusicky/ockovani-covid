@@ -18,7 +18,7 @@
     </div>
 </div>
 
-{% if not misto.status and misto.ockovaci_misto_detail.typ != 'WALKIN' %}
+{% if not misto.status and misto.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="alert alert-warning" role="alert">
@@ -39,9 +39,9 @@
                     <dt>Adresa</dt>
                     <dd>{{misto.adresa}}</dd>
 
-                    {% if misto.ockovaci_misto_detail.upresneni_polohy %}
+                    {% if misto.upresneni_polohy %}
                         <dt>Upřesnění polohy</dt>
-                        <dd>{{ misto.ockovaci_misto_detail.upresneni_polohy }}</dd>
+                        <dd>{{ misto.upresneni_polohy }}</dd>
                     {% endif %}
 
                     <dt>Bezbariérový přístup</dt>
@@ -49,34 +49,34 @@
 
                     <dt>Vakcíny</dt>
                     <dd>
-                        {% for v in misto.ockovaci_misto_detail.vakciny %}
+                        {% for v in misto.vakciny %}
                         {{ v.split('/')[-1] }}{% if not loop.last %}, {% endif %}
                         {% endfor %}
                     </dd>
 
-                    {% if misto.ockovaci_misto_detail.typ == 'WALKIN' %}
-                    {% if misto.ockovaci_misto_detail.telefon %}
+                    {% if misto.typ == 'WALKIN' %}
+                    {% if misto.telefon %}
                     <dt>Telefon</dt>
                     <dd>
-                        <a href="tel:{{ misto.ockovaci_misto_detail.telefon }}">
-                            {{ misto.ockovaci_misto_detail.telefon }}
+                        <a href="tel:{{ misto.telefon }}">
+                            {{ misto.telefon }}
                         </a>
                     </dd>
                     {% endif %}
 
-                    {% if misto.ockovaci_misto_detail.email %}
+                    {% if misto.email %}
                     <dt>E-mail</dt>
                     <dd>
-                        <a href="mailto:{{ misto.ockovaci_misto_detail.email }}">
-                            {{ misto.ockovaci_misto_detail.email }}
+                        <a href="mailto:{{ misto.email }}">
+                            {{ misto.email }}
                         </a>
                     </dd>
                     {% endif %}
 
-                    {% if misto.ockovaci_misto_detail.verejna_poznamka %}
+                    {% if misto.verejna_poznamka %}
                     <dt>Poznámka</dt>
                     <dd class="text-justify">
-                        {{ misto.ockovaci_misto_detail.verejna_poznamka | urlize(target='_blank') | nl2br |safe }}
+                        {{ misto.verejna_poznamka | urlize(target='_blank') | nl2br |safe }}
                     </dd>
                     {% endif %}
                     {% endif %}
@@ -121,7 +121,7 @@
                 <div id="center-map" class="mb-3" style="height:330px;"></div>
                 {% endif %}
 
-                {% if misto.ockovaci_misto_detail.typ == 'WALKIN' and opening_hours %}
+                {% if misto.typ == 'WALKIN' and opening_hours %}
                 <h5 class="card-title">Provozní doba</h5>
                 <table class="table table-bordered table-sm mb-3">
                     {% for day in opening_hours %}
@@ -142,7 +142,7 @@
     </div>
 </div>
 
-{% if misto.ockovaci_misto_detail.typ != 'WALKIN' %}
+{% if misto.typ != 'WALKIN' %}
 <div class="row">
     <div class="col">
         <div class="card">

@@ -1,8 +1,8 @@
 {% from 'macros/common.html' import stitek %}
 
-{% macro prehled_mist(centers, third_doses_centers) -%}
+{% macro prehled_mist(centers, third_doses_centers, vaccines_options) -%}
 <div class="row">
-    <div class="col mb-2">
+    <div class="col-12 col-md-8 col-md-auto mb-2">
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
@@ -10,26 +10,48 @@
             <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-12 col-lg-auto text-center mb-3">
-        <div class="custom-control custom-switch mr-3" style="display: inline-block">
-            <input id="centers-children" type="checkbox" class="custom-control-input" >
-            <label class="custom-control-label" for="centers-children">děti</label>
+    <div class="col-12 col-md-4 mb-2">
+        <select id="centers-vaccines" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in vaccines_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div class="row mb-2">
+    <div class="col-12 col-md-6 col-lg-auto text-center mb-1 mr-auto">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-5" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-5">5-15</label>
         </div>
-        <div class="custom-control custom-switch mr-3" style="display: inline-block">
-            <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
-            <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-16" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-16">16-17</label>
         </div>
-        <div class="custom-control custom-switch mr-3" style="display: inline-block">
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-18" type="checkbox" class="custom-control-input" checked>
+            <label class="custom-control-label" for="centers-18">18+</label>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-auto text-center mb-1 mr-auto">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="centers-walkin" type="checkbox" class="custom-control-input" >
             <label class="custom-control-label" for="centers-walkin">bez registrace</label>
         </div>
-        <div class="custom-control custom-switch mr-3" style="display: inline-block">
-            <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
-            <label class="custom-control-label" for="centers-thirddoses">třetí dávky</label>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
         </div>
-        <div class="custom-control custom-switch mr-3" style="display: inline-block">
+    </div>
+    <div class="col-12 col-lg-auto text-center mb-1">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="centers-active" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="centers-active">aktivní</label>
+        </div>
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-thirddoses">3. dávky</label>
         </div>
         <div class="custom-control custom-switch" style="display: inline-block">
             <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
@@ -72,7 +94,8 @@
                 <tbody>
                 {% for item in centers %}
                 <tr class="{{ 'table-warning' if not item.status and item.typ != 'WALKIN' }}"
-                    data-children="{{ item.deti }}"
+                    data-vaccines='{{ item.vakciny | tojson | safe }}'
+                    data-age='{{ item.vekove_skupiny | tojson | safe }}'
                     data-walkin="{{ item.typ == 'WALKIN' }}"
                     data-selfpaid="{{ item.typ == 'SMPL' }}"
                     data-thirddoses="{{ item.id in third_doses_centers or 3 in item.davky }}"
@@ -130,7 +153,10 @@
     const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     function filterChanged() {
         const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
-        const childrenValue = $("#centers-children")[0].checked;
+        const vaccinesValue = $("#centers-vaccines").val()
+        const age5Value = $("#centers-5")[0].checked;
+        const age16Value = $("#centers-16")[0].checked;
+        const age18Value = $("#centers-18")[0].checked;
         const walkinValue = $("#centers-walkin")[0].checked;
         const selfpaidValue = $("#centers-selfpaid")[0].checked;
         const thirddosesValue = $("#centers-thirddoses")[0].checked;
@@ -139,7 +165,11 @@
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
-            const children = $(this)[0].dataset.children;
+            const vaccines = JSON.parse($(this)[0].dataset.vaccines);
+            const age = JSON.parse($(this)[0].dataset.age);
+            const age5 = age.includes('5-15');
+            const age16 = age.includes('16-17');
+            const age18 = age.includes('18+') || !age.length;
             const walkin = $(this)[0].dataset.walkin;
             const selfpaid = $(this)[0].dataset.selfpaid;
             const thirddoses = $(this)[0].dataset.thirddoses;
@@ -148,7 +178,8 @@
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && ((childrenValue && children === 'True') || (!childrenValue && (children === 'False' || selfpaid === 'True' || walkin === 'True')))
+                && (!vaccinesValue || vaccines.includes(vaccinesValue))
+                && ((age5Value && age5) || (age16Value && age16) || (age18Value && age18))
                 && ((walkinValue && walkin === 'True') || (!walkinValue && walkin === 'False'))
                 && ((selfpaidValue && selfpaid === 'True') || (!selfpaidValue && selfpaid === 'False'))
                 && (!thirddosesValue || thirddoses === 'True')
@@ -166,7 +197,16 @@
         $("#centers-searchbox").keyup(function () {
             filterChanged();
         });
-        $("#centers-children").change(function () {
+        $("#centers-vaccines").change(function () {
+            filterChanged();
+        });
+        $("#centers-5").change(function () {
+            filterChanged();
+        });
+        $("#centers-16").change(function () {
+            filterChanged();
+        });
+        $("#centers-18").change(function () {
             filterChanged();
         });
         $("#centers-walkin").change(function () {

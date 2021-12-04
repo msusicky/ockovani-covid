@@ -151,24 +151,8 @@ class OckovaciMisto(db.Model):
     nrpzs_kod = Column(Unicode, index=True)
     minimalni_kapacita = Column(Integer)
     bezbarierovy_pristup = Column(Boolean)
-
-    okres = relationship("Okres", back_populates="ockovaci_mista")
-    ockovaci_misto_detail = relationship("OckovaciMistoDetail", uselist=False, lazy='joined')
-    provozni_doba = relationship("ProvozniDoba")
-
-    def __repr__(self):
-        return f"<OckovaciMisto(nazev='{self.nazev}')>"
-
-
-Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
-
-
-class OckovaciMistoDetail(db.Model):
-    __tablename__ = 'ockovaci_mista_detail'
-
-    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
     typ = Column(Unicode)
-    deti = Column(Boolean)
+    vekove_skupiny = Column(ARRAY(Unicode))
     drive_in = Column(Boolean)
     upresneni_polohy = Column(Unicode)
     platba_karta = Column(Boolean)
@@ -187,6 +171,15 @@ class OckovaciMistoDetail(db.Model):
     presun_2davky_online = Column(Boolean)
     presun_2davky_poznamka = Column(Unicode)
     davky = Column(ARRAY(Integer))
+
+    okres = relationship("Okres", back_populates="ockovaci_mista")
+    provozni_doba = relationship("ProvozniDoba")
+
+    def __repr__(self):
+        return f"<OckovaciMisto(nazev='{self.nazev}')>"
+
+
+Okres.ockovaci_mista = relationship("OckovaciMisto", back_populates="okres")
 
 
 class ProvozniDoba(db.Model):
@@ -377,7 +370,6 @@ class ZdravotnickeStredisko(db.Model):
     telefon = Column(Unicode)
 
     def __repr__(self):
-        return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
         return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
 
 
@@ -1021,40 +1013,6 @@ class PrakticiKapacity(db.Model):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
 
 
-class OckovaciMistoBezRegistrace(db.Model):
-    __tablename__ = 'ockovaci_mista_bez_registrace'
-
-    id = Column(Unicode, primary_key=True)
-    status = Column(Boolean)
-    nazev = Column(Unicode)
-    kraj = Column(Unicode, nullable=False)
-    kraj_kod = Column(Unicode, nullable=False)
-    nrpzs_kod = Column(Unicode)
-    pouzite_vakciny = Column(Unicode)
-    adresa = Column(Unicode)
-    otviraci_doba = Column(Unicode)
-    web = Column(Unicode)
-    kontakt_tel = Column(Unicode)
-    api_fronta = Column(Unicode)
-    latitude = Column(Float)
-    longitude = Column(Float)
-    dotaz_ockovani = Column(Unicode)
-
-    def __repr__(self):
-        return f"<OckovaciMistoBezRegistrace(nazev='{self.nazev}')>"
-
-
-class BezRegistraceFronta(db.Model):
-    __tablename__ = 'bezregistrace_fronta'
-
-    bezregistrace_id = Column(Unicode, primary_key=True)
-    cas_mereni = Column(DateTime, primary_key=True)
-    hodnota = Column(Unicode)
-
-    def __repr__(self):
-        return f"<BezRegistraceFronta(id='{self.id}')>"
-
-
 class KapacityNemocnic(db.Model):
     __tablename__ = 'kapacity_nemocnic'
 
@@ -1175,3 +1133,27 @@ class Hospitalizace(db.Model):
     tezky_upv_ecmo = Column(Integer)
     umrti = Column(Integer)
     kum_umrti = Column(Integer)
+
+
+class Testy(db.Model):
+    __tablename__ = 'testy'
+
+    datum = Column(Date, primary_key=True)
+    pocet_pcr_testy = Column(Integer)
+    pocet_ag_testy = Column(Integer)
+    typologie_test_indik_diagnosticka = Column(Integer)
+    typologie_test_indik_epidemiologicka = Column(Integer)
+    typologie_test_indik_preventivni = Column(Integer)
+    typologie_test_indik_ostatni = Column(Integer)
+    incidence_pozitivni = Column(Integer)
+    pozit_typologie_test_indik_diagnosticka = Column(Integer)
+    pozit_typologie_test_indik_epidemiologicka = Column(Integer)
+    pozit_typologie_test_indik_preventivni = Column(Integer)
+    pozit_typologie_test_indik_ostatni = Column(Integer)
+    pcr_pozit_sympt = Column(Integer)
+    pcr_pozit_asymp = Column(Integer)
+    ag_pozit_symp = Column(Integer)
+    ag_pozit_asymp_pcr_conf = Column(Integer)
+
+    def __repr__(self):
+        return f"<Testy(datum='{self.datum}')>"
