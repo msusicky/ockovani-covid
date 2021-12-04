@@ -101,6 +101,9 @@
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <p class="mb-0">
                     Čas poslední aktualizace: <strong>{{ last_update }}</strong>.
+                    <a class="alert-link" href="{{ url_for('view.napoveda') }}#aktualizace">
+                        Jak často jsou data aktualizována?
+                    </a>
                 </p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
