@@ -17,9 +17,6 @@
                     y: [{% for value in row.prijem %}{{ value }}, {% endfor %}],
                     name: "{{ row.vyrobce }}",
                     type: "bar",
-                    marker: {
-                        color: palette[{{ (loop.index - 1) % 10 }}]
-                    }
                 },
             {% endfor %}
         ];
