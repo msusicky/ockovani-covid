@@ -1,126 +1,107 @@
-{% macro srovnani_ockovani_neockovani_vek(data) -%}
+{% macro srovnani_ockovani_neockovani_vek(data, dataset) -%}
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-sm">
+    <table class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center" rowspan="2" style="width: 7%">Věková skupina</th>
-            <th scope="col" class="text-center" rowspan="2" style="width: 7%">
+            <th scope="col" class="text-center" rowspan="2" style="width: 12%">Věková skupina</th>
+            <th scope="col" class="text-center" colspan="2">
+                Neočkovaní
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Lidé, kteří nedostali žádnou dávku.">
+                </i>
+            </th>
+            <th scope="col" class="text-center" colspan="3">
                 Plně očkovaní
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Lidé s dokončeným očkováním (2 dávky nebo jednodávková vakcína).">
+                </i>
+            </th>
+            <th scope="col" class="text-center" colspan="3">
+                Očkovaní posilující
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Lidé očkovaní posilující dávkou.">
+                </i>
+            </th>
+        </tr>
+        <tr>
+            <th scope="col" class="text-center" style="width: 11%">
+                V populaci
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Podíl neočkovaných na začátku uvedeného týdne.">
+                </i>
+            </th>
+            <th scope="col" class="text-center" style="width: 11%">
+                Počet
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
+                   title="Počet nových případů.">
+                </i>
+            </th>
+            <th scope="col" class="text-center" style="width: 11%">
+                V populaci
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
                    title="Podíl plně očkovaných na začátku uvedeného týdne.">
                 </i>
             </th>
-            <th scope="col" class="text-center" colspan="3">Nakažení</th>
-            <th scope="col" class="text-center" colspan="3">Hospitalizace</th>
-            <th scope="col" class="text-center" colspan="3">Hospitalizace na JIP</th>
-        </tr>
-        <tr>
-            <th scope="col" class="text-center" style="width: 10%">
-                Neočkovaní
+            <th scope="col" class="text-center" style="width: 11%">
+                Počet
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet nově nakažených bez očkování.">
+                   title="Počet nových případů.">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 10%">
-                Plně očkovaní
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet nově nakažených plně očkováných.">
-                </i>
-            </th>
-            <th scope="col" class="text-center" style="width: 7%">
+            <th scope="col" class="text-center" style="width: 11%">
                 Poměr
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Poměr udává kolikrát více je nakažených bez očkování než plně očkovaných při přepočtu na stejně velké skupiny.">
+                   title="Poměr udává kolikrát více je případů bez očkování než plně očkovaných při přepočtu na stejně velké skupiny.">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 10%">
-                Neočkovaní
+            <th scope="col" class="text-center" style="width: 11%">
+                V populaci
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet nově hospitalizovaných bez očkování.">
+                   title="Podíl očkovaných posilující dávkou na začátku uvedeného týdne.">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 10%">
-                Plně očkovaní
+            <th scope="col" class="text-center" style="width: 11%">
+                Počet
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet nově hospitalizovaných plně očkovaných.">
+                   title="Počet nových případů.">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 7%">
+            <th scope="col" class="text-center" style="width: 11%">
                 Poměr
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Poměr udává kolikrát více je hospitalizovaných bez očkování než plně očkovaných při přepočtu na stejně velké skupiny.">
-                </i>
-            </th>
-            <th scope="col" class="text-center" style="width: 10%">
-                Neočkovaní
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet neočkovaných nově hospitalizovaných na JIP.">
-                </i>
-            </th>
-            <th scope="col" class="text-center" style="width: 10%">
-                Plně očkovaní
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Počet plně očkovaných nově hospitalizovaných na JIP.">
-                </i>
-            </th>
-            <th scope="col" class="text-center" style="width: 7%">
-                Poměr
-                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
-                   title="Poměr udává kolikrát více je hospitalizovaných na JIP bez očkování než plně očkovaných při přepočtu na stejně velké skupiny.">
+                   title="Poměr udává kolikrát více je případů bez očkování než očkovaných posilující dávkou při přepočtu na stejně velké skupiny.">
                 </i>
             </th>
         </tr>
         </thead>
         <tbody>
         {% for idx, row in data.iterrows() %}
-        <tr class="{{ 'table-warning' if row['populace_plne_zastoupeni'] < 0.1 }}">
+        <tr>
             <td>{{ row['vekova_skupina'] }}</td>
+            <td class="text-right">{{ (100 * row['populace_bez_zastoupeni']) | format_decimal }} %</td>
+            <td class="text-right">{{ row[dataset + '_bez'] | format_number }}</td>
             <td class="text-right">{{ (100 * row['populace_plne_zastoupeni']) | format_decimal }} %</td>
-            <td class="text-right">{{ row['nakazeni_bez'] | format_number }}</td>
-            <td class="text-right">{{ row['nakazeni_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['nakazeni_ratio'] | format_decimal }}{% if row['nakazeni_ratio'] %}&times;{% endif %}</td>
-            <td class="text-right">{{ row['hospitalizace_bez'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_ratio'] | format_decimal }}{% if row['hospitalizace_ratio'] %}&times;{% endif %}</td>
-            <td class="text-right">{{ row['hospitalizace_jip_bez'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_jip_plne'] | format_number }}</td>
-            <td class="text-right">{{ row['hospitalizace_jip_ratio'] | format_decimal }}{% if row['hospitalizace_jip_ratio'] %}&times;{% endif %}</td>
+            <td class="text-right">{{ row[dataset + '_plne'] | format_number }}</td>
+            <td class="text-right">{{ row[dataset + '_plne_ratio'] | format_decimal }}{% if row[dataset + '_plne_ratio'] %}&times;{% endif %}</td>
+            <td class="text-right">{{ (100 * row['populace_posilujici_zastoupeni']) | format_decimal }} %</td>
+            <td class="text-right">{{ row[dataset + '_posilujici'] | format_number }}</td>
+            <td class="text-right">{{ row[dataset + '_posilujici_ratio'] | format_decimal }}{% if row[dataset + '_posilujici_ratio'] %}&times;{% endif %}</td>
         </tr>
         {% endfor %}
         </tbody>
         <tfoot class="font-weight-bold">
         <tr>
             <td>Celkem</td>
+            <td class="text-right">{{ (100 * data['populace_bez'].sum() / data['populace'].sum()) | format_decimal }} %</td>
+            <td class="text-right">{{ data[dataset + '_bez'].sum() | format_number }}</td>
             <td class="text-right">{{ (100 * data['populace_plne'].sum() / data['populace'].sum()) | format_decimal }} %</td>
-            <td class="text-right">{{ data['nakazeni_bez'].sum() | format_number }}</td>
-            <td class="text-right">{{ data['nakazeni_plne'].sum() | format_number }}</td>
+            <td class="text-right">{{ data[dataset + '_plne'].sum() | format_number }}</td>
             <td></td>
-            <td class="text-right">{{ data['hospitalizace_bez'].sum() | format_number }}</td>
-            <td class="text-right">{{ data['hospitalizace_plne'].sum() | format_number }}</td>
-            <td></td>
-            <td class="text-right">{{ data['hospitalizace_jip_bez'].sum() | format_number }}</td>
-            <td class="text-right">{{ data['hospitalizace_jip_plne'].sum() | format_number }}</td>
+            <td class="text-right">{{ (100 * data['populace_posilujici'].sum() / data['populace'].sum()) | format_decimal }} %</td>
+            <td class="text-right">{{ data[dataset + '_posilujici'].sum() | format_number }}</td>
             <td></td>
         </tr>
         </tfoot>
     </table>
 </div>
-
-<p class="card-text font-italic text-justify">
-    Oranžově jsou zvýrazněny skupiny s proočkovaností menší než 10 %, pro ně poměr nepočítáme kvůli nízké přesnosti.
-    Poměry vycházející z nízkého počtu případů také nemusí být přesné.
-</p>
-<p class="card-text font-italic text-justify">
-    Mezi plně očkované řadíme i očkované posilující dávkou, podíl očkovaných posilující dávkou je zatím příliš malý pro
-    samostatné srovnání. Ze stejného důvodu nezahrnujeme částečně očkované v žádné kategorii.
-</p>
-<p class="card-text text-justify">
-    Data zahrnují i pozitivně testované osoby, u nichž není COVID primární příčinou hospitalizace.
-</p>
-<p class="card-text font-italic text-justify">
-    Počty představují nové případy za uvedený týden.
-</p>
-<p class="card-text font-italic text-justify">
-    Pro úmrtí nejsou v současné době k dispozici data obsahující věkové skupiny.
-</p>
 {%- endmacro %}
