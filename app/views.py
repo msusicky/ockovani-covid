@@ -164,6 +164,8 @@ def statistiky():
     vaccinated_unvaccinated_comparison_age = queries.count_vaccinated_unvaccinated_comparison_age()
     vaccinated_unvaccinated_comparison_age_graph_data = vaccinated_unvaccinated_comparison_age[vaccinated_unvaccinated_comparison_age['vekova_skupina'] != '0-11']
 
+    hospitalization_probabilities = queries.count_hospitalization_probabilities()
+
     vaccination_total_graph_data = queries.get_vaccination_total_graph_data()
 
     infected_graph_data = queries.get_infected_graph_data()
@@ -180,6 +182,7 @@ def statistiky():
                            hospitalized_orp_graph_data=hospitalized_orp_graph_data,
                            vaccinated_orp_graph_data=vaccinated_orp_graph_data,
                            vaccinated_unvaccinated_comparison_age_graph_data=vaccinated_unvaccinated_comparison_age_graph_data,
+                           hospitalization_probabilities=hospitalization_probabilities,
                            vaccination_total_graph_data=vaccination_total_graph_data,
                            infected_graph_data=infected_graph_data, deaths_graph_data=deaths_graph_data,
                            hospitalized_graph_data=hospitalized_graph_data, tests_graph_data=tests_graph_data)
