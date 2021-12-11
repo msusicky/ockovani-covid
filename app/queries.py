@@ -1134,7 +1134,8 @@ def get_infected_graph_data():
     nakazeni = pd.read_sql_query(
         """
         select datum, vekova_skupina, sum(pocet) pocet_nakazeni
-        from nakazeni  
+        from nakazeni n
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         group by datum, vekova_skupina
         """,
         db.engine
@@ -1184,7 +1185,8 @@ def get_deaths_graph_data():
     umrti = pd.read_sql_query(
         """
         select datum, vekova_skupina, sum(pocet) pocet_umrti
-        from umrti  
+        from umrti u
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         group by datum, vekova_skupina
         """,
         db.engine
