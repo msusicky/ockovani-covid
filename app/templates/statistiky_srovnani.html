@@ -24,10 +24,72 @@ Srovnání očkovaní &times; neočkovaní |
                     <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ graf_srovnani_ockovani_neockovani(vaccinated_unvaccinated_comparison_age_graph_data) }}
-                <br>
-                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age) }}
             </div>
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                    Nakažení za týden
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'nakazeni') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                    Nově hospitalizovaní za týden
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'hospitalizace') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                    Nově hospitalizovaní na JIP za týden
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
+                    {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
+                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'hospitalizace_jip') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col font-italic text-justify">
+        <h6>Poznámky</h6>
+        <p>
+            Data zahrnují i pozitivně testované osoby, u nichž není COVID primární příčinou hospitalizace.
+        </p>
+        <p>
+            Kvůli nízké přesnosti nepočítáme poměry pro kategorie s proočkovaností menší než 5 %.
+            Poměry vycházející z nízkého počtu případů také nemusí být přesné.
+        </p>
+        <p>
+            Pro úmrtí nejsou v současné době k dispozici data obsahující věkové skupiny.
+        </p>
     </div>
 </div>
 

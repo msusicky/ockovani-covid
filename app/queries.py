@@ -913,25 +913,25 @@ def count_vaccinated_unvaccinated_comparison_age():
     df = df.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
+    df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
 
     df_norm = df.copy()
 
     datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
-    groups = ['bez', 'plne']
+    groups = ['bez', 'plne', 'posilujici']
 
     for g in groups:
         df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
 
     for d in datasets:
-        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
-
         for g in groups:
             df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
                 .replace({np.nan: 0})
 
-        df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: np.nan})
-        df_norm.loc[df_norm['populace_plne_zastoupeni'] < 0.1, d + '_ratio'] = np.nan
-        df_norm[d + '_ratio'] = df_norm[d + '_ratio'].replace({np.nan: None})
+        for g in ['plne', 'posilujici']:
+            df_norm[d + '_' + g + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_' + g + '_norm']).replace({np.inf: np.nan})
+            df_norm.loc[df_norm['populace_' + g + '_zastoupeni'] < 0.05, d + '_' + g + '_ratio'] = np.nan
+            df_norm[d + '_' + g + '_ratio'] = df_norm[d + '_' + g + '_ratio'].replace({np.nan: None})
 
     return df_norm
 
