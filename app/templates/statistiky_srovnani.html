@@ -33,11 +33,11 @@ Srovnání očkovaní &times; neočkovaní |
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                <h5 class="card-title" id="nakazeni" data-toggle="tooltip" data-placement="bottom">
                     Nakažení za týden
                     {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
                     {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
-                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                    <a href="#nakazeni" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'nakazeni') }}
             </div>
@@ -49,11 +49,11 @@ Srovnání očkovaní &times; neočkovaní |
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                <h5 class="card-title" id="hospitalizace" data-toggle="tooltip" data-placement="bottom">
                     Nově hospitalizovaní za týden
                     {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
                     {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
-                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                    <a href="#hospitalizace" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'hospitalizace') }}
             </div>
@@ -65,11 +65,11 @@ Srovnání očkovaní &times; neočkovaní |
     <div class="col">
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" id="srovnani" data-toggle="tooltip" data-placement="bottom">
+                <h5 class="card-title" id="hospitalizace-jip" data-toggle="tooltip" data-placement="bottom">
                     Nově hospitalizovaní na JIP za týden
                     {{ vaccinated_unvaccinated_comparison_age['tyden_od'][0] | format_date_short }} -
                     {{ vaccinated_unvaccinated_comparison_age['tyden_do'][0] | format_date_short }}
-                    <a href="#srovnani" class="text-secondary"><i class="fas fa-link"></i></a>
+                    <a href="#hospitalizace-jip" class="text-secondary"><i class="fas fa-link"></i></a>
                 </h5>
                 {{ srovnani_ockovani_neockovani_vek(vaccinated_unvaccinated_comparison_age, 'hospitalizace_jip') }}
             </div>
