@@ -100,7 +100,7 @@ class FetcherLauncher:
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
             self._fetchers.append(OrpSituationFetcher())
-            # self._fetchers.append(HospitalAnalysisFetcher())          # not needed
+            self._fetchers.append(HospitalAnalysisFetcher())
             self._fetchers.append(HospitalCapacitiesFetcher())
             # self._fetchers.append(SuppliesFetcher())                  # data not updated anymore
             # self._fetchers.append(InfectedVaccinatedFetcher())        # not needed
