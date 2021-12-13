@@ -10,6 +10,7 @@
 {% from 'macros/graphs/srovnani_ockovani_neockovani.html' import graf_srovnani_ockovani_neockovani %}
 {% from 'macros/graphs/hospitalizace.html' import graf_hospitalizace %}
 {% from 'macros/graphs/testy.html' import graf_testy %}
+{% from 'macros/tables/pravdepodobnost_hospitalizace.html' import pravdepodobnost_hospitalizace %}
 
 {% block title %}
 Souhrnné statistiky |
@@ -162,9 +163,7 @@ Souhrnné statistiky |
                 <div class="font-italic">
                     <h6>Poznámky</h6>
                     <p class="card-text text-justify">
-                        Mezi plně očkované řadíme i očkované posilující dávkou, podíl očkovaných posilující dávkou je
-                        zatím příliš malý pro samostatné srovnání. Ze stejného důvodu nezahrnujeme částečně očkované v
-                        žádné kategorii.
+                        Data zahrnují i pozitivně testované osoby, u nichž není COVID primární příčinou hospitalizace.
                     </p>
                     <p class="card-text text-justify">
                         Detailní tabulka s poměry a počty případů byla přesunuta na
@@ -172,6 +171,20 @@ Souhrnné statistiky |
                         rozšířena o další grafy.
                     </p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" id="pravdepodobnost-hospitalizace">
+                    Pravděpodobnost a délka hospitalizace
+                    <a href="#pravdepodobnost-hospitalizace" class="text-secondary"><i class="fas fa-link"></i></a>
+                </h5>
+                {{ pravdepodobnost_hospitalizace(hospitalization_probabilities) }}
             </div>
         </div>
     </div>

@@ -377,24 +377,24 @@ class Umrti(db.Model):
     __tablename__ = 'umrti'
 
     datum = Column(Date, primary_key=True)
-    vekova_skupina = Column(Unicode, primary_key=True)
+    vek = Column(Integer, primary_key=True)
     kraj_nuts_kod = Column(Unicode, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
-        return f"<Umrti(datum='{self.datum}', vekova_skupina='{self.vekova_skupina}', kraj_nuts_kod='{self.kraj_nuts_kod}')>"
+        return f"<Umrti(datum='{self.datum}', vek={self.vek}, kraj_nuts_kod='{self.kraj_nuts_kod}')>"
 
 
 class Nakazeni(db.Model):
     __tablename__ = 'nakazeni'
 
     datum = Column(Date, primary_key=True)
-    vekova_skupina = Column(Unicode, primary_key=True)
+    vek = Column(Integer, primary_key=True)
     kraj_nuts_kod = Column(Unicode, primary_key=True)
     pocet = Column(Integer)
 
     def __repr__(self):
-        return f"<Nakazeni(datum='{self.datum}', vekova_skupina='{self.vekova_skupina}', kraj_nuts_kod='{self.kraj_nuts_kod}')>"
+        return f"<Nakazeni(datum='{self.datum}', vek={self.vek}, kraj_nuts_kod='{self.kraj_nuts_kod}')>"
 
 
 class CharakteristikaObci(db.Model):

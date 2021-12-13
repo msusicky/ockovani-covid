@@ -2,6 +2,7 @@ from datetime import date, timedelta, datetime
 
 import numpy as np
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 from sqlalchemy import func, or_, and_, text, column
 
 from app import db
@@ -912,27 +913,74 @@ def count_vaccinated_unvaccinated_comparison_age():
     df = df.groupby(['tyden', 'tyden_od', 'tyden_do', 'vekova_skupina']).sum().reset_index()
 
     df['populace_bez'] = df['populace'] - df['populace_ockovani']
+    df['populace_plne'] = df['populace_plne'] - df['populace_posilujici']
 
     df_norm = df.copy()
 
     datasets = ['nakazeni', 'hospitalizace', 'hospitalizace_jip']
-    groups = ['bez', 'plne']
+    groups = ['bez', 'plne', 'posilujici']
 
     for g in groups:
         df_norm['populace_' + g + '_zastoupeni'] = df_norm['populace_' + g] / df_norm['populace']
 
     for d in datasets:
-        df_norm[d + '_plne'] = df_norm[d + '_plne'] + df_norm[d + '_posilujici']
-
         for g in groups:
             df_norm[d + '_' + g + '_norm'] = ((100000 * df_norm[d + '_' + g]) / df_norm['populace_' + g]) \
                 .replace({np.nan: 0})
 
-        df_norm[d + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_plne_norm']).replace({np.inf: np.nan})
-        df_norm.loc[df_norm['populace_plne_zastoupeni'] < 0.1, d + '_ratio'] = np.nan
-        df_norm[d + '_ratio'] = df_norm[d + '_ratio'].replace({np.nan: None})
+        for g in ['plne', 'posilujici']:
+            df_norm[d + '_' + g + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_' + g + '_norm']).replace({np.inf: np.nan})
+            df_norm.loc[df_norm['populace_' + g + '_zastoupeni'] < 0.05, d + '_' + g + '_ratio'] = np.nan
+            df_norm[d + '_' + g + '_ratio'] = df_norm[d + '_' + g + '_ratio'].replace({np.nan: None})
 
     return df_norm
+
+
+def count_hospitalization_probabilities():
+    date_from = get_import_date() - relativedelta(months=4)
+    date_to = get_import_date() - relativedelta(months=1)
+
+    hosp = pd.read_sql_query(
+        f"""
+        select vek_kat, tezky_stav, jip, kyslik, upv, ecmo, umrti, dni_tezky_stav, dni_jip, dni_kyslik, dni_upv, dni_ecmo 
+        from uzis_modely_05_hospitalizovani
+        where datum_positivity >= '{date_from}' and datum_positivity <= '{date_to}'
+        """,
+        db.engine)
+    hosp['vek_kat'] = hosp['vek_kat'].replace({'0-4': '0-9', '5-9': '0-9', '10-14': '10-19', '15-19': '10-19',
+                                               '20-24': '20-29', '25-29': '20-29', '30-34': '30-39', '35-39': '30-39',
+                                               '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59',
+                                               '60-64': '60-69', '65-69': '60-69', '70-74': '70-79', '75-79': '70-79',
+                                               '80-84': '80-89', '85-89': '80-89', '90-94': '90+', '95-99': '90+',
+                                               '100-104': '90+', '105-109': '90+'})
+    hosp['hospitalizace'] = True
+    hosp = hosp.groupby(['vek_kat']).sum().reset_index()
+
+    nakazeni = pd.read_sql_query(
+        f"select pocet, vek from nakazeni where datum >= '{date_from}' and datum <= '{date_to}'",
+        db.engine)
+    bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 150]
+    labels = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+']
+    nakazeni['vekova_skupina'] = pd.cut(nakazeni['vek'], bins=bins, labels=labels, right=False)
+    nakazeni = nakazeni.drop(columns=['vek']).groupby(['vekova_skupina']).sum().reset_index()
+
+    df = pd.merge(hosp, nakazeni, left_on=['vek_kat'], right_on=['vekova_skupina'])
+
+    df['hospitalizace_r'] = df['hospitalizace'] / df['pocet']
+    df['jip_r'] = df['jip'] / df['pocet']
+    df['kyslik_r'] = df['kyslik'] / df['pocet']
+    df['upv_r'] = df['upv'] / df['pocet']
+    df['ecmo_r'] = df['ecmo'] / df['pocet']
+    df['tezky_stav_r'] = df['tezky_stav'] / df['pocet']
+    df['umrti_r'] = df['umrti'] / df['pocet']
+
+    df['jip_d'] = (df['dni_jip'] / df['jip']).replace({np.nan: None})
+    df['kyslik_d'] = (df['dni_kyslik'] / df['kyslik']).replace({np.nan: None})
+    df['upv_d'] = (df['dni_upv'] / df['upv']).replace({np.nan: None})
+    df['ecmo_d'] = (df['dni_ecmo'] / df['ecmo']).replace({np.nan: None})
+    df['tezky_stav_d'] = (df['dni_tezky_stav'] / df['tezky_stav']).replace({np.nan: None})
+
+    return (df, date_from, date_to)
 
 
 def get_registrations_graph_data(center_id=None):
@@ -1134,7 +1182,8 @@ def get_infected_graph_data():
     nakazeni = pd.read_sql_query(
         """
         select datum, vekova_skupina, sum(pocet) pocet_nakazeni
-        from nakazeni  
+        from nakazeni n
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         group by datum, vekova_skupina
         """,
         db.engine
@@ -1184,7 +1233,8 @@ def get_deaths_graph_data():
     umrti = pd.read_sql_query(
         """
         select datum, vekova_skupina, sum(pocet) pocet_umrti
-        from umrti  
+        from umrti u
+        join populace_kategorie k on (k.min_vek <= vek and k.max_vek >= vek)
         group by datum, vekova_skupina
         """,
         db.engine
