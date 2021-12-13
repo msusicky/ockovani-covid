@@ -3,10 +3,10 @@
     <table class="table table-bordered table-striped table-sm">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center" style="width: 10%">
+            <th scope="col" class="text-center" rowspan="2" style="width: 10%">
                 Věková skupina
             </th>
-            <th scope="col" class="text-center" style="width: 10%">
+            <th scope="col" class="text-center">
                 Hospitalizace
             </th>
             <th scope="col" colspan="2" class="text-center">
@@ -36,8 +36,82 @@
                    title="Pacienti v těžkém stavu na základě subjektivního hodnocení lékaře.">
                 </i>
             </th>
-            <th scope="col" class="text-center" style="width: 10%">
+            <th scope="col" class="text-center">
                 Úmrtí
+            </th>
+        </tr>
+        <tr>
+            <th class="text-center" style="width: 10%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných vyžadujících hospitalizaci.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných vyžadujících hospitalizaci na JIP.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Délka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná délka hospitalizace na JIP ve dnech.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných vyžadujících kyslík.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Délka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná délka hospitalizace s kyslíkem ve dnech.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných vyžadujících umělou plicní ventilaci.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Délka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná délka hospitalizace s umělou plicní ventilací ve dnech.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných vyžadujících ECMO.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Délka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná délka hospitalizace s ECMO ve dnech.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných v těžkém stavu.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 7%">
+                Délka
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Průměrná délka hospitalizace v těžkém stavu ve dnech.">
+                </i>
+            </th>
+            <th class="text-center" style="width: 10%">
+                Podíl
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Podíl pozitivně testovaných, kteří zemřeli.">
+                </i>
             </th>
         </tr>
         </thead>
@@ -45,18 +119,18 @@
         {% for idx, row in data[0].iterrows() %}
         <tr>
             <td>{{ row['vekova_skupina'] }}</td>
-            <td class="text-right">{{ (100 * row['hospitalizace_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ (100 * row['jip_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ row['jip_d'] | format_number }}</td>
-            <td class="text-right" style="width: 7%">{{ (100 * row['kyslik_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ row['kyslik_d'] | format_number }}</td>
-            <td class="text-right" style="width: 7%">{{ (100 * row['upv_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ row['upv_d'] | format_number }}</td>
-            <td class="text-right" style="width: 7%">{{ (100 * row['ecmo_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ row['ecmo_d'] | format_number }}</td>
-            <td class="text-right" style="width: 7%">{{ (100 * row['tezky_stav_r']) | format_decimal }} %</td>
-            <td class="text-right" style="width: 7%">{{ row['tezky_stav_d'] | format_number }}</td>
-            <td class="text-right">{{ (100 * row['umrti_r']) | format_decimal }} %</td>
+            <td class="text-right">{{ (100 * row['hospitalizace_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ (100 * row['jip_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ row['jip_d'] | format_number }}</td>
+            <td class="text-right">{{ (100 * row['kyslik_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ row['kyslik_d'] | format_number }}</td>
+            <td class="text-right">{{ (100 * row['upv_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ row['upv_d'] | format_number }}</td>
+            <td class="text-right">{{ (100 * row['ecmo_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ row['ecmo_d'] | format_number }}</td>
+            <td class="text-right">{{ (100 * row['tezky_stav_r']) | format_decimal }}&nbsp;%</td>
+            <td class="text-right">{{ row['tezky_stav_d'] | format_number }}</td>
+            <td class="text-right">{{ (100 * row['umrti_r']) | format_decimal }}&nbsp;%</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -68,7 +142,6 @@
     <p class="card-text text-justify">
         Výpočet zahrnuje hospitalizované, kteří byli pozitivně testováni v období od {{ data[1] | format_date }}
         do {{ data[2] | format_date }}. Během 30 dní od pozitivního testu končí více než 95 % hospitalizací.
-        Průměrná délka hospitalizace je uvedena ve dnech.
     </p>
     <p class="card-text text-justify">
         Data zahrnují i pozitivně testované osoby, u nichž není COVID primární příčinou hospitalizace.
