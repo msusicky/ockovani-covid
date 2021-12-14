@@ -1,9 +1,20 @@
 {% macro stav_ockovani_praktici(vac_doctor_age) -%}
-<div class="input-group mb-3">
-    <div class="input-group-prepend">
-        <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
+
+<div class="form-row">
+    <div class="col mb-3">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
+            </div>
+            <input id="doctors-searchbox" type="text" class="form-control" placeholder="Hledat...">
+        </div>
     </div>
-    <input id="doctors-searchbox" type="text" class="form-control" placeholder="Hledat...">
+    <div class="col-auto mb-3">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="doctors-children" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="doctors-children">pediatři</label>
+        </div>
+    </div>
 </div>
 
 <div class="table-responsive">
@@ -12,19 +23,20 @@
         <tr>
             <th scope="col" class="text-center col-sortable w-30">Název zařízení</th>
             <th scope="col" class="text-center col-sortable w-20">Okres</th>
+            <th scope="col" class="text-center col-sortable w-10">Pediatr</th>
             <th scope="col" class="text-center w-20">
                 Vakcíny
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Vakcíny očkované za posledních 7 dní.">
                 </i>
             </th>
-            <th scope="col" class="text-center col-sortable w-15">
+            <th scope="col" class="text-center col-sortable w-10">
                 Očkováno
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Počet podaných dávek vakcíny.">
                 </i>
             </th>
-            <th scope="col" class="text-center col-sortable w-15">
+            <th scope="col" class="text-center col-sortable w-10">
                 Očkováno za<br>7 dní
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Počet podaných dávek vakcíny za posledních 7 dní.">
@@ -34,7 +46,7 @@
         </thead>
         <tbody>
         {% for idx, row in vac_doctor_age.iterrows() %}
-        <tr class="{{ 'table-warning' if row['provoz_ukoncen'] }}">
+        <tr class="{{ 'table-warning' if row['provoz_ukoncen'] }}" data-children="{{ row['pediatr'] }}">
             <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
                 title="{{ row['zarizeni_nazev'] }}">
                 {{ row['zarizeni_nazev'] }}
@@ -42,6 +54,7 @@
             <td data-value="{{ row['okres'] }}" data-toggle="tooltip" data-placement="auto">
                 {{ row['okres'] }}
             </td>
+            <td data-value="{{ row['pediatr'] }}">{{ row['pediatr'] | format_bool }}</td>
             <td>{{ row['vakciny'] }}</td>
             <td class="text-right" data-value="{{ row['sum_1'] }}">{{ row['sum_1'] | format_number }}</td>
             <td class="text-right" data-value="{{ row['sum_2'] }}">{{ row['sum_2'] | format_number }}</td>
@@ -50,7 +63,7 @@
         </tbody>
         <tfoot class="font-weight-bold">
         <tr>
-            <td colspan="3">Celkem</td>
+            <td colspan="4">Celkem</td>
             <td class="text-right">{{ vac_doctor_age['sum_1'].sum() | format_number }}</td>
             <td class="text-right">{{ vac_doctor_age['sum_2'].sum() | format_number }}</td>
         </tr>
@@ -63,16 +76,30 @@
 </p>
 
 <script>
-    $(document).ready(function(){
+    function filterChangedDoctors() {
         const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        const searchValue = stripAccents($("#doctors-searchbox").val().toLowerCase());
+        const childrenValue = $("#doctors-children")[0].checked;
+
+        $("#doctors-table tbody tr").filter(function() {
+            const normalized = stripAccents($(this).text().toLowerCase());
+            const children = $(this)[0].dataset.children;
+
+            $(this).toggle(normalized.indexOf(searchValue) > -1 && (!childrenValue || children === 'True'))
+        });
+
+        $("#doctors-table tbody tr:visible").each(function (index) {
+            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
+        });
+    }
+
+    $(document).ready(function(){
         $("#doctors-searchbox").on("keyup", function() {
-            var value = stripAccents($(this).val().toLowerCase());
-            $("#doctors-table tbody tr").filter(function() {
-                $(this).toggle(stripAccents($(this).text().toLowerCase()).indexOf(value) > -1)
-            });
-            $("#doctors-table tbody tr:visible").each(function (index) {
-                $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)"  : "rgba(0,0,0,.05)");
-            });
+            filterChangedDoctors();
+        });
+        $("#doctors-children").change(function () {
+            filterChangedDoctors();
         });
     });
 </script>

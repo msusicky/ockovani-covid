@@ -74,6 +74,12 @@ def format_time(time):
 
 
 @app.template_filter()
+def format_bool(value):
+    """Converts boolean to yes/no string."""
+    return 'bez dat' if value is None else ('Ano' if value else 'Ne')
+
+
+@app.template_filter()
 def number_color(number, digits=1):
     return '' if number is None or round(number, 1) == 0 else 'text-danger' if round(number, digits) < 0 else 'text-success'
 
