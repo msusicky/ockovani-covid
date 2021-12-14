@@ -40,6 +40,7 @@ class VaccinatedFetcher(Fetcher):
         orp = pd.read_sql_query('select uzis_orp orp_bydl_kod, kraj_nuts kraj_bydl_nuts from obce_orp', db.engine)
         df = pd.merge(df, orp, how='left')
         df['kraj_bydl_nuts'] = df['kraj_bydl_nuts'].fillna('-')
+        df['vakcina'] = df['vakcina'].fillna('Comirnaty')   # todo: temporary fix
 
         df = df[['datum', 'vakcina', 'kraj_nuts_kod', 'zarizeni_kod', 'zarizeni_nazev', 'poradi_davky',
                  'vekova_skupina', 'kraj_bydl_nuts', 'orp_bydl_kod', 'indikace_zdravotnik', 'indikace_socialni_sluzby',
