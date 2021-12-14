@@ -150,8 +150,9 @@
 </div>
 
 <script>
-    const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     function filterChanged() {
+        const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
         const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
         const vaccinesValue = $("#centers-vaccines").val()
         const age5Value = $("#centers-5")[0].checked;
