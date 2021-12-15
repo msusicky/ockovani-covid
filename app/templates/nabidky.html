@@ -7,32 +7,32 @@ Nabídky očkování |
 
 {% block body %}
 <div class="row">
-    <div class="col">
+    <div class="col-auto">
         <h3>Nabídky očkování praktickými lékaři</h3>
     </div>
-</div>
-
-<div class="row">
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <p>
-            V této tabulce je nabídka očkování v jednotlivých ordinacích s uvedením typu očkovací
-            látky a kapacity. Údaje se pravidelně aktualizují.
-            Některé ordinace praktických lékařů pro dospělé nabízejí očkování i dětem od 14 let a
-            naopak některé ordinace praktických lékařů pro děti a dorost nabízejí očkování i
-            dospělým. Proto použijte filtry.
-        </p>
-        <p class="mb-0">
-            Pokud máte o očkování zájem, kontaktujte vybranou ordinaci, dodržujte přitom pokyny v
-            poznámce.
-        </p>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="col-auto ml-auto">
+        <a class="btn btn-primary" href="{{ url_for('view.nabidky_mapa') }}">
+            Zobrazit na mapě
+        </a>
     </div>
 </div>
 
-<div class="row">
-    {{ volne_vakciny(free_vaccines, kraj_options, vaccines_options) }}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    <p>
+        V této tabulce je nabídka očkování v jednotlivých ordinacích s uvedením typu očkovací
+        látky a kapacity. Údaje se pravidelně aktualizují.
+        Některé ordinace praktických lékařů pro dospělé nabízejí očkování i dětem od 14 let a
+        naopak některé ordinace praktických lékařů pro děti a dorost nabízejí očkování i
+        dospělým. Proto použijte filtry.
+    </p>
+    <p class="mb-0">
+        Pokud máte o očkování zájem, kontaktujte vybranou ordinaci, dodržujte přitom pokyny v
+        poznámce.
+    </p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 
+{{ volne_vakciny(free_vaccines, kraj_options, vaccines_options) }}
 {% endblock %}
