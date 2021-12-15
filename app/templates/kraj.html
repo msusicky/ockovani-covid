@@ -4,7 +4,6 @@
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/tables/prehled_praktici.html' import stav_ockovani_praktici %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
 
 {% block title %}
@@ -37,9 +36,6 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#ockovani">Stav očkování</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#ockovani-praktici">Očkování praktiky</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
@@ -91,9 +87,6 @@
                     </div>
                     <div class="tab-pane" id="ockovani">
                         {{ stav_ockovani(vaccinated) }}
-                    </div>
-                    <div class="tab-pane" id="ockovani-praktici">
-                        {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
                     <div class="tab-pane" id="graf-fronta">
                         {{ graf_fronta(queue_graph_data) }}

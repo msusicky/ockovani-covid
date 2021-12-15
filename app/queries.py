@@ -542,7 +542,7 @@ def count_reservations_category():
     return ockovani_skupiny
 
 
-def count_vaccinated_doctors(kraj_id=None):
+def count_vaccinated_doctors():
     ockovani_doktori = pd.read_sql_query(
         """
         select z.zarizeni_nazev, o.nazev okres, z.provoz_ukoncen, 
@@ -558,10 +558,10 @@ def count_vaccinated_doctors(kraj_id=None):
             from zdravotnicke_stredisko zs 
             group by nrpzs_kod
         ) zs on ol.zarizeni_kod = zs.nrpzs_kod
-        where prakticky_lekar = True and (kraj_nuts_kod='{}' or True={})
+        where prakticky_lekar = True
 	    group by z.zarizeni_nazev, o.nazev, z.provoz_ukoncen, pediatr
 	    order by sum(pocet) desc
-        """.format(get_import_date(), get_import_date(), kraj_id, kraj_id is None),
+        """.format(get_import_date(), get_import_date()),
         db.engine
     )
 

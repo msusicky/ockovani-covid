@@ -72,14 +72,12 @@ def info_kraj(kraj_name):
 
     vaccinated = queries.count_vaccinated(kraj.id)
 
-    vaccination_doctors = queries.count_vaccinated_doctors(kraj.id)
-
     queue_graph_data = queries.get_queue_graph_data(kraj_id=kraj.id)
 
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
                            mista=mista, third_doses_centers=third_doses_centers, vaccines_options=vaccines_options,
                            vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
-                           vaccination_doctors=vaccination_doctors, queue_graph_data=queue_graph_data)
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/misto/<misto_id>")
