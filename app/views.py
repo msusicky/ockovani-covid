@@ -124,7 +124,7 @@ def mapa():
 
     vaccines_options = queries.find_centers_vaccine_options()
 
-    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
+    return render_template('mista_mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
                            third_doses_centers=third_doses_centers, vaccines_options=vaccines_options)
 
 
@@ -132,15 +132,40 @@ def mapa():
 def praktici():
     vaccination_doctors = queries.count_vaccinated_doctors()
 
+    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
+                           vaccination_doctors=vaccination_doctors)
+
+
+@bp.route("/praktici_mapa")
+def praktici_mapa():
+    vaccination_doctors = queries.count_vaccinated_doctors()
+
+    return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(),
+                           vaccination_doctors=vaccination_doctors)
+
+
+@bp.route("/nabidky")
+def nabidky():
     free_vaccines = queries.find_free_vaccines_available()
 
     vaccines_options = queries.find_free_vaccines_vaccine_options()
 
     kraj_options = queries.find_free_vaccines_kraj_options()
 
-    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines,
-                           vaccines_options=vaccines_options, kraj_options=kraj_options)
+    return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
+                           free_vaccines=free_vaccines, vaccines_options=vaccines_options, kraj_options=kraj_options)
+
+
+@bp.route("/nabidky_mapa")
+def nabidky_mapa():
+    free_vaccines = queries.find_free_vaccines_available()
+
+    vaccines_options = queries.find_free_vaccines_vaccine_options()
+
+    kraj_options = queries.find_free_vaccines_kraj_options()
+
+    return render_template('nabidky_mapa.html', last_update=_last_import_modified(), now=_now(),
+                           free_vaccines=free_vaccines, vaccines_options=vaccines_options, kraj_options=kraj_options)
 
 
 @bp.route("/statistiky")
