@@ -52,7 +52,7 @@ def info_okres(okres_name):
 
 @bp.route("/kraj/<kraj_name>")
 def info_kraj(kraj_name):
-    kraj = db.session.query(Kraj).filter(Kraj.nazev == kraj_name).one_or_none()
+    kraj = db.session.query(Kraj).filter(Kraj.nazev_kratky == kraj_name).one_or_none()
     if kraj is None:
         abort(404)
 
@@ -128,18 +128,26 @@ def mapa():
 
 @bp.route("/praktici")
 def praktici():
-    vaccination_doctors = queries.count_vaccinated_doctors()
+    doctors = queries.find_doctors()
 
-    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors)
+    vaccines_options = queries.find_doctors_vaccine_options()
+
+    kraj_options = queries.find_kraj_options()
+
+    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(), doctors=doctors,
+                           vaccines_options=vaccines_options, kraj_options=kraj_options)
 
 
 @bp.route("/praktici_mapa")
 def praktici_mapa():
-    vaccination_doctors = queries.count_vaccinated_doctors()
+    doctors_map = queries.find_doctors_map()
+
+    vaccines_options = queries.find_doctors_vaccine_options()
+
+    kraj_options = queries.find_kraj_options()
 
     return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors)
+                           doctors_map=doctors_map, vaccines_options=vaccines_options, kraj_options=kraj_options)
 
 
 @bp.route("/nabidky")
@@ -148,7 +156,7 @@ def nabidky():
 
     vaccines_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_free_vaccines_kraj_options()
+    kraj_options = queries.find_kraj_options()
 
     return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
                            free_vaccines=free_vaccines, vaccines_options=vaccines_options, kraj_options=kraj_options)
@@ -160,7 +168,7 @@ def nabidky_mapa():
 
     vaccines_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_free_vaccines_kraj_options()
+    kraj_options = queries.find_kraj_options()
 
     return render_template('nabidky_mapa.html', last_update=_last_import_modified(), now=_now(),
                            free_vaccines=free_vaccines, vaccines_options=vaccines_options, kraj_options=kraj_options)
@@ -371,7 +379,7 @@ def report():
     # -- aktuální počet hospitalizovaných s covidem ve STR kraji
     current_hospital_kraje = db.session.query(column("nazev"), column("pocet_hospital")).from_statement(text(
         """
-        select k.nazev , sum(pocet_hosp) pocet_hospital
+        select k.nazev, sum(pocet_hosp) pocet_hospital
             from public.situace_orp so 
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts)
@@ -383,7 +391,7 @@ def report():
     # -- přírůstek hospitalizovaných s covidem za posledních 7 dní ve STR kraji
     new_hospital_kraje = db.session.query(column("nazev"), column("nove_hosp_7")).from_statement(text(
         """
-        select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
+        select k.nazev, sum(so.nove_hosp_7) nove_hosp_7
             from public.situace_orp so 
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts 

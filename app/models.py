@@ -11,6 +11,7 @@ class Kraj(db.Model):
 
     id = Column(Unicode, primary_key=True)
     nazev = Column(Unicode)
+    nazev_kratky = Column(Unicode)
 
     def __repr__(self):
         return f"<Kraj(nazev='{self.nazev}')>"

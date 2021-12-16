@@ -101,13 +101,15 @@
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const kraj = $(this)[0].dataset.kraj;
+            const vaccine = $(this)[0].dataset.vaccine;
             const adults = $(this)[0].dataset.adults;
             const children = $(this)[0].dataset.children;
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && (!krajValue || $(this)[0].dataset.kraj === krajValue)
-                && (!vaccineValue || $(this)[0].dataset.vaccine === vaccineValue)
+                && (!krajValue || kraj === krajValue)
+                && (!vaccineValue || vaccine === vaccineValue)
                 && ((adultsValue && adults === 'True') || (childrenValue && children === 'True'))
             )
         });

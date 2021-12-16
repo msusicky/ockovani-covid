@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, and_, text, column
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaniRezervace, Vakcina
+    PrakticiKapacity, OckovaniRezervace, OckovaniLide, Vakcina
 
 
 def unique_nrpzs_subquery():
@@ -28,16 +28,20 @@ def unique_nrpzs_active_subquery():
 
 def has_unique_nrpzs(center_id):
     res = db.session.query(func.count(OckovaciMisto.id)) \
-        .filter(OckovaciMisto.id == center_id)\
+        .filter(OckovaciMisto.id == center_id) \
         .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(unique_nrpzs_active_subquery())),
                     and_(OckovaciMisto.status == False, OckovaciMisto.nrpzs_kod.in_(unique_nrpzs_subquery())))) \
         .one()
     return res[0] == 1
 
 
+def find_kraj_options():
+    return db.session.query(Kraj.nazev, Kraj.id).order_by(Kraj.nazev).all()
+
+
 def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                               Kraj.nazev.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
+                               Kraj.nazev_kratky.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
                                OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
                                OckovaciMisto.vekove_skupiny, OckovaciMisto.typ, OckovaciMisto.davky,
                                OckovaciMisto.vakciny,
@@ -59,7 +63,7 @@ def find_centers(filter_column, filter_value):
                   OckovaciMisto.davky, OckovaciMisto.vakciny, OckovaciMistoMetriky.registrace_fronta,
                   OckovaciMistoMetriky.registrace_prumer_cekani, OckovaciMistoMetriky.ockovani_odhad_cekani,
                   OckovaciMistoMetriky.registrace_fronta_prumer_cekani, OckovaciMistoMetriky.registrace_pred_zavorou) \
-        .order_by(Kraj.nazev, Okres.nazev, OckovaciMisto.nazev) \
+        .order_by(Kraj.nazev_kratky, Okres.nazev, OckovaciMisto.nazev) \
         .all()
 
     return centers
@@ -72,6 +76,55 @@ def find_third_doses_centers():
         .all()
 
     return [center[0] for center in center_ids]
+
+
+def find_centers_vaccine_options():
+    return db.session.query(func.unnest(OckovaciMisto.vakciny).label('vyrobce')).order_by('vyrobce').distinct().all()
+
+
+def find_doctors():
+    return find_doctors_map().drop(columns=['latitude', 'longitude']).drop_duplicates()
+
+
+def find_doctors_map():
+    df = pd.read_sql_query(
+        f"""
+            select z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny,
+                ol.ockovano, ol.ockovano_7, case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+            from ockovaci_zarizeni z
+            left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+            left join okresy o on o.id = z.okres_id
+            join kraje k on k.id = o.kraj_id
+            left join (
+                select ol.zarizeni_kod, sum(pocet) ockovano, 
+                    coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
+                    string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
+                from ockovani_lide ol
+                left join vakciny v on ol.vakcina = v.vakcina
+                where ol.datum < '{get_import_date()}'
+                group by ol.zarizeni_kod      
+            ) ol on ol.zarizeni_kod = z.id
+            where prakticky_lekar = True
+            order by k.nazev, o.nazev, z.zarizeni_nazev
+            """,
+        db.engine
+    )
+
+    df['okres'] = df['okres'].replace({None: ''})
+    df['vakciny'] = df['vakciny'].replace({None: ''})
+
+    df['ockovano'] = df['ockovano'].replace({np.nan: 0})
+    df['ockovano_7'] = df['ockovano_7'].replace({np.nan: 0})
+
+    return df
+
+
+def find_doctors_vaccine_options():
+    return db.session.query(Vakcina.vyrobce) \
+        .join(OckovaniLide, Vakcina.vakcina == OckovaniLide.vakcina) \
+        .distinct(Vakcina.vyrobce) \
+        .order_by(Vakcina.vyrobce) \
+        .all()
 
 
 def find_free_vaccines_available():
@@ -90,19 +143,6 @@ def find_free_vaccines_vaccine_options():
         .distinct(PrakticiKapacity.typ_vakciny) \
         .order_by(PrakticiKapacity.typ_vakciny) \
         .all()
-
-
-def find_free_vaccines_kraj_options():
-    return db.session.query(PrakticiKapacity.kraj) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
-        .distinct(PrakticiKapacity.kraj) \
-        .order_by(PrakticiKapacity.kraj) \
-        .all()
-
-
-def find_centers_vaccine_options():
-    return db.session.query(func.unnest(OckovaciMisto.vakciny).label('vyrobce')).order_by('vyrobce').distinct().all()
 
 
 def count_vaccines_center(center_id):
@@ -540,35 +580,6 @@ def count_reservations_category():
         db.engine
     )
     return ockovani_skupiny
-
-
-def count_vaccinated_doctors():
-    ockovani_doktori = pd.read_sql_query(
-        """
-        select z.zarizeni_nazev, o.nazev okres, z.provoz_ukoncen, 
-            case when zs.druh_zarizeni_kod = 321 then true else false end pediatr, sum(pocet) as sum_1, 
-            coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{}'), 0) as sum_2,
-            string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{}') vakciny
-        from ockovani_lide ol 
-        left join ockovaci_zarizeni z on ol.zarizeni_kod = z.id
-        left join okresy o on o.id = z.okres_id
-        left join vakciny v on ol.vakcina = v.vakcina
-        left join (
-            select nrpzs_kod, min(druh_zarizeni_kod) druh_zarizeni_kod 
-            from zdravotnicke_stredisko zs 
-            group by nrpzs_kod
-        ) zs on ol.zarizeni_kod = zs.nrpzs_kod
-        where prakticky_lekar = True
-	    group by z.zarizeni_nazev, o.nazev, z.provoz_ukoncen, pediatr
-	    order by sum(pocet) desc
-        """.format(get_import_date(), get_import_date()),
-        db.engine
-    )
-
-    ockovani_doktori['okres'] = ockovani_doktori['okres'].replace({None: ''})
-    ockovani_doktori['vakciny'] = ockovani_doktori['vakciny'].replace({None: ''})
-
-    return ockovani_doktori
 
 
 def count_supplies():
@@ -1140,7 +1151,7 @@ def get_vaccination_total_graph_data():
         join vakciny v on v.vakcina = o.vakcina
         group by datum
         """,
-         db.engine
+        db.engine
     )
 
     return ockovani.set_index('datum').fillna(0).sort_values('datum').cumsum()
