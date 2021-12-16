@@ -10,6 +10,7 @@ from app.fetcher.deaths_vaccinated_fetcher import DeathsVaccinatedFetcher
 from app.fetcher.distributed_fetcher import DistributedFetcher
 from app.fetcher.fetcher import Fetcher
 from app.fetcher.health_facilities_fetcher import HealthFacilitiesFetcher
+from app.fetcher.health_facilities_nrpzs_fetcher import HealthFacilitiesNrpzsFetcher
 from app.fetcher.hospital_analysis_fetcher import HospitalAnalysisFetcher
 from app.fetcher.hospital_capacities_fetcher import HospitalCapacitiesFetcher
 from app.fetcher.hospitalized_fetcher import HospitalizedFetcher
@@ -118,6 +119,9 @@ class FetcherLauncher:
             self._fetchers.append(CentersApiFetcher())
             self._fetchers.append(ReservationsApiFetcher(full_update=False))
 
+        elif dataset == 'all_monthly':
+            self._fetchers.append(HealthFacilitiesNrpzsFetcher())
+
         elif dataset == 'centers':
             self._fetchers.append(CentersFetcher())
         elif dataset == 'centers_api':
@@ -126,6 +130,8 @@ class FetcherLauncher:
             self._fetchers.append(OpeningHoursFetcher())
         elif dataset == 'health_facilities':
             self._fetchers.append(HealthFacilitiesFetcher())
+        elif dataset == 'health_facilities_nrpzs':
+            self._fetchers.append(HealthFacilitiesNrpzsFetcher())
         elif dataset == 'distributed':
             self._fetchers.append(DistributedFetcher())
         elif dataset == 'used':
