@@ -368,6 +368,8 @@ class ZdravotnickeStredisko(db.Model):
     nrpzs_kod = Column(Unicode)
     email = Column(Unicode)
     telefon = Column(Unicode)
+    latitude = Column(Float)
+    longitude = Column(Float)
 
     def __repr__(self):
         return f"<ZdravotnickeStredisko(nazev_cely='{self.nazev_cely}')>"
