@@ -504,6 +504,11 @@ def praktici_admin():
                            kraj_options=kraj_options)
 
 
+@bp.route("/404")
+def error_404():
+    return render_template('error_404.html', last_update=_last_import_modified(), now=_now())
+
+
 def _last_import_modified():
     """
     Returns last successful import.

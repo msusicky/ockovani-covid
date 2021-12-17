@@ -1,5 +1,6 @@
 .container {
     padding-top: 5rem;
+    min-height: 600px;
 }
 
 .card-title:before {
