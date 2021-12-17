@@ -89,7 +89,7 @@ def find_doctors():
 def find_doctors_map():
     df = pd.read_sql_query(
         f"""
-            select s.zdravotnicke_zarizeni_kod, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, 
+            select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, 
                 z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, 
                 count(n.nrpzs_kod) nabidky, case when s.druh_zarizeni_kod = 321 then true else false end pediatr
             from ockovaci_zarizeni z
@@ -109,7 +109,7 @@ def find_doctors_map():
                 select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
             ) n on n.nrpzs_kod = z.id 
             where prakticky_lekar = True
-            group by s.zdravotnicke_zarizeni_kod, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, z.provoz_ukoncen, 
+            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, z.provoz_ukoncen, 
                 s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
             order by k.nazev, o.nazev, z.zarizeni_nazev
             """,

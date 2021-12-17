@@ -86,10 +86,10 @@
         <tr>
             <td colspan="4">Celkem</td>
             <td class="text-right">
-                {{ data.drop(columns=['pediatr']).drop_duplicates()['ockovano'].sum() | format_number }}
+                {{ data[['id', 'ockovano']].drop_duplicates()['ockovano'].sum() | format_number }}
             </td>
             <td class="text-right">
-                {{ data.drop(columns=['pediatr']).drop_duplicates()['ockovano_7'].sum() | format_number }}
+                {{ data[['id', 'ockovano_7']].drop_duplicates()['ockovano_7'].sum() | format_number }}
             </td>
         </tr>
         </tfoot>
