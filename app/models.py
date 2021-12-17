@@ -369,6 +369,7 @@ class ZdravotnickeStredisko(db.Model):
     nrpzs_kod = Column(Unicode)
     email = Column(Unicode)
     telefon = Column(Unicode)
+    web = Column(Unicode)
     latitude = Column(Float)
     longitude = Column(Float)
 

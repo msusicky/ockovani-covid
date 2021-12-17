@@ -21,17 +21,19 @@ class HealthFacilitiesNrpzsFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         usecols = ['ZdravotnickeZarizeniId', 'PCZ', 'PCDP', 'NazevCely', 'ZdravotnickeZarizeniKod', 'DruhZarizeniKod',
                    'DruhZarizeni', 'Obec', 'Psc', 'Ulice', 'CisloDomovniOrientacni', 'Kraj', 'KrajKod', 'Okres',
-                   'OkresKod', 'PoskytovatelTelefon', 'PoskytovatelEmail', 'GPS']
+                   'OkresKod', 'PoskytovatelTelefon', 'PoskytovatelEmail', 'PoskytovatelWeb', 'GPS']
+        dtype = {'ZdravotnickeZarizeniKod': 'object', 'Psc': 'object', 'PoskytovatelTelefon': 'object'}
 
         df = pd.read_csv('https://nrpzs.uzis.cz/res/file/export/export-2021-12.csv', sep=';', encoding='cp1250',
-                         usecols=usecols, dtype={'ZdravotnickeZarizeniKod': 'object', 'PoskytovatelTelefon': 'object'})
+                         usecols=usecols, dtype=dtype)
 
         df = df.rename(columns={'ZdravotnickeZarizeniId': 'zdravotnicke_zarizeni_id', 'PCZ': 'pcz', 'PCDP': 'pcdp',
                                 'NazevCely': 'nazev_cely', 'ZdravotnickeZarizeniKod': 'zdravotnicke_zarizeni_kod',
                                 'DruhZarizeniKod': 'druh_zarizeni_kod', 'DruhZarizeni': 'druh_zarizeni', 'Obec': 'obec',
                                 'Psc': 'psc', 'Ulice': 'ulice', 'CisloDomovniOrientacni': 'cislo_domu', 'Kraj': 'kraj',
                                 'KrajKod': 'kraj_kod', 'Okres': 'okres', 'OkresKod': 'okres_kod',
-                                'PoskytovatelTelefon': 'telefon', 'PoskytovatelEmail': 'email'})
+                                'PoskytovatelTelefon': 'telefon', 'PoskytovatelEmail': 'email',
+                                'PoskytovatelWeb': 'web'})
 
         df['nrpzs_kod'] = df['zdravotnicke_zarizeni_kod'].str[:-3]
         df[['latitude', 'longitude']] = df['GPS'].str.split(" ", n=2, expand=True)
