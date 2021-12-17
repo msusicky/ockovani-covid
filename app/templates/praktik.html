@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% from 'macros/common.html' import metrika %}
+{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
+{% from 'macros/tables/volna_mista.html' import volna_mista %}
+{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
+{% from 'macros/graphs/registrace.html' import graf_registrace %}
+{% from 'macros/graphs/fronta.html' import graf_fronta %}
+{% from 'macros/graphs/ockovani.html' import graf_ockovani %}
+
+{% block title %}
+{{ office.zarizeni_nazev }} |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Praktický lékař: {{ office.zarizeni_nazev }} </h3>
+    </div>
+</div>
+
+<div class="row px-2">
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Podrobnosti o praktickém lékaři</h5>
+                <dl>
+                    <dt>Typ</dt>
+                    <dd>{{ office.druh_zarizeni }}</dd>
+
+                    <dt>Adresa</dt>
+                    <dd>{{ (office.ulice if office.ulice else office.obec) + ' ' + office.cislo_domu + ', ' + office.psc + ' ' + office.obec }}</dd>
+
+                    {% if office.telefon %}
+                    <dt>Telefon</dt>
+                    <dd>
+                        <a href="tel:{{ office.telefon }}">
+                            {{ office.telefon }}
+                        </a>
+                    </dd>
+                    {% endif %}
+
+                    {% if office.email %}
+                    <dt>E-mail</dt>
+                    <dd>
+                        <a href="mailto:{{ office.email }}">
+                            {{ office.email }}
+                        </a>
+                    </dd>
+                    {% endif %}
+                </dl>
+                <p class="card-text text-justify font-italic mb-3">
+                    Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
+                </p>
+                <div>
+                    {% if office.web %}
+                    <a href="{{ office.web }}" class="btn btn-primary" target="_blank">
+                        Web lékaře
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body mb-n3">
+                {% if office.longitude and office.latitude %}
+                <h5 class="card-title">Mapa</h5>
+                <div id="center-map" class="mb-3" style="height:330px;"></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nabídky očkování</h5>
+                TODO
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var center = SMap.Coords.fromWGS84({{ office.longitude }}, {{ office.latitude }});
+    var m = new SMap(JAK.gel("center-map"), center, 14);
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+
+    var options = {};
+    var marker = new SMap.Marker(center, "marker", options);
+    layer.addMarker(marker);
+</script>
+{% endblock %}

@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciZarizeni
 
 
 @bp.route('/')
@@ -16,7 +16,7 @@ def index():
 
 
 @bp.route("/mista")
-def info_mista():
+def mista():
     mista = queries.find_centers(True, True)
 
     third_doses_centers = queries.find_third_doses_centers()
@@ -28,7 +28,7 @@ def info_mista():
 
 
 @bp.route("/okres/<okres_name>")
-def info_okres(okres_name):
+def okres_detail(okres_name):
     okres = db.session.query(Okres).filter(Okres.nazev == okres_name).one_or_none()
     if okres is None:
         abort(404)
@@ -51,7 +51,7 @@ def info_okres(okres_name):
 
 
 @bp.route("/kraj/<kraj_name>")
-def info_kraj(kraj_name):
+def kraj_detail(kraj_name):
     kraj = db.session.query(Kraj).filter(Kraj.nazev_kratky == kraj_name).one_or_none()
     if kraj is None:
         abort(404)
@@ -81,7 +81,7 @@ def info_kraj(kraj_name):
 
 
 @bp.route("/misto/<misto_id>")
-def info_misto(misto_id):
+def misto_detail(misto_id):
     misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
     if misto is None:
         abort(404)
@@ -115,7 +115,7 @@ def info_misto(misto_id):
 
 
 @bp.route("/mapa")
-def mapa():
+def mista_mapa():
     mista = queries.find_centers(True, True)
 
     third_doses_centers = queries.find_third_doses_centers()
@@ -148,6 +148,31 @@ def praktici_mapa():
 
     return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(),
                            doctors_map=doctors_map, vaccines_options=vaccines_options, kraj_options=kraj_options)
+
+
+@bp.route("/praktik/<zarizeni_kod>")
+def praktik_detail(zarizeni_kod):
+    office = db.session.query(OckovaciZarizeni.zarizeni_nazev, ZdravotnickeStredisko.druh_zarizeni,
+                              ZdravotnickeStredisko.obec, ZdravotnickeStredisko.psc, ZdravotnickeStredisko.ulice,
+                              ZdravotnickeStredisko.cislo_domu, ZdravotnickeStredisko.telefon,
+                              ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
+                              ZdravotnickeStredisko.longitude) \
+        .join(ZdravotnickeStredisko, ZdravotnickeStredisko.nrpzs_kod == OckovaciZarizeni.id) \
+        .join(PrakticiKapacity, PrakticiKapacity.zdravotnicke_zarizeni_kod == ZdravotnickeStredisko.zdravotnicke_zarizeni_kod) \
+        .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == zarizeni_kod) \
+        .group_by(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod, OckovaciZarizeni.zarizeni_nazev,
+                  ZdravotnickeStredisko.druh_zarizeni, ZdravotnickeStredisko.obec, ZdravotnickeStredisko.psc,
+                  ZdravotnickeStredisko.ulice, ZdravotnickeStredisko.cislo_domu, ZdravotnickeStredisko.telefon,
+                  ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
+                  ZdravotnickeStredisko.longitude) \
+        .one_or_none()
+    if office is None:
+        abort(404)
+
+    free_vaccines = queries.find_free_vaccines_available(zarizeni_kod)
+
+    return render_template('praktik.html', last_update=_last_import_modified(), now=_now(), office=office,
+                           free_vaccines=free_vaccines)
 
 
 @bp.route("/nabidky")

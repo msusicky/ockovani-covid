@@ -89,8 +89,9 @@ def find_doctors():
 def find_doctors_map():
     df = pd.read_sql_query(
         f"""
-            select z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny,
-                ol.ockovano, ol.ockovano_7, case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+            select s.zdravotnicke_zarizeni_kod, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, 
+                z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, 
+                count(n.nrpzs_kod) nabidky, case when s.druh_zarizeni_kod = 321 then true else false end pediatr
             from ockovaci_zarizeni z
             left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
             left join okresy o on o.id = z.okres_id
@@ -104,7 +105,12 @@ def find_doctors_map():
                 where ol.datum < '{get_import_date()}'
                 group by ol.zarizeni_kod      
             ) ol on ol.zarizeni_kod = z.id
+            left join (
+                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
+            ) n on n.nrpzs_kod = z.id 
             where prakticky_lekar = True
+            group by s.zdravotnicke_zarizeni_kod, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, z.provoz_ukoncen, 
+                s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
             order by k.nazev, o.nazev, z.zarizeni_nazev
             """,
         db.engine
@@ -127,8 +133,9 @@ def find_doctors_vaccine_options():
         .all()
 
 
-def find_free_vaccines_available():
+def find_free_vaccines_available(nrpzs_id = None):
     return db.session.query(PrakticiKapacity) \
+        .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == nrpzs_id, nrpzs_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
         .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
         .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,

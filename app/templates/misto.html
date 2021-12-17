@@ -86,13 +86,13 @@
                         <dd>
                             <span class="mr-1">
                                 Okres:
-                                <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">
+                                <a href="{{ url_for('view.okres_detail', okres_name=misto.okres.nazev) }}">
                                     {{ misto.okres.nazev }}
                                 </a>
                             </span>
                             <span>
                                 Kraj:
-                                <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev_kratky) }}">
+                                <a href="{{ url_for('view.kraj_detail', kraj_name=misto.okres.kraj.nazev_kratky) }}">
                                     {{ misto.okres.kraj.nazev_kratky }}
                                 </a>
                             </span>
