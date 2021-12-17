@@ -79,8 +79,12 @@
         <tfoot class="font-weight-bold">
         <tr>
             <td colspan="4">Celkem</td>
-            <td class="text-right">{{ data['ockovano'].sum() | format_number }}</td>
-            <td class="text-right">{{ data['ockovano_7'].sum() | format_number }}</td>
+            <td class="text-right">
+                {{ data.drop(columns=['pediatr']).drop_duplicates()['ockovano'].sum() | format_number }}
+            </td>
+            <td class="text-right">
+                {{ data.drop(columns=['pediatr']).drop_duplicates()['ockovano_7'].sum() | format_number }}
+            </td>
         </tr>
         </tfoot>
     </table>
