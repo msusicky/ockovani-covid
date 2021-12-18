@@ -1,4 +1,4 @@
-name: check-disk-space
+name: clean-db
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    name: DB cleanup
+    name: Clean DB
     environment: production
     runs-on: ubuntu-18.04
     env:
@@ -25,5 +25,5 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-      - name: Cleanup DB
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask cleanup-db"
+      - name: Clean DB
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask clean-db"

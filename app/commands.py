@@ -87,14 +87,14 @@ def post_tweet_command():
         exit(1)
 
 
-@app.cli.command('cleanup-db')
+@app.cli.command('clean-db')
 def cleanup_db():
     """Deletes older partition than 14 days. Executed weekly via cron"""
 
     eng = db.engine
 
     eng.execute(
-        "DELETE FROM ockovani_registrace WHERE import_id<(SELECT coalesce(min(id), 5) FROM importy WHERE start>now()-'14 days'::interval)")
+        "DELETE FROM ockovani_registrace WHERE import_id<(SELECT min(id) FROM importy WHERE start>now()-'14 days'::interval)")
     app.logger.info("Old data deleted.")
     connection = eng.raw_connection()
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
