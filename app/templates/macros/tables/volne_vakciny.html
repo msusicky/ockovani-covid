@@ -1,7 +1,25 @@
-{% macro volne_vakciny(free_vaccines, kraj_options, vaccines_options) -%}
+{% macro volne_vakciny(free_vaccines, vaccine_options, kraj_options=None, filtered_mode=False, detail_mode=False, admin_mode=False) -%}
 
-<div class="form-row">
-    <div class="col-12 col-lg-6 mb-3">
+{% if not admin_mode %}
+<div class="alert alert-info text-justify alert-dismissible fade show" role="alert">
+    <p>
+        V této tabulce jsou zveřejňovány nabídky očkování s uvedeným typem očkovací látky a kapacitou. Údaje se
+        pravidelně aktualizují.
+        Některé ordinace praktických lékařů pro dospělé nabízejí očkování i dětem od 14 let a naopak některé ordinace
+        praktických lékařů pro děti a dorost nabízejí očkování i dospělým.
+    </p>
+    <p class="mb-0">
+        Pokud máte o očkování zájem, kontaktujte vybranou ordinaci, dodržujte při tom pokyny v poznámce.
+    </p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+
+{% if not detail_mode %}
+<div class="form-row mb-1">
+    <div class="col-12 col-lg-6 mb-2">
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
@@ -9,7 +27,8 @@
             <input id="free-vaccines-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col mb-3">
+    {% if not filtered_mode %}
+    <div class="col-6 col-sm mb-2">
         <select id="free-vaccines-kraj" class="custom-select">
             <option value="">Všechny kraje</option>
             {% for option in kraj_options %}
@@ -17,27 +36,27 @@
             {% endfor %}
         </select>
     </div>
-    <div class="col mb-3">
+    {% endif %}
+    <div class="col-6 col-sm mb-2">
         <select id="free-vaccines-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
-            {% for option in vaccines_options %}
+            {% for option in vaccine_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
     </div>
-    <div class="col-auto mb-3">
-        <div class="custom-control custom-switch" style="display: inline-block">
+    <div class="col-12 col-sm-auto text-center mb-2">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="free-vaccines-adults" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-adults">dospělí</label>
         </div>
-    </div>
-    <div class="col-auto mb-3">
         <div class="custom-control custom-switch" style="display: inline-block">
             <input id="free-vaccines-children" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-children">děti</label>
         </div>
     </div>
 </div>
+{% endif %}
 
 <div class="table-responsive">
     <table id="free-vaccines-table" class="table table-bordered table-striped table-sm mb-0">
@@ -46,8 +65,14 @@
             <th scope="col" class="text-center">Aktualizace</th>
             <th scope="col" class="text-center col-sortable">Dávek</th>
             <th scope="col" class="text-center col-sortable">Vakcína</th>
+            {% if not detail_mode %}
             <th scope="col" class="text-center col-sortable">Město</th>
             <th scope="col" class="text-center">Název zařízení</th>
+            {% endif %}
+            {% if detail_mode %}
+            <th scope="col" class="text-center">Děti</th>
+            <th scope="col" class="text-center">Dospělí</th>
+            {% endif %}
             <th scope="col" class="text-center col-sortable">Expirace</th>
             <th scope="col" class="text-center">Poznámka</th>
         </tr>
@@ -65,6 +90,7 @@
             <td data-value="{{ item.typ_vakciny }}">
                 {{ item.typ_vakciny }}
             </td>
+            {% if not detail_mode %}
             <td data-value="{{ item.mesto }}">
                 {{ item.mesto }}
             </td>
@@ -73,6 +99,11 @@
                     {{ item.nazev_ordinace }}
                 </a>
             </td>
+            {% endif %}
+            {% if detail_mode %}
+            <td>{{ item.deti | format_bool }}</td>
+            <td>{{ item.dospeli | format_bool }}</td>
+            {% endif %}
             <td class="text-right" data-value="{{ item.expirace }}">
                 {{ item.expirace | format_date if item.expirace else ""  }}
             </td>
@@ -86,7 +117,7 @@
 </div>
 
 <script>
-    function filterChanged() {
+    function offersFilterChanged() {
         const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
@@ -117,27 +148,27 @@
 
     $(document).ready(function () {
         $("#free-vaccines-searchbox").keyup(function () {
-            filterChanged();
+            offersFilterChanged();
         });
         $("#free-vaccines-kraj").change(function () {
-            filterChanged();
+            offersFilterChanged();
         });
         $("#free-vaccines-vaccine").change(function () {
-            filterChanged();
+            offersFilterChanged();
         });
         $("#free-vaccines-adults").change(function () {
             if (!$("#free-vaccines-adults")[0].checked) {
                 $("#free-vaccines-children")[0].checked = true;
             }
-            filterChanged();
+            offersFilterChanged();
         });
         $("#free-vaccines-children").change(function () {
             if (!$("#free-vaccines-children")[0].checked) {
                 $("#free-vaccines-adults")[0].checked = true;
             }
-            filterChanged();
+            offersFilterChanged();
         });
-        filterChanged();
+        offersFilterChanged();
     });
 </script>
 {%- endmacro %}

@@ -164,7 +164,7 @@ Praktici - administrace |
 <div class="row">
     <div class="col">
         <h4>Přehled nabídek</h4>
-        {{ volne_vakciny(all_vaccines, kraj_options, vaccines_options) }}
+        {{ volne_vakciny(all_vaccines, free_vaccines_vaccine_options, kraj_options=kraj_options, admin_mode=True) }}
     </div>
 </div>
 {% endblock %}

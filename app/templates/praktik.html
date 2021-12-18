@@ -1,20 +1,14 @@
 {% extends 'base.html' %}
-{% from 'macros/common.html' import metrika %}
-{% from 'macros/tables/stav_registraci.html' import stav_registraci %}
-{% from 'macros/tables/volna_mista.html' import volna_mista %}
-{% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/graphs/registrace.html' import graf_registrace %}
-{% from 'macros/graphs/fronta.html' import graf_fronta %}
-{% from 'macros/graphs/ockovani.html' import graf_ockovani %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 
 {% block title %}
-{{ office.zarizeni_nazev }} |
+{{ doctor.zarizeni_nazev }} |
 {% endblock %}
 
 {% block body %}
 <div class="row">
     <div class="col">
-        <h3>Praktický lékař: {{ office.zarizeni_nazev }} </h3>
+        <h3>Praktický lékař: {{ doctor.zarizeni_nazev }} </h3>
     </div>
 </div>
 
@@ -25,25 +19,25 @@
                 <h5 class="card-title">Podrobnosti o praktickém lékaři</h5>
                 <dl>
                     <dt>Typ</dt>
-                    <dd>{{ office.druh_zarizeni }}</dd>
+                    <dd>{{ doctor.druh_zarizeni }}</dd>
 
                     <dt>Adresa</dt>
-                    <dd>{{ (office.ulice if office.ulice else office.obec) + ' ' + office.cislo_domu + ', ' + office.psc + ' ' + office.obec }}</dd>
+                    <dd>{{ (doctor.ulice if doctor.ulice else doctor.obec) + ' ' + doctor.cislo_domu + ', ' + doctor.psc + ' ' + doctor.obec }}</dd>
 
-                    {% if office.telefon %}
+                    {% if doctor.telefon %}
                     <dt>Telefon</dt>
                     <dd>
-                        <a href="tel:{{ office.telefon }}">
-                            {{ office.telefon }}
+                        <a href="tel:{{ doctor.telefon }}">
+                            {{ doctor.telefon }}
                         </a>
                     </dd>
                     {% endif %}
 
-                    {% if office.email %}
+                    {% if doctor.email %}
                     <dt>E-mail</dt>
                     <dd>
-                        <a href="mailto:{{ office.email }}">
-                            {{ office.email }}
+                        <a href="mailto:{{ doctor.email }}">
+                            {{ doctor.email }}
                         </a>
                     </dd>
                     {% endif %}
@@ -56,23 +50,21 @@
                     <dd>
                         <span class="mr-1">
                             Okres:
-                            <a href="{{ url_for('view.okres_detail', okres_name=office.okres) }}#praktici">
-                                {{ office.okres }}
+                            <a href="{{ url_for('view.okres_detail', okres_name=doctor.okres) }}#praktici">
+                                {{ doctor.okres }}
                             </a>
                         </span>
                         <span>
                             Kraj:
-                            <a href="{{ url_for('view.kraj_detail', kraj_name=office.kraj_kratky) }}#praktici">
-                                {{ office.kraj }}
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=doctor.kraj_kratky) }}#praktici">
+                                {{ doctor.kraj }}
                             </a>
                         </span>
                     </dd>
                 </dl>
                 <div>
-                    {% if office.web %}
-                    <a href="{{ office.web }}" class="btn btn-primary" target="_blank">
-                        Web lékaře
-                    </a>
+                    {% if doctor.web %}
+                    <a href="{{ doctor.web }}" class="btn btn-primary" target="_blank">Web lékaře</a>
                     {% endif %}
                 </div>
             </div>
@@ -81,7 +73,7 @@
     <div class="col-md-6 px-2 mb-3">
         <div class="card h-100">
             <div class="card-body mb-n3">
-                {% if office.longitude and office.latitude %}
+                {% if doctor.longitude and doctor.latitude %}
                 <h5 class="card-title">Mapa</h5>
                 <div id="center-map" class="mb-3" style="height:330px;"></div>
                 {% endif %}
@@ -95,7 +87,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Nabídky očkování</h5>
-                TODO
+                {{ volne_vakciny(free_vaccines, detail_mode=True) }}
             </div>
         </div>
     </div>
@@ -104,7 +96,7 @@
 
 {% block scripts %}
 <script>
-    var center = SMap.Coords.fromWGS84({{ office.longitude }}, {{ office.latitude }});
+    var center = SMap.Coords.fromWGS84({{ doctor.longitude }}, {{ doctor.latitude }});
     var m = new SMap(JAK.gel("center-map"), center, 14);
     m.addControl(new SMap.Control.Sync());
     m.addDefaultLayer(SMap.DEF_BASE).enable();

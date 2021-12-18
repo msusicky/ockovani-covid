@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/prehled_mist.html' import prehled_mist %}
+{% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
@@ -52,13 +54,13 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="ockovaci-mista">
-                        {{ prehled_mist(mista, third_doses_centers, vaccines_options) }}
+                        {{ prehled_mist(mista, third_doses_centers, centers_vaccine_options, kraj_mode=True) }}
                     </div>
                     <div class="tab-pane" id="praktici">
-                        TODO
+                        {{ prehled_praktici(doctors, doctors_vaccine_options, kraj_mode=True) }}
                     </div>
                     <div class="tab-pane" id="nabidky-ockovani">
-                        TODO
+                        {{ volne_vakciny(free_vaccines, free_vaccines_vaccine_options, filtered_mode=True) }}
                     </div>
                     <div class="tab-pane" id="statistiky">
                         <div class="row px-2 mb-n2">

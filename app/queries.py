@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, and_, text, column
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaniRezervace, OckovaniLide, Vakcina
+    PrakticiKapacity, OckovaniRezervace, OckovaniLide, Vakcina, ZdravotnickeStredisko
 
 
 def unique_nrpzs_subquery():
@@ -41,10 +41,10 @@ def find_kraj_options():
 
 def find_centers(filter_column, filter_value):
     centers = db.session.query(OckovaciMisto.id, OckovaciMisto.nazev, Okres.nazev.label("okres"),
-                               Kraj.nazev_kratky.label("kraj"), OckovaciMisto.longitude, OckovaciMisto.latitude,
-                               OckovaciMisto.adresa, OckovaciMisto.status, OckovaciMisto.bezbarierovy_pristup,
-                               OckovaciMisto.vekove_skupiny, OckovaciMisto.typ, OckovaciMisto.davky,
-                               OckovaciMisto.vakciny,
+                               Kraj.nazev_kratky.label("kraj"), Kraj.id.label("kraj_id"), OckovaciMisto.longitude,
+                               OckovaciMisto.latitude, OckovaciMisto.adresa, OckovaciMisto.status,
+                               OckovaciMisto.bezbarierovy_pristup, OckovaciMisto.vekove_skupiny, OckovaciMisto.typ,
+                               OckovaciMisto.davky, OckovaciMisto.vakciny,
                                OckovaciMistoMetriky.registrace_fronta, OckovaciMistoMetriky.registrace_prumer_cekani,
                                OckovaciMistoMetriky.ockovani_odhad_cekani,
                                OckovaciMistoMetriky.registrace_fronta_prumer_cekani,
@@ -82,16 +82,20 @@ def find_centers_vaccine_options():
     return db.session.query(func.unnest(OckovaciMisto.vakciny).label('vyrobce')).order_by('vyrobce').distinct().all()
 
 
-def find_doctors():
-    return find_doctors_map().drop(columns=['latitude', 'longitude']).drop_duplicates()
+def find_doctors(okres_id=None, kraj_id=None):
+    return find_doctors_map(okres_id, kraj_id).drop(columns=['latitude', 'longitude']).drop_duplicates()
 
 
-def find_doctors_map():
+def find_doctors_map(okres_id=None, kraj_id=None):
+    okres_id_sql = 'null' if okres_id is None else f"'{okres_id}'"
+    kraj_id_sql = 'null' if kraj_id is None else f"'{kraj_id}'"
+
     df = pd.read_sql_query(
         f"""
             select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, 
-                z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, 
-                count(n.nrpzs_kod) nabidky, case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+                k.nazev_kratky kraj_kratky, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
+                ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+                case when s.druh_zarizeni_kod = 321 then true else false end pediatr
             from ockovaci_zarizeni z
             left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
             left join okresy o on o.id = z.okres_id
@@ -108,10 +112,12 @@ def find_doctors_map():
             left join (
                 select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
             ) n on n.nrpzs_kod = z.id 
-            where prakticky_lekar = True
-            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, z.provoz_ukoncen, 
-                s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
-            order by k.nazev, o.nazev, z.zarizeni_nazev
+            where prakticky_lekar = True 
+                and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
+                and (o.kraj_id = {kraj_id_sql} or {kraj_id_sql} is null)
+            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, 
+                z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
+            order by k.nazev_kratky, o.nazev, z.zarizeni_nazev
             """,
         db.engine
     )
@@ -133,9 +139,12 @@ def find_doctors_vaccine_options():
         .all()
 
 
-def find_free_vaccines_available(nrpzs_id = None):
+def find_free_vaccines_available(nrpzs_id=None, okres_id=None, kraj_id=None):
     return db.session.query(PrakticiKapacity) \
+        .join(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == nrpzs_id, nrpzs_id is None)) \
+        .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
+        .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
         .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
         .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,

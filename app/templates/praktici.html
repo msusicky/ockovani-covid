@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% from 'macros/tables/prehled_praktici.html' import stav_ockovani_praktici %}
+{% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
 {% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 
 {% block title %}
@@ -18,5 +18,5 @@ Praktici |
     </div>
 </div>
 
-{{ stav_ockovani_praktici(doctors, kraj_options, vaccines_options) }}
+{{ prehled_praktici(doctors, doctors_vaccine_options, kraj_options=kraj_options) }}
 {% endblock %}
