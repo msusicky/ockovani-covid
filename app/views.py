@@ -152,19 +152,22 @@ def praktici_mapa():
 
 @bp.route("/praktik/<zarizeni_kod>")
 def praktik_detail(zarizeni_kod):
-    office = db.session.query(OckovaciZarizeni.zarizeni_nazev, ZdravotnickeStredisko.druh_zarizeni,
+    office = db.session.query(OckovaciZarizeni.zarizeni_nazev, Okres.nazev.label('okres'), Kraj.nazev.label('kraj'),
+                              Kraj.nazev_kratky.label('kraj_kratky'), ZdravotnickeStredisko.druh_zarizeni,
                               ZdravotnickeStredisko.obec, ZdravotnickeStredisko.psc, ZdravotnickeStredisko.ulice,
                               ZdravotnickeStredisko.cislo_domu, ZdravotnickeStredisko.telefon,
                               ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
                               ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.nrpzs_kod == OckovaciZarizeni.id) \
         .join(PrakticiKapacity, PrakticiKapacity.zdravotnicke_zarizeni_kod == ZdravotnickeStredisko.zdravotnicke_zarizeni_kod) \
+        .join(Okres, Okres.id == OckovaciZarizeni.okres_id) \
+        .join(Kraj, Kraj.id == Okres.kraj_id) \
         .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == zarizeni_kod) \
-        .group_by(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod, OckovaciZarizeni.zarizeni_nazev,
-                  ZdravotnickeStredisko.druh_zarizeni, ZdravotnickeStredisko.obec, ZdravotnickeStredisko.psc,
-                  ZdravotnickeStredisko.ulice, ZdravotnickeStredisko.cislo_domu, ZdravotnickeStredisko.telefon,
-                  ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
-                  ZdravotnickeStredisko.longitude) \
+        .group_by(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod, Okres.nazev, Kraj.nazev, Kraj.nazev_kratky,
+                  OckovaciZarizeni.zarizeni_nazev, ZdravotnickeStredisko.druh_zarizeni, ZdravotnickeStredisko.obec,
+                  ZdravotnickeStredisko.psc, ZdravotnickeStredisko.ulice, ZdravotnickeStredisko.cislo_domu,
+                  ZdravotnickeStredisko.telefon, ZdravotnickeStredisko.email, ZdravotnickeStredisko.web,
+                  ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .one_or_none()
     if office is None:
         abort(404)

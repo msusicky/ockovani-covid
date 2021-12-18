@@ -47,10 +47,27 @@
                         </a>
                     </dd>
                     {% endif %}
+
+                    <dd class="text-justify font-italic">
+                        Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
+                    </dd>
+
+                    <dt>Lékaři v okolí</dt>
+                    <dd>
+                        <span class="mr-1">
+                            Okres:
+                            <a href="{{ url_for('view.okres_detail', okres_name=office.okres) }}#praktici">
+                                {{ office.okres }}
+                            </a>
+                        </span>
+                        <span>
+                            Kraj:
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=office.kraj_kratky) }}#praktici">
+                                {{ office.kraj }}
+                            </a>
+                        </span>
+                    </dd>
                 </dl>
-                <p class="card-text text-justify font-italic mb-3">
-                    Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
-                </p>
                 <div>
                     {% if office.web %}
                     <a href="{{ office.web }}" class="btn btn-primary" target="_blank">

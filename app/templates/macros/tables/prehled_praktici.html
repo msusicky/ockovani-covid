@@ -74,7 +74,9 @@
                 {{ row.zarizeni_nazev }}
                 {% endif %}
             </td>
-            <td data-value="{{ row.okres }}" data-toggle="tooltip" data-placement="auto">{{ row.okres }}</td>
+            <td data-value="{{ row.okres }}" data-toggle="tooltip" data-placement="auto">
+                <a href="{{ url_for('view.okres_detail', okres_name=row.okres) }}#praktici">{{ row.okres }}</a>
+            </td>
             <td data-value="{{ row.pediatr }}">{{ row.pediatr | format_bool }}</td>
             <td>{{ row.vakciny }}</td>
             <td class="text-right" data-value="{{ row.ockovano }}">{{ row.ockovano | format_number }}</td>
