@@ -24,8 +24,7 @@ class HealthFacilitiesNrpzsFetcher(Fetcher):
                    'OkresKod', 'PoskytovatelTelefon', 'PoskytovatelEmail', 'PoskytovatelWeb', 'GPS']
         dtype = {'ZdravotnickeZarizeniKod': 'object', 'Psc': 'object', 'PoskytovatelTelefon': 'object'}
 
-        df = pd.read_csv('https://nrpzs.uzis.cz/res/file/export/export-2021-12.csv', sep=';', encoding='cp1250',
-                         usecols=usecols, dtype=dtype)
+        df = pd.read_csv(self.FACILITIES_CSV, sep=';', encoding='cp1250', usecols=usecols, dtype=dtype)
 
         df = df.rename(columns={'ZdravotnickeZarizeniId': 'zdravotnicke_zarizeni_id', 'PCZ': 'pcz', 'PCDP': 'pcdp',
                                 'NazevCely': 'nazev_cely', 'ZdravotnickeZarizeniKod': 'zdravotnicke_zarizeni_kod',
