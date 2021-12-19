@@ -73,7 +73,6 @@ Mapa praktiků |
             {% if row.nabidky > 0 %}
             + '<br><a href="./praktik/{{ row.zdravotnicke_zarizeni_kod }}" class="btn btn-primary mt-2">Detail lékaře</a>'
             {% endif %}
-            ;
         card.getFooter().style = "display: none";
         card.getContainer().style.padding = "0";
         marker.decorate(SMap.Marker.Feature.Card, card);

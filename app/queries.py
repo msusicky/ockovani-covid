@@ -164,7 +164,11 @@ def find_doctors_vaccine_options():
 
 
 def find_free_vaccines_available(nrpzs_id=None, okres_id=None, kraj_id=None):
-    return db.session.query(PrakticiKapacity) \
+    return db.session.query(PrakticiKapacity.zdravotnicke_zarizeni_kod, PrakticiKapacity.datum_aktualizace,
+                            PrakticiKapacity.pocet_davek, PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto,
+                            PrakticiKapacity.nazev_ordinace, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
+                            PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiKapacity.kraj,
+                            ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == nrpzs_id, nrpzs_id is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \

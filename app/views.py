@@ -189,8 +189,11 @@ def nabidky():
 
     free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
+    kraj_options = queries.find_kraj_options()
+
     return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options)
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           kraj_options=kraj_options)
 
 
 @bp.route("/nabidky_mapa")
@@ -199,11 +202,8 @@ def nabidky_mapa():
 
     free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_kraj_options()
-
     return render_template('nabidky_mapa.html', last_update=_last_import_modified(), now=_now(),
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
-                           kraj_options=kraj_options)
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options)
 
 
 @bp.route("/statistiky")
