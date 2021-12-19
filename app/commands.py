@@ -88,7 +88,7 @@ def post_tweet_command():
 
 
 @app.cli.command('clean-db')
-def cleanup_db():
+def clean_db_command():
     """Deletes older partition than 14 days. Executed weekly via cron"""
 
     eng = db.engine
