@@ -5,60 +5,62 @@ Mapa očkovacích míst |
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col">
-            <h3>Očkovací místa na mapě</h3>
+<div class="row">
+    <div class="col">
+        <h3>Očkovací místa na mapě</h3>
+    </div>
+</div>
+
+<div class="row mb-1">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mr-auto">
+        <select id="centers-vaccine" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in centers_vaccine_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-5" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-5">5-15</label>
+        </div>
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-16" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-16">16-17</label>
+        </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-18" type="checkbox" class="custom-control-input" checked>
+            <label class="custom-control-label" for="centers-18">18+</label>
         </div>
     </div>
-    <div class="row mb-1">
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-2 mr-auto">
-            <select id="centers-vaccines" class="custom-select">
-                <option value="">Všechny vakcíny</option>
-                {% for option in vaccine_options %}
-                <option value="{{ option[0] }}">{{ option[0] }}</option>
-                {% endfor %}
-            </select>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-walkin" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-walkin">bez registrace</label>
         </div>
-        <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
-            <div class="custom-control custom-switch mr-2" style="display: inline-block">
-                <input id="centers-5" type="checkbox" class="custom-control-input">
-                <label class="custom-control-label" for="centers-5">5-15</label>
-            </div>
-            <div class="custom-control custom-switch mr-2" style="display: inline-block">
-                <input id="centers-16" type="checkbox" class="custom-control-input">
-                <label class="custom-control-label" for="centers-16">16-17</label>
-            </div>
-            <div class="custom-control custom-switch" style="display: inline-block">
-                <input id="centers-18" type="checkbox" class="custom-control-input" checked>
-                <label class="custom-control-label" for="centers-18">18+</label>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 col-lg-4 col-xl-auto text-center mb-1 mr-auto">
-            <div class="custom-control custom-switch mr-2" style="display: inline-block">
-                <input id="centers-walkin" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-walkin">bez registrace</label>
-            </div>
-            <div class="custom-control custom-switch" style="display: inline-block">
-                <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
-            </div>
-        </div>
-        <div class="col-12 col-md-6 col-lg-12 col-xl-auto text-center mb-1">
-            <div class="custom-control custom-switch mr-2" style="display: inline-block">
-                <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
-                <label class="custom-control-label" for="centers-thirddoses">3. dávky</label>
-            </div>
-            <div class="custom-control custom-switch" style="display: inline-block">
-                <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
-                <label class="custom-control-label" for="centers-barrierfree">bezbariérová</label>
-            </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-selfpaid" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-selfpaid">samoplátci</label>
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <div id="centers-map" style="height:600px;"></div>
+    <div class="col-12 col-md-6 col-lg-12 col-xl-auto text-center mb-1">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="centers-thirddoses" type="checkbox" class="custom-control-input" >
+            <label class="custom-control-label" for="centers-thirddoses">3. dávky</label>
+        </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="centers-barrierfree" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="centers-barrierfree">bezbariérová</label>
         </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div id="centers-map" style="height:600px;"></div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -100,7 +102,7 @@ Mapa očkovacích míst |
         card.setSize(450, null)
         card.getHeader().innerHTML = "<strong>{{ misto.nazev }}</strong>";
         card.getBody().innerHTML = "<strong>Adresa:</strong> {{misto.adresa}}<br>" +
-            "<strong>Bezbariérový přístup:</strong> {{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}<br>" +
+            "<strong>Bezbariérový přístup:</strong> {{ misto.bezbarierovy_pristup | format_bool }}<br>" +
             "<strong>Čekání na rezervaci za poslední týden:</strong> {{ (None if misto.registrace_prumer_cekani == None else (misto.registrace_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if misto.registrace_prumer_cekani != None }} <br>" +
             // "<strong>Průměrná doba čekajících ve frontě:</strong> {{ (None if misto.registrace_fronta_prumer_cekani == None else (misto.registrace_fronta_prumer_cekani / 7)) | format_decimal }} {{ 'týdne' if misto.registrace_fronta_prumer_cekani != None }} <br>" +
             // "<strong>Zatížení místa:</strong> {{ (None if misto.ockovani_odhad_cekani == None else (misto.ockovani_odhad_cekani / 7)) | format_decimal }} {{ '' if misto.ockovani_odhad_cekani != None }} <br>" +
@@ -131,7 +133,7 @@ Mapa očkovacích míst |
     m.setCenterZoom(cz[0], cz[1]);
 
     function filterMarkers() {
-        const vaccinesValue = $("#centers-vaccines").val()
+        const vaccineValue = $("#centers-vaccine").val()
         const age5Value = $("#centers-5")[0].checked;
         const age16Value = $("#centers-16")[0].checked;
         const age18Value = $("#centers-18")[0].checked;
@@ -141,6 +143,7 @@ Mapa očkovacích míst |
         const barrierfreeValue = $("#centers-barrierfree")[0].checked;
 
         layer.removeAll();
+        var markers_filtered = [];
 
         for (var i=0;i<markers.length;i++) {
             marker = markers[i];
@@ -151,19 +154,21 @@ Mapa očkovacích míst |
             const age16 = age.includes('16-17');
             const age18 = age.includes('18+') || !age.length;
 
-            if ((!vaccinesValue || vaccines.includes(vaccinesValue))
+            if ((!vaccineValue || vaccines.includes(vaccineValue))
                 && ((age5Value && age5) || (age16Value && age16) || (age18Value && age18))
                 && ((walkinValue && marker.filter_data.walkin) || (!walkinValue && !marker.filter_data.walkin))
                 && ((selfpaidValue && marker.filter_data.selfpaid) || (!selfpaidValue && !marker.filter_data.selfpaid))
                 && (!thirddosesValue || marker.filter_data.thirddoses)
                 && (!barrierfreeValue || marker.filter_data.barrierfree)) {
-                layer.addMarker(marker);
+                markers_filtered.push(marker);
             }
         }
+
+        layer.addMarker(markers_filtered);
     }
 
     $(document).ready(function () {
-        $("#centers-vaccines").change(function () {
+        $("#centers-vaccine").change(function () {
             filterMarkers();
         });
         $("#centers-5").change(function () {
@@ -191,4 +196,3 @@ Mapa očkovacích míst |
     });
 </script>
 {% endblock %}
-

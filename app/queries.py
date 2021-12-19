@@ -146,6 +146,9 @@ def find_doctors_map(okres_id=None, kraj_id=None):
     df['okres'] = df['okres'].replace({None: ''})
     df['vakciny'] = df['vakciny'].replace({None: ''})
 
+    df['latitude'] = df['latitude'].replace({np.nan: None})
+    df['longitude'] = df['longitude'].replace({np.nan: None})
+
     df['ockovano'] = df['ockovano'].replace({np.nan: 0})
     df['ockovano_7'] = df['ockovano_7'].replace({np.nan: 0})
 

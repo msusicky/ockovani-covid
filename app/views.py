@@ -163,15 +163,12 @@ def praktici():
 
 @bp.route("/praktici_mapa")
 def praktici_mapa():
-    doctors_map = queries.find_doctors_map()
+    doctors = queries.find_doctors_map()
 
     doctors_vaccine_options = queries.find_doctors_vaccine_options()
 
-    kraj_options = queries.find_kraj_options()
-
-    return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(),
-                           doctors_map=doctors_map, doctors_vaccine_options=doctors_vaccine_options,
-                           kraj_options=kraj_options)
+    return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(), doctors=doctors,
+                           doctors_vaccine_options=doctors_vaccine_options)
 
 
 @bp.route("/praktik/<zarizeni_kod>")
@@ -192,11 +189,8 @@ def nabidky():
 
     free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_kraj_options()
-
     return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
-                           kraj_options=kraj_options)
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options)
 
 
 @bp.route("/nabidky_mapa")

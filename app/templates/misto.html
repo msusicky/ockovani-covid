@@ -45,7 +45,7 @@
                     {% endif %}
 
                     <dt>Bezbariérový přístup</dt>
-                    <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
+                    <dd>{{ misto.bezbarierovy_pristup | format_bool }}</dd>
 
                     <dt>Vakcíny</dt>
                     <dd>
