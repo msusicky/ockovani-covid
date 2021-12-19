@@ -527,12 +527,13 @@ def praktici_admin():
 
     free_vaccines = queries.find_free_vaccines_available()
 
-    vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
     kraj_options = queries.find_kraj_options()
 
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
-                           user_vaccines=user_vaccines, all_vaccines=free_vaccines, vaccine_options=vaccine_options,
+                           user_vaccines=user_vaccines, all_vaccines=free_vaccines,
+                           free_vaccines_vaccine_options=free_vaccines_vaccine_options,
                            kraj_options=kraj_options)
 
 
