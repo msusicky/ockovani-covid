@@ -104,17 +104,13 @@ def find_doctor(zarizeni_kod):
 
 
 def find_doctors(okres_id=None, kraj_id=None):
-    return find_doctors_map(okres_id, kraj_id).drop(columns=['latitude', 'longitude']).drop_duplicates()
-
-
-def find_doctors_map(okres_id=None, kraj_id=None):
     okres_id_sql = 'null' if okres_id is None else f"'{okres_id}'"
     kraj_id_sql = 'null' if kraj_id is None else f"'{kraj_id}'"
 
     df = pd.read_sql_query(
         f"""
-            select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, 
-                k.nazev_kratky kraj_kratky, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
+            select min(s.zdravotnicke_zarizeni_kod) zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, 
+                o.kraj_id, k.nazev kraj, k.nazev_kratky kraj_kratky, z.provoz_ukoncen, ol.vakciny, ol.ockovano, 
                 ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
                 case when s.druh_zarizeni_kod = 321 then true else false end pediatr
             from ockovaci_zarizeni z
@@ -136,8 +132,8 @@ def find_doctors_map(okres_id=None, kraj_id=None):
             where prakticky_lekar = True 
                 and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
                 and (o.kraj_id = {kraj_id_sql} or {kraj_id_sql} is null)
-            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, 
-                z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
+            group by z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, z.provoz_ukoncen, ol.vakciny, 
+                ol.ockovano, ol.ockovano_7, pediatr
             order by k.nazev_kratky, o.nazev, z.zarizeni_nazev
             """,
         db.engine
@@ -145,6 +141,45 @@ def find_doctors_map(okres_id=None, kraj_id=None):
 
     df['okres'] = df['okres'].replace({None: ''})
     df['vakciny'] = df['vakciny'].replace({None: ''})
+
+    df['provoz_ukoncen'] = df['provoz_ukoncen'].astype('bool')
+
+    df['ockovano'] = df['ockovano'].replace({np.nan: 0})
+    df['ockovano_7'] = df['ockovano_7'].replace({np.nan: 0})
+
+    return df
+
+
+def find_doctors_map():
+    df = pd.read_sql_query(
+        f"""
+            select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
+                ol.vakciny, ol.ockovano, ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+                case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+            from ockovaci_zarizeni z
+            left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+            left join (
+                select ol.zarizeni_kod, sum(pocet) ockovano, 
+                    coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
+                    string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
+                from ockovani_lide ol
+                left join vakciny v on ol.vakcina = v.vakcina
+                where ol.datum < '{get_import_date()}'
+                group by ol.zarizeni_kod      
+            ) ol on ol.zarizeni_kod = z.id
+            left join (
+                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
+            ) n on n.nrpzs_kod = z.id 
+            where prakticky_lekar = True 
+            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
+                ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
+            """,
+        db.engine
+    )
+
+    df['vakciny'] = df['vakciny'].replace({None: ''})
+
+    df['provoz_ukoncen'] = df['provoz_ukoncen'].astype('bool')
 
     df['latitude'] = df['latitude'].replace({np.nan: None})
     df['longitude'] = df['longitude'].replace({np.nan: None})
