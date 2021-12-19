@@ -103,6 +103,9 @@ def find_doctor(zarizeni_kod):
         .one_or_none()
 
 
+NRPZS_PEDIATRICIAN_CODE = 321
+
+
 def find_doctors(okres_id=None, kraj_id=None):
     okres_id_sql = 'null' if okres_id is None else f"'{okres_id}'"
     kraj_id_sql = 'null' if kraj_id is None else f"'{kraj_id}'"
@@ -112,7 +115,7 @@ def find_doctors(okres_id=None, kraj_id=None):
             select min(s.zdravotnicke_zarizeni_kod) zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, 
                 o.kraj_id, k.nazev kraj, k.nazev_kratky kraj_kratky, z.provoz_ukoncen, ol.vakciny, ol.ockovano, 
                 ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
-                case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+                case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
             from ockovaci_zarizeni z
             left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
             left join okresy o on o.id = z.okres_id
@@ -155,7 +158,7 @@ def find_doctors_map():
         f"""
             select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
                 ol.vakciny, ol.ockovano, ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
-                case when s.druh_zarizeni_kod = 321 then true else false end pediatr
+                case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
             from ockovaci_zarizeni z
             left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
             left join (
