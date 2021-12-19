@@ -96,3 +96,7 @@ ul.timeline > li:before {
 .custom-switch {
     padding: 7px 0 7px 36px;
 }
+
+.smap .cluster div {
+    box-sizing: unset;
+}
