@@ -2,8 +2,9 @@ import time
 from datetime import date, timedelta
 
 import click
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from app import app
+from app import app, db
 from app.etl import MetricsEtl
 from app.fetcher import FetcherLauncher
 from app.twitter_bot import TwitterBot
@@ -79,6 +80,29 @@ def post_tweet_command():
     """Post statistics as a tweet."""
     twitter_bot = TwitterBot()
     result = twitter_bot.post_tweet()
+
+    if result:
+        exit(0)
+    else:
+        exit(1)
+
+
+@app.cli.command('clean-db')
+def clean_db_command():
+    """Deletes older partition than 14 days. Executed weekly via cron"""
+
+    eng = db.engine
+
+    eng.execute(
+        "DELETE FROM ockovani_registrace WHERE import_id<(SELECT min(id) FROM importy WHERE start>now()-'14 days'::interval)")
+    app.logger.info("Old data deleted.")
+    connection = eng.raw_connection()
+    connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cursor = connection.cursor()
+    result = cursor.execute("VACUUM(FULL, ANALYZE) ockovani_registrace")
+
+    app.logger.info("Vacuum finished.")
+    connection.autocommit = False
 
     if result:
         exit(0)
