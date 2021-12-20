@@ -214,7 +214,7 @@ def find_free_vaccines_available(nrpzs_id=None, okres_id=None, kraj_id=None):
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
         .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
                   PrakticiKapacity.typ_vakciny) \
         .all()
@@ -223,7 +223,7 @@ def find_free_vaccines_available(nrpzs_id=None, okres_id=None, kraj_id=None):
 def find_free_vaccines_vaccine_options():
     return db.session.query(PrakticiKapacity.typ_vakciny) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
         .distinct(PrakticiKapacity.typ_vakciny) \
         .order_by(PrakticiKapacity.typ_vakciny) \
         .all()
@@ -868,7 +868,7 @@ def count_top_centers():
 
 def couht_gp_vaccines():
     return db.session.query(func.sum(PrakticiKapacity.pocet_davek)) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= datetime.today().date())) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
         .one()[0]
 
 
