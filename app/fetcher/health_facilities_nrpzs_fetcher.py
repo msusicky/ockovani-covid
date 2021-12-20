@@ -1,4 +1,5 @@
 from datetime import date
+from urllib.parse import urlparse
 
 import pandas as pd
 
@@ -35,6 +36,7 @@ class HealthFacilitiesNrpzsFetcher(Fetcher):
                                 'PoskytovatelWeb': 'web'})
 
         df['nrpzs_kod'] = df['zdravotnicke_zarizeni_kod'].str[:-3]
+        df['web'] = df['web'].fillna('').apply(lambda s : urlparse(s, 'http').geturl() if s else None)
         df[['latitude', 'longitude']] = df['GPS'].str.split(" ", n=2, expand=True)
 
         df = df.drop('GPS', axis=1)
