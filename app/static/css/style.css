@@ -1,5 +1,6 @@
 .container {
     padding-top: 5rem;
+    min-height: 600px;
 }
 
 .card-title:before {
@@ -94,4 +95,8 @@ ul.timeline > li:before {
 
 .custom-switch {
     padding: 7px 0 7px 36px;
+}
+
+.smap .cluster div {
+    box-sizing: unset;
 }

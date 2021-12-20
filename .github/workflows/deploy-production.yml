@@ -66,3 +66,5 @@ jobs:
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
       - name: Restart flask
         run: ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "sudo systemctl stop ockovani-prd && sudo systemctl start ockovani-prd"
+      - name: Update crontab
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "crontab ${APP_DIR}/scripts/cron"

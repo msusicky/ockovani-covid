@@ -7,10 +7,13 @@ if [ $wget_res -ne 0 ]; then
   exit $wget_res
 fi
 
-cp -r 127.0.0.1:5000/* /home/ockovani/prd/web/ockovani-covid-pages/
-rm -r 127.0.0.1:5000
-cd /home/ockovani/prd/web/ockovani-covid-pages
-git add *
-git commit -m "Update"
-git push origin master
+WEB_DIR="/home/ockovani/prd/web/ockovani-covid-pages"
 
+find $WEB_DIR -name "*.html" -type f -delete
+cp -r 127.0.0.1:5000/* ${WEB_DIR}/
+rm -r 127.0.0.1:5000
+
+cd $WEB_DIR || exit 1
+git add *
+git commit -am "Update"
+git push origin master

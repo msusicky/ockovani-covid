@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
+
+{% block title %}
+{{ doctor.zarizeni_nazev }} |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Praktický lékař: {{ doctor.zarizeni_nazev }} </h3>
+    </div>
+</div>
+
+<div class="row px-2">
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Podrobnosti o praktickém lékaři</h5>
+                <dl>
+                    <dt>Typ</dt>
+                    <dd>{{ doctor.druh_zarizeni }}</dd>
+
+                    <dt>Adresa</dt>
+                    <dd>{{ (doctor.ulice if doctor.ulice else doctor.obec) + ' ' + doctor.cislo_domu + ', ' + doctor.psc + ' ' + doctor.obec }}</dd>
+
+                    {% if doctor.telefon %}
+                    <dt>Telefon</dt>
+                    <dd>
+                        <a href="tel:{{ doctor.telefon }}">
+                            {{ doctor.telefon }}
+                        </a>
+                    </dd>
+                    {% endif %}
+
+                    {% if doctor.email %}
+                    <dt>E-mail</dt>
+                    <dd>
+                        <a href="mailto:{{ doctor.email }}">
+                            {{ doctor.email }}
+                        </a>
+                    </dd>
+                    {% endif %}
+
+                    <dd class="text-justify font-italic">
+                        Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
+                    </dd>
+
+                    <dt>Lékaři v okolí</dt>
+                    <dd>
+                        <span class="mr-1">
+                            Okres:
+                            <a href="{{ url_for('view.okres_detail', okres_name=doctor.okres) }}#praktici">
+                                {{ doctor.okres }}
+                            </a>
+                        </span>
+                        <span>
+                            Kraj:
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=doctor.kraj_kratky) }}#praktici">
+                                {{ doctor.kraj }}
+                            </a>
+                        </span>
+                    </dd>
+                </dl>
+                <div>
+                    {% if doctor.web %}
+                    <a href="{{ doctor.web }}" class="btn btn-primary" target="_blank">Web lékaře</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body mb-n3">
+                {% if doctor.longitude and doctor.latitude %}
+                <h5 class="card-title">Mapa</h5>
+                <div id="center-map" class="mb-3" style="height:330px;"></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nabídky očkování</h5>
+                {{ volne_vakciny(free_vaccines, detail_mode=True) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var center = SMap.Coords.fromWGS84({{ doctor.longitude }}, {{ doctor.latitude }});
+    var m = new SMap(JAK.gel("center-map"), center, 14);
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+
+    var options = {};
+    var marker = new SMap.Marker(center, "marker", options);
+    layer.addMarker(marker);
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
-{% macro stav_ockovani_praktici(vac_doctor_age) -%}
+{% macro prehled_praktici(data, vaccine_options, kraj_options=None, okres_mode=False, kraj_mode=False) -%}
 
-<div class="form-row">
-    <div class="col mb-3">
+<div class="form-row mb-1">
+    <div class="col-12 col-lg-6 mb-2">
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
@@ -9,8 +9,26 @@
             <input id="doctors-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-auto mb-3">
-        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+    {% if not (okres_mode or kraj_mode) %}
+    <div class="col mb-2">
+        <select id="doctors-kraj" class="custom-select">
+            <option value="">Všechny kraje</option>
+            {% for option in kraj_options %}
+            <option value="{{ option[1] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    <div class="col mb-2">
+        <select id="doctors-vaccine" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in vaccine_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto mb-2">
+        <div class="custom-control custom-switch" style="display: inline-block">
             <input id="doctors-children" type="checkbox" class="custom-control-input">
             <label class="custom-control-label" for="doctors-children">pediatři</label>
         </div>
@@ -21,10 +39,20 @@
     <table id="doctors-table" class="table table-bordered table-striped table-sm" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center col-sortable w-30">Název zařízení</th>
-            <th scope="col" class="text-center col-sortable w-20">Okres</th>
-            <th scope="col" class="text-center col-sortable w-10">Pediatr</th>
-            <th scope="col" class="text-center w-20">
+            <th scope="col" class="text-center col-sortable w-25">Název zařízení</th>
+            {% if not okres_mode %}
+            <th scope="col" class="text-center col-sortable w-15">Okres</th>
+            {% endif %}
+            {% if not kraj_mode %}
+            <th scope="col" class="text-center col-sortable w-15">Kraj</th>
+            {% endif %}
+            <th scope="col" class="text-center col-sortable w-10">
+                Pediatr
+                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
+                   title="Praktický lékař pro děti a dorost podle Národního registru poskytovatelů zdravotních služeb.">
+                </i>
+            </th>
+            <th scope="col" class="text-center w-15">
                 Vakcíny
                 <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto" data-html="true"
                    title="Vakcíny očkované za posledních 7 dní.">
@@ -45,27 +73,45 @@
         </tr>
         </thead>
         <tbody>
-        {% for idx, row in vac_doctor_age.iterrows() %}
-        <tr class="{{ 'table-warning' if row['provoz_ukoncen'] }}" data-children="{{ row['pediatr'] }}">
-            <td class="ellipsis" data-value="{{ row['zarizeni_nazev'] }}" data-toggle="tooltip" data-placement="auto"
-                title="{{ row['zarizeni_nazev'] }}">
-                {{ row['zarizeni_nazev'] }}
+        {% for idx, row in data.iterrows() %}
+        <tr class="{{ 'table-warning' if row.provoz_ukoncen }}" data-kraj="{{ row.kraj_id }}"
+            data-vaccines="{{ row.vakciny }}" data-children="{{ row.pediatr }}">
+            <td class="ellipsis" data-value="{{ row.zarizeni_nazev }}" data-toggle="tooltip" data-placement="auto"
+                title="{{ row.zarizeni_nazev }}">
+                {% if row.nabidky > 0 %}
+                <a href="{{ url_for('view.praktik_detail', zarizeni_kod=row.zdravotnicke_zarizeni_kod) }}">
+                    {{ row.zarizeni_nazev }}
+                </a>
+                {% else %}
+                {{ row.zarizeni_nazev }}
+                {% endif %}
             </td>
-            <td data-value="{{ row['okres'] }}" data-toggle="tooltip" data-placement="auto">
-                {{ row['okres'] }}
+            {% if not okres_mode %}
+            <td data-value="{{ row.okres }}" data-toggle="tooltip" data-placement="auto">
+                <a href="{{ url_for('view.okres_detail', okres_name=row.okres) }}#praktici">{{ row.okres }}</a>
             </td>
-            <td data-value="{{ row['pediatr'] }}">{{ row['pediatr'] | format_bool }}</td>
-            <td>{{ row['vakciny'] }}</td>
-            <td class="text-right" data-value="{{ row['sum_1'] }}">{{ row['sum_1'] | format_number }}</td>
-            <td class="text-right" data-value="{{ row['sum_2'] }}">{{ row['sum_2'] | format_number }}</td>
+            {% endif %}
+            {% if not kraj_mode %}
+            <td data-value="{{ row.okres }}" data-toggle="tooltip" data-placement="auto">
+                <a href="{{ url_for('view.kraj_detail', kraj_name=row.kraj_kratky) }}#praktici">{{ row.kraj_kratky }}</a>
+            </td>
+            {% endif %}
+            <td data-value="{{ row.pediatr }}">{{ row.pediatr | format_bool }}</td>
+            <td>{{ row.vakciny }}</td>
+            <td class="text-right" data-value="{{ row.ockovano }}">{{ row.ockovano | format_number }}</td>
+            <td class="text-right" data-value="{{ row.ockovano_7 }}">{{ row.ockovano_7 | format_number }}</td>
         </tr>
         {% endfor %}
         </tbody>
         <tfoot class="font-weight-bold">
         <tr>
-            <td colspan="4">Celkem</td>
-            <td class="text-right">{{ vac_doctor_age['sum_1'].sum() | format_number }}</td>
-            <td class="text-right">{{ vac_doctor_age['sum_2'].sum() | format_number }}</td>
+            <td colspan="{{ 5 - (1 if okres_mode or kraj_mode else 0) }}">Celkem</td>
+            <td class="text-right">
+                {{ data[['id', 'ockovano']].drop_duplicates()['ockovano'].sum() | format_number }}
+            </td>
+            <td class="text-right">
+                {{ data[['id', 'ockovano_7']].drop_duplicates()['ockovano_7'].sum() | format_number }}
+            </td>
         </tr>
         </tfoot>
     </table>
@@ -76,17 +122,26 @@
 </p>
 
 <script>
-    function filterChangedDoctors() {
+    function doctorsFilterChanged() {
         const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         const searchValue = stripAccents($("#doctors-searchbox").val().toLowerCase());
+        const krajValue = $("#doctors-kraj").val();
+        const vaccineValue = $("#doctors-vaccine").val();
         const childrenValue = $("#doctors-children")[0].checked;
 
         $("#doctors-table tbody tr").filter(function() {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const kraj = $(this)[0].dataset.kraj;
+            const vaccines = $(this)[0].dataset.vaccines;
             const children = $(this)[0].dataset.children;
 
-            $(this).toggle(normalized.indexOf(searchValue) > -1 && (!childrenValue || children === 'True'))
+            $(this).toggle(
+                normalized.indexOf(searchValue) > -1
+                && (!krajValue || kraj === krajValue)
+                && (!vaccineValue || vaccines.indexOf(vaccineValue) > -1)
+                && (!childrenValue || children === 'True')
+            )
         });
 
         $("#doctors-table tbody tr:visible").each(function (index) {
@@ -96,10 +151,16 @@
 
     $(document).ready(function(){
         $("#doctors-searchbox").on("keyup", function() {
-            filterChangedDoctors();
+            doctorsFilterChanged();
+        });
+        $("#doctors-kraj").change(function () {
+            doctorsFilterChanged();
+        });
+        $("#doctors-vaccine").change(function () {
+            doctorsFilterChanged();
         });
         $("#doctors-children").change(function () {
-            filterChangedDoctors();
+            doctorsFilterChanged();
         });
     });
 </script>

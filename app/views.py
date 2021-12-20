@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciZarizeni
 
 
 @bp.route('/')
@@ -16,19 +16,22 @@ def index():
 
 
 @bp.route("/mista")
-def info_mista():
+def mista():
     mista = queries.find_centers(True, True)
+
+    kraj_options = queries.find_kraj_options()
 
     third_doses_centers = queries.find_third_doses_centers()
 
-    vaccines_options = queries.find_centers_vaccine_options()
+    centers_vaccine_options = queries.find_centers_vaccine_options()
 
-    return render_template('mista.html', mista=mista, last_update=_last_import_modified(), now=_now(),
-                           third_doses_centers=third_doses_centers, vaccines_options=vaccines_options)
+    return render_template('mista.html', last_update=_last_import_modified(), now=_now(), mista=mista,
+                           kraj_options=kraj_options, third_doses_centers=third_doses_centers,
+                           centers_vaccine_options=centers_vaccine_options)
 
 
 @bp.route("/okres/<okres_name>")
-def info_okres(okres_name):
+def okres_detail(okres_name):
     okres = db.session.query(Okres).filter(Okres.nazev == okres_name).one_or_none()
     if okres is None:
         abort(404)
@@ -37,7 +40,15 @@ def info_okres(okres_name):
 
     third_doses_centers = queries.find_third_doses_centers()
 
-    vaccines_options = queries.find_centers_vaccine_options()
+    centers_vaccine_options = queries.find_centers_vaccine_options()
+
+    doctors = queries.find_doctors(okres_id=okres.id)
+
+    doctors_vaccine_options = queries.find_doctors_vaccine_options()
+
+    free_vaccines = queries.find_free_vaccines_available(okres_id=okres.id)
+
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
     metriky = db.session.query(OkresMetriky) \
         .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == get_import_date()) \
@@ -45,14 +56,16 @@ def info_okres(okres_name):
 
     registrations = queries.count_registrations('okres_id', okres.id)
 
-    return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, metriky=metriky,
-                           mista=mista, third_doses_centers=third_doses_centers, vaccines_options=vaccines_options,
-                           registrations=registrations)
+    return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, mista=mista,
+                           third_doses_centers=third_doses_centers, centers_vaccine_options=centers_vaccine_options,
+                           doctors=doctors, doctors_vaccine_options=doctors_vaccine_options,
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           metriky=metriky, registrations=registrations)
 
 
 @bp.route("/kraj/<kraj_name>")
-def info_kraj(kraj_name):
-    kraj = db.session.query(Kraj).filter(Kraj.nazev == kraj_name).one_or_none()
+def kraj_detail(kraj_name):
+    kraj = db.session.query(Kraj).filter(Kraj.nazev_kratky == kraj_name).one_or_none()
     if kraj is None:
         abort(404)
 
@@ -60,7 +73,15 @@ def info_kraj(kraj_name):
 
     third_doses_centers = queries.find_third_doses_centers()
 
-    vaccines_options = queries.find_centers_vaccine_options()
+    centers_vaccine_options = queries.find_centers_vaccine_options()
+
+    doctors = queries.find_doctors(kraj_id=kraj.id)
+
+    doctors_vaccine_options = queries.find_doctors_vaccine_options()
+
+    free_vaccines = queries.find_free_vaccines_available(kraj_id=kraj.id)
+
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
     metriky = db.session.query(KrajMetriky) \
         .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == get_import_date()) \
@@ -72,18 +93,18 @@ def info_kraj(kraj_name):
 
     vaccinated = queries.count_vaccinated(kraj.id)
 
-    vaccination_doctors = queries.count_vaccinated_doctors(kraj.id)
-
     queue_graph_data = queries.get_queue_graph_data(kraj_id=kraj.id)
 
-    return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, metriky=metriky,
-                           mista=mista, third_doses_centers=third_doses_centers, vaccines_options=vaccines_options,
-                           vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
-                           vaccination_doctors=vaccination_doctors, queue_graph_data=queue_graph_data)
+    return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, mista=mista,
+                           third_doses_centers=third_doses_centers, centers_vaccine_options=centers_vaccine_options,
+                           doctors=doctors, doctors_vaccine_options=doctors_vaccine_options,
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           metriky=metriky, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
+                           queue_graph_data=queue_graph_data)
 
 
 @bp.route("/misto/<misto_id>")
-def info_misto(misto_id):
+def misto_detail(misto_id):
     misto = db.session.query(OckovaciMisto).filter(OckovaciMisto.id == misto_id).one_or_none()
     if misto is None:
         abort(404)
@@ -117,30 +138,72 @@ def info_misto(misto_id):
 
 
 @bp.route("/mapa")
-def mapa():
+def mista_mapa():
     mista = queries.find_centers(True, True)
 
     third_doses_centers = queries.find_third_doses_centers()
 
-    vaccines_options = queries.find_centers_vaccine_options()
+    centers_vaccine_options = queries.find_centers_vaccine_options()
 
-    return render_template('mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
-                           third_doses_centers=third_doses_centers, vaccines_options=vaccines_options)
+    return render_template('mista_mapa.html', last_update=_last_import_modified(), now=_now(), mista=mista,
+                           third_doses_centers=third_doses_centers, centers_vaccine_options=centers_vaccine_options)
 
 
 @bp.route("/praktici")
 def praktici():
-    vaccination_doctors = queries.count_vaccinated_doctors()
+    doctors = queries.find_doctors()
 
+    doctors_vaccine_options = queries.find_doctors_vaccine_options()
+
+    kraj_options = queries.find_kraj_options()
+
+    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(), doctors=doctors,
+                           doctors_vaccine_options=doctors_vaccine_options, kraj_options=kraj_options)
+
+
+@bp.route("/praktici_mapa")
+def praktici_mapa():
+    doctors = queries.find_doctors_map()
+
+    doctors_vaccine_options = queries.find_doctors_vaccine_options()
+
+    return render_template('praktici_mapa.html', last_update=_last_import_modified(), now=_now(), doctors=doctors,
+                           doctors_vaccine_options=doctors_vaccine_options)
+
+
+@bp.route("/praktik/<zarizeni_kod>")
+def praktik_detail(zarizeni_kod):
+    doctor = queries.find_doctor(zarizeni_kod)
+    if doctor is None:
+        abort(404)
+
+    free_vaccines = queries.find_free_vaccines_available(nrpzs_id=zarizeni_kod)
+
+    return render_template('praktik.html', last_update=_last_import_modified(), now=_now(), doctor=doctor,
+                           free_vaccines=free_vaccines)
+
+
+@bp.route("/nabidky")
+def nabidky():
     free_vaccines = queries.find_free_vaccines_available()
 
-    vaccines_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_free_vaccines_kraj_options()
+    kraj_options = queries.find_kraj_options()
 
-    return render_template('praktici.html', last_update=_last_import_modified(), now=_now(),
-                           vaccination_doctors=vaccination_doctors, free_vaccines=free_vaccines,
-                           vaccines_options=vaccines_options, kraj_options=kraj_options)
+    return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           kraj_options=kraj_options)
+
+
+@bp.route("/nabidky_mapa")
+def nabidky_mapa():
+    free_vaccines = queries.find_free_vaccines_available()
+
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+
+    return render_template('nabidky_mapa.html', last_update=_last_import_modified(), now=_now(),
+                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options)
 
 
 @bp.route("/statistiky")
@@ -348,7 +411,7 @@ def report():
     # -- aktuální počet hospitalizovaných s covidem ve STR kraji
     current_hospital_kraje = db.session.query(column("nazev"), column("pocet_hospital")).from_statement(text(
         """
-        select k.nazev , sum(pocet_hosp) pocet_hospital
+        select k.nazev, sum(pocet_hosp) pocet_hospital
             from public.situace_orp so 
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts)
@@ -360,7 +423,7 @@ def report():
     # -- přírůstek hospitalizovaných s covidem za posledních 7 dní ve STR kraji
     new_hospital_kraje = db.session.query(column("nazev"), column("nove_hosp_7")).from_statement(text(
         """
-        select k.nazev , sum(so.nove_hosp_7) nove_hosp_7
+        select k.nazev, sum(so.nove_hosp_7) nove_hosp_7
             from public.situace_orp so 
             join obce_orp oo on (so.orp_kod=oo.uzis_orp)
             join kraje k on (k.id=oo.kraj_nuts 
@@ -464,13 +527,19 @@ def praktici_admin():
 
     free_vaccines = queries.find_free_vaccines_available()
 
-    vaccines_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
 
-    kraj_options = queries.find_free_vaccines_kraj_options()
+    kraj_options = queries.find_kraj_options()
 
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
-                           user_vaccines=user_vaccines, all_vaccines=free_vaccines, vaccines_options=vaccines_options,
+                           user_vaccines=user_vaccines, all_vaccines=free_vaccines,
+                           free_vaccines_vaccine_options=free_vaccines_vaccine_options,
                            kraj_options=kraj_options)
+
+
+@bp.route("/404")
+def error_404():
+    return render_template('error_404.html', last_update=_last_import_modified(), now=_now())
 
 
 def _last_import_modified():

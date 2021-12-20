@@ -42,17 +42,17 @@
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if request.path == '/mista' else '' }}"
-                   href="{{ url_for('view.info_mista') }}">Očkovací místa
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if request.path == '/mapa' else '' }}"
-                   href="{{ url_for('view.mapa') }}">Mapa
+                   href="{{ url_for('view.mista') }}">Očkovací místa
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if request.path == '/praktici' else '' }}"
                    href="{{ url_for('view.praktici') }}">Praktici
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.path == '/nabidky' else '' }}"
+                   href="{{ url_for('view.nabidky') }}">Nabídky očkování
                 </a>
             </li>
             <li class="nav-item dropdown">
@@ -148,6 +148,10 @@
             </a>
         </div>
     </div>
+</div>
+
+<div class="d-none">
+    <a href="{{ url_for('view.error_404') }}">Error 404</a>
 </div>
 
 {% block scripts %}
