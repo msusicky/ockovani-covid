@@ -130,7 +130,8 @@ def find_doctors(okres_id=None, kraj_id=None):
                 group by ol.zarizeni_kod      
             ) ol on ol.zarizeni_kod = z.id
             left join (
-                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
+                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n 
+                where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
             ) n on n.nrpzs_kod = z.id 
             where prakticky_lekar = True 
                 and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
@@ -171,7 +172,8 @@ def find_doctors_map():
                 group by ol.zarizeni_kod      
             ) ol on ol.zarizeni_kod = z.id
             left join (
-                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.pocet_davek > 0
+                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n 
+                where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
             ) n on n.nrpzs_kod = z.id 
             where prakticky_lekar = True 
             group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
