@@ -3,6 +3,6 @@
 # hourly fetcher
 38 7-22 * * * source /etc/env/ockovani.env && /home/ockovani/prd/app/scripts/execute_action.sh 15481698
 # monthly fetcher
-00 5 5 * * source /etc/env/ockovani.env && /home/ockovani/prd/app/scripts/execute_action.sh TODO
+00 5 5 * * source /etc/env/ockovani.env && /home/ockovani/prd/app/scripts/execute_action.sh 16635318
 # post tweet
 35 7 * * * source /etc/env/ockovani.env && /home/ockovani/prd/app/scripts/execute_action.sh 6797956
