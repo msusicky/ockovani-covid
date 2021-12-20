@@ -177,7 +177,7 @@ def praktik_detail(zarizeni_kod):
     if doctor is None:
         abort(404)
 
-    free_vaccines = queries.find_free_vaccines_available(nrpzs_id=zarizeni_kod)
+    free_vaccines = queries.find_free_vaccines_available(zarizeni_kod=zarizeni_kod)
 
     return render_template('praktik.html', last_update=_last_import_modified(), now=_now(), doctor=doctor,
                            free_vaccines=free_vaccines)

@@ -90,8 +90,6 @@ def find_doctor(zarizeni_kod):
                             ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
                             ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.nrpzs_kod == OckovaciZarizeni.id) \
-        .join(PrakticiKapacity,
-              PrakticiKapacity.zdravotnicke_zarizeni_kod == ZdravotnickeStredisko.zdravotnicke_zarizeni_kod) \
         .join(Okres, Okres.id == OckovaciZarizeni.okres_id) \
         .join(Kraj, Kraj.id == Okres.kraj_id) \
         .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == zarizeni_kod) \
@@ -203,14 +201,14 @@ def find_doctors_vaccine_options():
         .all()
 
 
-def find_free_vaccines_available(nrpzs_id=None, okres_id=None, kraj_id=None):
+def find_free_vaccines_available(zarizeni_kod=None, okres_id=None, kraj_id=None):
     return db.session.query(PrakticiKapacity.zdravotnicke_zarizeni_kod, PrakticiKapacity.datum_aktualizace,
                             PrakticiKapacity.pocet_davek, PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto,
                             PrakticiKapacity.nazev_ordinace, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
                             PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiKapacity.kraj,
                             ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
-        .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == nrpzs_id, nrpzs_id is None)) \
+        .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == func.left(zarizeni_kod, 11), zarizeni_kod is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
@@ -864,12 +862,6 @@ def count_top_centers():
         limit 10;
         """
     )).all()
-
-
-def couht_gp_vaccines():
-    return db.session.query(func.sum(PrakticiKapacity.pocet_davek)) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
-        .one()[0]
 
 
 def count_vaccinated_unvaccinated_comparison():
