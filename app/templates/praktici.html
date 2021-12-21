@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% from 'macros/tables/prehled_praktici.html' import stav_ockovani_praktici %}
-{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
+{% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
 
 {% block title %}
 Praktici |
@@ -8,52 +7,15 @@ Praktici |
 
 {% block body %}
 <div class="row">
-    <div class="col">
+    <div class="col-auto">
         <h3>Očkování praktickými lékaři</h3>
     </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        <div class="card">
-            <div class="card-header" id="cards">
-                <ul class="nav nav-tabs card-header-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#nabidka">Nabídka vakcín</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#prehled">Přehled očkování</a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="card-body">
-                <div class="tab-content">
-                    <div class="tab-pane active" id="nabidka">
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <p>
-                                V této tabulce je nabídka očkování v jednotlivých ordinacích s uvedením typu očkovací
-                                látky a kapacity. Údaje se pravidelně aktualizují.
-                                Některé ordinace praktických lékařů pro dospělé nabízejí očkování i dětem od 14 let a
-                                naopak některé ordinace praktických lékařů pro děti a dorost nabízejí očkování i
-                                dospělým. Proto použijte filtry.
-                            </p>
-                            <p class="mb-0">
-                                Pokud máte o očkování zájem, kontaktujte vybranou ordinaci, dodržujte přitom pokyny v
-                                poznámce.
-                            </p>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        {{ volne_vakciny(free_vaccines, kraj_options, vaccines_options) }}
-                    </div>
-                    <div class="tab-pane" id="prehled">
-                        {{ stav_ockovani_praktici(vaccination_doctors) }}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="col-auto ml-auto">
+        <a class="btn btn-primary" href="{{ url_for('view.praktici_mapa') }}">
+            Zobrazit na mapě
+        </a>
     </div>
 </div>
+
+{{ prehled_praktici(doctors, doctors_vaccine_options, kraj_options=kraj_options) }}
 {% endblock %}

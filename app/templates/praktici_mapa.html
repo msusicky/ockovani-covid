@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mapa praktiků |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Očkování praktickými lékaři na mapě</h3>
+    </div>
+</div>
+
+<div class="form-row mb-1">
+    <div class="col mb-2">
+        <select id="doctors-vaccine" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in doctors_vaccine_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto mb-2">
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="doctors-children" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="doctors-children">pediatři</label>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div id="doctors-map" style="height:600px;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var m = new SMap(JAK.gel("doctors-map"), SMap.Coords(15.4467614, 49.84937455), 7,  {minZoom: 7});
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+    var clusterer = new SMap.Marker.Clusterer(m);
+    layer.setClusterer(clusterer);
+
+    var markers = [];
+    var coords = [];
+
+    {% for idx, row in doctors.iterrows() %}
+        {% if not row.provoz_ukoncen and row.longitude != None and row.latitude != None %}
+        var c = SMap.Coords.fromWGS84({{ row.longitude }}, {{ row.latitude }});
+
+        var icon = JAK.mel("div");
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
+        icon.appendChild(image);
+
+        var options = {
+            title: "{{ row.zarizeni_nazev }}",
+            url: icon
+        }
+        var marker = new SMap.Marker(c, null, options);
+
+        var card = new SMap.Card();
+        card.setSize(450, null);
+        card.getHeader().innerHTML = "<strong>{{ row.zarizeni_nazev }}</strong>";
+        card.getBody().innerHTML = "<strong>Pediatr:</strong> {{ row.pediatr | format_bool }}<br>" +
+            "<strong>Vakcíny:</strong> {{ row.vakciny }}<br>" +
+            "<strong>Očkováno:</strong> {{ row.ockovano | format_number }}<br>" +
+            "<strong>Očkováno za 7 dní:</strong> {{ row.ockovano_7 | format_number }}"
+            {% if row.nabidky > 0 %}
+            + '<br><a href="./praktik/{{ row.id }}" class="btn btn-primary mt-2">Detail lékaře</a>'
+            {% endif %}
+        card.getFooter().style = "display: none";
+        card.getContainer().style.padding = "0";
+        marker.decorate(SMap.Marker.Feature.Card, card);
+
+        marker.filter_data = {
+            vaccines: '{{ row.vakciny }}',
+            children: {{ row.pediatr | lower }}
+        }
+
+        coords.push(c);
+        markers.push(marker);
+        {% endif %}
+    {% endfor %}
+
+    m.addLayer(layer);
+    layer.enable();
+
+    var cz = m.computeCenterZoom(coords);
+    m.setCenterZoom(cz[0], cz[1]);
+
+    function filterMarkers() {
+        const vaccineValue = $("#doctors-vaccine").val()
+        const childrenValue = $("#doctors-children")[0].checked;
+
+        layer.removeAll();
+        var markers_filtered = [];
+
+        for (var i=0;i<markers.length;i++) {
+            marker = markers[i];
+
+            const vaccines = marker.filter_data.vaccines;
+            const children = marker.filter_data.children;
+
+            if ((!vaccineValue || vaccines.indexOf(vaccineValue) > -1) && (!childrenValue || children)) {
+                markers_filtered.push(marker);
+            }
+        }
+
+        layer.addMarker(markers_filtered);
+    }
+
+    $(document).ready(function () {
+        $("#doctors-vaccine").change(function () {
+            filterMarkers();
+        });
+        $("#doctors-children").change(function () {
+            filterMarkers();
+        });
+        filterMarkers();
+    });
+</script>
+{% endblock %}

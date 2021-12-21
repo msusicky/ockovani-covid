@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/prehled_mist.html' import prehled_mist %}
+{% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 {% from 'macros/tables/stav_ockovani.html' import stav_ockovani %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 {% from 'macros/tables/stav_vakcin.html' import stav_vakcin %}
-{% from 'macros/tables/prehled_praktici.html' import stav_ockovani_praktici %}
 {% from 'macros/graphs/fronta.html' import graf_fronta %}
 
 {% block title %}
-{{ kraj.nazev }} |
+{{ kraj.nazev_kratky }} |
 {% endblock %}
 
 {% block body %}
 <div class="row">
     <div class="col">
-        <h3>Kraj: {{ kraj.nazev }} </h3>
+        <h3>Kraj: {{ kraj.nazev_kratky }} </h3>
     </div>
 </div>
 
@@ -25,6 +26,12 @@
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#praktici">Praktici</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#nabidky-ockovani">Nabídky očkování</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
@@ -39,9 +46,6 @@
                         <a class="nav-link" data-toggle="tab" href="#ockovani">Stav očkování</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#ockovani-praktici">Očkování praktiky</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#graf-fronta">Vývoj fronty</a>
                     </li>
                 </ul>
@@ -50,7 +54,13 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="ockovaci-mista">
-                        {{ prehled_mist(mista, third_doses_centers, vaccines_options) }}
+                        {{ prehled_mist(mista, third_doses_centers, centers_vaccine_options, kraj_mode=True) }}
+                    </div>
+                    <div class="tab-pane" id="praktici">
+                        {{ prehled_praktici(doctors, doctors_vaccine_options, kraj_mode=True) }}
+                    </div>
+                    <div class="tab-pane" id="nabidky-ockovani">
+                        {{ volne_vakciny(free_vaccines, free_vaccines_vaccine_options, filtered_mode=True) }}
                     </div>
                     <div class="tab-pane" id="statistiky">
                         <div class="row px-2 mb-n2">
@@ -91,9 +101,6 @@
                     </div>
                     <div class="tab-pane" id="ockovani">
                         {{ stav_ockovani(vaccinated) }}
-                    </div>
-                    <div class="tab-pane" id="ockovani-praktici">
-                        {{ stav_ockovani_praktici(vaccination_doctors) }}
                     </div>
                     <div class="tab-pane" id="graf-fronta">
                         {{ graf_fronta(queue_graph_data) }}

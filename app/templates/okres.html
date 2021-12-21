@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% from 'macros/common.html' import metrika %}
 {% from 'macros/tables/prehled_mist.html' import prehled_mist %}
+{% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 {% from 'macros/tables/stav_registraci.html' import stav_registraci %}
 
 {% block title %}
@@ -23,6 +25,12 @@
                         <a class="nav-link active" data-toggle="tab" href="#ockovaci-mista">Očkovací místa</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#praktici">Praktici</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#nabidky-ockovani">Nabídky očkování</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#statistiky">Statistiky</a>
                     </li>
                     <li class="nav-item">
@@ -34,7 +42,13 @@
             <div class="card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="ockovaci-mista">
-                        {{ prehled_mist(mista, third_doses_centers, vaccines_options) }}
+                        {{ prehled_mist(mista, third_doses_centers, centers_vaccine_options, okres_mode=True) }}
+                    </div>
+                    <div class="tab-pane" id="praktici">
+                        {{ prehled_praktici(doctors, doctors_vaccine_options, okres_mode=True) }}
+                    </div>
+                    <div class="tab-pane" id="nabidky-ockovani">
+                        {{ volne_vakciny(free_vaccines, free_vaccines_vaccine_options, filtered_mode=True) }}
                     </div>
                     <div class="tab-pane" id="statistiky">
                         <div class="row px-2 mb-n2">

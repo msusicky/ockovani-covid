@@ -1,8 +1,8 @@
 {% from 'macros/common.html' import stitek %}
 
-{% macro prehled_mist(centers, third_doses_centers, vaccines_options) -%}
-<div class="row">
-    <div class="col-12 col-md-8 col-md-auto mb-2">
+{% macro prehled_mist(centers, third_doses_centers, vaccine_options, kraj_options=None, okres_mode=False, kraj_mode=False) -%}
+<div class="form-row">
+    <div class="col-12 col-lg-6 col-md-auto mb-2">
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
@@ -10,16 +10,26 @@
             <input id="centers-searchbox" type="text" class="form-control" placeholder="Hledat...">
         </div>
     </div>
-    <div class="col-12 col-md-4 mb-2">
-        <select id="centers-vaccines" class="custom-select">
+    {% if not (okres_mode or kraj_mode) %}
+    <div class="col mb-2">
+        <select id="centers-kraj" class="custom-select">
+            <option value="">Všechny kraje</option>
+            {% for option in kraj_options %}
+            <option value="{{ option[1] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    <div class="col mb-2">
+        <select id="centers-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
-            {% for option in vaccines_options %}
+            {% for option in vaccine_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
     </div>
 </div>
-<div class="row mb-2">
+<div class="form-row mb-2">
     <div class="col-12 col-md-6 col-lg-auto text-center mb-1 mr-auto">
         <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="centers-5" type="checkbox" class="custom-control-input">
@@ -68,8 +78,12 @@
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" class="text-center col-sortable">Název</th>
+                    {% if not okres_mode %}
                     <th scope="col" class="text-center col-sortable">Okres</th>
+                    {% endif %}
+                    {% if not kraj_mode %}
                     <th scope="col" class="text-center col-sortable">Kraj</th>
+                    {% endif %}
                     <th scope="col" class="text-center col-sortable">
                         Ve frontě
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="auto"
@@ -94,6 +108,7 @@
                 <tbody>
                 {% for item in centers %}
                 <tr class="{{ 'table-warning' if not item.status and item.typ != 'WALKIN' }}"
+                    data-kraj="{{ item.kraj_id }}"
                     data-vaccines='{{ item.vakciny | tojson | safe }}'
                     data-age='{{ item.vekove_skupiny | tojson | safe }}'
                     data-walkin="{{ item.typ == 'WALKIN' }}"
@@ -102,26 +117,22 @@
                     data-active="{{ item.status or item.typ == 'WALKIN' }}"
                     data-barrierfree="{{ item.bezbarierovy_pristup }}">
                     <td data-value="{{ item.nazev }}">
-                        <a href="{{ url_for('view.info_misto', misto_id=item.id) }}">{{ item.nazev }}</a>
+                        <a href="{{ url_for('view.misto_detail', misto_id=item.id) }}">{{ item.nazev }}</a>
                     </td>
+                    {% if not okres_mode %}
                     <td data-value="{{ item.okres }}">
                         {% if item.okres %}
-                            {% if request.path.startswith('/okres') %}
-                            {{ item.okres }}
-                            {% else %}
-                            <a href="{{ url_for('view.info_okres', okres_name=item.okres) }}">{{ item.okres }}</a>
-                            {% endif %}
+                            <a href="{{ url_for('view.okres_detail', okres_name=item.okres) }}">{{ item.okres }}</a>
                         {% endif %}
                     </td>
+                    {% endif %}
+                    {% if not kraj_mode %}
                     <td data-value="{{ item.kraj }}">
                         {% if item.kraj %}
-                            {% if request.path.startswith('/kraj') %}
-                            {{ item.kraj }}
-                            {% else %}
-                            <a href="{{ url_for('view.info_kraj', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
-                            {% endif %}
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=item.kraj) }}">{{ item.kraj }}</a>
                         {% endif %}
                     </td>
+                    {% endif %}
                     <td class="text-right" data-value="{{ item.registrace_fronta }}">
                         {{ item.registrace_fronta | format_number }}
                     </td>
@@ -150,11 +161,12 @@
 </div>
 
 <script>
-    function filterChanged() {
+    function centersFilterChanged() {
         const stripAccents = x => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         const searchValue = stripAccents($("#centers-searchbox").val().toLowerCase());
-        const vaccinesValue = $("#centers-vaccines").val()
+        const krajValue = $("#centers-kraj").val();
+        const vaccineValue = $("#centers-vaccine").val();
         const age5Value = $("#centers-5")[0].checked;
         const age16Value = $("#centers-16")[0].checked;
         const age18Value = $("#centers-18")[0].checked;
@@ -166,6 +178,7 @@
 
         $("#centers-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
+            const kraj = $(this)[0].dataset.kraj;
             const vaccines = JSON.parse($(this)[0].dataset.vaccines);
             const age = JSON.parse($(this)[0].dataset.age);
             const age5 = age.includes('5-15');
@@ -179,7 +192,8 @@
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
-                && (!vaccinesValue || vaccines.includes(vaccinesValue))
+                && (!krajValue || kraj === krajValue)
+                && (!vaccineValue || vaccines.includes(vaccineValue))
                 && ((age5Value && age5) || (age16Value && age16) || (age18Value && age18))
                 && ((walkinValue && walkin === 'True') || (!walkinValue && walkin === 'False'))
                 && ((selfpaidValue && selfpaid === 'True') || (!selfpaidValue && selfpaid === 'False'))
@@ -196,36 +210,39 @@
 
     $(document).ready(function () {
         $("#centers-searchbox").keyup(function () {
-            filterChanged();
+            centersFilterChanged();
         });
-        $("#centers-vaccines").change(function () {
-            filterChanged();
+        $("#centers-kraj").change(function () {
+            centersFilterChanged();
+        });
+        $("#centers-vaccine").change(function () {
+            centersFilterChanged();
         });
         $("#centers-5").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-16").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-18").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-walkin").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-selfpaid").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-thirddoses").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-active").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
         $("#centers-barrierfree").change(function () {
-            filterChanged();
+            centersFilterChanged();
         });
-        filterChanged();
+        centersFilterChanged();
     });
 </script>
 {%- endmacro %}

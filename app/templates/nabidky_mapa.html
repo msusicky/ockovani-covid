@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mapa nabídek očkování |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Nabídky očkování praktickými lékaři na mapě</h3>
+    </div>
+</div>
+
+<div class="form-row mb-1">
+    <div class="col-6 col-sm mb-2">
+        <select id="free-vaccines-vaccine" class="custom-select">
+            <option value="">Všechny vakcíny</option>
+            {% for option in free_vaccines_vaccine_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-sm-auto text-center mb-2">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
+            <input id="free-vaccines-adults" type="checkbox" class="custom-control-input" checked>
+            <label class="custom-control-label" for="free-vaccines-adults">dospělí</label>
+        </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="free-vaccines-children" type="checkbox" class="custom-control-input" checked>
+            <label class="custom-control-label" for="free-vaccines-children">děti</label>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div id="free-vaccines-map" style="height:600px;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var m = new SMap(JAK.gel("free-vaccines-map"), SMap.Coords(15.4467614, 49.84937455), 7,  {minZoom: 7});
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var markers = [];
+    var coords = [];
+
+    {% for item in free_vaccines %}
+        {% if item.longitude != None and item.latitude != None %}
+        var c = SMap.Coords.fromWGS84({{ item.longitude }}, {{ item.latitude }});
+
+        var icon = JAK.mel("div");
+        var image = JAK.mel("img", {src:SMap.CONFIG.img+"/marker/drop-red.png"});
+        icon.appendChild(image);
+
+        var options = {
+            title: "{{ item.nazev_ordinace }}",
+            url: icon
+        }
+        var marker = new SMap.Marker(c, null, options);
+
+        var card = new SMap.Card();
+        card.setSize(450, null);
+        card.getHeader().innerHTML = "<strong>{{ item.nazev_ordinace }}</strong>";
+        {% if item.id %}
+        card.getBody().innerHTML = '<a href="./praktik/{{ item.id }}" class="btn btn-primary">Detail nabídky</a>';
+        {% endif %}
+        card.getFooter().style = "display: none";
+        card.getContainer().style.padding = "0";
+        marker.decorate(SMap.Marker.Feature.Card, card);
+
+        marker.filter_data = {
+            vaccine: '{{ item.typ_vakciny }}',
+            adults: {{ item.dospeli | lower }},
+            children: {{ item.deti | lower }}
+        }
+
+        coords.push(c);
+        markers.push(marker);
+        {% endif %}
+    {% endfor %}
+
+    var layer = new SMap.Layer.Marker();
+    m.addLayer(layer);
+    layer.enable();
+
+    var cz = m.computeCenterZoom(coords);
+    m.setCenterZoom(cz[0], cz[1]);
+
+    function filterMarkers() {
+        const vaccineValue = $("#free-vaccines-vaccine").val()
+        const adultsValue = $("#free-vaccines-adults")[0].checked;
+        const childrenValue = $("#free-vaccines-children")[0].checked;
+
+        layer.removeAll();
+        var markers_filtered = [];
+
+        for (var i=0;i<markers.length;i++) {
+            marker = markers[i];
+
+            const vaccine = marker.filter_data.vaccine;
+            const adults = marker.filter_data.adults;
+            const children = marker.filter_data.children;
+
+            if ((!vaccineValue || vaccine === vaccineValue) && ((adultsValue && adults) || (childrenValue && children))) {
+                markers_filtered.push(marker);
+            }
+        }
+
+        layer.addMarker(markers_filtered);
+    }
+
+    $(document).ready(function () {
+        $("#free-vaccines-vaccine").change(function () {
+            filterMarkers();
+        });
+        $("#free-vaccines-adults").change(function () {
+            if (!$("#free-vaccines-adults")[0].checked) {
+                $("#free-vaccines-children")[0].checked = true;
+            }
+            filterMarkers();
+        });
+        $("#free-vaccines-children").change(function () {
+            if (!$("#free-vaccines-children")[0].checked) {
+                $("#free-vaccines-adults")[0].checked = true;
+            }
+            filterMarkers();
+        });
+        filterMarkers();
+    });
+</script>
+{% endblock %}

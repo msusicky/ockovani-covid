@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Stránka nenalezena |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col text-center">
+        <h3>Stránka neexistuje</h3>
+        <a href="{{ url_for('view.index') }}" class="btn btn-primary">Přejít na hlavní stránku</a>
+    </div>
+</div>
+{% endblock %}
+

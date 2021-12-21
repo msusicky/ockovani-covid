@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
+
+{% set first_office = doctor_offices.iloc[0] %}
+
+{% block title %}
+{{ first_office.zarizeni_nazev }} |
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col">
+        <h3>Praktický lékař: {{ first_office.zarizeni_nazev }} </h3>
+    </div>
+</div>
+
+<div class="row px-2">
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Podrobnosti o praktickém lékaři</h5>
+                <dl>
+                    <dt>Typ</dt>
+                    {% for item in doctor_offices['druh_zarizeni'].drop_duplicates() %}
+                    <dd>{{ item }}</dd>
+                    {% endfor %}
+
+                    {% for idx, row in doctor_offices[['ulice', 'obec', 'cislo_domu', 'psc']].dropna().drop_duplicates().iterrows() %}
+                    {% if loop.index == 1 %}
+                    <dt>Adresa</dt>
+                    {% endif %}
+                    <dd>{{ (row.ulice if row.ulice else row.obec) + ' ' + row.cislo_domu + ', ' + row.psc + ' ' + row.obec }}</dd>
+                    {% endfor %}
+
+                    {% for item in doctor_offices['telefon'].dropna().drop_duplicates() %}
+                    {% if loop.index == 1 %}
+                    <dt>Telefon</dt>
+                    {% endif %}
+                    <dd><a href="tel:{{ item }}">{{ item }}</a></dd>
+                    {% endfor %}
+
+                    {% for item in doctor_offices['email'].dropna().drop_duplicates() %}
+                    {% if loop.index == 1 %}
+                    <dt>E-mail</dt>
+                    {% endif %}
+                    <dd><a href="mailto:{{ item }}">{{ item }}</a></dd>
+                    {% endfor %}
+
+                    <dd class="text-justify font-italic">
+                        Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
+                    </dd>
+
+                    <dt>Lékaři v okolí</dt>
+                    <dd>
+                        <span class="mr-1">
+                            Okres:
+                            <a href="{{ url_for('view.okres_detail', okres_name=first_office.okres) }}#praktici">
+                                {{ first_office.okres }}
+                            </a>
+                        </span>
+                        <span>
+                            Kraj:
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=first_office.kraj_kratky) }}#praktici">
+                                {{ first_office.kraj }}
+                            </a>
+                        </span>
+                    </dd>
+                </dl>
+                <div>
+                    {% if first_office.web %}
+                    <a href="{{ first_office.web }}" class="btn btn-primary" target="_blank">Web lékaře</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 px-2 mb-3">
+        <div class="card h-100">
+            <div class="card-body mb-n3">
+                {% if not doctor_offices[['latitude', 'longitude']].dropna().empty %}
+                <h5 class="card-title">Mapa</h5>
+                <div id="doctor-map" style="height:330px;"></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Nabídky očkování</h5>
+                {{ volne_vakciny(free_vaccines, detail_mode=True) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var m = new SMap(JAK.gel("doctor-map"), SMap.Coords.fromWGS84(0, 0), 14);
+    m.addControl(new SMap.Control.Sync());
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
+    m.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+
+    var markers = [];
+    var coords = [];
+
+    {% for idx, row in doctor_offices[['latitude', 'longitude']].dropna().drop_duplicates().iterrows() %}
+    var c = SMap.Coords.fromWGS84({{ row.longitude }}, {{ row.latitude }});
+    coords.push(c);
+    markers.push(new SMap.Marker(c, null, {}));
+    {% endfor %}
+
+    m.addLayer(layer);
+    layer.enable();
+
+    var center = m.computeCenterZoom(coords);
+    m.setCenterZoom(center[0], center[1]);
+
+    layer.addMarker(markers);
+</script>
+{% endblock %}

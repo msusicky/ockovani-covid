@@ -45,7 +45,7 @@
                     {% endif %}
 
                     <dt>Bezbariérový přístup</dt>
-                    <dd>{{ 'Ano' if misto.bezbarierovy_pristup else 'Ne' }}</dd>
+                    <dd>{{ misto.bezbarierovy_pristup | format_bool }}</dd>
 
                     <dt>Vakcíny</dt>
                     <dd>
@@ -82,17 +82,17 @@
                     {% endif %}
 
                     {% if misto.okres %}
-                        <dt>Okolní očkovací místa</dt>
+                        <dt>Očkovací místa v okolí</dt>
                         <dd>
                             <span class="mr-1">
                                 Okres:
-                                <a href="{{ url_for('view.info_okres', okres_name=misto.okres.nazev) }}">
+                                <a href="{{ url_for('view.okres_detail', okres_name=misto.okres.nazev) }}">
                                     {{ misto.okres.nazev }}
                                 </a>
                             </span>
                             <span>
                                 Kraj:
-                                <a href="{{ url_for('view.info_kraj', kraj_name=misto.okres.kraj.nazev) }}">
+                                <a href="{{ url_for('view.kraj_detail', kraj_name=misto.okres.kraj.nazev_kratky) }}">
                                     {{ misto.okres.kraj.nazev }}
                                 </a>
                             </span>
