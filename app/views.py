@@ -171,16 +171,16 @@ def praktici_mapa():
                            doctors_vaccine_options=doctors_vaccine_options)
 
 
-@bp.route("/praktik/<zarizeni_kod>")
-def praktik_detail(zarizeni_kod):
-    doctor = queries.find_doctor(zarizeni_kod)
-    if doctor is None:
+@bp.route("/praktik/<nrpzs_kod>")
+def praktik_detail(nrpzs_kod):
+    doctor_offices = queries.find_doctor_offices(nrpzs_kod)
+    if len(doctor_offices) == 0:
         abort(404)
 
-    free_vaccines = queries.find_free_vaccines_available(zarizeni_kod=zarizeni_kod)
+    free_vaccines = queries.find_free_vaccines_available(nrpzs_kod=nrpzs_kod)
 
-    return render_template('praktik.html', last_update=_last_import_modified(), now=_now(), doctor=doctor,
-                           free_vaccines=free_vaccines)
+    return render_template('praktik.html', last_update=_last_import_modified(), now=_now(),
+                           doctor_offices=doctor_offices, free_vaccines=free_vaccines)
 
 
 @bp.route("/nabidky")

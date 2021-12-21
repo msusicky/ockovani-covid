@@ -71,7 +71,7 @@ Mapa praktiků |
             "<strong>Očkováno:</strong> {{ row.ockovano | format_number }}<br>" +
             "<strong>Očkováno za 7 dní:</strong> {{ row.ockovano_7 | format_number }}"
             {% if row.nabidky > 0 %}
-            + '<br><a href="./praktik/{{ row.zdravotnicke_zarizeni_kod }}" class="btn btn-primary mt-2">Detail lékaře</a>'
+            + '<br><a href="./praktik/{{ row.id }}" class="btn btn-primary mt-2">Detail lékaře</a>'
             {% endif %}
         card.getFooter().style = "display: none";
         card.getContainer().style.padding = "0";
