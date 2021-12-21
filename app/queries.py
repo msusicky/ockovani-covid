@@ -92,7 +92,8 @@ def find_doctor_offices(nrpzs_kod):
         left join okresy o on o.id = z.okres_id
         join kraje k on k.id = o.kraj_id
         where z.id = '{nrpzs_kod}'
-        group by z.id, z.zarizeni_nazev, 
+        group by z.id, z.zarizeni_nazev, o.nazev, k.nazev, k.nazev_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, 
+            s.cislo_domu, s.telefon, s.email, s.web, s.latitude, s.longitude
         """,
         db.engine)
 
@@ -201,12 +202,13 @@ def find_doctors_vaccine_options():
 
 
 def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
-    return db.session.query(PrakticiKapacity.zdravotnicke_zarizeni_kod, PrakticiKapacity.datum_aktualizace,
-                            PrakticiKapacity.pocet_davek, PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto,
-                            PrakticiKapacity.nazev_ordinace, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
-                            PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiKapacity.kraj,
+    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek,
+                            PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                            PrakticiKapacity.deti, PrakticiKapacity.dospeli, PrakticiKapacity.expirace,
+                            PrakticiKapacity.poznamka, PrakticiKapacity.kraj, OckovaciZarizeni.id,
                             ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
+        .outerjoin(OckovaciZarizeni, OckovaciZarizeni.id == ZdravotnickeStredisko.nrpzs_kod) \
         .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \

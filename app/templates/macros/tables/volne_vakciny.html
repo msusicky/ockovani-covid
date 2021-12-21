@@ -95,9 +95,13 @@
                 {{ item.mesto }}
             </td>
             <td>
-                <a href="{{ url_for('view.praktik_detail', nrpzs_kod=item.nrpzs_kod) }}">
+                {% if item.id %}
+                <a href="{{ url_for('view.praktik_detail', nrpzs_kod=item.id) }}">
                     {{ item.nazev_ordinace }}
                 </a>
+                {% else %}
+                {{ item.nazev_ordinace }}
+                {% endif %}
             </td>
             {% endif %}
             {% if detail_mode %}
