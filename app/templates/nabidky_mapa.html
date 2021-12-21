@@ -66,8 +66,8 @@ Mapa nabídek očkování |
         var card = new SMap.Card();
         card.setSize(450, null);
         card.getHeader().innerHTML = "<strong>{{ item.nazev_ordinace }}</strong>";
-        {% if item.id %}
-        card.getBody().innerHTML = '<a href="./praktik/{{ item.id }}" class="btn btn-primary">Detail nabídky</a>';
+        {% if item.nrpzs_kod %}
+        card.getBody().innerHTML = '<a href="./praktik/{{ item.nrpzs_kod }}" class="btn btn-primary">Detail nabídky</a>';
         {% endif %}
         card.getFooter().style = "display: none";
         card.getContainer().style.padding = "0";
