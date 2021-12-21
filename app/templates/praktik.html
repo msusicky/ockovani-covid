@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 {% from 'macros/tables/volne_vakciny.html' import volne_vakciny %}
 
+{% set first_office = doctor_offices.iloc[0] %}
+
 {% block title %}
-{{ doctor.zarizeni_nazev }} |
+{{ first_office.zarizeni_nazev }} |
 {% endblock %}
 
 {% block body %}
 <div class="row">
     <div class="col">
-        <h3>Praktický lékař: {{ doctor.zarizeni_nazev }} </h3>
+        <h3>Praktický lékař: {{ first_office.zarizeni_nazev }} </h3>
     </div>
 </div>
 
@@ -19,28 +21,30 @@
                 <h5 class="card-title">Podrobnosti o praktickém lékaři</h5>
                 <dl>
                     <dt>Typ</dt>
-                    <dd>{{ doctor.druh_zarizeni }}</dd>
+                    {% for item in doctor_offices['druh_zarizeni'].drop_duplicates() %}
+                    <dd>{{ item }}</dd>
+                    {% endfor %}
 
+                    {% for idx, row in doctor_offices[['ulice', 'obec', 'cislo_domu', 'psc']].dropna().drop_duplicates().iterrows() %}
+                    {% if loop.index == 1 %}
                     <dt>Adresa</dt>
-                    <dd>{{ (doctor.ulice if doctor.ulice else doctor.obec) + ' ' + doctor.cislo_domu + ', ' + doctor.psc + ' ' + doctor.obec }}</dd>
+                    {% endif %}
+                    <dd>{{ (row.ulice if row.ulice else row.obec) + ' ' + row.cislo_domu + ', ' + row.psc + ' ' + row.obec }}</dd>
+                    {% endfor %}
 
-                    {% if doctor.telefon %}
+                    {% for item in doctor_offices['telefon'].dropna().drop_duplicates() %}
+                    {% if loop.index == 1 %}
                     <dt>Telefon</dt>
-                    <dd>
-                        <a href="tel:{{ doctor.telefon }}">
-                            {{ doctor.telefon }}
-                        </a>
-                    </dd>
                     {% endif %}
+                    <dd><a href="tel:{{ item }}">{{ item }}</a></dd>
+                    {% endfor %}
 
-                    {% if doctor.email %}
+                    {% for item in doctor_offices['email'].dropna().drop_duplicates() %}
+                    {% if loop.index == 1 %}
                     <dt>E-mail</dt>
-                    <dd>
-                        <a href="mailto:{{ doctor.email }}">
-                            {{ doctor.email }}
-                        </a>
-                    </dd>
                     {% endif %}
+                    <dd><a href="mailto:{{ item }}">{{ item }}</a></dd>
+                    {% endfor %}
 
                     <dd class="text-justify font-italic">
                         Respektujte prosím preferovaný způsob kontaktování, pokud je uveden v poznámce nabídky.
@@ -50,21 +54,21 @@
                     <dd>
                         <span class="mr-1">
                             Okres:
-                            <a href="{{ url_for('view.okres_detail', okres_name=doctor.okres) }}#praktici">
-                                {{ doctor.okres }}
+                            <a href="{{ url_for('view.okres_detail', okres_name=first_office.okres) }}#praktici">
+                                {{ first_office.okres }}
                             </a>
                         </span>
                         <span>
                             Kraj:
-                            <a href="{{ url_for('view.kraj_detail', kraj_name=doctor.kraj_kratky) }}#praktici">
-                                {{ doctor.kraj }}
+                            <a href="{{ url_for('view.kraj_detail', kraj_name=first_office.kraj_kratky) }}#praktici">
+                                {{ first_office.kraj }}
                             </a>
                         </span>
                     </dd>
                 </dl>
                 <div>
-                    {% if doctor.web %}
-                    <a href="{{ doctor.web }}" class="btn btn-primary" target="_blank">Web lékaře</a>
+                    {% if first_office.web %}
+                    <a href="{{ first_office.web }}" class="btn btn-primary" target="_blank">Web lékaře</a>
                     {% endif %}
                 </div>
             </div>
@@ -73,9 +77,9 @@
     <div class="col-md-6 px-2 mb-3">
         <div class="card h-100">
             <div class="card-body mb-n3">
-                {% if doctor.longitude and doctor.latitude %}
+                {% if not doctor_offices[['latitude', 'longitude']].dropna().empty %}
                 <h5 class="card-title">Mapa</h5>
-                <div id="center-map" class="mb-3" style="height:330px;"></div>
+                <div id="doctor-map" style="height:330px;"></div>
                 {% endif %}
             </div>
         </div>
@@ -96,18 +100,28 @@
 
 {% block scripts %}
 <script>
-    var center = SMap.Coords.fromWGS84({{ doctor.longitude }}, {{ doctor.latitude }});
-    var m = new SMap(JAK.gel("center-map"), center, 14);
+    var m = new SMap(JAK.gel("doctor-map"), SMap.Coords.fromWGS84(0, 0), 14);
     m.addControl(new SMap.Control.Sync());
     m.addDefaultLayer(SMap.DEF_BASE).enable();
     m.addDefaultControls();
 
     var layer = new SMap.Layer.Marker();
+
+    var markers = [];
+    var coords = [];
+
+    {% for idx, row in doctor_offices[['latitude', 'longitude']].dropna().drop_duplicates().iterrows() %}
+    var c = SMap.Coords.fromWGS84({{ row.longitude }}, {{ row.latitude }});
+    coords.push(c);
+    markers.push(new SMap.Marker(c, null, {}));
+    {% endfor %}
+
     m.addLayer(layer);
     layer.enable();
 
-    var options = {};
-    var marker = new SMap.Marker(center, "marker", options);
-    layer.addMarker(marker);
+    var center = m.computeCenterZoom(coords);
+    m.setCenterZoom(center[0], center[1]);
+
+    layer.addMarker(markers);
 </script>
 {% endblock %}

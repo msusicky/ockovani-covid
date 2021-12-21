@@ -78,8 +78,8 @@
             data-vaccines="{{ row.vakciny }}" data-children="{{ row.pediatr }}">
             <td class="ellipsis" data-value="{{ row.zarizeni_nazev }}" data-toggle="tooltip" data-placement="auto"
                 title="{{ row.zarizeni_nazev }}">
-                {% if row.zdravotnicke_zarizeni_kod and row.nabidky > 0 %}
-                <a href="{{ url_for('view.praktik_detail', zarizeni_kod=row.zdravotnicke_zarizeni_kod) }}">
+                {% if row.nabidky > 0 %}
+                <a href="{{ url_for('view.praktik_detail', nrpzs_kod=row.id) }}">
                     {{ row.zarizeni_nazev }}
                 </a>
                 {% else %}

@@ -82,23 +82,22 @@ def find_centers_vaccine_options():
     return db.session.query(func.unnest(OckovaciMisto.vakciny).label('vyrobce')).order_by('vyrobce').distinct().all()
 
 
-def find_doctor(zarizeni_kod):
-    return db.session.query(OckovaciZarizeni.zarizeni_nazev, Okres.nazev.label('okres'), Kraj.nazev.label('kraj'),
-                            Kraj.nazev_kratky.label('kraj_kratky'), ZdravotnickeStredisko.druh_zarizeni,
-                            ZdravotnickeStredisko.obec, ZdravotnickeStredisko.psc, ZdravotnickeStredisko.ulice,
-                            ZdravotnickeStredisko.cislo_domu, ZdravotnickeStredisko.telefon,
-                            ZdravotnickeStredisko.email, ZdravotnickeStredisko.web, ZdravotnickeStredisko.latitude,
-                            ZdravotnickeStredisko.longitude) \
-        .join(ZdravotnickeStredisko, ZdravotnickeStredisko.nrpzs_kod == OckovaciZarizeni.id) \
-        .join(Okres, Okres.id == OckovaciZarizeni.okres_id) \
-        .join(Kraj, Kraj.id == Okres.kraj_id) \
-        .filter(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == zarizeni_kod) \
-        .group_by(ZdravotnickeStredisko.zdravotnicke_zarizeni_kod, Okres.nazev, Kraj.nazev, Kraj.nazev_kratky,
-                  OckovaciZarizeni.zarizeni_nazev, ZdravotnickeStredisko.druh_zarizeni, ZdravotnickeStredisko.obec,
-                  ZdravotnickeStredisko.psc, ZdravotnickeStredisko.ulice, ZdravotnickeStredisko.cislo_domu,
-                  ZdravotnickeStredisko.telefon, ZdravotnickeStredisko.email, ZdravotnickeStredisko.web,
-                  ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
-        .one_or_none()
+def find_doctor_offices(nrpzs_kod):
+    df = pd.read_sql_query(
+        f"""
+        select z.id, z.zarizeni_nazev, o.nazev okres, k.nazev kraj, k.nazev_kratky kraj_kratky, s.druh_zarizeni,
+            s.obec, s.psc, s.ulice, s.cislo_domu, s.telefon, s.email, s.web, s.latitude, s.longitude
+        from ockovaci_zarizeni z
+        left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+        left join okresy o on o.id = z.okres_id
+        join kraje k on k.id = o.kraj_id
+        where z.id = '{nrpzs_kod}'
+        group by z.id, z.zarizeni_nazev, o.nazev, k.nazev, k.nazev_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, 
+            s.cislo_domu, s.telefon, s.email, s.web, s.latitude, s.longitude
+        """,
+        db.engine)
+
+    return df
 
 
 NRPZS_PEDIATRICIAN_CODE = 321
@@ -110,34 +109,34 @@ def find_doctors(okres_id=None, kraj_id=None):
 
     df = pd.read_sql_query(
         f"""
-            select min(s.zdravotnicke_zarizeni_kod) zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, o.nazev okres, 
-                o.kraj_id, k.nazev kraj, k.nazev_kratky kraj_kratky, z.provoz_ukoncen, ol.vakciny, ol.ockovano, 
-                ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
-                case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
-            from ockovaci_zarizeni z
-            left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
-            left join okresy o on o.id = z.okres_id
-            join kraje k on k.id = o.kraj_id
-            left join (
-                select ol.zarizeni_kod, sum(pocet) ockovano, 
-                    coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
-                    string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
-                from ockovani_lide ol
-                left join vakciny v on ol.vakcina = v.vakcina
-                where ol.datum < '{get_import_date()}'
-                group by ol.zarizeni_kod      
-            ) ol on ol.zarizeni_kod = z.id
-            left join (
-                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n 
-                where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
-            ) n on n.nrpzs_kod = z.id 
-            where prakticky_lekar = True 
-                and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
-                and (o.kraj_id = {kraj_id_sql} or {kraj_id_sql} is null)
-            group by z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, z.provoz_ukoncen, ol.vakciny, 
-                ol.ockovano, ol.ockovano_7, pediatr
-            order by k.nazev_kratky, o.nazev, z.zarizeni_nazev
-            """,
+        select z.id, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, k.nazev_kratky kraj_kratky, 
+            z.provoz_ukoncen, ol.vakciny, ol.ockovano, ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+            case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
+        from ockovaci_zarizeni z
+        left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+        left join okresy o on o.id = z.okres_id
+        join kraje k on k.id = o.kraj_id
+        left join (
+            select ol.zarizeni_kod, sum(pocet) ockovano, 
+                coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
+                string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
+            from ockovani_lide ol
+            left join vakciny v on ol.vakcina = v.vakcina
+            where ol.datum < '{get_import_date()}'
+            group by ol.zarizeni_kod      
+        ) ol on ol.zarizeni_kod = z.id
+        left join (
+            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
+            from praktici_kapacity n 
+            where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
+        ) n on n.nrpzs_kod = z.id 
+        where prakticky_lekar = True 
+            and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
+            and (o.kraj_id = {kraj_id_sql} or {kraj_id_sql} is null)
+        group by z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, z.provoz_ukoncen, ol.vakciny, 
+            ol.ockovano, ol.ockovano_7, pediatr
+        order by k.nazev_kratky, o.nazev, z.zarizeni_nazev
+        """,
         db.engine
     )
 
@@ -155,28 +154,29 @@ def find_doctors(okres_id=None, kraj_id=None):
 def find_doctors_map():
     df = pd.read_sql_query(
         f"""
-            select s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
-                ol.vakciny, ol.ockovano, ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
-                case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
-            from ockovaci_zarizeni z
-            left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
-            left join (
-                select ol.zarizeni_kod, sum(pocet) ockovano, 
-                    coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
-                    string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
-                from ockovani_lide ol
-                left join vakciny v on ol.vakcina = v.vakcina
-                where ol.datum < '{get_import_date()}'
-                group by ol.zarizeni_kod      
-            ) ol on ol.zarizeni_kod = z.id
-            left join (
-                select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n 
-                where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
-            ) n on n.nrpzs_kod = z.id 
-            where prakticky_lekar = True 
-            group by s.zdravotnicke_zarizeni_kod, z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, 
-                ol.vakciny, ol.ockovano, ol.ockovano_7, pediatr
-            """,
+        select z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
+            ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+            case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
+        from ockovaci_zarizeni z
+        left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+        left join (
+            select ol.zarizeni_kod, sum(pocet) ockovano, 
+                coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7,   
+                string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
+            from ockovani_lide ol
+            left join vakciny v on ol.vakcina = v.vakcina
+            where ol.datum < '{get_import_date()}'
+            group by ol.zarizeni_kod      
+        ) ol on ol.zarizeni_kod = z.id
+        left join (
+            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
+            from praktici_kapacity n 
+            where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
+        ) n on n.nrpzs_kod = z.id 
+        where prakticky_lekar = True 
+        group by z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
+            ol.ockovano_7, pediatr
+        """,
         db.engine
     )
 
@@ -201,14 +201,15 @@ def find_doctors_vaccine_options():
         .all()
 
 
-def find_free_vaccines_available(zarizeni_kod=None, okres_id=None, kraj_id=None):
-    return db.session.query(PrakticiKapacity.zdravotnicke_zarizeni_kod, PrakticiKapacity.datum_aktualizace,
-                            PrakticiKapacity.pocet_davek, PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto,
-                            PrakticiKapacity.nazev_ordinace, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
-                            PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiKapacity.kraj,
+def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
+    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek,
+                            PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+                            PrakticiKapacity.deti, PrakticiKapacity.dospeli, PrakticiKapacity.expirace,
+                            PrakticiKapacity.poznamka, PrakticiKapacity.kraj, OckovaciZarizeni.id,
                             ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .join(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
-        .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == func.left(zarizeni_kod, 11), zarizeni_kod is None)) \
+        .outerjoin(OckovaciZarizeni, OckovaciZarizeni.id == ZdravotnickeStredisko.nrpzs_kod) \
+        .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
