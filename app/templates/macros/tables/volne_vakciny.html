@@ -70,8 +70,8 @@
             <th scope="col" class="text-center">Název zařízení</th>
             {% endif %}
             {% if detail_mode %}
-            <th scope="col" class="text-center">Děti</th>
-            <th scope="col" class="text-center">Dospělí</th>
+            <th scope="col" class="text-center">Věkové skupiny</th>
+            <th scope="col" class="text-center">Kontakt</th>
             {% endif %}
             <th scope="col" class="text-center col-sortable">Expirace</th>
             <th scope="col" class="text-center">Poznámka</th>
@@ -95,8 +95,8 @@
                 {{ item.mesto }}
             </td>
             <td>
-                {% if item.id %}
-                <a href="{{ url_for('view.praktik_detail', nrpzs_kod=item.id) }}">
+                {% if item.nrpzs_kod %}
+                <a href="{{ url_for('view.praktik_detail', nrpzs_kod=item.nrpzs_kod) }}">
                     {{ item.nazev_ordinace }}
                 </a>
                 {% else %}
@@ -105,8 +105,18 @@
             </td>
             {% endif %}
             {% if detail_mode %}
-            <td>{{ item.deti | format_bool }}</td>
-            <td>{{ item.dospeli | format_bool }}</td>
+            <td>
+                <p class="mb-0">Dospělí: {{ item.dospeli | format_bool }}</p>
+                <p class="mb-0">Děti: {{ item.deti | format_bool }}</p>
+            </td>
+            <td>
+                {% if item.kontakt_tel %}
+                <p class="mb-0"><a href="tel:{{ item.kontakt_tel }}">{{ item.kontakt_tel }}</a></p>
+                {% endif %}
+                {% if item.kontakt_email %}
+                <p class="mb-0"><a href="mailto:{{ item.kontakt_email }}">{{ item.kontakt_email }}</a></p>
+                {% endif %}
+            </td>
             {% endif %}
             <td class="text-right" data-value="{{ item.expirace }}">
                 {{ item.expirace | format_date if item.expirace else ""  }}
