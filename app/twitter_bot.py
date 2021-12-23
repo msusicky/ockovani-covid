@@ -47,7 +47,7 @@ class TwitterBot():
     def _generate_tweet(self):
         return f"{self._generate_progressbar(self._vaccinated_2_ratio)} 💉💉 ({filters.format_number(self._vaccinated_2)} celkem, {filters.format_number(self._vaccinated_2_diff)} od včera).\n" \
                f"{self._generate_progressbar(self._vaccinated_3_ratio)} 💉💉💉 ({filters.format_number(self._vaccinated_3)} celkem, {filters.format_number(self._vaccinated_3_diff)} od včera).\n" \
-               f"Na termín čeká před závorou {filters.format_number(self._waiting)} zájemců, průměrné čekání je {self._days(self._average_reservation_waiting)}. " \
+               f"Před závorou čeká {filters.format_number(self._waiting)} zájemců, průměrné čekání na rezervaci je {self._days(self._average_reservation_waiting)}. " \
                f"https://ockovani.opendatalab.cz"
 
     def _generate_progressbar(self, ratio):
