@@ -119,8 +119,8 @@
     m.addLayer(layer);
     layer.enable();
 
-    var center = m.computeCenterZoom(coords);
-    m.setCenterZoom(center[0], center[1]);
+    var cz = m.computeCenterZoom(coords);
+    m.setCenterZoom(cz[0], Math.min(cz[1], 14));
 
     layer.addMarker(markers);
 </script>
