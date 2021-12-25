@@ -1,9 +1,9 @@
 from datetime import timedelta
 
-from sqlalchemy import func, text
+from sqlalchemy import text, column
 
 from app import db, app
-from app.models import OckovaciMistoMetriky, OckovaniLide
+from app.models import ZarizeniMetriky
 
 
 class FacilityMetricsEtl:
@@ -26,15 +26,24 @@ class FacilityMetricsEtl:
 
     def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each health facility."""
-        vaccinated = db.session.query(OckovaniLide.zarizeni_kod, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek')) \
-            .group_by(OckovaniLide.zarizeni_kod) \
+        vaccinated = db.session.query(column('zarizeni_kod'), column('ockovani_pocet_davek'), column('ockovani_vakciny_7')).from_statement(text(
+            """
+            select zarizeni_kod, coalesce(sum(pocet), 0) ockovani_pocet_davek,
+                string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>=:datum) ockovani_vakciny_7
+            from ockovani_lide ol
+            left join vakciny v on ol.vakcina = v.vakcina
+            where ol.datum < :datum
+            group by ol.zarizeni_kod  
+            """
+        )).params(datum=self._date) \
             .all()
 
         for vacc in vaccinated:
-            db.session.merge(OckovaciMistoMetriky(
+            db.session.merge(ZarizeniMetriky(
                 zarizeni_id=vacc.zarizeni_kod,
                 datum=self._date,
-                ockovani_pocet_davek=vacc.ockovani_pocet_davek
+                ockovani_pocet_davek=vacc.ockovani_pocet_davek,
+                ockovani_vakciny_7=vacc.ockovani_vakciny_7
             ))
 
         app.logger.info('Computing health facilities metrics - vaccinated people finished.')
@@ -44,7 +53,7 @@ class FacilityMetricsEtl:
         db.session.execute(text(
             """
             update zarizeni_metriky t
-            set ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek,
+            set ockovani_pocet_davek_zmena_den = t0.ockovani_pocet_davek - t1.ockovani_pocet_davek
             from zarizeni_metriky t0 
             join zarizeni_metriky t1
             on t0.zarizeni_id = t1.zarizeni_id
@@ -55,7 +64,7 @@ class FacilityMetricsEtl:
         db.session.execute(text(
             """
             update zarizeni_metriky t
-            set ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek,
+            set ockovani_pocet_davek_zmena_tyden = t0.ockovani_pocet_davek - t7.ockovani_pocet_davek
             from zarizeni_metriky t0 
             join zarizeni_metriky t7
             on t0.zarizeni_id = t7.zarizeni_id
