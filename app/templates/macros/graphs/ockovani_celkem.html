@@ -17,7 +17,7 @@
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_plne'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
-            name: "Plně očkovaní (všechny potřebné dávky)",
+            name: "Plně očkovaní (dokončené základní schéma)",
             hovertemplate: "%{y}"
         }
 
