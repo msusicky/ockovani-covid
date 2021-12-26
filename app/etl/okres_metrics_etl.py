@@ -26,6 +26,8 @@ class OkresMetricsEtl:
             self._compute_registrations()
         elif metric == 'reservations':
             self._compute_reservations()
+        elif metric == 'vaccinated':
+            pass
         elif metric == 'distributed':
             self._compute_distributed()
         elif metric == 'used':

@@ -17,8 +17,18 @@ class FacilityMetricsEtl:
         if metric == 'all':
             self._compute_vaccinated()
             self._compute_deltas()
+        elif metric == 'registrations':
+            pass
+        elif metric == 'reservations':
+            pass
         elif metric == 'vaccinated':
             self._compute_vaccinated()
+        elif metric == 'distributed':
+            pass
+        elif metric == 'used':
+            pass
+        elif metric == 'derived':
+            pass
         elif metric == 'deltas':
             self._compute_deltas()
         else:
@@ -26,21 +36,21 @@ class FacilityMetricsEtl:
 
     def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each health facility."""
-        vaccinated = db.session.query(column('zarizeni_kod'), column('ockovani_pocet_davek'), column('ockovani_vakciny_7')).from_statement(text(
+        vaccinated = db.session.query(column('id'), column('ockovani_pocet_davek'), column('ockovani_vakciny_7')).from_statement(text(
             """
-            select zarizeni_kod, coalesce(sum(pocet), 0) ockovani_pocet_davek,
+            select z.id, coalesce(sum(pocet), 0) ockovani_pocet_davek,
                 string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>=:datum) ockovani_vakciny_7
-            from ockovani_lide ol
+            from ockovaci_zarizeni z
+            left join ockovani_lide ol on ol.zarizeni_kod = z.id and ol.datum < :datum
             left join vakciny v on ol.vakcina = v.vakcina
-            where ol.datum < :datum
-            group by ol.zarizeni_kod  
+            group by z.id  
             """
         )).params(datum=self._date) \
             .all()
 
         for vacc in vaccinated:
             db.session.merge(ZarizeniMetriky(
-                zarizeni_id=vacc.zarizeni_kod,
+                zarizeni_id=vacc.id,
                 datum=self._date,
                 ockovani_pocet_davek=vacc.ockovani_pocet_davek,
                 ockovani_vakciny_7=vacc.ockovani_vakciny_7
