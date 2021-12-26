@@ -2,16 +2,17 @@
 {% from 'macros/tables/prehled_praktici.html' import prehled_praktici %}
 
 {% block title %}
-Praktici |
+Praktičtí lékaři |
 {% endblock %}
 
 {% block body %}
 <div class="row">
-    <div class="col-auto">
-        <h3>Očkování praktickými lékaři</h3>
+    <div class="col-12 col-sm-auto">
+        <h3>Praktičtí lékaři</h3>
     </div>
-    <div class="col-auto ml-auto">
-        <a class="btn btn-primary" href="{{ url_for('view.praktici_mapa') }}">
+    <div class="col-12 col-sm-auto ml-auto">
+        <a class="btn btn-sm btn-primary btn-block mb-2" href="{{ url_for('view.praktici_mapa') }}">
+            <i class="fas fa-map-marked-alt"></i>
             Zobrazit na mapě
         </a>
     </div>
