@@ -231,7 +231,7 @@ class OckovaniSpotreba(db.Model):
     __tablename__ = 'ockovani_spotreba'
 
     datum = Column(Date, primary_key=True)
-    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True, index=True)
     ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode, ForeignKey('vakciny.vyrobce'))
     pouzite_ampulky = Column(Integer)
@@ -257,7 +257,7 @@ class OckovaniDistribuce(db.Model):
     cilove_ockovaci_misto_id = Column(Unicode, primary_key=True, index=True)
     ockovaci_latka = Column(Unicode, primary_key=True)
     vyrobce = Column(Unicode, ForeignKey('vakciny.vyrobce'))
-    akce = Column(Unicode, primary_key=True)
+    akce = Column(Unicode, primary_key=True, index=True)
     pocet_ampulek = Column(Integer)
     pocet_davek = Column(Integer)
 
@@ -331,11 +331,11 @@ OckovaciMisto.ockovani_registrace = relationship("OckovaniRegistrace", back_popu
 class OckovaniRezervace(db.Model):
     __tablename__ = 'ockovani_rezervace'
 
-    datum = Column(Date, primary_key=True)
-    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True)
+    datum = Column(Date, primary_key=True, index=True)
+    ockovaci_misto_id = Column(Unicode, ForeignKey('ockovaci_mista.id'), primary_key=True, index=True)
     volna_kapacita = Column(Integer)
     maximalni_kapacita = Column(Integer)
-    kalendar_ockovani = Column(Unicode, primary_key=True)
+    kalendar_ockovani = Column(Unicode, primary_key=True, index=True)
 
     misto = relationship('OckovaciMisto', back_populates='ockovani_rezervace')
 
