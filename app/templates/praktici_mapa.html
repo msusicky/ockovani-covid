@@ -67,9 +67,9 @@ Mapa praktických lékařů |
         card.setSize(450, null);
         card.getHeader().innerHTML = "<strong>{{ row.zarizeni_nazev }}</strong>";
         card.getBody().innerHTML = "<strong>Pediatr:</strong> {{ row.pediatr | format_bool }}<br>" +
-            "<strong>Vakcíny:</strong> {{ row.vakciny }}<br>" +
-            "<strong>Očkováno:</strong> {{ row.ockovano | format_number }}<br>" +
-            "<strong>Očkováno za 7 dní:</strong> {{ row.ockovano_7 | format_number }}"
+            "<strong>Vakcíny:</strong> {{ row.ockovani_vakciny_7 }}<br>" +
+            "<strong>Očkováno:</strong> {{ row.ockovani_pocet_davek | format_number }}<br>" +
+            "<strong>Očkováno za 7 dní:</strong> {{ row.ockovani_pocet_davek_zmena_tyden | format_number }}"
             {% if row.nabidky > 0 %}
             + '<br><a href="./praktik/{{ row.id }}" class="btn btn-primary mt-2">Detail lékaře</a>'
             {% endif %}
