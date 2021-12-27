@@ -97,9 +97,9 @@
             </td>
             {% endif %}
             <td data-value="{{ row.pediatr }}">{{ row.pediatr | format_bool }}</td>
-            <td>{{ row.vakciny }}</td>
-            <td class="text-right" data-value="{{ row.ockovano }}">{{ row.ockovano | format_number }}</td>
-            <td class="text-right" data-value="{{ row.ockovano_7 }}">{{ row.ockovano_7 | format_number }}</td>
+            <td>{{ row.ockovani_vakciny_7 }}</td>
+            <td class="text-right" data-value="{{ row.ockovani_pocet_davek }}">{{ row.ockovani_pocet_davek | format_number }}</td>
+            <td class="text-right" data-value="{{ row.ockovani_pocet_davek_zmena_tyden }}">{{ row.ockovani_pocet_davek_zmena_tyden | format_number }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -107,10 +107,10 @@
         <tr>
             <td colspan="{{ 5 - (1 if okres_mode or kraj_mode else 0) }}">Celkem</td>
             <td class="text-right">
-                {{ data[['id', 'ockovano']].drop_duplicates()['ockovano'].sum() | format_number }}
+                {{ data[['id', 'ockovani_pocet_davek']].drop_duplicates()['ockovani_pocet_davek'].sum() | format_number }}
             </td>
             <td class="text-right">
-                {{ data[['id', 'ockovano_7']].drop_duplicates()['ockovano_7'].sum() | format_number }}
+                {{ data[['id', 'ockovani_pocet_davek_zmena_tyden']].drop_duplicates()['ockovani_pocet_davek_zmena_tyden'].sum() | format_number }}
             </td>
         </tr>
         </tfoot>

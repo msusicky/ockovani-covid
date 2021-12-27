@@ -966,6 +966,20 @@ class CrMetriky(db.Model):
         return f"<CrMetriky(datum='{self.datum}')>"
 
 
+class ZarizeniMetriky(db.Model):
+    __tablename__ = 'zarizeni_metriky'
+
+    zarizeni_id = Column(Unicode, primary_key=True)
+    datum = Column(DateTime, primary_key=True)
+    ockovani_pocet_davek = Column(Integer)                      # pocet ockovanych davek
+    ockovani_pocet_davek_zmena_den = Column(Integer)            # pocet ockovanych davek - zmena za den
+    ockovani_pocet_davek_zmena_tyden = Column(Integer)          # pocet ockovanych davek - zmena za tyden
+    ockovani_vakciny_7 = Column(Unicode)                        # vakciny pouzite za posledni tyden
+
+    def __repr__(self):
+        return f"<ZarizeniMetriky(datum='{self.datum}')>"
+
+
 class Vakcinacka(db.Model):
     __tablename__ = 'vakcinacka'
 

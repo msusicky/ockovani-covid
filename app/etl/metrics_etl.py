@@ -4,6 +4,7 @@ from app import db, app
 from app.context import STATUS_FINISHED
 from app.etl.center_metrics_etl import CenterMetricsEtl
 from app.etl.cr_metrics_etl import CrMetricsEtl
+from app.etl.facility_metrics_etl import FacilityMetricsEtl
 from app.etl.kraj_metrics_etl import KrajMetricsEtl
 from app.etl.okres_metrics_etl import OkresMetricsEtl
 from app.models import Import
@@ -20,6 +21,7 @@ class MetricsEtl:
         self._okres_metrics_etl = OkresMetricsEtl(self._date, self._import_id)
         self._kraj_metrics_etl = KrajMetricsEtl(self._date, self._import_id)
         self._cr_metrics_etl = CrMetricsEtl(self._date, self._import_id)
+        self._doctors_metrics_etl = FacilityMetricsEtl(self._date, self._import_id)
 
     def compute(self, metric):
         try:
@@ -27,6 +29,7 @@ class MetricsEtl:
             self._okres_metrics_etl.compute(metric)
             self._kraj_metrics_etl.compute(metric)
             self._cr_metrics_etl.compute(metric)
+            self._doctors_metrics_etl.compute(metric)
         except Exception as e:
             app.logger.error(e)
             db.session.rollback()

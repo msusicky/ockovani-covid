@@ -111,21 +111,14 @@ def find_doctors(okres_id=None, kraj_id=None):
     df = pd.read_sql_query(
         f"""
         select z.id, z.zarizeni_nazev, o.nazev okres, o.kraj_id, k.nazev kraj, k.nazev_kratky kraj_kratky, 
-            z.provoz_ukoncen, ol.vakciny, ol.ockovano, ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+            z.provoz_ukoncen, m.ockovani_pocet_davek, m.ockovani_pocet_davek_zmena_tyden, m.ockovani_vakciny_7,
+            count(n.nrpzs_kod) nabidky, 
             case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
         from ockovaci_zarizeni z
         left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
         left join okresy o on o.id = z.okres_id
         join kraje k on k.id = o.kraj_id
-        left join (
-            select ol.zarizeni_kod, sum(pocet) ockovano, 
-                coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7, 
-                string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
-            from ockovani_lide ol
-            left join vakciny v on ol.vakcina = v.vakcina
-            where ol.datum < '{get_import_date()}'
-            group by ol.zarizeni_kod      
-        ) ol on ol.zarizeni_kod = z.id
+        left join zarizeni_metriky m on m.zarizeni_id = z.id and m.datum = '{get_import_date()}'
         left join (
             select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
             from praktici_kapacity n 
@@ -134,20 +127,19 @@ def find_doctors(okres_id=None, kraj_id=None):
         where prakticky_lekar = True 
             and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
             and (o.kraj_id = {kraj_id_sql} or {kraj_id_sql} is null)
-        group by z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, z.provoz_ukoncen, ol.vakciny, 
-            ol.ockovano, ol.ockovano_7, pediatr
+        group by z.id, z.zarizeni_nazev, o.nazev, o.kraj_id, k.nazev, k.nazev_kratky, z.provoz_ukoncen, 
+            m.ockovani_pocet_davek, m.ockovani_pocet_davek_zmena_tyden, m.ockovani_vakciny_7, pediatr
         order by k.nazev_kratky, o.nazev, z.zarizeni_nazev
         """,
         db.engine
     )
 
-    df['okres'] = df['okres'].replace({None: ''})
-    df['vakciny'] = df['vakciny'].replace({None: ''})
+    df['ockovani_vakciny_7'] = df['ockovani_vakciny_7'].replace({None: ''})
 
     df['provoz_ukoncen'] = df['provoz_ukoncen'].astype('bool')
 
-    df['ockovano'] = df['ockovano'].replace({np.nan: 0})
-    df['ockovano_7'] = df['ockovano_7'].replace({np.nan: 0})
+    df['ockovani_pocet_davek'] = df['ockovani_pocet_davek'].replace({np.nan: 0})
+    df['ockovani_pocet_davek_zmena_tyden'] = df['ockovani_pocet_davek_zmena_tyden'].replace({np.nan: 0})
 
     return df
 
@@ -155,41 +147,33 @@ def find_doctors(okres_id=None, kraj_id=None):
 def find_doctors_map():
     df = pd.read_sql_query(
         f"""
-        select z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
-            ol.ockovano_7, count(n.nrpzs_kod) nabidky, 
+        select z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, m.ockovani_pocet_davek, 
+            m.ockovani_pocet_davek_zmena_tyden, m.ockovani_vakciny_7, count(n.nrpzs_kod) nabidky, 
             case when s.druh_zarizeni_kod = {NRPZS_PEDIATRICIAN_CODE} then true else false end pediatr
         from ockovaci_zarizeni z
         left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
-        left join (
-            select ol.zarizeni_kod, sum(pocet) ockovano, 
-                coalesce(sum(pocet) filter (where ol.datum+'7 days'::interval>='{get_import_date()}'), 0) ockovano_7,   
-                string_agg(distinct v.vyrobce, ', ') filter (where ol.datum+'7 days'::interval>='{get_import_date()}') vakciny 
-            from ockovani_lide ol
-            left join vakciny v on ol.vakcina = v.vakcina
-            where ol.datum < '{get_import_date()}'
-            group by ol.zarizeni_kod      
-        ) ol on ol.zarizeni_kod = z.id
+        left join zarizeni_metriky m on m.zarizeni_id = z.id and m.datum = '{get_import_date()}'
         left join (
             select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
             from praktici_kapacity n 
             where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
         ) n on n.nrpzs_kod = z.id 
         where prakticky_lekar = True 
-        group by z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, ol.vakciny, ol.ockovano, 
-            ol.ockovano_7, pediatr
+        group by z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, m.ockovani_pocet_davek, 
+            m.ockovani_pocet_davek_zmena_tyden, m.ockovani_vakciny_7, pediatr
         """,
         db.engine
     )
 
-    df['vakciny'] = df['vakciny'].replace({None: ''})
+    df['ockovani_vakciny_7'] = df['ockovani_vakciny_7'].replace({None: ''})
 
     df['provoz_ukoncen'] = df['provoz_ukoncen'].astype('bool')
 
     df['latitude'] = df['latitude'].replace({np.nan: None})
     df['longitude'] = df['longitude'].replace({np.nan: None})
 
-    df['ockovano'] = df['ockovano'].replace({np.nan: 0})
-    df['ockovano_7'] = df['ockovano_7'].replace({np.nan: 0})
+    df['ockovani_pocet_davek'] = df['ockovani_pocet_davek'].replace({np.nan: 0})
+    df['ockovani_pocet_davek_zmena_tyden'] = df['ockovani_pocet_davek_zmena_tyden'].replace({np.nan: 0})
 
     return df
 
