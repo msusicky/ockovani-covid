@@ -75,7 +75,7 @@
         <tbody>
         {% for idx, row in data.iterrows() %}
         <tr class="{{ 'table-warning' if row.provoz_ukoncen }}" data-kraj="{{ row.kraj_id }}"
-            data-vaccines="{{ row.vakciny }}" data-children="{{ row.pediatr }}">
+            data-vaccines="{{ row.ockovani_vakciny_7 }}" data-children="{{ row.pediatr }}">
             <td class="ellipsis" data-value="{{ row.zarizeni_nazev }}" data-toggle="tooltip" data-placement="auto"
                 title="{{ row.zarizeni_nazev }}">
                 {% if row.nabidky > 0 %}
