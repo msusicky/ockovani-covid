@@ -133,7 +133,9 @@ class Vakcina(db.Model):
 
     vyrobce = Column(Unicode, primary_key=True)
     vakcina = Column(Unicode, unique=True, nullable=False)
-    davky = Column(Integer)
+    vakcina_sklad = Column(Unicode, unique=True, nullable=False)
+    davky = Column(Integer, nullable=False)
+    aktivni = Column(Boolean, nullable=False)
 
     def __repr__(self):
         return f"<Vakcina(vyrobce='{self.vyrobce}')>"
