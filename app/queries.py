@@ -180,8 +180,7 @@ def find_doctors_map():
 
 def find_doctors_vaccine_options():
     return db.session.query(Vakcina.vyrobce) \
-        .join(OckovaniLide, Vakcina.vakcina == OckovaniLide.vakcina) \
-        .distinct(Vakcina.vyrobce) \
+        .filter(Vakcina.aktivni == True) \
         .order_by(Vakcina.vyrobce) \
         .all()
 
