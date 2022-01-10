@@ -46,7 +46,7 @@ def upgrade():
                "ON CONFLICT (vakcina) DO UPDATE SET vyrobce='Pfizer (5-11 let)', vakcina_sklad='Pfizer2'")
 
     op.alter_column('vakciny', 'vakcina_sklad', existing_type=sa.TEXT(), nullable=False)
-    op.alter_column('vakciny', 'davky', existing_type=sa.TEXT(), nullable=False)
+    op.alter_column('vakciny', 'davky', existing_type=sa.INTEGER(), nullable=False)
     op.alter_column('vakciny', 'aktivni', existing_type=sa.BOOLEAN(), nullable=False)
 
     op.create_unique_constraint(None, 'vakciny', ['vakcina_sklad'])
