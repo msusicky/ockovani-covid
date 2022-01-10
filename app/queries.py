@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, and_, text, column
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaniRezervace, OckovaniLide, Vakcina, ZdravotnickeStredisko, OckovaciZarizeni
+    PrakticiKapacity, OckovaniRezervace, Vakcina, ZdravotnickeStredisko
 
 
 def unique_nrpzs_subquery():
