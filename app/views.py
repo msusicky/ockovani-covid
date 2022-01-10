@@ -7,7 +7,7 @@ from werkzeug.exceptions import abort
 from app import db, bp, filters, queries
 from app.context import get_import_date, STATUS_FINISHED
 from app.models import Import, Okres, Kraj, OckovaciMisto, OckovaciMistoMetriky, KrajMetriky, OkresMetriky, CrMetriky, \
-    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciZarizeni
+    PrakticiLogin, PrakticiKapacity, ZdravotnickeStredisko, OckovaciZarizeni, Vakcina
 
 
 @bp.route('/')
@@ -518,7 +518,9 @@ def praktici_admin():
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
         user_vaccines = db.session.query(PrakticiKapacity) \
+            .join(Vakcina, Vakcina.vyrobce == PrakticiKapacity.typ_vakciny) \
             .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+            .filter(Vakcina.aktivni == True) \
             .order_by(PrakticiKapacity.typ_vakciny) \
             .all()
     else:
