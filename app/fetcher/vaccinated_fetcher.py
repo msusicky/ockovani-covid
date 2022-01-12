@@ -27,7 +27,7 @@ class VaccinatedFetcher(Fetcher):
 
         df['orp_bydl_kod'] = df['orp_bydliste_kod'].replace({np.nan: '-'}).astype(str).str[:4]
 
-        df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
+        df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11).fillna('-')
 
         df['indikace_zdravotnik'] = df['indikace_zdravotnik'].fillna(False).astype('bool')
         df['indikace_socialni_sluzby'] = df['indikace_socialni_sluzby'].fillna(False).astype('bool')
