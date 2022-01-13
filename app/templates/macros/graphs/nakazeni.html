@@ -1,6 +1,14 @@
 {% macro graf_nakazeni(data) -%}
 <div id="plotly-nakazeni"></div>
 
+<div class="font-italic">
+    <h6>Poznámky</h6>
+    <p class="card-text text-justify">
+        Podle aktulních informací z ÚZIS data nezahrnují opakované infekce. Datová sada s opakovanými infekcemi se
+        připravuje.
+    </p>
+</div>
+
 <script>
     function grafNakazeni() {
         {% set data_80 = data.filter(like = '80+', axis=0) %}
