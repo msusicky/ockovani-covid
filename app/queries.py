@@ -1469,7 +1469,7 @@ def get_hospital_capacities_graph_data():
 
     capacities_20 = pd.read_sql_query("select * from kapacity_nemocnic_20", db.engine).fillna(0)
 
-    kraje = pd.read_sql_query("select * from kraje", db.engine)
+    kraje = pd.read_sql_query("select id, nazev_kratky nazev from kraje", db.engine)
     kraje['nazev_norm'] = kraje['nazev'].str.normalize('NFKD') \
         .str.encode('ascii', errors='ignore') \
         .str.decode('utf-8') \
