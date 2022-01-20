@@ -27,7 +27,7 @@
                 thickness: 5,
             },
             hovertemplate: '%{z:.1f} % (%{customdata} testů)<extra>%{text}</extra>',
-            geojson: "https://data.gov.cz/attachments/%C4%8Dl%C3%A1nky/kartogram-choropleth/data/orp-simple.json"
+            geojson: "{{ url_for('static',filename='geojson/orp-simple.json') }}"
         }];
 
         const config = {
