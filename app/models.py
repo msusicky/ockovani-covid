@@ -205,6 +205,8 @@ class OckovaciZarizeni(db.Model):
     zrizovatel_nazev = Column(Unicode)
     provoz_ukoncen = Column(Date)
     prakticky_lekar = Column(Boolean)
+    prakticky_lekar_deti = Column(Boolean)
+    prakticky_lekar_dospeli = Column(Boolean)
 
     okres = relationship("Okres", back_populates="ockovaci_zarizeni")
 
