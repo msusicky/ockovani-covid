@@ -21,6 +21,8 @@ class HealthFacilitiesFetcher(Fetcher):
         df['zarizeni_kod'] = df['zarizeni_kod'].str.zfill(11)
         df['provoz_zahajen'] = df['provoz_zahajen'].fillna(False).astype('bool')
         df['prakticky_lekar'] = df['prakticky_lekar'].fillna(False).astype('bool')
+        df['prakticky_lekar_deti'] = df['prakticky_lekar_deti'].fillna(False).astype('bool')
+        df['prakticky_lekar_dospeli'] = df['prakticky_lekar_dospeli'].fillna(False).astype('bool')
 
         df = df.drop(['id', 'kraj_nuts_kod', 'kraj_nazev', 'okres_nazev'], axis=1)
         df = df.rename(columns={'zarizeni_kod': 'id', 'okres_lau_kod': 'okres_id'})
