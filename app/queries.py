@@ -448,7 +448,8 @@ def count_vaccines_cr():
 def count_registrations(filter_column, filter_value):
     mista = pd.read_sql_query(
         """
-        select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista join okresy on ockovaci_mista.okres_id=okresy.id
+        select ockovaci_mista.id ockovaci_misto_id from ockovaci_mista 
+        left join okresy on ockovaci_mista.okres_id=okresy.id
         where {}='{}';
         """.format(filter_column, filter_value),
         db.engine
