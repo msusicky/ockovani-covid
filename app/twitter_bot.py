@@ -65,6 +65,9 @@ class TwitterBot():
         return progressbar + ' ' + filters.format_decimal(vaccinated_percent, 1) + ' %'
 
     def _days(self, days):
+        if days is None:
+            days = 0
+
         if days == 1:
             return filters.format_number(days) + " den"
         elif days >= 2 and days <= 4:
