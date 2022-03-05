@@ -13,7 +13,7 @@ class DeathsFetcher(Fetcher):
     DEATHS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/umrti.csv'
 
     def __init__(self):
-        super().__init__(Umrti.__tablename__, self.DEATHS_CSV, check_date=False)
+        super().__init__(Umrti.__tablename__, self.DEATHS_CSV)
 
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
