@@ -23,6 +23,8 @@ def upgrade():
     sa.Column('pocet', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('datum')
     )
+
+    op.execute("update vakciny set vakcina='Nuvaxovid', aktivni=true where vyrobce='Novavax'")
     # ### end Alembic commands ###
 
 
