@@ -12,8 +12,7 @@ class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
                                  CrMetriky.ockovani_pocet_3, CrMetriky.ockovani_pocet_3_zmena_den,
-                                 CrMetriky.pocet_obyvatel_celkem, CrMetriky.registrace_pred_zavorou,
-                                 CrMetriky.registrace_prumer_cekani) \
+                                 CrMetriky.pocet_obyvatel_celkem) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
 
