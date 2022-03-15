@@ -405,6 +405,16 @@ class Nakazeni(db.Model):
         return f"<Nakazeni(datum='{self.datum}', vek={self.vek}, kraj_nuts_kod='{self.kraj_nuts_kod}')>"
 
 
+class Reinfekce(db.Model):
+    __tablename__ = 'reinfekce'
+
+    datum = Column(Date, primary_key=True)
+    pocet = Column(Integer)
+
+    def __repr__(self):
+        return f"<Reinfekce(datum='{self.datum}')>"
+
+
 class CharakteristikaObci(db.Model):
     __tablename__ = 'charakteristika_obci'
 
