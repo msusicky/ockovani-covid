@@ -26,6 +26,7 @@ from app.fetcher.municipal_characteristics_fetcher import MunicipalCharacteristi
 from app.fetcher.opening_hours_fetcher import OpeningHoursFetcher
 from app.fetcher.orp_situation_fetcher import OrpSituationFetcher
 from app.fetcher.registrations_fetcher import RegistrationsFetcher
+from app.fetcher.reinfections_fetcher import ReinfectionsFetcher
 from app.fetcher.reservations_api_fetcher import ReservationsApiFetcher
 from app.fetcher.reservations_fetcher import ReservationsFetcher
 from app.fetcher.supplies_fetcher import SuppliesFetcher
@@ -114,6 +115,7 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedIcuVaccinatedAgeFetcher())
             self._fetchers.append(HospitalizedFetcher())
             self._fetchers.append(TestsFetcher())
+            self._fetchers.append(ReinfectionsFetcher())
 
         elif dataset == 'all_hourly':
             self._fetchers.append(CentersApiFetcher())
