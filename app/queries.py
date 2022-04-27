@@ -761,7 +761,7 @@ def count_end_date_interested():
 
 def count_eligible():
     eligible_population = db.session.query(func.sum(Populace.pocet)) \
-        .filter(Populace.vek >= 12) \
+        .filter(Populace.vek >= 5) \
         .filter(Populace.orp_kod == "CZ0") \
         .one()
 
