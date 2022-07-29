@@ -63,8 +63,8 @@ class KrajMetricsEtl:
         """Computes metrics based on registrations dataset for each kraj."""
         registrations = db.session.query(
             Okres.kraj_id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou is True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).join(OckovaciMisto, OckovaciMisto.okres_id == Okres.id) \
             .outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
@@ -91,10 +91,12 @@ class KrajMetricsEtl:
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_1).label("rezervace_cekajici_1"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_2).label("rezervace_cekajici_2"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_3).label("rezervace_cekajici_3"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_4).label("rezervace_cekajici_4"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_3).label("rezervace_kapacita_3"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_4).label("rezervace_kapacita_4"),
             func.min(OckovaciMistoMetriky.rezervace_nejblizsi_volno).label('rezervace_nejblizsi_volno')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -112,10 +114,12 @@ class KrajMetricsEtl:
                 rezervace_cekajici_1=reservation.rezervace_cekajici_1,
                 rezervace_cekajici_2=reservation.rezervace_cekajici_2,
                 rezervace_cekajici_3=reservation.rezervace_cekajici_3,
+                rezervace_cekajici_4=reservation.rezervace_cekajici_4,
                 rezervace_kapacita=reservation.rezervace_kapacita,
                 rezervace_kapacita_1=reservation.rezervace_kapacita_1,
                 rezervace_kapacita_2=reservation.rezervace_kapacita_2,
                 rezervace_kapacita_3=reservation.rezervace_kapacita_3,
+                rezervace_kapacita_4=reservation.rezervace_kapacita_4,
                 rezervace_nejblizsi_volno=reservation.rezervace_nejblizsi_volno
             ))
 
@@ -127,7 +131,8 @@ class KrajMetricsEtl:
             Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3')
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_nuts_kod == Kraj.id, OckovaniLide.datum < self._date)) \
             .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .group_by(Kraj.id) \
@@ -140,14 +145,16 @@ class KrajMetricsEtl:
                 ockovani_pocet_davek=vacc.ockovani_pocet_davek,
                 ockovani_pocet_castecne=vacc.ockovani_pocet_castecne,
                 ockovani_pocet_plne=vacc.ockovani_pocet_plne,
-                ockovani_pocet_3=vacc.ockovani_pocet_3
+                ockovani_pocet_3=vacc.ockovani_pocet_3,
+                ockovani_pocet_4=vacc.ockovani_pocet_4
             ))
 
         vaccinated_bydl = db.session.query(
             Kraj.id,
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne_bydl'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne_bydl'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3_bydl')
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3_bydl'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4_bydl')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_bydl_nuts == Kraj.id, OckovaniLide.datum < self._date)) \
             .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .group_by(Kraj.id) \
@@ -159,7 +166,8 @@ class KrajMetricsEtl:
                 datum=self._date,
                 ockovani_pocet_castecne_bydl=vacc.ockovani_pocet_castecne_bydl,
                 ockovani_pocet_plne_bydl=vacc.ockovani_pocet_plne_bydl,
-                ockovani_pocet_3_bydl=vacc.ockovani_pocet_3_bydl
+                ockovani_pocet_3_bydl=vacc.ockovani_pocet_3_bydl,
+                ockovani_pocet_4_bydl=vacc.ockovani_pocet_4_bydl
             ))
 
         app.logger.info('Computing kraj metrics - vaccinated people finished.')
@@ -258,7 +266,7 @@ class KrajMetricsEtl:
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1)) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(Kraj.id,) \
             .all()
@@ -291,7 +299,7 @@ class KrajMetricsEtl:
 
         success_ratio_14 = db.session.query(
             Kraj.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -310,7 +318,7 @@ class KrajMetricsEtl:
 
         success_ratio_30 = db.session.query(
             Kraj.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
@@ -355,10 +363,12 @@ class KrajMetricsEtl:
                 rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
                 rezervace_cekajici_3_zmena_den = t0.rezervace_cekajici_3 - t1.rezervace_cekajici_3,
+                rezervace_cekajici_4_zmena_den = t0.rezervace_cekajici_4 - t1.rezervace_cekajici_4,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 rezervace_kapacita_3_zmena_den = t0.rezervace_kapacita_3 - t1.rezervace_kapacita_3,
+                rezervace_kapacita_4_zmena_den = t0.rezervace_kapacita_4 - t1.rezervace_kapacita_4,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_pred_zavorou_zmena_den = t0.registrace_pred_zavorou - t1.registrace_pred_zavorou,
@@ -375,6 +385,8 @@ class KrajMetricsEtl:
                 ockovani_pocet_plne_bydl_zmena_den = t0.ockovani_pocet_plne_bydl - t1.ockovani_pocet_plne_bydl,
                 ockovani_pocet_3_zmena_den = t0.ockovani_pocet_3 - t1.ockovani_pocet_3,
                 ockovani_pocet_3_bydl_zmena_den = t0.ockovani_pocet_3_bydl - t1.ockovani_pocet_3_bydl,
+                ockovani_pocet_4_zmena_den = t0.ockovani_pocet_4 - t1.ockovani_pocet_4,
+                ockovani_pocet_4_bydl_zmena_den = t0.ockovani_pocet_4_bydl - t1.ockovani_pocet_4_bydl,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
@@ -394,10 +406,12 @@ class KrajMetricsEtl:
                 rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
                 rezervace_cekajici_3_zmena_tyden = t0.rezervace_cekajici_3 - t7.rezervace_cekajici_3,
+                rezervace_cekajici_4_zmena_tyden = t0.rezervace_cekajici_4 - t7.rezervace_cekajici_4,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 rezervace_kapacita_3_zmena_tyden = t0.rezervace_kapacita_3 - t7.rezervace_kapacita_3,
+                rezervace_kapacita_4_zmena_tyden = t0.rezervace_kapacita_4 - t7.rezervace_kapacita_4,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_pred_zavorou_zmena_tyden = t0.registrace_pred_zavorou - t7.registrace_pred_zavorou,
@@ -414,6 +428,8 @@ class KrajMetricsEtl:
                 ockovani_pocet_plne_bydl_zmena_tyden = t0.ockovani_pocet_plne_bydl - t7.ockovani_pocet_plne_bydl,
                 ockovani_pocet_3_zmena_tyden = t0.ockovani_pocet_3 - t7.ockovani_pocet_3,
                 ockovani_pocet_3_bydl_zmena_tyden = t0.ockovani_pocet_3_bydl - t7.ockovani_pocet_3_bydl,
+                ockovani_pocet_4_zmena_tyden = t0.ockovani_pocet_4 - t7.ockovani_pocet_4,
+                ockovani_pocet_4_bydl_zmena_tyden = t0.ockovani_pocet_4_bydl - t7.ockovani_pocet_4_bydl,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,

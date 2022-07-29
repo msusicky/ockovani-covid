@@ -61,8 +61,8 @@ class CrMetricsEtl:
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
             func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou is True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .one()
@@ -85,10 +85,12 @@ class CrMetricsEtl:
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_1).label("rezervace_cekajici_1"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_2).label("rezervace_cekajici_2"),
             func.sum(OckovaciMistoMetriky.rezervace_cekajici_3).label("rezervace_cekajici_3"),
+            func.sum(OckovaciMistoMetriky.rezervace_cekajici_4).label("rezervace_cekajici_4"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita).label("rezervace_kapacita"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_1).label("rezervace_kapacita_1"),
             func.sum(OckovaciMistoMetriky.rezervace_kapacita_2).label("rezervace_kapacita_2"),
-            func.sum(OckovaciMistoMetriky.rezervace_kapacita_3).label("rezervace_kapacita_3")
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_3).label("rezervace_kapacita_3"),
+            func.sum(OckovaciMistoMetriky.rezervace_kapacita_4).label("rezervace_kapacita_4")
         ).filter(OckovaciMistoMetriky.datum == self._date) \
             .one()
 
@@ -99,10 +101,12 @@ class CrMetricsEtl:
             rezervace_cekajici_1=reservations.rezervace_cekajici_1,
             rezervace_cekajici_2=reservations.rezervace_cekajici_2,
             rezervace_cekajici_3=reservations.rezervace_cekajici_3,
+            rezervace_cekajici_4=reservations.rezervace_cekajici_4,
             rezervace_kapacita=reservations.rezervace_kapacita,
             rezervace_kapacita_1=reservations.rezervace_kapacita_1,
             rezervace_kapacita_2=reservations.rezervace_kapacita_2,
-            rezervace_kapacita_3=reservations.rezervace_kapacita_3
+            rezervace_kapacita_3=reservations.rezervace_kapacita_3,
+            rezervace_kapacita_4=reservations.rezervace_kapacita_4
         ))
 
         app.logger.info('Computing cr metrics - reservations finished.')
@@ -113,7 +117,8 @@ class CrMetricsEtl:
             func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
             func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3')
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3'),
+            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4')
         ).join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .filter(OckovaniLide.datum < self._date) \
             .one()
@@ -123,7 +128,8 @@ class CrMetricsEtl:
             ockovani_pocet_davek=vaccinated.ockovani_pocet_davek,
             ockovani_pocet_castecne=vaccinated.ockovani_pocet_castecne,
             ockovani_pocet_plne=vaccinated.ockovani_pocet_plne,
-            ockovani_pocet_3=vaccinated.ockovani_pocet_3
+            ockovani_pocet_3=vaccinated.ockovani_pocet_3,
+            ockovani_pocet_4=vaccinated.ockovani_pocet_4
         ))
 
         app.logger.info('Computing cr metrics - vaccinated people finished.')
@@ -177,7 +183,7 @@ class CrMetricsEtl:
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1)) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .one()
 
@@ -187,7 +193,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_7 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
@@ -199,7 +205,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_14 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
@@ -211,7 +217,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_30 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \
@@ -244,10 +250,12 @@ class CrMetricsEtl:
                 rezervace_cekajici_1_zmena_den = t0.rezervace_cekajici_1 - t1.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_den = t0.rezervace_cekajici_2 - t1.rezervace_cekajici_2,
                 rezervace_cekajici_3_zmena_den = t0.rezervace_cekajici_3 - t1.rezervace_cekajici_3,
+                rezervace_cekajici_4_zmena_den = t0.rezervace_cekajici_4 - t1.rezervace_cekajici_4,
                 rezervace_kapacita_zmena_den = t0.rezervace_kapacita - t1.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_den = t0.rezervace_kapacita_1 - t1.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_den = t0.rezervace_kapacita_2 - t1.rezervace_kapacita_2,
                 rezervace_kapacita_3_zmena_den = t0.rezervace_kapacita_3 - t1.rezervace_kapacita_3,
+                rezervace_kapacita_4_zmena_den = t0.rezervace_kapacita_4 - t1.rezervace_kapacita_4,
                 registrace_celkem_zmena_den = t0.registrace_celkem - t1.registrace_celkem,
                 registrace_fronta_zmena_den = t0.registrace_fronta - t1.registrace_fronta,
                 registrace_pred_zavorou_zmena_den = t0.registrace_pred_zavorou - t1.registrace_pred_zavorou,
@@ -261,6 +269,7 @@ class CrMetricsEtl:
                 ockovani_pocet_castecne_zmena_den = t0.ockovani_pocet_castecne - t1.ockovani_pocet_castecne,
                 ockovani_pocet_plne_zmena_den = t0.ockovani_pocet_plne - t1.ockovani_pocet_plne,
                 ockovani_pocet_3_zmena_den = t0.ockovani_pocet_3 - t1.ockovani_pocet_3,
+                ockovani_pocet_4_zmena_den = t0.ockovani_pocet_4 - t1.ockovani_pocet_4,
                 vakciny_prijate_pocet_zmena_den = t0.vakciny_prijate_pocet - t1.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_den = t0.vakciny_ockovane_pocet - t1.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_den = t0.vakciny_znicene_pocet - t1.vakciny_znicene_pocet,
@@ -279,10 +288,12 @@ class CrMetricsEtl:
                 rezervace_cekajici_1_zmena_tyden = t0.rezervace_cekajici_1 - t7.rezervace_cekajici_1,
                 rezervace_cekajici_2_zmena_tyden = t0.rezervace_cekajici_2 - t7.rezervace_cekajici_2,
                 rezervace_cekajici_3_zmena_tyden = t0.rezervace_cekajici_3 - t7.rezervace_cekajici_3,
+                rezervace_cekajici_4_zmena_tyden = t0.rezervace_cekajici_4 - t7.rezervace_cekajici_4,
                 rezervace_kapacita_zmena_tyden = t0.rezervace_kapacita - t7.rezervace_kapacita,
                 rezervace_kapacita_1_zmena_tyden = t0.rezervace_kapacita_1 - t7.rezervace_kapacita_1,
                 rezervace_kapacita_2_zmena_tyden = t0.rezervace_kapacita_2 - t7.rezervace_kapacita_2,
                 rezervace_kapacita_3_zmena_tyden = t0.rezervace_kapacita_3 - t7.rezervace_kapacita_3,
+                rezervace_kapacita_4_zmena_tyden = t0.rezervace_kapacita_4 - t7.rezervace_kapacita_4,
                 registrace_celkem_zmena_tyden = t0.registrace_celkem - t7.registrace_celkem,
                 registrace_fronta_zmena_tyden = t0.registrace_fronta - t7.registrace_fronta,
                 registrace_pred_zavorou_zmena_tyden = t0.registrace_pred_zavorou - t7.registrace_pred_zavorou,
@@ -296,6 +307,7 @@ class CrMetricsEtl:
                 ockovani_pocet_castecne_zmena_tyden = t0.ockovani_pocet_castecne - t7.ockovani_pocet_castecne,
                 ockovani_pocet_plne_zmena_tyden = t0.ockovani_pocet_plne - t7.ockovani_pocet_plne,
                 ockovani_pocet_3_zmena_tyden = t0.ockovani_pocet_3 - t7.ockovani_pocet_3,
+                ockovani_pocet_4_zmena_tyden = t0.ockovani_pocet_4 - t7.ockovani_pocet_4,
                 vakciny_prijate_pocet_zmena_tyden = t0.vakciny_prijate_pocet - t7.vakciny_prijate_pocet,
                 vakciny_ockovane_pocet_zmena_tyden = t0.vakciny_ockovane_pocet - t7.vakciny_ockovane_pocet,
                 vakciny_znicene_pocet_zmena_tyden = t0.vakciny_znicene_pocet - t7.vakciny_znicene_pocet,
