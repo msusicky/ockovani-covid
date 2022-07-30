@@ -46,6 +46,9 @@ class VaccinatedFetcher(Fetcher):
                  'indikace_ostatni', 'indikace_pedagog', 'indikace_skolstvi_ostatni',
                  'indikace_bezpecnostni_infrastruktura', 'indikace_chronicke_onemocneni']]
 
+        # TODO: Problem in data from May 2022 - vaccine null
+        df = df[df['vakcina'].notna()]
+
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
         self._truncate()

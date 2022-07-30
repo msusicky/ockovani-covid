@@ -54,6 +54,11 @@ def upgrade():
     op.add_column('okresy_metriky', sa.Column('rezervace_kapacita_4', sa.Integer(), nullable=True))
     op.add_column('okresy_metriky', sa.Column('rezervace_kapacita_4_zmena_den', sa.Integer(), nullable=True))
     op.add_column('okresy_metriky', sa.Column('rezervace_kapacita_4_zmena_tyden', sa.Integer(), nullable=True))
+    op.execute("insert into vakciny (vyrobce, vakcina, davky, vakcina_sklad, aktivni) VALUES('Sinopharm', 'Sinopharm', 2, 'Sinopharm', true) ON CONFLICT (vakcina) DO NOTHING")
+    op.execute("insert into vakciny (vyrobce, vakcina, davky, vakcina_sklad, aktivni) VALUES('Sinovac', 'Sinovac', 2, 'Sinovac', true) ON CONFLICT (vakcina) DO NOTHING")
+    op.execute("insert into vakciny (vyrobce, vakcina, davky, vakcina_sklad, aktivni) VALUES('BharatBiotech', 'COVAXIN', 2, 'BharatBiotech', true) ON CONFLICT (vakcina) DO NOTHING")
+    op.execute("insert into vakciny (vyrobce, vakcina, davky, vakcina_sklad, aktivni) VALUES('AstraZenecaIN', 'Covishield', 2, 'AstraZenecaIN', true) ON CONFLICT (vakcina) DO NOTHING")
+
     # ### end Alembic commands ###
 
 
@@ -95,4 +100,5 @@ def downgrade():
     op.drop_column('cr_metriky', 'ockovani_pocet_4_zmena_tyden')
     op.drop_column('cr_metriky', 'ockovani_pocet_4_zmena_den')
     op.drop_column('cr_metriky', 'ockovani_pocet_4')
+    op.execute("delete from vakciny where vyrobce in ('Sinopharm','Sinovac','BharatBiotech','AstraZenecaIN')")
     # ### end Alembic commands ###
