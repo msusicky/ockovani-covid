@@ -196,7 +196,7 @@ class CenterMetricsEtl:
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .group_by(OckovaciMisto.id) \
             .all()

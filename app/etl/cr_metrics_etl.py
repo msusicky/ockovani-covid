@@ -61,8 +61,8 @@ class CrMetricsEtl:
         """Computes metrics based on registrations dataset for cr."""
         registrations = db.session.query(
             func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou is True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
             func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .one()
@@ -183,7 +183,7 @@ class CrMetricsEtl:
             (func.sum((self._date - OckovaniRegistrace.datum) * OckovaniRegistrace.pocet)
              / func.sum(OckovaniRegistrace.pocet)).label('registrace_fronta_prumer_cekani'),
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
-            .filter((OckovaniRegistrace.rezervace is False) & (OckovaniRegistrace.ockovani < 1)) \
+            .filter((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1)) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(90)) \
             .one()
 
@@ -193,7 +193,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_7 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
@@ -205,7 +205,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_14 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
@@ -217,7 +217,7 @@ class CrMetricsEtl:
         ))
 
         success_ratio_30 = db.session.query(
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace is True, OckovaniRegistrace.pocet)], else_=0)), 0)
+            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
              / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \
