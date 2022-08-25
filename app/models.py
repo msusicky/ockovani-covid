@@ -625,9 +625,6 @@ class KrajMetriky(db.Model):
     rezervace_cekajici_3 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky)
     rezervace_cekajici_3_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za den
     rezervace_cekajici_3_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za tyden
-    rezervace_cekajici_4 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky)
-    rezervace_cekajici_4_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za den
-    rezervace_cekajici_4_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za tyden
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
@@ -640,9 +637,6 @@ class KrajMetriky(db.Model):
     rezervace_kapacita_3 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 3. davky)
     rezervace_kapacita_3_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 3. davky) - zmena za den
     rezervace_kapacita_3_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 3. davky) - zmena za tyden
-    rezervace_kapacita_4 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 4. davky)
-    rezervace_kapacita_4_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 4. davky) - zmena za den
-    rezervace_kapacita_4_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 4. davky) - zmena za tyden
     rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
@@ -743,9 +737,6 @@ class OkresMetriky(db.Model):
     rezervace_cekajici_3 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky)
     rezervace_cekajici_3_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za den
     rezervace_cekajici_3_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za tyden
-    rezervace_cekajici_4 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky)
-    rezervace_cekajici_4_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za den
-    rezervace_cekajici_4_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za tyden
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
@@ -758,9 +749,6 @@ class OkresMetriky(db.Model):
     rezervace_kapacita_3 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 3. davky)
     rezervace_kapacita_3_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 3. davky) - zmena za den
     rezervace_kapacita_3_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 3. davky) - zmena za tyden
-    rezervace_kapacita_4 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 4. davky)
-    rezervace_kapacita_4_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 4. davky) - zmena za den
-    rezervace_kapacita_4_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 4. davky) - zmena za tyden
     rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
@@ -829,9 +817,6 @@ class OckovaciMistoMetriky(db.Model):
     rezervace_cekajici_3 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky)
     rezervace_cekajici_3_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za den
     rezervace_cekajici_3_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za tyden
-    rezervace_cekajici_4 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky)
-    rezervace_cekajici_4_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za den
-    rezervace_cekajici_4_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za tyden
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
@@ -844,9 +829,6 @@ class OckovaciMistoMetriky(db.Model):
     rezervace_kapacita_3 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 3. davky)
     rezervace_kapacita_3_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 3. davky) - zmena za den
     rezervace_kapacita_3_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 3. davky) - zmena za tyden
-    rezervace_kapacita_4 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 4. davky)
-    rezervace_kapacita_4_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 4. davky) - zmena za den
-    rezervace_kapacita_4_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 4. davky) - zmena za tyden
     rezervace_nejblizsi_volno = Column(Date)                    # nejblizsi den s volnym mistem
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
@@ -939,9 +921,6 @@ class CrMetriky(db.Model):
     rezervace_cekajici_3 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky)
     rezervace_cekajici_3_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za den
     rezervace_cekajici_3_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 3. davky) - zmena za tyden
-    rezervace_cekajici_4 = Column(Integer)                      # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky)
-    rezervace_cekajici_4_zmena_den = Column(Integer)            # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za den
-    rezervace_cekajici_4_zmena_tyden = Column(Integer)          # pocet rezervaci cekajicich na ockovani (kalendar pro 4. davky) - zmena za tyden
     rezervace_kapacita = Column(Integer)                        # kapacita na aktualni den (vsechny kalendare)
     rezervace_kapacita_zmena_den = Column(Integer)              # kapacita na aktualni den (vsechny kalendare) - zmena za den
     rezervace_kapacita_zmena_tyden = Column(Integer)            # kapacita na aktualni den (vsechny kalendare) - zmena za tyden
@@ -954,9 +933,6 @@ class CrMetriky(db.Model):
     rezervace_kapacita_3 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 3. davky)
     rezervace_kapacita_3_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 3. davky) - zmena za den
     rezervace_kapacita_3_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 3. davky) - zmena za tyden
-    rezervace_kapacita_4 = Column(Integer)                      # kapacita na aktualni den (kalendar pro 4. davky)
-    rezervace_kapacita_4_zmena_den = Column(Integer)            # kapacita na aktualni den (kalendar pro 4. davky) - zmena za den
-    rezervace_kapacita_4_zmena_tyden = Column(Integer)          # kapacita na aktualni den (kalendar pro 4. davky) - zmena za tyden
     registrace_celkem = Column(Integer)                         # pocet vsech registraci
     registrace_celkem_zmena_den = Column(Integer)               # pocet vsech registraci - zmena za den
     registrace_celkem_zmena_tyden = Column(Integer)             # pocet vsech registraci - zmena za tyden

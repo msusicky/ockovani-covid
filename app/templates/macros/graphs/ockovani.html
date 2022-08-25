@@ -123,16 +123,6 @@
             hovertemplate: "%{y}"
         }
 
-        const rezervace_4 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['rezervace_4'] }},{% endfor %}],
-            mode: "lines+markers",
-            type: "scatter",
-            name: "Rezervace na 4. dávku",
-            visible: "legendonly",
-            hovertemplate: "%{y}"
-        }
-
         const kapacita = {
             x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
             y: [{% for idx, row in data.iterrows() %}{{ row['kapacita'] }},{% endfor %}],
@@ -167,17 +157,7 @@
             y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_3'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Maximální kapacita pro 3. dávky",
-            visible: "legendonly",
-            hovertemplate: "%{y}"
-        }
-
-        const kapacita_4 = {
-            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
-            y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_4'] }},{% endfor %}],
-            mode: "lines+markers",
-            type: "scatter",
-            name: "Maximální kapacita pro 4. dávky",
+            name: "Maximální kapacita pro posilující dávky",
             visible: "legendonly",
             hovertemplate: "%{y}"
         }
@@ -240,11 +220,10 @@
         const data = [ockovane, pouzite, rezervace, kapacita,
             ockovane_1, rezervace_1, kapacita_1,
             ockovane_2, rezervace_2, kapacita_2,
-            ockovane_3, rezervace_3, kapacita_3,
-            ockovane_4, rezervace_4, kapacita_4];
+            ockovane_3, rezervace_3, kapacita_3];
         {% else %}
         const data = [pouzite, rezervace, kapacita, rezervace_1, kapacita_1, rezervace_2, kapacita_2,
-            rezervace_3, kapacita_3,rezervace_4, kapacita_4];
+            rezervace_3, kapacita_3];
         {% endif %}
 
         const config = {
