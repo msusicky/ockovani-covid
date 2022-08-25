@@ -7,6 +7,7 @@
             <th scope="col" class="w-20 text-center">1. dávky</th>
             <th scope="col" class="w-20 text-center">2. dávky</th>
             <th scope="col" class="w-20 text-center">3. dávky</th>
+            <th scope="col" class="w-20 text-center">4. dávky</th>
             <th scope="col" class="w-20 text-center">Celkem</th>
         </tr>
         </thead>
@@ -17,6 +18,7 @@
             <td class="text-right">{{ item.pocet_1 | format_number }}</td>
             <td class="text-right">{{ item.pocet_2 | format_number }}</td>
             <td class="text-right">{{ item.pocet_3 | format_number }}</td>
+            <td class="text-right">{{ item.pocet_4 | format_number }}</td>
             <td class="text-right">{{ item.pocet_celkem | format_number }}</td>
         </tr>
         {% endfor %}

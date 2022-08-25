@@ -30,6 +30,15 @@
             hovertemplate: "%{y}"
         }
 
+        const ockovani_4 = {
+            x: [{% for idx, row in data.iterrows() %}"{{ idx }}",{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_4'] }},{% endfor %}],
+            mode: "lines",
+            type: "scatter",
+            name: "Očkovaní 2. posilující dávkou",
+            hovertemplate: "%{y}"
+        }
+
         const layout = {
             title: "Celkový počet očkovaných",
             autosize: true,

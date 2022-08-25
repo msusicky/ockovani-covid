@@ -180,6 +180,8 @@ class FetcherLauncher:
             self._fetchers.append(HospitalizedFetcher())
         elif dataset == 'tests':
             self._fetchers.append(TestsFetcher())
+        elif dataset == 'reinfections':
+            self._fetchers.append(ReinfectionsFetcher())
         else:
             raise Exception('Invalid dataset argument.')
 
