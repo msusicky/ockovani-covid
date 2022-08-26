@@ -60,6 +60,16 @@
             visible: "legendonly",
             hovertemplate: "%{y}"
         }
+
+        const ockovane_4 = {
+            x: [{% for idx, row in data.iterrows() %}{% if row['ockovane_4'] != None %}"{{ idx }}",{% endif %}{% endfor %}],
+            y: [{% for idx, row in data.iterrows() %}{% if row['ockovane_4'] != None %}{{ row['ockovane_4'] }},{% endif %}{% endfor %}],
+            mode: "lines+markers",
+            type: "scatter",
+            name: "Očkováno 4. dávkou",
+            visible: "legendonly",
+            hovertemplate: "%{y}"
+        }
         {% endif %}
 
         const pouzite = {
@@ -147,7 +157,7 @@
             y: [{% for idx, row in data.iterrows() %}{{ row['kapacita_3'] }},{% endfor %}],
             mode: "lines+markers",
             type: "scatter",
-            name: "Maximální kapacita pro 3. dávky",
+            name: "Maximální kapacita pro posilující dávky",
             visible: "legendonly",
             hovertemplate: "%{y}"
         }
