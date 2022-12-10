@@ -71,11 +71,11 @@ class CenterMetricsEtl:
             func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_1"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_2"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_3"),
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_3"),
             func.coalesce(func.sum(case([(OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1"),
             func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_2"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V3'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
+            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
             func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
         ).outerjoin(OckovaniRezervace, OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id) \
             .group_by(OckovaciMisto.id) \

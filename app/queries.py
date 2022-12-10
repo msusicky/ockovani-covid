@@ -72,7 +72,7 @@ def find_centers(filter_column, filter_value):
 def find_third_doses_centers():
     center_ids = db.session.query(OckovaniRezervace.ockovaci_misto_id) \
         .distinct() \
-        .filter(OckovaniRezervace.kalendar_ockovani == 'V3') \
+        .filter(OckovaniRezervace.kalendar_ockovani == 'VN') \
         .all()
 
     return [center[0] for center in center_ids]
@@ -799,7 +799,7 @@ def count_free_slots(center_id=None):
         """
         select datum, volna_kapacita volna_kapacita_3, maximalni_kapacita maximalni_kapacita_3
         from ockovani_rezervace  
-        where ockovaci_misto_id = '{}' and datum >= '{}' and kalendar_ockovani = 'V3' and maximalni_kapacita != 0
+        where ockovaci_misto_id = '{}' and datum >= '{}' and kalendar_ockovani = 'VN' and maximalni_kapacita != 0
         order by datum
         """.format(center_id, get_import_date()),
         db.engine
@@ -1148,8 +1148,8 @@ def get_vaccination_graph_data(center_id):
             sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V1') rezervace_1, 
             sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V2') kapacita_2,
             sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V2') rezervace_2,
-            sum(maximalni_kapacita) filter(where kalendar_ockovani = 'V3') kapacita_3,
-            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'V3') rezervace_3
+            sum(maximalni_kapacita) filter(where kalendar_ockovani = 'VN') kapacita_3,
+            sum(maximalni_kapacita-volna_kapacita) filter(where kalendar_ockovani = 'VN') rezervace_3
         from ockovani_rezervace  
         where ockovaci_misto_id = '{}'
         group by datum

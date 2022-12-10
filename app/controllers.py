@@ -133,8 +133,8 @@ def praktici_admin_edit():
 
             pocet_davek = request.form.getlist('pocet_davek[]')[i]
             expirace = request.form.getlist('expirace[]')[i]
-            dospeli = [int(v)-1 for v in request.form.getlist('dospeli[]')]
-            deti = [int(v)-1 for v in request.form.getlist('deti[]')]
+            dospeli = [int(v) - 1 for v in request.form.getlist('dospeli[]')]
+            deti = [int(v) - 1 for v in request.form.getlist('deti[]')]
 
             vaccine.datum_aktualizace = datetime.now()
             vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
