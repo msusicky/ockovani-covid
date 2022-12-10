@@ -1209,7 +1209,8 @@ def get_vaccination_total_graph_data():
         """
         select datum, sum(pocet) filter(where poradi_davky = 1) ockovani_castecne, 
             sum(pocet) filter(where poradi_davky = v.davky) ockovani_plne,
-            sum(pocet) filter(where poradi_davky = 3) ockovani_3
+            sum(pocet) filter(where poradi_davky = 3) ockovani_3,
+            sum(pocet) filter(where poradi_davky = 4) ockovani_4
         from ockovani_lide o 
         join vakciny v on v.vakcina = o.vakcina
         group by datum
