@@ -177,9 +177,13 @@
                     <div class="tab-pane active" id="statistiky">
                         <div class="row px-2 mb-n2">
                             {{ metrika('Očkované dávky', metriky.ockovani_pocet_davek, delta_day=metriky.ockovani_pocet_davek_zmena_den, delta_week=metriky.ockovani_pocet_davek_zmena_tyden, color='std', info="Počet dávek očkovaných zdravotnickým zařízením podle dat o vykázaných očkováních.<br>Zdravotnické zařízení může mít více očkovacích míst, proto údaj uvádíme pouze u těch zařízení, která mají jen jedno aktivní očkovací místo. Pokud toto očkovací místo v minulosti nahradilo jiné, zahrnuje počet i očkované na původním místě.") }}
+                            {#
                             {{ metrika('Přijaté dávky', metriky.vakciny_prijate_pocet, delta_day=metriky.vakciny_prijate_pocet_zmena_den, delta_week=metriky.vakciny_prijate_pocet_zmena_tyden, color='std', info='Počet dávek přijatých na očkovací centrum.<br>Dávky vydané mimo očkovací místa (např. praktickým lékařům) jsou odečtené.') }}
+                            #}
                             {{ metrika('Použité dávky', metriky.vakciny_ockovane_pocet, delta_day=metriky.vakciny_ockovane_pocet_zmena_den, delta_week=metriky.vakciny_ockovane_pocet_zmena_tyden, color='std', info="Počet dávek očkovaných očkovacím centrem podle dat o spotřebě vakcín.<br>Většinou je tento údaj méně přesný než počet vycházející z dat o vykázaných očkováních.") }}
+                            {#
                             {{ metrika('Přibližně skladem', metriky.vakciny_skladem_pocet, delta_day=metriky.vakciny_skladem_pocet_zmena_den, delta_week=metriky.vakciny_skladem_pocet_zmena_tyden, warning='Odhadovaný počet dávek skladem.<br>Údaj je počítán z dat o distribuci a spotřebě vakcín. Jednotlivé datové sady mají různá zpoždění a nepřesnosti, proto údaj berte jako orientační.') }}
+                            #}
                             {{ metrika('Čekající ve frontě', metriky.registrace_fronta, delta_day=metriky.registrace_fronta_zmena_den, delta_week=metriky.registrace_fronta_zmena_tyden, color='rev', info='Počet registrovaných bez rezervovaného termínu.') }}
                             {{ metrika('Čekající před závorou', metriky.registrace_pred_zavorou, delta_day=metriky.registrace_pred_zavorou_zmena_den, delta_week=metriky.registrace_pred_zavorou_zmena_tyden, color='rev', info='Počet registrovaných čekajících na možnost rezervace konkrétního termínu.') }}
                             {{ metrika('Rezervací denně', metriky.registrace_rezervace_prumer, delta_day=metriky.registrace_rezervace_prumer_zmena_den, delta_week=metriky.registrace_rezervace_prumer_zmena_tyden, info='Průměrný počet rezervací uvolněných za posledních 7 dnů.') }}
