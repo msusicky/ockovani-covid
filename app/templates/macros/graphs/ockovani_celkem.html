@@ -26,7 +26,7 @@
             y: [{% for idx, row in data.iterrows() %}{{ row['ockovani_3'] }},{% endfor %}],
             mode: "lines",
             type: "scatter",
-            name: "Očkovaní posilující dávkou",
+            name: "Očkovaní 1. posilující dávkou",
             hovertemplate: "%{y}"
         }
 
@@ -63,7 +63,7 @@
             height: 600,
         }
 
-        const data = [ockovani_castecne, ockovani_plne, ockovani_3];
+        const data = [ockovani_castecne, ockovani_plne, ockovani_3, ockovani_4];
 
         const config = {
             responsive: true,
