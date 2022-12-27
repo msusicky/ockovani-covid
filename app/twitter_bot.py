@@ -12,6 +12,7 @@ class TwitterBot():
     def __init__(self):
         stats = db.session.query(CrMetriky.ockovani_pocet_plne, CrMetriky.ockovani_pocet_plne_zmena_den,
                                  CrMetriky.ockovani_pocet_3, CrMetriky.ockovani_pocet_3_zmena_den,
+                                 CrMetriky.ockovani_pocet_4, CrMetriky.ockovani_pocet_4_zmena_den,
                                  CrMetriky.pocet_obyvatel_celkem) \
             .filter(CrMetriky.datum == get_import_date()) \
             .one()
@@ -23,6 +24,10 @@ class TwitterBot():
         self._vaccinated_3 = stats.ockovani_pocet_3
         self._vaccinated_3_diff = stats.ockovani_pocet_3_zmena_den
         self._vaccinated_3_ratio = stats.ockovani_pocet_3 / stats.pocet_obyvatel_celkem
+
+        self._vaccinated_4 = stats.ockovani_pocet_4
+        self._vaccinated_4_diff = stats.ockovani_pocet_4_zmena_den
+        self._vaccinated_4_ratio = stats.ockovani_pocet_4 / stats.pocet_obyvatel_celkem
 
         self.infected_1 = db.session.query(column("nakazeni_celkem_pocet")).from_statement(text(
             """
@@ -57,7 +62,7 @@ class TwitterBot():
 
     def _generate_tweet(self):
         return f"{self._generate_progressbar(self._vaccinated_2_ratio)} 💉💉 ({filters.format_number(self._vaccinated_2)} celkem, {filters.format_number(self._vaccinated_2_diff)} od včera).\n" \
-               f"{self._generate_progressbar(self._vaccinated_3_ratio)} 💉💉💉 ({filters.format_number(self._vaccinated_3)} celkem, {filters.format_number(self._vaccinated_3_diff)} od včera).\n" \
+               f"{self._generate_progressbar(self._vaccinated_4_ratio)} 💉💉💉💉 ({filters.format_number(self._vaccinated_4)} celkem, {filters.format_number(self._vaccinated_4_diff)} od včera).\n" \
                f"Včera přibylo {filters.format_number(self.infected_1)} nakažených, o {filters.format_number(self.infected_diff)} {self.infected_sign} než před týdnem. " \
                f"https://ockovani.opendatalab.cz"
 
