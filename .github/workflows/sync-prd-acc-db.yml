@@ -9,7 +9,7 @@ jobs:
   deploy:
     name: Sync databases - PRD to ACC
     environment: acceptance
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       APP_DIR: '${HOME}/acc/app'
       SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -18,7 +18,7 @@ jobs:
       SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
     steps:
       - id: ip
-        uses: haythem/public-ip@v1.2
+        uses: haythem/public-ip@v1.3
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh/

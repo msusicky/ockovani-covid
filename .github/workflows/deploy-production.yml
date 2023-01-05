@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy to production
     environment: production
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       APP_DIR: '${HOME}/prd/app'
       TMP_DIR: '${HOME}/prd/tmp'
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: ip
-        uses: haythem/public-ip@v1.2
+        uses: haythem/public-ip@v1.3
       - name: Prepare config file
         uses: falnyr/replace-env-vars-action@master
         env:
