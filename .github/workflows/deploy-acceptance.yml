@@ -12,7 +12,7 @@ jobs:
   deploy:
     name: Deploy to acceptance
     environment: acceptance
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       APP_DIR: '${HOME}/acc/app'
       TMP_DIR: '${HOME}/acc/tmp'

@@ -9,7 +9,7 @@ jobs:
   deploy:
     name: Update data
     environment: production
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       APP_DIR: '${HOME}/prd/app'
       SSH_HOST: ${{ secrets.SSH_HOST }}
