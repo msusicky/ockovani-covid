@@ -91,12 +91,8 @@ class FetcherLauncher:
             self._fetchers.append(DistributedFetcher())
             self._fetchers.append(UsedFetcher())
             self._fetchers.append(RegistrationsFetcher())
-        
-            if app.debug:
-                self._fetchers.append(ReservationsFetcher())
-            else:
-                self._fetchers.append(ReservationsApiFetcher())
-
+            self._fetchers.append(ReservationsFetcher())
+            # self._fetchers.append(ReservationsApiFetcher())   # API not available anymore
             self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
