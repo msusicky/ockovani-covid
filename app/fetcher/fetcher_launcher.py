@@ -88,8 +88,8 @@ class FetcherLauncher:
             self._fetchers.append(CentersApiFetcher())
             self._fetchers.append(OpeningHoursFetcher())
             self._fetchers.append(HealthFacilitiesFetcher())
-            self._fetchers.append(DistributedFetcher())
-            self._fetchers.append(UsedFetcher())
+            # self._fetchers.append(DistributedFetcher())       # not updated since 2022-11-29
+            # self._fetchers.append(UsedFetcher())              # not updated since 2022-02-16
             self._fetchers.append(RegistrationsFetcher())
             self._fetchers.append(ReservationsFetcher())
             # self._fetchers.append(ReservationsApiFetcher())   # API not available anymore
