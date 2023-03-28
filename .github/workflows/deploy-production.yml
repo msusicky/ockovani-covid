@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy to production
     environment: production
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       APP_DIR: '${HOME}/prd/app'
       TMP_DIR: '${HOME}/prd/tmp'
@@ -21,11 +21,11 @@ jobs:
       SSH_USER: ${{ secrets.SSH_USER }}
       SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: ip
-        uses: haythem/public-ip@v1.2
+        uses: haythem/public-ip@v1.3
       - name: Prepare config file
-        uses: falnyr/replace-env-vars-action@master
+        uses: falnyr/replace-env-vars-action@v1.3.2
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
