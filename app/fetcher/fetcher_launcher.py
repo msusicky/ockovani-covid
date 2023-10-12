@@ -90,10 +90,10 @@ class FetcherLauncher:
             # self._fetchers.append(HealthFacilitiesFetcher())
             # self._fetchers.append(DistributedFetcher())       # not updated since 2022-11-29
             # self._fetchers.append(UsedFetcher())              # not updated since 2022-02-16
-        ##    self._fetchers.append(RegistrationsFetcher())
-        ##    self._fetchers.append(ReservationsFetcher())
+            self._fetchers.append(RegistrationsFetcher())
+            self._fetchers.append(ReservationsFetcher())
             # self._fetchers.append(ReservationsApiFetcher())   # API not available anymore
-        ##    self._fetchers.append(VaccinatedFetcher())
+            self._fetchers.append(VaccinatedFetcher())
             self._fetchers.append(InfectedFetcher())
             self._fetchers.append(DeathsFetcher())
             self._fetchers.append(MunicipalCharacteristicsFetcher())
