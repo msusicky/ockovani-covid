@@ -494,7 +494,7 @@ def count_registrations(filter_column, filter_value):
     df['rezervace_14_pocet'] = df[['pocet']].where(
         (df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(14)))
 
-    df = df.groupby(['vekova_skupina', 'povolani']).sum()
+    df = df.groupby(['vekova_skupina', 'povolani'], group_keys=False, level=0).sum()
 
     df['uspesnost_7'] = ((df['registrace_7_rez'] / df['registrace_7']) * 100).replace({np.nan: None})
     # df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
