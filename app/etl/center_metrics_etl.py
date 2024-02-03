@@ -44,9 +44,9 @@ class CenterMetricsEtl:
         """Computes metrics based on registrations dataset for each vaccination center."""
         registrations = db.session.query(
             OckovaciMisto.id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
-            func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
+            func.coalesce(func.sum(case(((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet), else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case(((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet), else_=0)), 0).label("registrace_pred_zavorou"),
+            func.coalesce(func.sum(case((OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet), else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -68,15 +68,15 @@ class CenterMetricsEtl:
         reservations = db.session.query(
             OckovaciMisto.id,
             func.coalesce(func.sum(OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), 0).label('rezervace_celkem'),
-            func.coalesce(func.sum(case([(OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_1"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_2"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita)], else_=0)), 0).label("rezervace_cekajici_3"),
-            func.coalesce(func.sum(case([(OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_1"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_2"),
-            func.coalesce(func.sum(case([(and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita)], else_=0)), 0).label("rezervace_kapacita_3"),
-            func.min(case([(and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum)], else_=None)).label("rezervace_nejblizsi_volno")
+            func.coalesce(func.sum(case((OckovaniRezervace.datum >= self._date, OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), else_=0)), 0).label("rezervace_cekajici"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), else_=0)), 0).label("rezervace_cekajici_1"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), else_=0)), 0).label("rezervace_cekajici_2"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita - OckovaniRezervace.volna_kapacita), else_=0)), 0).label("rezervace_cekajici_3"),
+            func.coalesce(func.sum(case((OckovaniRezervace.datum == self._date, OckovaniRezervace.maximalni_kapacita), else_=0)), 0).label("rezervace_kapacita"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V1'), OckovaniRezervace.maximalni_kapacita), else_=0)), 0).label("rezervace_kapacita_1"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'V2'), OckovaniRezervace.maximalni_kapacita), else_=0)), 0).label("rezervace_kapacita_2"),
+            func.coalesce(func.sum(case((and_(OckovaniRezervace.datum == self._date, OckovaniRezervace.kalendar_ockovani == 'VN'), OckovaniRezervace.maximalni_kapacita), else_=0)), 0).label("rezervace_kapacita_3"),
+            func.min(case((and_(OckovaniRezervace.datum >= self._date, OckovaniRezervace.kalendar_ockovani == 'V1', OckovaniRezervace.volna_kapacita > 0), OckovaniRezervace.datum), else_=None)).label("rezervace_nejblizsi_volno")
         ).outerjoin(OckovaniRezervace, OckovaciMisto.id == OckovaniRezervace.ockovaci_misto_id) \
             .group_by(OckovaciMisto.id) \
             .all()
@@ -102,10 +102,10 @@ class CenterMetricsEtl:
     def _compute_vaccinated(self):
         """Computes metrics based on vaccinated people dataset for each vaccination center."""
         vaccinated = db.session.query(OckovaciMisto.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3'),
-                                      func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4')) \
+                                      func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 1, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_castecne'),
+                                      func.coalesce(func.sum(case((OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_plne'),
+                                      func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 3, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_3'),
+                                      func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 4, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_4')) \
                 .outerjoin(OckovaniLide, and_(OckovaciMisto.nrpzs_kod == OckovaniLide.zarizeni_kod, OckovaniLide.datum < self._date)) \
             .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .filter(or_(and_(OckovaciMisto.status == True, OckovaciMisto.nrpzs_kod.in_(queries.unique_nrpzs_active_subquery())),
@@ -130,9 +130,9 @@ class CenterMetricsEtl:
         """Computes metrics based on distributed vaccines dataset for each vaccination center."""
         distributed = db.session.query(
             OckovaciMisto.id, (
-                    func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Příjem'), OckovaniDistribuce.pocet_davek)], else_=0)), 0)
-                    + func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0)
-                    - func.coalesce(func.sum(case([(and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek)], else_=0)), 0))
+                    func.coalesce(func.sum(case((and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Příjem'), OckovaniDistribuce.pocet_davek), else_=0)), 0)
+                    + func.coalesce(func.sum(case((and_(OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek), else_=0)), 0)
+                    - func.coalesce(func.sum(case((and_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaniDistribuce.akce == 'Výdej'), OckovaniDistribuce.pocet_davek), else_=0)), 0))
                 .label('vakciny_prijate_pocet')
         ).outerjoin(OckovaniDistribuce, and_(
             or_(OckovaciMisto.id == OckovaniDistribuce.ockovaci_misto_id, OckovaciMisto.id == OckovaniDistribuce.cilove_ockovaci_misto_id),
@@ -230,8 +230,8 @@ class CenterMetricsEtl:
 
         success_ratio_7 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(7)) \
@@ -247,8 +247,8 @@ class CenterMetricsEtl:
 
         success_ratio_14 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(14)) \
@@ -264,8 +264,8 @@ class CenterMetricsEtl:
 
         success_ratio_30 = db.session.query(
             OckovaciMisto.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
             .filter(OckovaniRegistrace.import_id == self._import_id) \
             .filter(OckovaniRegistrace.datum >= self._date - timedelta(30)) \

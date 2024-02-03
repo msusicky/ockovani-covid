@@ -3,6 +3,7 @@ from datetime import datetime
 from email import utils as eut
 from io import StringIO
 from typing import Optional
+from sqlalchemy import text
 
 import requests
 
@@ -30,7 +31,9 @@ class Fetcher:
         pass
 
     def _truncate(self) -> None:
-        db.engine.execute('truncate table {}'.format(self._table))
+        with db.engine.connect() as conn:
+            result = conn.execute(text('TRUNCATE table {}'.format(self._table)))
+            conn.commit()
 
     def _log_download_finished(self):
         app.logger.info(f"Fetcher '{type(self).__name__}' source file downloaded.")

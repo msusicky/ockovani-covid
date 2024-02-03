@@ -192,7 +192,8 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
                             PrakticiKapacity.kontakt_email, PrakticiKapacity.expirace, PrakticiKapacity.poznamka,
                             PrakticiKapacity.kraj, ZdravotnickeStredisko.nrpzs_kod, ZdravotnickeStredisko.latitude,
                             ZdravotnickeStredisko.longitude) \
-        .outerjoin(ZdravotnickeStredisko, ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
+        .outerjoin(ZdravotnickeStredisko,
+                   ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
@@ -477,19 +478,23 @@ def count_registrations(filter_column, filter_value):
     df['fronta_pocet'] = df[['pocet']].where(df['rezervace'] == False).fillna(0).astype('int')
     df['fronta_cekani'] = (df['dnes'] - df['datum']).astype('timedelta64[ns]').dt.days
     df['fronta_pocet_x_cekani'] = df['fronta_pocet'] * df['fronta_cekani']
-    df['s_terminem_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['ockovani'] < 1)).fillna(0).astype('int')
+    df['s_terminem_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['ockovani'] < 1)).fillna(0).astype(
+        'int')
     df['registrace_7'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(7))
-    df['registrace_7_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
+    df['registrace_7_rez'] = df[['pocet']].where(
+        (df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(7)))
     # df['registrace_14'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(14))
     # df['registrace_14_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(14)))
     # df['registrace_30'] = df[['pocet']].where(df['datum'] >= get_import_date() - timedelta(30))
     # df['registrace_30_rez'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum'] >= get_import_date() - timedelta(30)))
     df['rezervace_7_cekani'] = (df['datum_rezervace_fix'] - df['datum']).astype('timedelta64[ns]').dt.days
-    df['rezervace_7_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(7)))
+    df['rezervace_7_pocet'] = df[['pocet']].where(
+        (df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(7)))
     df['rezervace_7_pocet_x_cekani'] = df['rezervace_7_cekani'] * df['rezervace_7_pocet']
-    df['rezervace_14_pocet'] = df[['pocet']].where((df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(14)))
+    df['rezervace_14_pocet'] = df[['pocet']].where(
+        (df['rezervace'] == True) & (df['datum_rezervace_fix'] >= get_import_date() - timedelta(14)))
 
-    df = df.groupby(['vekova_skupina', 'povolani']).sum()
+    df = df.groupby(['vekova_skupina', 'povolani'], group_keys=False, level=0).sum()
 
     df['uspesnost_7'] = ((df['registrace_7_rez'] / df['registrace_7']) * 100).replace({np.nan: None})
     # df['uspesnost_14'] = ((df['registrace_14_rez'] / df['registrace_14']) * 100).replace({np.nan: None})
@@ -501,9 +506,12 @@ def count_registrations(filter_column, filter_value):
     # df['registrace_30'] = df['registrace_30'].astype('int')
     # df['registrace_30_rez'] = df['registrace_30_rez'].astype('int')
     df['fronta_prumer_cekani'] = ((df['fronta_pocet_x_cekani'] / df['fronta_pocet']) / 7).replace({np.nan: None})
-    df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace({np.nan: None})
+    df['rezervace_prumer_cekani'] = ((df['rezervace_7_pocet_x_cekani'] / df['rezervace_7_pocet']) / 7).replace(
+        {np.nan: None})
 
-    df = df[(df['fronta_pocet'] > 0) | df['fronta_prumer_cekani'].notnull() | df['rezervace_prumer_cekani'].notnull() | df['uspesnost_7'].notnull()]
+    df = df[
+        (df['fronta_pocet'] > 0) | df['fronta_prumer_cekani'].notnull() | df['rezervace_prumer_cekani'].notnull() | df[
+            'uspesnost_7'].notnull()]
 
     return df.reset_index().sort_values(by=['vekova_skupina', 'povolani'])
 
@@ -822,7 +830,8 @@ def count_free_slots(center_id=None):
 
 
 def count_vaccinated_week():
-    return db.session.query(column('datum'), column('pocet_1'), column('pocet_2'), column('pocet_3'), column('pocet_4'), column('pocet_celkem')).from_statement(text(
+    return db.session.query(column('datum'), column('pocet_1'), column('pocet_2'), column('pocet_3'), column('pocet_4'),
+                            column('pocet_celkem')).from_statement(text(
         f"""
         select datum, 
             sum(case when poradi_davky = 1 then pocet else 0 end) pocet_1, 
@@ -1009,7 +1018,8 @@ def count_vaccinated_unvaccinated_comparison_age():
                 .replace({np.nan: 0})
 
         for g in ['plne', 'posilujici']:
-            df_norm[d + '_' + g + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_' + g + '_norm']).replace({np.inf: np.nan})
+            df_norm[d + '_' + g + '_ratio'] = (df_norm[d + '_bez_norm'] / df_norm[d + '_' + g + '_norm']).replace(
+                {np.inf: np.nan})
             df_norm.loc[df_norm['populace_' + g + '_zastoupeni'] < 0.05, d + '_' + g + '_ratio'] = np.nan
             df_norm[d + '_' + g + '_ratio'] = df_norm[d + '_' + g + '_ratio'].replace({np.nan: None})
 
@@ -1297,9 +1307,8 @@ def get_infected_graph_data():
         {'0-11': '0-17', '12-15': '0-17', '16-17': '0-17', '18-24': '18-29', '25-29': '18-29', '30-34': '30-39',
          '35-39': '30-39', '40-44': '40-49', '45-49': '40-49', '50-54': '50-59', '55-59': '50-59', '60-64': '60-69',
          '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
-
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df_sum = df.rolling(7).sum()
+    df_sum = df[['pocet_vek', 'pocet_nakazeni']].rolling(7).sum()
 
     df_sum['pocet_nakazeni_norm'] = ((df_sum['pocet_nakazeni'] / df_sum['pocet_vek']) * 100000)
 
@@ -1350,7 +1359,7 @@ def get_deaths_graph_data():
          '65-69': '60-69', '70-74': '70-79', '75-79': '70-79'})
 
     df = df.groupby(['vekova_skupina_grp', 'datum']).sum()
-    df_sum = df.rolling(7).sum()
+    df_sum = df[['pocet_vek', 'pocet_umrti']].rolling(7).sum()
 
     df_sum['pocet_umrti_norm'] = ((df_sum['pocet_umrti'] / df_sum['pocet_vek']) * 100000)
 
@@ -1375,11 +1384,15 @@ def get_tests_graph_data():
     df = df.set_index('datum')
     df_sum = df.rolling(7).sum()
 
-    df_sum['pozitivita_diagnosticka'] = (df_sum['pozit_typologie_test_indik_diagnosticka'] / df_sum['typologie_test_indik_diagnosticka']) * 100
-    df_sum['pozitivita_epidemiologicka'] = (df_sum['pozit_typologie_test_indik_epidemiologicka'] / df_sum['typologie_test_indik_epidemiologicka']) * 100
-    df_sum['pozitivita_preventivni'] = (df_sum['pozit_typologie_test_indik_preventivni'] / df_sum['typologie_test_indik_preventivni']) * 100
+    df_sum['pozitivita_diagnosticka'] = (df_sum['pozit_typologie_test_indik_diagnosticka'] / df_sum[
+        'typologie_test_indik_diagnosticka']) * 100
+    df_sum['pozitivita_epidemiologicka'] = (df_sum['pozit_typologie_test_indik_epidemiologicka'] / df_sum[
+        'typologie_test_indik_epidemiologicka']) * 100
+    df_sum['pozitivita_preventivni'] = (df_sum['pozit_typologie_test_indik_preventivni'] / df_sum[
+        'typologie_test_indik_preventivni']) * 100
 
-    df = pd.merge(df_sum[['pozitivita_diagnosticka', 'pozitivita_epidemiologicka', 'pozitivita_preventivni']], df, left_index=True, right_index=True)
+    df = pd.merge(df_sum[['pozitivita_diagnosticka', 'pozitivita_epidemiologicka', 'pozitivita_preventivni']], df,
+                  left_index=True, right_index=True)
 
     df = df[df.index >= df.index.min() + timedelta(7)]
 
@@ -1457,18 +1470,26 @@ def get_tests_orp_graph_data():
 
 
 def get_hospital_capacities_graph_data():
-    capacities = pd.read_sql_query(f"select * from kapacity_nemocnic where datum < '{get_import_date()}'", db.engine).fillna(0)
-    capacities['luzka_standard_kyslik_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_pozitivni']
-    capacities['luzka_standard_kyslik_kapacita_volna_covid_negativni'] += capacities['inf_luzka_kyslik_kapacita_volna_covid_negativni']
+    capacities = pd.read_sql_query(f"select * from kapacity_nemocnic where datum < '{get_import_date()}'",
+                                   db.engine).fillna(0)
+    capacities['luzka_standard_kyslik_kapacita_volna_covid_pozitivni'] += capacities[
+        'inf_luzka_kyslik_kapacita_volna_covid_pozitivni']
+    capacities['luzka_standard_kyslik_kapacita_volna_covid_negativni'] += capacities[
+        'inf_luzka_kyslik_kapacita_volna_covid_negativni']
     capacities['luzka_standard_kyslik_kapacita_celkem'] += capacities['inf_luzka_kyslik_kapacita_celkem']
-    capacities['luzka_hfno_cpap_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_hfno_kapacita_volna_covid_pozitivni']
-    capacities['luzka_hfno_cpap_kapacita_volna_covid_negativni'] += capacities['inf_luzka_hfno_kapacita_volna_covid_negativni']
+    capacities['luzka_hfno_cpap_kapacita_volna_covid_pozitivni'] += capacities[
+        'inf_luzka_hfno_kapacita_volna_covid_pozitivni']
+    capacities['luzka_hfno_cpap_kapacita_volna_covid_negativni'] += capacities[
+        'inf_luzka_hfno_kapacita_volna_covid_negativni']
     capacities['luzka_hfno_cpap_kapacita_celkem'] += capacities['inf_luzka_hfno_kapacita_celkem']
-    capacities['luzka_upv_niv_kapacita_volna_covid_pozitivni'] += capacities['inf_luzka_upv_kapacita_volna_covid_pozitivni']
-    capacities['luzka_upv_niv_kapacita_volna_covid_negativni'] += capacities['inf_luzka_upv_kapacita_volna_covid_negativni']
+    capacities['luzka_upv_niv_kapacita_volna_covid_pozitivni'] += capacities[
+        'inf_luzka_upv_kapacita_volna_covid_pozitivni']
+    capacities['luzka_upv_niv_kapacita_volna_covid_negativni'] += capacities[
+        'inf_luzka_upv_kapacita_volna_covid_negativni']
     capacities['luzka_upv_niv_kapacita_celkem'] += capacities['inf_luzka_upv_kapacita_celkem']
 
-    capacities_21 = pd.read_sql_query("select * from kapacity_nemocnic_21 where datum >= '2021-03-30'", db.engine).fillna(0)
+    capacities_21 = pd.read_sql_query("select * from kapacity_nemocnic_21 where datum >= '2021-03-30'",
+                                      db.engine).fillna(0)
 
     capacities_20 = pd.read_sql_query("select * from kapacity_nemocnic_20", db.engine).fillna(0)
 

@@ -18,7 +18,7 @@ class ReservationsFetcher(Fetcher):
     def fetch(self, import_id: int) -> None:
         df = pd.read_csv(self._url)
 
-        df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev'], axis=1)
+        df = df.drop(['ockovaci_misto_nazev', 'kraj_nuts_kod', 'kraj_nazev', 'id'], axis=1)
 
         df = df.groupby(['datum', 'ockovaci_misto_id', 'kalendar_ockovani'], dropna=False).sum().reset_index()
 

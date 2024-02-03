@@ -45,7 +45,7 @@ class KrajMetricsEtl:
         """Computes metrics based on population for each kraj."""
         population = db.session.query(
             Kraj.id, func.sum(Populace.pocet).label('pocet_obyvatel_celkem'),
-            func.sum(case([(Populace.vek >= 18, Populace.pocet)], else_=0)).label('pocet_obyvatel_dospeli')
+            func.sum(case((Populace.vek >= 18, Populace.pocet), else_=0)).label('pocet_obyvatel_dospeli')
         ).join(Populace, Populace.orp_kod == Kraj.id) \
             .group_by(Kraj.id)
 
@@ -63,9 +63,9 @@ class KrajMetricsEtl:
         """Computes metrics based on registrations dataset for each kraj."""
         registrations = db.session.query(
             Okres.kraj_id, func.coalesce(func.sum(OckovaniRegistrace.pocet), 0).label('registrace_celkem'),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_fronta"),
-            func.coalesce(func.sum(case([((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet)], else_=0)), 0).label("registrace_pred_zavorou"),
-            func.coalesce(func.sum(case([(OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet)], else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
+            func.coalesce(func.sum(case(((OckovaniRegistrace.rezervace == False) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet), else_=0)), 0).label("registrace_fronta"),
+            func.coalesce(func.sum(case(((OckovaniRegistrace.pred_zavorou == True) & (OckovaniRegistrace.ockovani < 1), OckovaniRegistrace.pocet), else_=0)), 0).label("registrace_pred_zavorou"),
+            func.coalesce(func.sum(case((OckovaniRegistrace.datum_rezervace >= self._date - timedelta(7), OckovaniRegistrace.pocet), else_=0)) / 7.0, 0).label('registrace_rezervace_prumer')
         ).join(OckovaciMisto, OckovaciMisto.okres_id == Okres.id) \
             .outerjoin(OckovaniRegistrace, and_(OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id, OckovaniRegistrace.import_id == self._import_id)) \
             .group_by(Okres.kraj_id) \
@@ -125,10 +125,10 @@ class KrajMetricsEtl:
         """Computes metrics based on vaccinated people dataset for each kraj."""
         vaccinated = db.session.query(
             Kraj.id, func.coalesce(func.sum(OckovaniLide.pocet), 0).label('ockovani_pocet_davek'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4')
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 1, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_castecne'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_plne'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 3, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_3'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 4, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_4')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_nuts_kod == Kraj.id, OckovaniLide.datum < self._date)) \
             .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .group_by(Kraj.id) \
@@ -147,10 +147,10 @@ class KrajMetricsEtl:
 
         vaccinated_bydl = db.session.query(
             Kraj.id,
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 1, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_castecne_bydl'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_plne_bydl'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 3, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_3_bydl'),
-            func.coalesce(func.sum(case([(OckovaniLide.poradi_davky == 4, OckovaniLide.pocet)], else_=0)), 0).label('ockovani_pocet_4_bydl')
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 1, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_castecne_bydl'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == Vakcina.davky, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_plne_bydl'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 3, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_3_bydl'),
+            func.coalesce(func.sum(case((OckovaniLide.poradi_davky == 4, OckovaniLide.pocet), else_=0)), 0).label('ockovani_pocet_4_bydl')
         ).outerjoin(OckovaniLide, and_(OckovaniLide.kraj_bydl_nuts == Kraj.id, OckovaniLide.datum < self._date)) \
             .join(Vakcina, Vakcina.vakcina == OckovaniLide.vakcina) \
             .group_by(Kraj.id) \
@@ -276,8 +276,8 @@ class KrajMetricsEtl:
 
         success_ratio_7 = db.session.query(
             Kraj.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_tydenni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -295,8 +295,8 @@ class KrajMetricsEtl:
 
         success_ratio_14 = db.session.query(
             Kraj.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_14denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
@@ -314,8 +314,8 @@ class KrajMetricsEtl:
 
         success_ratio_30 = db.session.query(
             Kraj.id,
-            (1.0 * func.coalesce(func.sum(case([(OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet)], else_=0)), 0)
-             / case([(func.sum(OckovaniRegistrace.pocet) == 0, None)], else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
+            (1.0 * func.coalesce(func.sum(case((OckovaniRegistrace.rezervace == True, OckovaniRegistrace.pocet), else_=0)), 0)
+             / case((func.sum(OckovaniRegistrace.pocet) == 0, None), else_=func.sum(OckovaniRegistrace.pocet))).label('registrace_30denni_uspesnost')
         ).join(Okres, Okres.kraj_id == Kraj.id) \
             .join(OckovaciMisto, (OckovaciMisto.okres_id == Okres.id)) \
             .join(OckovaniRegistrace, OckovaciMisto.id == OckovaniRegistrace.ockovaci_misto_id) \
