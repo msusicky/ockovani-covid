@@ -16,6 +16,9 @@ jobs:
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+      AZURE_VM_NAME: ${{ secrets.AZURE_VM_NAME }}
     steps:
       - name: Setup SSH key
         run: |
@@ -24,9 +27,27 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure scale up VM
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az vm deallocate --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
+            az vm resize --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME} --size Standard_D4s_v3
+            az vm start --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
       - name: Execute fetcher
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} -o ServerAliveInterval=120 "cd ${APP_DIR} && source venv/bin/activate && flask fetch-data all"
       - name: Compute metrics
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} -o ServerAliveInterval=120 "cd ${APP_DIR} && source venv/bin/activate && flask compute-metrics all"
       - name: Verify data
         run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask verify-data"
+      - name: Azure scale down VM
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az vm deallocate --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
+            az vm resize --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME} --size Standard_B1s
+            az vm start --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
