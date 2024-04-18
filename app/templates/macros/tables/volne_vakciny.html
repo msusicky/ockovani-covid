@@ -41,7 +41,7 @@
         <select id="free-vaccines-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
             {% for option in vaccine_options %}
-            <option value="{{ option[0] }}">{{ option[0] }}</option>
+            <option value="{{ option.typ_vakciny }}">{{ option.nemoc }} ({{option.typ_vakciny }})</option>
             {% endfor %}
         </select>
     </div>

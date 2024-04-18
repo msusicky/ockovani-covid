@@ -136,6 +136,7 @@ class Vakcina(db.Model):
     vakcina_sklad = Column(Unicode, unique=True, nullable=False)
     davky = Column(Integer, nullable=False)
     aktivni = Column(Boolean, nullable=False)
+    nemoc = Column(Unicode, nullable=False)
 
     def __repr__(self):
         return f"<Vakcina(vyrobce='{self.vyrobce}')>"
@@ -1052,6 +1053,7 @@ class PrakticiKapacity(db.Model):
     deti = Column(Boolean, nullable=False)
     dospeli = Column(Boolean, nullable=False)
     expirace = Column(Date)
+    nemoc = Column(Unicode, nullable=False)
 
     def __repr__(self):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"

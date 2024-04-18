@@ -186,7 +186,7 @@ def find_doctors_vaccine_options():
 
 
 def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
-    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek,
+    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek, PrakticiKapacity.nemoc,
                             PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
                             PrakticiKapacity.deti, PrakticiKapacity.dospeli, PrakticiKapacity.kontakt_tel,
                             PrakticiKapacity.kontakt_email, PrakticiKapacity.expirace, PrakticiKapacity.poznamka,
@@ -205,7 +205,7 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
 
 
 def find_free_vaccines_vaccine_options():
-    return db.session.query(PrakticiKapacity.typ_vakciny) \
+    return db.session.query(PrakticiKapacity.nemoc, PrakticiKapacity.typ_vakciny) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
         .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
         .distinct(PrakticiKapacity.typ_vakciny) \
