@@ -99,10 +99,8 @@
     <div class="row">
         <div class="col">
             <div class="alert alert-danger" role="alert">
-                <p class="mb-0">
-                    Čas poslední aktualizace: <strong>{{ last_update }}</strong>.
-                    POZOR! - Aktualizace webu byla 8. 7. 2023 ukončena.
-                </p>
+                Čas poslední aktualizace: <strong>{{ last_update }}</strong>.
+                POZOR! - Momentálně obnovený pilotní provoz, na webu mohou být chyby.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -123,7 +121,7 @@
                 a od Centrálního řídícího týmu COVID-19 (CŘT).
             </p>
             <p class="mb-1">
-                Vydavatel: ČVUT, Fakulta informačních technologií, Praha ve spolupráci s firmou Profinit EU, s.r.o., Praha, 2021.<br />
+                Vydavatel: ČVUT, Fakulta informačních technologií, Praha ve spolupráci s firmou Sec4good, s.r.o., Praha, 2023.<br />
                 Citace: Sušický M., Staněk J. <i>COVID-19 očkování</i> [online]. Praha: ČVUT, Fakulta informačních technologií, 2021 [cit. {{ now | format_date_en }}]. ISSN 2787-9925. Dostupné z https://ockovani.opendatalab.cz
             </p>
             <p class="mb-0 font-italic">
@@ -141,8 +139,8 @@
                 <img src="{{ url_for('static',filename='img/FIT_logo.png') }}">
             </a>
             &nbsp;
-            <a href="https://profinit.eu/" target="_blank">
-                <img src="{{ url_for('static',filename='img/PROFINIT_logo.png') }}">
+            <a href="https://www.sec4good.cz/" target="_blank">
+                <img src="{{ url_for('static',filename='img/sec4good_mungo_logo_tmave.png') }}" style="width: 185px;">
             </a>
         </div>
     </div>

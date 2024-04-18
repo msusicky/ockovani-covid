@@ -21,7 +21,8 @@ class DeathsFetcher(Fetcher):
         df = df[['datum', 'vek', 'kraj_nuts_kod']]
 
         df['kraj_nuts_kod'] = df['kraj_nuts_kod'].fillna('-')
-
+        df = df.dropna(subset=['vek'])
+        df['vek'] = df['vek'].astype('int')
         df = df.groupby(df.columns.tolist(), dropna=False).size().reset_index(name='pocet')
 
         self._truncate()
