@@ -7,6 +7,7 @@ Create Date: 2021-07-22 09:22:36.062579
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -24,8 +25,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('bezregistrace_id', 'cas_mereni')
     ) 
     connection = op.get_bind()
-    connection.execute("truncate table ockovani_lide")
-    connection.execute("update vakciny set vakcina='Spikevax' where vyrobce='Moderna'")
+    connection.execute(text("truncate table ockovani_lide"))
+    connection.execute(text("update vakciny set vakcina='Spikevax' where vyrobce='Moderna'"))
 
 
 def downgrade():

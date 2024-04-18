@@ -8,6 +8,7 @@ Create Date: 2021-04-10 09:40:35.380724
 import pandas as pd
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -34,13 +35,13 @@ def upgrade():
     )
 
     connection = op.get_bind()
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Pfizer', 'Comirnaty', 2)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Moderna', 'COVID-19 Vaccine Moderna', 2)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('AstraZeneca', 'VAXZEVRIA', 2)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Janssen', 'COVID-19 Vaccine Janssen', 1)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Novavax', 'Novavax', 2)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('CureVac', 'CureVac', 2)")
-    connection.execute("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('GSK', 'GSK', 2)")
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Pfizer', 'Comirnaty', 2)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Moderna', 'COVID-19 Vaccine Moderna', 2)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('AstraZeneca', 'VAXZEVRIA', 2)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Janssen', 'COVID-19 Vaccine Janssen', 1)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('Novavax', 'Novavax', 2)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('CureVac', 'CureVac', 2)"))
+    connection.execute(text("INSERT INTO vakciny (vyrobce, vakcina, davky) VALUES('GSK', 'GSK', 2)"))
 
     op.create_foreign_key(None, 'ockovani_distribuce', 'vakciny', ['vyrobce'], ['vyrobce'])
     op.create_foreign_key(None, 'ockovani_lide', 'vakciny', ['vakcina'], ['vakcina'])

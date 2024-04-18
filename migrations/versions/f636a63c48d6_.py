@@ -7,6 +7,7 @@ Create Date: 2021-11-16 19:45:56.961730
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -57,8 +58,8 @@ def upgrade():
     op.drop_table('srovnani_ockovani')
 
     connection = op.get_bind()
-    connection.execute("truncate table ockovani_lide")
-    connection.execute("update vakciny set vakcina='SPIKEVAX' where vyrobce='Moderna'")
+    connection.execute(text("truncate table ockovani_lide"))
+    connection.execute(text("update vakciny set vakcina='SPIKEVAX' where vyrobce='Moderna'"))
     # ### end Alembic commands ###
 
 

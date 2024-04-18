@@ -6,7 +6,7 @@ Create Date: 2021-10-20 21:00:13.366106
 
 """
 from alembic import op
-import sqlalchemy as sa
+from sqlalchemy import text
 import csv
 import urllib
 from app.models import ZdravotnickeStredisko
@@ -23,7 +23,7 @@ def upgrade():
     
     # ### end Alembic commands ###
     connection = op.get_bind()
-    connection.execute("truncate table zdravotnicke_stredisko")
+    connection.execute(text("truncate table zdravotnicke_stredisko"))
     
     url = "https://nrpzs.uzis.cz/res/file/export/export-2021-10.csv"    
     response = urllib.request.urlopen(url)

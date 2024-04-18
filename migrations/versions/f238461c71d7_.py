@@ -7,6 +7,7 @@ Create Date: 2021-03-14 08:50:38.037321
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -92,9 +93,9 @@ def upgrade():
     op.drop_column('okresy_metriky', 'typ_metriky')
     op.drop_column('okresy_metriky', 'hodnota_int')
     connection = op.get_bind()
-    connection.execute("truncate table ockovaci_mista_metriky")
-    connection.execute("truncate table okresy_metriky")
-    connection.execute("truncate table kraje_metriky")
+    connection.execute(text("truncate table ockovaci_mista_metriky"))
+    connection.execute(text("truncate table okresy_metriky"))
+    connection.execute(text("truncate table kraje_metriky"))
     op.add_column('kraje_metriky', sa.Column('kraj_id', sa.Unicode(), nullable=False))
     op.drop_constraint('kraje_metriky_id_fkey', 'kraje_metriky', type_='foreignkey')
     op.create_foreign_key(None, 'kraje_metriky', 'kraje', ['kraj_id'], ['id'])

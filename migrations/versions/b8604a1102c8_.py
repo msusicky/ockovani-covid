@@ -7,6 +7,7 @@ Create Date: 2021-03-08 20:59:27.677584
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -18,9 +19,9 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
-    connection.execute("update importy set date=start")
-    connection.execute("delete from importy where status='FAILED'")
-    connection.execute("delete from importy where id in (select id from importy except select max(id) from importy group by date)")
+    connection.execute(text("update importy set date=start"))
+    connection.execute(text("delete from importy where status='FAILED'"))
+    connection.execute(text("delete from importy where id in (select id from importy except select max(id) from importy group by date)"))
 
 def downgrade():
     pass
