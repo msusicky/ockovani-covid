@@ -7,6 +7,7 @@ Create Date: 2021-03-10 21:07:00.451236
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -18,7 +19,7 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
-    connection.execute("update ockovani_lide set zarizeni_kod=lpad(zarizeni_kod,11,'0')")
+    connection.execute(text("update ockovani_lide set zarizeni_kod=lpad(zarizeni_kod,11,'0')"))
 
 
 def downgrade():
