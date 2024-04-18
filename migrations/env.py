@@ -32,6 +32,7 @@ target_metadata = current_app.extensions['migrate'].db.metadata
 
 exclude_tables = config.get_section('alembic:exclude').get('tables', '').split(',')
 
+
 def include_object(object, name, type_, *args, **kwargs):
     if type_ == 'table' and name in exclude_tables:
         return False
@@ -40,6 +41,7 @@ def include_object(object, name, type_, *args, **kwargs):
             return False
         else:
             return True
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
