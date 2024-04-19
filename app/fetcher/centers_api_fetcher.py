@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from typing import Optional
 
@@ -6,7 +5,7 @@ import numpy as np
 import requests
 from pandas import DataFrame
 
-from app import db
+from app import db, app
 from app.fetcher.fetcher import Fetcher
 from app.models import OckovaciMisto
 
@@ -26,8 +25,8 @@ class CentersApiFetcher(Fetcher):
         return datetime.today()
 
     def fetch(self, import_id: int) -> None:
-        user = os.environ.get('CFA_USER')
-        password = os.environ.get('CFA_PASS')
+        user = app.config['CFA_USER']
+        password = app.config['CFA_PASS']
 
         r = requests.get(self._url, auth=(user, password))
         df = DataFrame(r.json()['results'])

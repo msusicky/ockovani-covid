@@ -1,4 +1,5 @@
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -9,3 +10,6 @@ class Config(object):
     TWITTER_CONSUMER_SECRET = 'SECRET_TOKEN'
     TWITTER_ACCESS_TOKEN_KEY = 'SECRET_TOKEN'
     TWITTER_ACCESS_TOKEN_SECRET = 'SECRET_TOKEN'
+    CFA_USER = 'CFA_USER'
+    CFA_PASS = 'CFA_PASS'
+    UZIS_TOKEN = 'UZIS_TOKEN'
