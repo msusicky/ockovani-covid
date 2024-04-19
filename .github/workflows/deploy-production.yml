@@ -37,6 +37,9 @@ jobs:
           TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
           TWITTER_ACCESS_TOKEN_KEY: ${{ secrets.TWITTER_ACCESS_TOKEN_KEY }}
           TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          CFA_USER: ${{ secrets.CFA_USER }}
+          CFA_PASS: ${{ secrets.CFA_PASS }}
+          UZIS_TOKEN: ${{ secrets.UZIS_TOKEN }}
         with:
           filename: config.ci.py
       - name: Build release package
