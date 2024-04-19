@@ -5,7 +5,7 @@ WEB_DIR="/home/ockovani/prd/web/ockovani-covid-pages"
 
 mkdir -p $WEB_TMP_DIR
 
-wget -r -P $WEB_TMP_DIR --adjust-extension http://127.0.0.1:5000/
+wget -r -P $WEB_TMP_DIR -e robots=off --adjust-extension http://127.0.0.1:5000/
 wget_res=$?
 
 if [ $wget_res -ne 0 ]; then
