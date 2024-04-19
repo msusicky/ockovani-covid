@@ -1,7 +1,7 @@
 # daily fetcher
 00 6 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481697
-# hourly fetcher - not needed anymore
-# 38 7-22 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481698
+# hourly fetcher
+30 7-22 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481698
 # monthly fetcher
 00 5 5 * * bash /home/ockovani/prd/app/scripts/execute_action.sh 16635318
 # post tweet - disabled

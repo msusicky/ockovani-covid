@@ -16,7 +16,7 @@ class InfectedFetcher(Fetcher):
         super().__init__(Nakazeni.__tablename__, self.INFECTED_CSV)
 
     def fetch(self, import_id: int) -> None:
-        df = pd.read_csv(self._url)
+        df = pd.read_csv(self._url, dtype={'nakaza_v_zahranici': 'object', 'nakaza_zeme_csu_kod': 'object'})
 
         df = df[['datum', 'vek', 'kraj_nuts_kod']]
 

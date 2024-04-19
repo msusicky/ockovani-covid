@@ -20,6 +20,9 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
       SSH_USER_WEB: ${{ secrets.SSH_USER_WEB }}
+      CFA_USER: ${{ secrets.CFA_USER }}
+      CFA_PASS: ${{ secrets.CFA_PASS }}
+      UZIS_TOKEN: ${{ secrets.UZIS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Prepare config file

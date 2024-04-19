@@ -1,11 +1,10 @@
-import os
 from datetime import datetime
 from typing import Optional
 
 import pandas as pd
 import requests
 
-from app import db
+from app import db, app
 from app.fetcher.fetcher import Fetcher
 from app.models import AnalyzaHospitalizaci
 
@@ -18,9 +17,9 @@ class HospitalAnalysisFetcher(Fetcher):
     HOSPITAL_ANALYSIS_CSV = 'https://onemocneni-aktualne.mzcr.cz/api/account/{}/file/modely%252Fmodely_05_hospitalizovani_analyza.csv'
 
     def __init__(self):
-        token = os.environ.get('ODL_UZIS_TOKEN')
+        token = app.config['UZIS_TOKEN']
         url = self.HOSPITAL_ANALYSIS_CSV.format(token)
-        super().__init__(AnalyzaHospitalizaci.__tablename__, url)
+        super().__init__(AnalyzaHospitalizaci.__tablename__, url, check_date=False)
 
     def get_modified_time(self) -> Optional[datetime]:
         headers = requests.head(url=self._url).headers

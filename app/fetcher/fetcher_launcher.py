@@ -85,7 +85,7 @@ class FetcherLauncher:
         # inits requested fetchers
         if dataset == 'all':
             # self._fetchers.append(CentersFetcher())  # replaced by CentersApiFetcher
-            # self._fetchers.append(CentersApiFetcher())
+            self._fetchers.append(CentersApiFetcher())
             # self._fetchers.append(OpeningHoursFetcher())
             # self._fetchers.append(HealthFacilitiesFetcher())
             # self._fetchers.append(DistributedFetcher())       # not updated since 2022-11-29
@@ -115,7 +115,7 @@ class FetcherLauncher:
 
         elif dataset == 'all_hourly':
             self._fetchers.append(CentersApiFetcher())
-            self._fetchers.append(ReservationsApiFetcher(full_update=False))
+            # self._fetchers.append(ReservationsApiFetcher(full_update=False))  # API not available anymore
 
         elif dataset == 'all_monthly':
             self._fetchers.append(HealthFacilitiesNrpzsFetcher())
