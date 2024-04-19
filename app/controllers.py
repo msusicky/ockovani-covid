@@ -40,24 +40,24 @@ def praktici_admin_register():
         user = PrakticiLogin(id, passwd)
         db.session.add(user)
 
-        vaccines = db.session.query(Vakcina).all()
-
-        for vaccine in vaccines:
-            free_vaccine = PrakticiKapacity()
-            free_vaccine.datum_aktualizace = datetime.now()
-            free_vaccine.zdravotnicke_zarizeni_kod = id
-            free_vaccine.typ_vakciny = vaccine.vyrobce
-            free_vaccine.kraj = zarizeni.kraj
-            free_vaccine.mesto = zarizeni.obec
-            free_vaccine.nazev_ordinace = zarizeni.nazev_cely
-            free_vaccine.adresa = f'{zarizeni.ulice if zarizeni.ulice else zarizeni.obec} {zarizeni.cislo_domu}'
-            free_vaccine.pocet_davek = 0
-            free_vaccine.kontakt_email = zarizeni.email
-            free_vaccine.kontakt_tel = zarizeni.telefon
-            free_vaccine.poznamka = ''
-            free_vaccine.dospeli = zarizeni.druh_zarizeni_kod != 321
-            free_vaccine.deti = zarizeni.druh_zarizeni_kod == 321
-            db.session.add(free_vaccine)
+        # vaccines = db.session.query(Vakcina).all()
+        #
+        # for vaccine in vaccines:
+        #     free_vaccine = PrakticiKapacity()
+        #     free_vaccine.datum_aktualizace = datetime.now()
+        #     free_vaccine.zdravotnicke_zarizeni_kod = id
+        #     free_vaccine.typ_vakciny = vaccine.vyrobce
+        #     free_vaccine.kraj = zarizeni.kraj
+        #     free_vaccine.mesto = zarizeni.obec
+        #     free_vaccine.nazev_ordinace = zarizeni.nazev_cely
+        #     free_vaccine.adresa = f'{zarizeni.ulice if zarizeni.ulice else zarizeni.obec} {zarizeni.cislo_domu}'
+        #     free_vaccine.pocet_davek = 0
+        #     free_vaccine.kontakt_email = zarizeni.email
+        #     free_vaccine.kontakt_tel = zarizeni.telefon
+        #     free_vaccine.poznamka = ''
+        #     free_vaccine.dospeli = zarizeni.druh_zarizeni_kod != 321
+        #     free_vaccine.deti = zarizeni.druh_zarizeni_kod == 321
+        #     db.session.add(free_vaccine)
 
         db.session.commit()
 
@@ -129,7 +129,9 @@ def praktici_admin_edit():
                 .one_or_none()
 
             if vaccine is None:
-                continue
+                vaccine = PrakticiKapacity()
+                vaccine.zdravotnicke_zarizeni_kod = id
+                vaccine.typ_vakciny = vaccine.vyrobce
 
             pocet_davek = request.form.getlist('pocet_davek[]')[i]
             expirace = request.form.getlist('expirace[]')[i]
@@ -140,7 +142,6 @@ def praktici_admin_edit():
             vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
             vaccine.dospeli = i in dospeli
             vaccine.deti = i in deti
-            vaccine.adresa = request.form.getlist('adresa[]')[i]
             vaccine.kontakt_tel = request.form.getlist('kontakt_tel[]')[i]
             vaccine.kontakt_email = request.form.getlist('kontakt_email[]')[i]
             vaccine.expirace = expirace if len(expirace) > 0 else None

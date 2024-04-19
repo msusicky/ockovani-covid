@@ -187,11 +187,11 @@ def find_doctors_vaccine_options():
 
 def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
     return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek, PrakticiKapacity.nemoc,
-                            PrakticiKapacity.typ_vakciny, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
-                            PrakticiKapacity.deti, PrakticiKapacity.dospeli, PrakticiKapacity.kontakt_tel,
-                            PrakticiKapacity.kontakt_email, PrakticiKapacity.expirace, PrakticiKapacity.poznamka,
-                            PrakticiKapacity.kraj, ZdravotnickeStredisko.nrpzs_kod, ZdravotnickeStredisko.latitude,
-                            ZdravotnickeStredisko.longitude) \
+                            PrakticiKapacity.typ_vakciny, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
+                            PrakticiKapacity.kontakt_tel, PrakticiKapacity.kontakt_email, PrakticiKapacity.expirace,
+                            PrakticiKapacity.poznamka, ZdravotnickeStredisko.nazev_ordinace,
+                            ZdravotnickeStredisko.mesto, ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.nrpzs_kod,
+                            ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
         .outerjoin(ZdravotnickeStredisko,
                    ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \

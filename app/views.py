@@ -511,14 +511,15 @@ def report():
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
         user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
-                                ZdravotnickeStredisko.nazev_cely) \
+                                ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.druh_zarizeni_kod) \
             .join(ZdravotnickeStredisko,
                   ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiLogin.zdravotnicke_zarizeni_kod) \
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
-        user_vaccines = db.session.query(PrakticiKapacity) \
-            .join(Vakcina, Vakcina.vyrobce == PrakticiKapacity.typ_vakciny) \
+        user_vaccines = db.session.query(Vakcina) \
+            .select_from(PrakticiKapacity) \
+            .outerjoin(PrakticiKapacity, PrakticiKapacity.typ_vakciny == Vakcina.vyrobce) \
             .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(Vakcina.aktivni == True) \
             .order_by(PrakticiKapacity.typ_vakciny) \
