@@ -115,7 +115,7 @@ class FetcherLauncher:
 
         elif dataset == 'all_hourly':
             self._fetchers.append(CentersApiFetcher())
-            self._fetchers.append(ReservationsApiFetcher(full_update=False))
+            # self._fetchers.append(ReservationsApiFetcher(full_update=False))  # API not available anymore
 
         elif dataset == 'all_monthly':
             self._fetchers.append(HealthFacilitiesNrpzsFetcher())
