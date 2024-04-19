@@ -5,7 +5,7 @@ WEB_DIR="/home/ockovani/prd/web/ockovani-covid-pages"
 
 mkdir -p $WEB_TMP_DIR
 
-wget -r -P $WEB_TMP_DIR --adjust-extension http://127.0.0.1:5000/
+wget -P $WEB_TMP_DIR --adjust-extension http://127.0.0.1:5000/praktici
 wget_res=$?
 
 if [ $wget_res -ne 0 ]; then
@@ -13,8 +13,7 @@ if [ $wget_res -ne 0 ]; then
   exit $wget_res
 fi
 
-find $WEB_DIR -name "*.html" -type f -delete
-cp -r ${WEB_TMP_DIR}/127.0.0.1:5000/* ${WEB_DIR}/
+cp ${WEB_TMP_DIR}/praktici.html ${WEB_DIR}/
 rm -r $WEB_TMP_DIR
 
 cd $WEB_DIR || exit 1
