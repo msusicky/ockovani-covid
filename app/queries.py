@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, and_, text, column
 from app import db
 from app.context import get_import_date, get_import_id
 from app.models import OckovaciMisto, Okres, Kraj, OckovaciMistoMetriky, CrMetriky, OckovaniRegistrace, Populace, \
-    PrakticiKapacity, OckovaniRezervace, Vakcina, ZdravotnickeStredisko
+    PrakticiKapacity, OckovaniRezervace, Vakcina, ZdravotnickeStredisko, PrakticiLogin
 
 
 def unique_nrpzs_subquery():
@@ -86,15 +86,16 @@ def find_doctor_offices(nrpzs_kod):
     df = pd.read_sql_query(
         f"""
         select coalesce(z.zarizeni_nazev, min(s.nazev_cely)) zarizeni_nazev, o.nazev okres, k.nazev kraj, 
-            k.nazev_kratky kraj_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, s.cislo_domu, s.telefon, s.email, 
-            s.web, s.latitude, s.longitude
+            k.nazev_kratky kraj_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, s.cislo_domu, 
+            coalesce(p.telefon, s.telefon) telefon_c, coalesce(p.email, s.email) email_c, s.web, s.latitude, s.longitude
         from ockovaci_zarizeni z
         full join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
+        left join praktici_login p on p.zdravotnicke_zarizeni_kod = z.id
         left join okresy o on o.id = coalesce(z.okres_id, s.okres_kod)
         join kraje k on k.id = o.kraj_id
         where z.id = '{nrpzs_kod}' or s.nrpzs_kod = '{nrpzs_kod}'
         group by z.zarizeni_nazev, o.nazev, k.nazev, k.nazev_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, 
-            s.cislo_domu, s.telefon, s.email, s.web, s.latitude, s.longitude
+            s.cislo_domu, telefon_c, email_c, s.web, s.latitude, s.longitude
         """,
         db.engine)
 
@@ -188,10 +189,12 @@ def find_doctors_vaccine_options():
 def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
     return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek, PrakticiKapacity.nemoc,
                             PrakticiKapacity.typ_vakciny, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
-                            PrakticiKapacity.kontakt_tel, PrakticiKapacity.kontakt_email, PrakticiKapacity.expirace,
-                            PrakticiKapacity.poznamka, ZdravotnickeStredisko.nazev_ordinace,
-                            ZdravotnickeStredisko.mesto, ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.nrpzs_kod,
-                            ZdravotnickeStredisko.latitude, ZdravotnickeStredisko.longitude) \
+                            PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiLogin.email,
+                            PrakticiLogin.telefon, ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.obec,
+                            ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.nrpzs_kod, ZdravotnickeStredisko.latitude,
+                            ZdravotnickeStredisko.longitude, ZdravotnickeStredisko.email.label('email_nrpzs'),
+                            ZdravotnickeStredisko.telefon.label('telefon_nrpzs')) \
+        .join(PrakticiLogin, PrakticiLogin.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .outerjoin(ZdravotnickeStredisko,
                    ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiKapacity.zdravotnicke_zarizeni_kod) \
         .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \
@@ -199,7 +202,7 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
         .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
-        .order_by(PrakticiKapacity.kraj, PrakticiKapacity.mesto, PrakticiKapacity.nazev_ordinace,
+        .order_by(ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.obec, ZdravotnickeStredisko.nazev_cely,
                   PrakticiKapacity.typ_vakciny) \
         .all()
 

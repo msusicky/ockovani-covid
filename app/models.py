@@ -1027,6 +1027,8 @@ class PrakticiLogin(db.Model):
 
     zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
     heslo = Column(Unicode, nullable=False)
+    email = Column(Unicode)
+    telefon = Column(Unicode)
 
     def __init__(self, id, passwd):
         self.zdravotnicke_zarizeni_kod = id
@@ -1043,8 +1045,6 @@ class PrakticiKapacity(db.Model):
     datum_aktualizace = Column(DateTime, nullable=False, default="now()")
     typ_vakciny = Column(Unicode, primary_key=True)
     pocet_davek = Column(Integer, nullable=False)
-    kontakt_email = Column(Unicode)
-    kontakt_tel = Column(Unicode)
     poznamka = Column(Unicode)
     deti = Column(Boolean, nullable=False)
     dospeli = Column(Boolean, nullable=False)

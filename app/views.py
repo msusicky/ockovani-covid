@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from flask import render_template, session
-from sqlalchemy import func, text, column
+from sqlalchemy import func, text, column, and_, or_
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -510,19 +510,24 @@ def report():
 @bp.route("/praktici_admin")
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
-        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
-                                ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.druh_zarizeni_kod) \
+        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo, PrakticiLogin.telefon,
+                                PrakticiLogin.email, ZdravotnickeStredisko.nazev_cely,
+                                ZdravotnickeStredisko.druh_zarizeni_kod, ZdravotnickeStredisko.telefon,
+                                ZdravotnickeStredisko.email) \
             .join(ZdravotnickeStredisko,
                   ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiLogin.zdravotnicke_zarizeni_kod) \
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
-        user_vaccines = db.session.query(Vakcina) \
-            .select_from(PrakticiKapacity) \
-            .outerjoin(PrakticiKapacity, PrakticiKapacity.typ_vakciny == Vakcina.vyrobce) \
-            .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+        user_vaccines = db.session.query(Vakcina.nemoc, Vakcina.vyrobce, PrakticiKapacity.pocet_davek,
+                                         PrakticiKapacity.dospeli, PrakticiKapacity.deti, PrakticiKapacity.expirace,
+                                         PrakticiKapacity.poznamka) \
+            .outerjoin(PrakticiKapacity, and_(PrakticiKapacity.nemoc == Vakcina.nemoc,
+                                              PrakticiKapacity.typ_vakciny == Vakcina.vyrobce)) \
+            .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == None,
+                        PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id'])) \
             .filter(Vakcina.aktivni == True) \
-            .order_by(PrakticiKapacity.typ_vakciny) \
+            .order_by(Vakcina.nemoc, Vakcina.vyrobce) \
             .all()
     else:
         user = None
