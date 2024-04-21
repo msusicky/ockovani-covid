@@ -1,4 +1,4 @@
-{% macro volne_vakciny(free_vaccines, vaccine_options, kraj_options=None, filtered_mode=False, detail_mode=False, admin_mode=False) -%}
+{% macro volne_vakciny(free_vaccines, illness_options, kraj_options=None, filtered_mode=False, detail_mode=False, admin_mode=False) -%}
 
 {% if not admin_mode %}
 <div class="alert alert-info text-justify alert-dismissible fade show" role="alert">
@@ -38,9 +38,9 @@
     </div>
     {% endif %}
     <div class="col-6 col-sm mb-2">
-        <select id="free-vaccines-vaccine" class="custom-select">
-            <option value="">Všechny vakcíny</option>
-            {% for option in vaccine_options %}
+        <select id="free-vaccines-illness" class="custom-select">
+            <option value="">Všechny nemoci</option>
+            {% for option in illness_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
@@ -62,8 +62,7 @@
     <table id="free-vaccines-table" class="table table-bordered table-striped table-sm mb-0">
         <thead class="thead-dark">
         <tr>
-            <th scope="col" class="text-center">Aktualizace</th>
-            <th scope="col" class="text-center col-sortable">Dávek</th>
+            <th scope="col" class="text-center col-sortable">Nemoc</th>
             <th scope="col" class="text-center col-sortable">Vakcína</th>
             {% if not detail_mode %}
             <th scope="col" class="text-center col-sortable">Město</th>
@@ -71,58 +70,53 @@
             {% endif %}
             {% if detail_mode %}
             <th scope="col" class="text-center">Věkové skupiny</th>
-            <th scope="col" class="text-center">Kontakt</th>
             {% endif %}
+            <th scope="col" class="text-center col-sortable">Dávek</th>
             <th scope="col" class="text-center col-sortable">Expirace</th>
             <th scope="col" class="text-center">Poznámka</th>
+            <th scope="col" class="text-center">Aktualizace</th>
         </tr>
         </thead>
         <tbody>
         {% for item in free_vaccines %}
-        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}" data-adults="{{ item.dospeli }}"
-            data-children="{{ item.deti }}">
-            <td class="text-right">
-                {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
-            </td>
-            <td class="text-right" data-value="{{ item.pocet_davek }}">
-                {{ item.pocet_davek | format_number }}
+        <tr data-kraj="{{ item.kraj }}" data-illness="{{ item.nemoc }}" data-vaccine="{{ item.typ_vakciny }}"
+            data-adults="{{ item.dospeli }}" data-children="{{ item.deti }}">
+            <td data-value="{{ item.nemoc }}">
+                {{ item.nemoc }}
             </td>
             <td data-value="{{ item.typ_vakciny }}">
                 {{ item.typ_vakciny }}
             </td>
             {% if not detail_mode %}
-            <td data-value="{{ item.mesto }}">
-                {{ item.mesto }}
+            <td data-value="{{ item.obec }}">
+                {{ item.obec }}
             </td>
             <td>
                 {% if item.nrpzs_kod %}
                 <a href="{{ url_for('view.praktik_detail', nrpzs_kod=item.nrpzs_kod) }}">
-                    {{ item.nazev_ordinace }}
+                    {{ item.nazev_cely }}
                 </a>
                 {% else %}
-                {{ item.nazev_ordinace }}
+                {{ item.nazev_cely }}
                 {% endif %}
             </td>
             {% endif %}
             {% if detail_mode %}
             <td>
-                <p class="mb-0">Dospělí: {{ item.dospeli | format_bool }}</p>
-                <p class="mb-0">Děti: {{ item.deti | format_bool }}</p>
-            </td>
-            <td>
-                {% if item.kontakt_tel %}
-                <p class="mb-0"><a href="tel:{{ item.kontakt_tel }}">{{ item.kontakt_tel }}</a></p>
-                {% endif %}
-                {% if item.kontakt_email %}
-                <p class="mb-0"><a href="mailto:{{ item.kontakt_email }}">{{ item.kontakt_email }}</a></p>
-                {% endif %}
+                {{ 'dospělí, děti' if item.dospeli and item.deti else 'děti' if item.deti else 'dospělí' if item.dospeli else '' }}
             </td>
             {% endif %}
+            <td class="text-right" data-value="{{ item.pocet_davek }}">
+                {{ item.pocet_davek | format_number }}
+            </td>
             <td class="text-right" data-value="{{ item.expirace }}">
                 {{ item.expirace | format_date if item.expirace else ""  }}
             </td>
             <td>
                 {{ item.poznamka }}
+            </td>
+            <td class="text-right">
+                {{ item.datum_aktualizace.strftime('%a %d. %m. %H:%M').lower() }}
             </td>
         </tr>
         {% endfor %}
@@ -136,21 +130,21 @@
 
         const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
         const krajValue = $("#free-vaccines-kraj").val();
-        const vaccineValue = $("#free-vaccines-vaccine").val();
+        const illnessValue = $("#free-vaccines-illness").val();
         const adultsValue = $("#free-vaccines-adults")[0].checked;
         const childrenValue = $("#free-vaccines-children")[0].checked;
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
             const kraj = $(this)[0].dataset.kraj;
-            const vaccine = $(this)[0].dataset.vaccine;
+            const illness = $(this)[0].dataset.illness;
             const adults = $(this)[0].dataset.adults;
             const children = $(this)[0].dataset.children;
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
                 && (!krajValue || kraj === krajValue)
-                && (!vaccineValue || vaccine === vaccineValue)
+                && (!illnessValue || illness === illnessValue)
                 && ((adultsValue && adults === 'True') || (childrenValue && children === 'True'))
             )
         });
@@ -167,7 +161,7 @@
         $("#free-vaccines-kraj").change(function () {
             offersFilterChanged();
         });
-        $("#free-vaccines-vaccine").change(function () {
+        $("#free-vaccines-illness").change(function () {
             offersFilterChanged();
         });
         $("#free-vaccines-adults").change(function () {

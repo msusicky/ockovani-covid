@@ -3,10 +3,9 @@ import string
 from datetime import datetime
 
 from flask import session, redirect, request, url_for
-from flask.json import dump
 
 from app import db, bp
-from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity, Vakcina
+from app.models import ZdravotnickeStredisko, PrakticiLogin, PrakticiKapacity
 
 
 @bp.route("/praktici_admin/register", methods=['POST'])
@@ -33,31 +32,12 @@ def praktici_admin_register():
     elif user is not None:
         session['error'] = 'Zdravotnické zařízení je už registrováno.'
     else:
-        random.seed(datetime.now())
+        random.seed(datetime.now().timestamp())
         characters = string.ascii_letters + string.digits
         passwd = ''.join(random.choice(characters) for i in range(8))
 
         user = PrakticiLogin(id, passwd)
         db.session.add(user)
-
-        vaccines = db.session.query(Vakcina).all()
-
-        for vaccine in vaccines:
-            free_vaccine = PrakticiKapacity()
-            free_vaccine.datum_aktualizace = datetime.now()
-            free_vaccine.zdravotnicke_zarizeni_kod = id
-            free_vaccine.typ_vakciny = vaccine.vyrobce
-            free_vaccine.kraj = zarizeni.kraj
-            free_vaccine.mesto = zarizeni.obec
-            free_vaccine.nazev_ordinace = zarizeni.nazev_cely
-            free_vaccine.adresa = f'{zarizeni.ulice if zarizeni.ulice else zarizeni.obec} {zarizeni.cislo_domu}'
-            free_vaccine.pocet_davek = 0
-            free_vaccine.kontakt_email = zarizeni.email
-            free_vaccine.kontakt_tel = zarizeni.telefon
-            free_vaccine.poznamka = ''
-            free_vaccine.dospeli = zarizeni.druh_zarizeni_kod != 321
-            free_vaccine.deti = zarizeni.druh_zarizeni_kod == 321
-            db.session.add(free_vaccine)
 
         db.session.commit()
 
@@ -122,31 +102,48 @@ def praktici_admin_edit():
     if user is None:
         session['error'] = 'Neplatné zdravotnické zařízení nebo heslo.'
     else:
+        email = request.form.get('email')
+        user.email = email if email else None
+
+        telefon = request.form.get('telefon')
+        user.telefon = telefon if telefon else None
+
+        db.session.merge(user)
+
         for i in range(len(request.form.getlist('typ_vakciny[]'))):
+            nemoc = request.form.getlist('nemoc[]')[i]
+            typ_vakciny = request.form.getlist('typ_vakciny[]')[i]
+
             vaccine = db.session.query(PrakticiKapacity) \
                 .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == id) \
-                .filter(PrakticiKapacity.typ_vakciny == request.form.getlist('typ_vakciny[]')[i]) \
+                .filter(PrakticiKapacity.nemoc == nemoc) \
+                .filter(PrakticiKapacity.typ_vakciny == typ_vakciny) \
                 .one_or_none()
 
             if vaccine is None:
-                continue
+                vaccine = PrakticiKapacity()
+                vaccine.zdravotnicke_zarizeni_kod = id
+                vaccine.nemoc = nemoc
+                vaccine.typ_vakciny = typ_vakciny
 
             pocet_davek = request.form.getlist('pocet_davek[]')[i]
-            expirace = request.form.getlist('expirace[]')[i]
+            vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
+
             dospeli = [int(v) - 1 for v in request.form.getlist('dospeli[]')]
+            vaccine.dospeli = i in dospeli
+
             deti = [int(v) - 1 for v in request.form.getlist('deti[]')]
+            vaccine.deti = i in deti
+
+            expirace = request.form.getlist('expirace[]')[i]
+            vaccine.expirace = expirace if len(expirace) > 0 else None
 
             vaccine.datum_aktualizace = datetime.now()
-            vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
-            vaccine.dospeli = i in dospeli
-            vaccine.deti = i in deti
-            vaccine.adresa = request.form.getlist('adresa[]')[i]
-            vaccine.kontakt_tel = request.form.getlist('kontakt_tel[]')[i]
-            vaccine.kontakt_email = request.form.getlist('kontakt_email[]')[i]
-            vaccine.expirace = expirace if len(expirace) > 0 else None
+
             vaccine.poznamka = request.form.getlist('poznamka[]')[i]
 
             db.session.merge(vaccine)
-            db.session.commit()
+
+        db.session.commit()
 
     return redirect(url_for('view.praktici_admin'))
