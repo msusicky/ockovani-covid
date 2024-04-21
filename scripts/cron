@@ -5,6 +5,6 @@
 # monthly fetcher
 00 5 5 * * bash /home/ockovani/prd/app/scripts/execute_action.sh 16635318
 # update GP page
-*/5 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh TODO
+1/5 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh TODO
 # post tweet - disabled
 # 35 7 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 6797956

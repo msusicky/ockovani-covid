@@ -2,7 +2,7 @@ import time
 from datetime import date, timedelta
 
 import click
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from sqlalchemy import text
 
 from app import app, db
 from app.etl import MetricsEtl
@@ -92,15 +92,13 @@ def clean_db_command():
     """Deletes older partition than 14 days. Executed weekly via cron"""
     eng = db.engine
 
-    eng.execute(
-        "DELETE FROM ockovani_registrace WHERE import_id<(SELECT min(id) FROM importy WHERE start>now()-'14 days'::interval)")
+    with eng.connect() as conn:
+        conn.execute(text("DELETE FROM ockovani_registrace WHERE import_id<(SELECT min(id) FROM importy WHERE start>now()-'14 days'::interval)"))
     app.logger.info("Old data deleted.")
 
-    connection = eng.raw_connection()
-    connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cursor = connection.cursor()
-    cursor.execute("VACUUM(FULL, ANALYZE) ockovani_registrace")
+    with eng.connect() as conn:
+        with conn.execution_options(isolation_level='AUTOCOMMIT'):
+            conn.execute(text("VACUUM(FULL, ANALYZE) ockovani_registrace"))
     app.logger.info("Vacuum finished.")
-    connection.autocommit = False
 
     exit(0)
