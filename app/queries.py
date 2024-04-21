@@ -208,11 +208,20 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
 
 
 def find_free_vaccines_vaccine_options():
-    return db.session.query(PrakticiKapacity.nemoc, PrakticiKapacity.typ_vakciny) \
+    return db.session.query(PrakticiKapacity.typ_vakciny) \
         .filter(PrakticiKapacity.pocet_davek > 0) \
         .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
         .distinct(PrakticiKapacity.typ_vakciny) \
         .order_by(PrakticiKapacity.typ_vakciny) \
+        .all()
+
+
+def find_free_vaccines_illness_options():
+    return db.session.query(PrakticiKapacity.nemoc) \
+        .filter(PrakticiKapacity.pocet_davek > 0) \
+        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
+        .distinct(PrakticiKapacity.nemoc) \
+        .order_by(PrakticiKapacity.nemoc) \
         .all()
 
 

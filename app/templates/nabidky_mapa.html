@@ -15,7 +15,7 @@ Mapa nabídek očkování |
     <div class="col mb-2">
         <select id="free-vaccines-vaccine" class="custom-select">
             <option value="">Všechny vakcíny</option>
-            {% for option in free_vaccines_vaccine_options %}
+            {% for option in free_vaccines_illness_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>

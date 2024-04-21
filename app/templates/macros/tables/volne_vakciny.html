@@ -1,4 +1,4 @@
-{% macro volne_vakciny(free_vaccines, vaccine_options, kraj_options=None, filtered_mode=False, detail_mode=False, admin_mode=False) -%}
+{% macro volne_vakciny(free_vaccines, illness_options, kraj_options=None, filtered_mode=False, detail_mode=False, admin_mode=False) -%}
 
 {% if not admin_mode %}
 <div class="alert alert-info text-justify alert-dismissible fade show" role="alert">
@@ -38,10 +38,10 @@
     </div>
     {% endif %}
     <div class="col-6 col-sm mb-2">
-        <select id="free-vaccines-vaccine" class="custom-select">
-            <option value="">Všechny vakcíny</option>
-            {% for option in vaccine_options %}
-            <option value="{{ option.typ_vakciny }}">{{ option.nemoc }} ({{option.typ_vakciny }})</option>
+        <select id="free-vaccines-illness" class="custom-select">
+            <option value="">Všechny nemoci</option>
+            {% for option in illness_options %}
+            <option value="{{ option[0] }}">{{ option[0] }}</option>
             {% endfor %}
         </select>
     </div>
@@ -130,21 +130,21 @@
 
         const searchValue = stripAccents($("#free-vaccines-searchbox").val().toLowerCase());
         const krajValue = $("#free-vaccines-kraj").val();
-        const vaccineValue = $("#free-vaccines-vaccine").val();
+        const illnessValue = $("#free-vaccines-illness").val();
         const adultsValue = $("#free-vaccines-adults")[0].checked;
         const childrenValue = $("#free-vaccines-children")[0].checked;
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
             const kraj = $(this)[0].dataset.kraj;
-            const vaccine = $(this)[0].dataset.vaccine;
+            const illness = $(this)[0].dataset.illness;
             const adults = $(this)[0].dataset.adults;
             const children = $(this)[0].dataset.children;
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
                 && (!krajValue || kraj === krajValue)
-                && (!vaccineValue || vaccine === vaccineValue)
+                && (!illnessValue || illness === illnessValue)
                 && ((adultsValue && adults === 'True') || (childrenValue && children === 'True'))
             )
         });
@@ -161,7 +161,7 @@
         $("#free-vaccines-kraj").change(function () {
             offersFilterChanged();
         });
-        $("#free-vaccines-vaccine").change(function () {
+        $("#free-vaccines-illness").change(function () {
             offersFilterChanged();
         });
         $("#free-vaccines-adults").change(function () {
