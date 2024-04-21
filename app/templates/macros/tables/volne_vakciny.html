@@ -79,8 +79,8 @@
         </thead>
         <tbody>
         {% for item in free_vaccines %}
-        <tr data-kraj="{{ item.kraj }}" data-vaccine="{{ item.typ_vakciny }}" data-adults="{{ item.dospeli }}"
-            data-children="{{ item.deti }}">
+        <tr data-kraj="{{ item.kraj }}" data-illness="{{ item.nemoc }}" data-vaccine="{{ item.typ_vakciny }}"
+            data-adults="{{ item.dospeli }}" data-children="{{ item.deti }}">
             <td data-value="{{ item.nemoc }}">
                 {{ item.nemoc }}
             </td>

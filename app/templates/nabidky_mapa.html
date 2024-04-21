@@ -74,7 +74,7 @@ Mapa nabídek očkování |
         marker.decorate(SMap.Marker.Feature.Card, card);
 
         marker.filter_data = {
-            vaccine: '{{ item.typ_vakciny }}',
+            illness: '{{ item.nemoc }}',
             adults: {{ item.dospeli | lower }},
             children: {{ item.deti | lower }}
         }
@@ -92,7 +92,7 @@ Mapa nabídek očkování |
     m.setCenterZoom(cz[0], cz[1]);
 
     function filterMarkers() {
-        const vaccineValue = $("#free-vaccines-vaccine").val()
+        const illnessValue = $("#free-vaccines-illness").val()
         const adultsValue = $("#free-vaccines-adults")[0].checked;
         const childrenValue = $("#free-vaccines-children")[0].checked;
 
@@ -102,11 +102,11 @@ Mapa nabídek očkování |
         for (var i=0;i<markers.length;i++) {
             marker = markers[i];
 
-            const vaccine = marker.filter_data.vaccine;
+            const illness = marker.filter_data.illness;
             const adults = marker.filter_data.adults;
             const children = marker.filter_data.children;
 
-            if ((!vaccineValue || vaccine === vaccineValue) && ((adultsValue && adults) || (childrenValue && children))) {
+            if ((!illnessValue || illness === illnessValue) && ((adultsValue && adults) || (childrenValue && children))) {
                 markers_filtered.push(marker);
             }
         }
@@ -115,7 +115,7 @@ Mapa nabídek očkování |
     }
 
     $(document).ready(function () {
-        $("#free-vaccines-vaccine").change(function () {
+        $("#free-vaccines-illness").change(function () {
             filterMarkers();
         });
         $("#free-vaccines-adults").change(function () {
