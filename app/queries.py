@@ -90,7 +90,7 @@ def find_doctor_offices(nrpzs_kod):
             coalesce(p.telefon, s.telefon) telefon_c, coalesce(p.email, s.email) email_c, s.web, s.latitude, s.longitude
         from ockovaci_zarizeni z
         full join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
-        left join praktici_login p on p.zdravotnicke_zarizeni_kod = z.id
+        left join praktici_login p on substring(p.zdravotnicke_zarizeni_kod from 1 for 11) = s.nrpzs_kod
         left join okresy o on o.id = coalesce(z.okres_id, s.okres_kod)
         join kraje k on k.id = o.kraj_id
         where z.id = '{nrpzs_kod}' or s.nrpzs_kod = '{nrpzs_kod}'

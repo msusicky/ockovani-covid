@@ -102,6 +102,14 @@ def praktici_admin_edit():
     if user is None:
         session['error'] = 'Neplatné zdravotnické zařízení nebo heslo.'
     else:
+        email = request.form.get('email')
+        user.email = email if email else None
+
+        telefon = request.form.get('telefon')
+        user.telefon = telefon if telefon else None
+
+        db.session.merge(user)
+
         for i in range(len(request.form.getlist('typ_vakciny[]'))):
             nemoc = request.form.getlist('nemoc[]')[i]
             typ_vakciny = request.form.getlist('typ_vakciny[]')[i]
@@ -135,31 +143,7 @@ def praktici_admin_edit():
             vaccine.poznamka = request.form.getlist('poznamka[]')[i]
 
             db.session.merge(vaccine)
-            db.session.commit()
 
-    return redirect(url_for('view.praktici_admin'))
-
-
-@bp.route("/praktici_admin/edit_contact", methods=['POST'])
-def praktici_admin_edit_contact():
-    session.pop('error', None)
-    session.pop('success', None)
-
-    id = session['user_id']
-    passwd = session['user_passwd']
-
-    user = db.session.query(PrakticiLogin) \
-        .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == id) \
-        .filter(PrakticiLogin.heslo == passwd) \
-        .one_or_none()
-
-    if user is None:
-        session['error'] = 'Neplatné zdravotnické zařízení nebo heslo.'
-    else:
-        user.email = request.form.get('email')
-        user.telefon = request.form.get('telefon')
-
-        db.session.merge(user)
         db.session.commit()
 
     return redirect(url_for('view.praktici_admin'))

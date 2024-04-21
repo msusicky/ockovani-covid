@@ -103,7 +103,7 @@
             {% endif %}
             {% if detail_mode %}
             <td>
-                Dospělí: {{ item.dospeli | format_bool }}, Děti: {{ item.deti | format_bool }}
+                {{ 'dospělí, děti' if item.dospeli and item.deti else 'děti' if item.deti else 'dospělí' if item.dospeli else '' }}
             </td>
             {% endif %}
             <td class="text-right" data-value="{{ item.pocet_davek }}">
