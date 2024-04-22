@@ -511,7 +511,7 @@ def report():
 @bp.route("/praktici_admin")
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
-        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
+        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo, PrakticiLogin.neregistrovani,
                                 coalesce(PrakticiLogin.telefon, ZdravotnickeStredisko.telefon).label('telefon'),
                                 coalesce(PrakticiLogin.email, ZdravotnickeStredisko.email).label('email'),
                                 ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.druh_zarizeni_kod) \
@@ -520,9 +520,8 @@ def praktici_admin():
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
-        user_vaccines = db.session.query(Vakcina.nemoc, Vakcina.vyrobce, PrakticiKapacity.pocet_davek,
-                                         PrakticiKapacity.dospeli, PrakticiKapacity.deti, PrakticiKapacity.expirace,
-                                         PrakticiKapacity.poznamka) \
+        user_vaccines = db.session.query(Vakcina.nemoc, Vakcina.vyrobce, PrakticiKapacity.aktivni,
+                                         PrakticiKapacity.dospeli, PrakticiKapacity.deti, PrakticiKapacity.poznamka) \
             .outerjoin(PrakticiKapacity, and_(PrakticiKapacity.nemoc == Vakcina.nemoc,
                                               PrakticiKapacity.typ_vakciny == Vakcina.vyrobce,
                                               PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id'])) \

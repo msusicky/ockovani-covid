@@ -87,7 +87,8 @@ def find_doctor_offices(nrpzs_kod):
         f"""
         select coalesce(z.zarizeni_nazev, min(s.nazev_cely)) zarizeni_nazev, o.nazev okres, k.nazev kraj, 
             k.nazev_kratky kraj_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, s.cislo_domu, 
-            coalesce(p.telefon, s.telefon) telefon_c, coalesce(p.email, s.email) email_c, s.web, s.latitude, s.longitude
+            coalesce(p.telefon, s.telefon) telefon_c, coalesce(p.email, s.email) email_c, s.web, s.latitude, s.longitude,
+            p.neregistrovani
         from ockovaci_zarizeni z
         full join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
         left join praktici_login p on substring(p.zdravotnicke_zarizeni_kod from 1 for 11) = s.nrpzs_kod
@@ -95,7 +96,7 @@ def find_doctor_offices(nrpzs_kod):
         join kraje k on k.id = o.kraj_id
         where z.id = '{nrpzs_kod}' or s.nrpzs_kod = '{nrpzs_kod}'
         group by z.zarizeni_nazev, o.nazev, k.nazev, k.nazev_kratky, s.druh_zarizeni, s.obec, s.psc, s.ulice, 
-            s.cislo_domu, telefon_c, email_c, s.web, s.latitude, s.longitude
+            s.cislo_domu, telefon_c, email_c, s.web, s.latitude, s.longitude, p.neregistrovani
         """,
         db.engine)
 
@@ -121,9 +122,7 @@ def find_doctors(okres_id=None, kraj_id=None):
         join kraje k on k.id = o.kraj_id
         left join zarizeni_metriky m on m.zarizeni_id = z.id and m.datum = '{get_import_date()}'
         left join (
-            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
-            from praktici_kapacity n 
-            where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
+            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.aktivni
         ) n on n.nrpzs_kod = z.id 
         where prakticky_lekar = True 
             and (z.okres_id = {okres_id_sql} or {okres_id_sql} is null) 
@@ -155,9 +154,7 @@ def find_doctors_map():
         left join zdravotnicke_stredisko s on s.nrpzs_kod = z.id
         left join zarizeni_metriky m on m.zarizeni_id = z.id and m.datum = '{get_import_date()}'
         left join (
-            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod 
-            from praktici_kapacity n 
-            where n.pocet_davek > 0 and (n.expirace is null or n.expirace >= '{get_import_date()}')
+            select left(zdravotnicke_zarizeni_kod, 11) nrpzs_kod from praktici_kapacity n where n.aktivni
         ) n on n.nrpzs_kod = z.id 
         where prakticky_lekar = True 
         group by z.id, z.zarizeni_nazev, z.provoz_ukoncen, s.latitude, s.longitude, m.ockovani_pocet_davek, 
@@ -188,10 +185,10 @@ def find_doctors_vaccine_options():
 
 
 def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
-    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.pocet_davek, PrakticiKapacity.nemoc,
+    return db.session.query(PrakticiKapacity.datum_aktualizace, PrakticiKapacity.aktivni, PrakticiKapacity.nemoc,
                             PrakticiKapacity.typ_vakciny, PrakticiKapacity.deti, PrakticiKapacity.dospeli,
-                            PrakticiKapacity.expirace, PrakticiKapacity.poznamka, PrakticiLogin.email,
-                            PrakticiLogin.telefon, ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.obec,
+                            PrakticiKapacity.poznamka, PrakticiLogin.email, PrakticiLogin.telefon,
+                            PrakticiLogin.neregistrovani, ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.obec,
                             ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.nrpzs_kod, ZdravotnickeStredisko.latitude,
                             ZdravotnickeStredisko.longitude, ZdravotnickeStredisko.email.label('email_nrpzs'),
                             ZdravotnickeStredisko.telefon.label('telefon_nrpzs')) \
@@ -201,8 +198,7 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
         .filter(or_(func.left(PrakticiKapacity.zdravotnicke_zarizeni_kod, 11) == nrpzs_kod, nrpzs_kod is None)) \
         .filter(or_(ZdravotnickeStredisko.okres_kod == okres_id, okres_id is None)) \
         .filter(or_(ZdravotnickeStredisko.kraj_kod == kraj_id, kraj_id is None)) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
+        .filter(PrakticiKapacity.aktivni) \
         .order_by(ZdravotnickeStredisko.kraj, ZdravotnickeStredisko.obec, ZdravotnickeStredisko.nazev_cely,
                   PrakticiKapacity.typ_vakciny) \
         .all()
@@ -210,8 +206,7 @@ def find_free_vaccines_available(nrpzs_kod=None, okres_id=None, kraj_id=None):
 
 def find_free_vaccines_vaccine_options():
     return db.session.query(PrakticiKapacity.typ_vakciny) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
+        .filter(PrakticiKapacity.aktivni) \
         .distinct(PrakticiKapacity.typ_vakciny) \
         .order_by(PrakticiKapacity.typ_vakciny) \
         .all()
@@ -219,8 +214,7 @@ def find_free_vaccines_vaccine_options():
 
 def find_free_vaccines_illness_options():
     return db.session.query(PrakticiKapacity.nemoc) \
-        .filter(PrakticiKapacity.pocet_davek > 0) \
-        .filter(or_(PrakticiKapacity.expirace == None, PrakticiKapacity.expirace >= get_import_date())) \
+        .filter(PrakticiKapacity.aktivni) \
         .distinct(PrakticiKapacity.nemoc) \
         .order_by(PrakticiKapacity.nemoc) \
         .all()

@@ -19,7 +19,7 @@
 
 {% if not detail_mode %}
 <div class="form-row mb-1">
-    <div class="col-12 col-lg-6 mb-2">
+    <div class="col-12 col-lg-4 mb-2">
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search fa-fw"></i></span>
@@ -50,9 +50,13 @@
             <input id="free-vaccines-adults" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-adults">dospělí</label>
         </div>
-        <div class="custom-control custom-switch" style="display: inline-block">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="free-vaccines-children" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-children">děti</label>
+        </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="free-vaccines-nonregistered" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="free-vaccines-nonregistered">i pro neregistrované</label>
         </div>
     </div>
 </div>
@@ -71,8 +75,6 @@
             {% if detail_mode %}
             <th scope="col" class="text-center">Věkové skupiny</th>
             {% endif %}
-            <th scope="col" class="text-center col-sortable">Dávek</th>
-            <th scope="col" class="text-center col-sortable">Expirace</th>
             <th scope="col" class="text-center">Poznámka</th>
             <th scope="col" class="text-center">Aktualizace</th>
         </tr>
@@ -80,7 +82,7 @@
         <tbody>
         {% for item in free_vaccines %}
         <tr data-kraj="{{ item.kraj }}" data-illness="{{ item.nemoc }}" data-vaccine="{{ item.typ_vakciny }}"
-            data-adults="{{ item.dospeli }}" data-children="{{ item.deti }}">
+            data-adults="{{ item.dospeli }}" data-children="{{ item.deti }}" data-nonregistered="{{ item.neregistrovani }}">
             <td data-value="{{ item.nemoc }}">
                 {{ item.nemoc }}
             </td>
@@ -106,12 +108,6 @@
                 {{ 'dospělí, děti' if item.dospeli and item.deti else 'děti' if item.deti else 'dospělí' if item.dospeli else '' }}
             </td>
             {% endif %}
-            <td class="text-right" data-value="{{ item.pocet_davek }}">
-                {{ item.pocet_davek | format_number }}
-            </td>
-            <td class="text-right" data-value="{{ item.expirace }}">
-                {{ item.expirace | format_date if item.expirace else ""  }}
-            </td>
             <td>
                 {{ item.poznamka }}
             </td>
@@ -133,6 +129,7 @@
         const illnessValue = $("#free-vaccines-illness").val();
         const adultsValue = $("#free-vaccines-adults")[0].checked;
         const childrenValue = $("#free-vaccines-children")[0].checked;
+        const nonregisteredValue = $("#free-vaccines-nonregistered")[0].checked;
 
         $("#free-vaccines-table tbody tr").filter(function () {
             const normalized = stripAccents($(this).text().toLowerCase());
@@ -140,12 +137,14 @@
             const illness = $(this)[0].dataset.illness;
             const adults = $(this)[0].dataset.adults;
             const children = $(this)[0].dataset.children;
+            const nonregistered = $(this)[0].dataset.nonregistered;
 
             $(this).toggle(
                 normalized.indexOf(searchValue) > -1
                 && (!krajValue || kraj === krajValue)
                 && (!illnessValue || illness === illnessValue)
                 && ((adultsValue && adults === 'True') || (childrenValue && children === 'True'))
+                && (!nonregisteredValue || nonregistered === 'True')
             )
         });
 
@@ -174,6 +173,9 @@
             if (!$("#free-vaccines-children")[0].checked) {
                 $("#free-vaccines-adults")[0].checked = true;
             }
+            offersFilterChanged();
+        });
+        $("#free-vaccines-nonregistered").change(function () {
             offersFilterChanged();
         });
         offersFilterChanged();
