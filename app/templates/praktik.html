@@ -91,6 +91,11 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Nabídky očkování</h5>
+                {% if first_office.neregistrovani %}
+                    <div class="alert alert-info" role="alert">
+                        Očkujeme i neregistrované pacienty.
+                    </div>
+                {% endif %}
                 {{ volne_vakciny(free_vaccines, detail_mode=True) }}
             </div>
         </div>

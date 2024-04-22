@@ -108,6 +108,8 @@ def praktici_admin_edit():
         telefon = request.form.get('telefon')
         user.telefon = telefon if telefon else None
 
+        user.neregistrovani = request.form.get('neregistrovani') is not None
+
         db.session.merge(user)
 
         for i in range(len(request.form.getlist('typ_vakciny[]'))):
@@ -126,17 +128,14 @@ def praktici_admin_edit():
                 vaccine.nemoc = nemoc
                 vaccine.typ_vakciny = typ_vakciny
 
-            pocet_davek = request.form.getlist('pocet_davek[]')[i]
-            vaccine.pocet_davek = pocet_davek if pocet_davek.isnumeric() else 0
+            aktivni = [int(v) - 1 for v in request.form.getlist('aktivni[]')]
+            vaccine.aktivni = i in aktivni
 
             dospeli = [int(v) - 1 for v in request.form.getlist('dospeli[]')]
             vaccine.dospeli = i in dospeli
 
             deti = [int(v) - 1 for v in request.form.getlist('deti[]')]
             vaccine.deti = i in deti
-
-            expirace = request.form.getlist('expirace[]')[i]
-            vaccine.expirace = expirace if len(expirace) > 0 else None
 
             vaccine.datum_aktualizace = datetime.now()
 

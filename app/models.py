@@ -1029,6 +1029,7 @@ class PrakticiLogin(db.Model):
     heslo = Column(Unicode, nullable=False)
     email = Column(Unicode)
     telefon = Column(Unicode)
+    neregistrovani = Column(Boolean, nullable=False)
 
     def __init__(self, id, passwd):
         self.zdravotnicke_zarizeni_kod = id
@@ -1050,6 +1051,7 @@ class PrakticiKapacity(db.Model):
     dospeli = Column(Boolean, nullable=False)
     expirace = Column(Date)
     nemoc = Column(Unicode, nullable=False)
+    aktivni = Column(Boolean, nullable=False)
 
     def __repr__(self):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
