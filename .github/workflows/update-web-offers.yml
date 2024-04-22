@@ -1,4 +1,4 @@
-name: sync-prd-acc-db
+name: update-web-offers
 
 on:
   workflow_dispatch
@@ -7,11 +7,12 @@ concurrency: production_env
 
 jobs:
   deploy:
-    name: Sync databases - PRD to ACC
-    environment: acceptance
+    name: Update static pages - offers
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: production
     runs-on: ubuntu-22.04
     env:
-      APP_DIR: '${HOME}/acc/app'
+      APP_DIR: '${HOME}/prd/app'
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
@@ -24,7 +25,7 @@ jobs:
           eval `ssh-agent -s`
           echo "${SSH_KEY}" | tr -d '\r' | ssh-add -
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-      - name: Execute db sync prd -> acc
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} -o ServerAliveInterval=120 "pg_dump -F c ockovani_prd | pg_restore -c -d ockovani_acc"
-      - name: Execute migrations
-        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "cd ${APP_DIR} && source venv/bin/activate && flask db upgrade"
+      - name: Check if webserver is running
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "systemctl status ockovani-prd.service"
+      - name: Create static pages
+        run: ssh ${SSH_USER_WEB}@${SSH_HOST} -p ${SSH_PORT} "bash ${APP_DIR}/scripts/create_static_pages_offers.sh"

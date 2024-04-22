@@ -136,6 +136,7 @@ class Vakcina(db.Model):
     vakcina_sklad = Column(Unicode, unique=True, nullable=False)
     davky = Column(Integer, nullable=False)
     aktivni = Column(Boolean, nullable=False)
+    nemoc = Column(Unicode, nullable=False)
 
     def __repr__(self):
         return f"<Vakcina(vyrobce='{self.vyrobce}')>"
@@ -1026,6 +1027,9 @@ class PrakticiLogin(db.Model):
 
     zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
     heslo = Column(Unicode, nullable=False)
+    email = Column(Unicode)
+    telefon = Column(Unicode)
+    neregistrovani = Column(Boolean, nullable=False)
 
     def __init__(self, id, passwd):
         self.zdravotnicke_zarizeni_kod = id
@@ -1041,17 +1045,13 @@ class PrakticiKapacity(db.Model):
     zdravotnicke_zarizeni_kod = Column(Unicode, primary_key=True)
     datum_aktualizace = Column(DateTime, nullable=False, default="now()")
     typ_vakciny = Column(Unicode, primary_key=True)
-    kraj = Column(Unicode, nullable=False)
-    mesto = Column(Unicode, nullable=False)
-    nazev_ordinace = Column(Unicode, nullable=False)
-    adresa = Column(Unicode)
     pocet_davek = Column(Integer, nullable=False)
-    kontakt_email = Column(Unicode)
-    kontakt_tel = Column(Unicode)
     poznamka = Column(Unicode)
     deti = Column(Boolean, nullable=False)
     dospeli = Column(Boolean, nullable=False)
     expirace = Column(Date)
+    nemoc = Column(Unicode, nullable=False)
+    aktivni = Column(Boolean, nullable=False)
 
     def __repr__(self):
         return f"<PrakticiKapacity(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"

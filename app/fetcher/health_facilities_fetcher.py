@@ -26,6 +26,7 @@ class HealthFacilitiesFetcher(Fetcher):
 
         df = df.drop(['id', 'kraj_nuts_kod', 'kraj_nazev', 'okres_nazev'], axis=1)
         df = df.rename(columns={'zarizeni_kod': 'id', 'okres_lau_kod': 'okres_id'})
+        df = df.groupby('id').first().reset_index()
 
         self._truncate()
 

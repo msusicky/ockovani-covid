@@ -86,8 +86,8 @@ class FetcherLauncher:
         if dataset == 'all':
             # self._fetchers.append(CentersFetcher())  # replaced by CentersApiFetcher
             self._fetchers.append(CentersApiFetcher())
-            # self._fetchers.append(OpeningHoursFetcher())
-            # self._fetchers.append(HealthFacilitiesFetcher())
+            self._fetchers.append(OpeningHoursFetcher())
+            self._fetchers.append(HealthFacilitiesFetcher())
             # self._fetchers.append(DistributedFetcher())       # not updated since 2022-11-29
             # self._fetchers.append(UsedFetcher())              # not updated since 2022-02-16
             self._fetchers.append(RegistrationsFetcher())

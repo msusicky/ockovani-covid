@@ -32,14 +32,14 @@
                     <dd>{{ (row.ulice if row.ulice else row.obec) + ' ' + row.cislo_domu + ', ' + row.psc + ' ' + row.obec }}</dd>
                     {% endfor %}
 
-                    {% for item in doctor_offices['telefon'].dropna().drop_duplicates() %}
+                    {% for item in doctor_offices['telefon_c'].dropna().drop_duplicates() %}
                     {% if loop.index == 1 %}
                     <dt>Telefon</dt>
                     {% endif %}
                     <dd><a href="tel:{{ item }}">{{ item }}</a></dd>
                     {% endfor %}
 
-                    {% for item in doctor_offices['email'].dropna().drop_duplicates() %}
+                    {% for item in doctor_offices['email_c'].dropna().drop_duplicates() %}
                     {% if loop.index == 1 %}
                     <dt>E-mail</dt>
                     {% endif %}
@@ -91,6 +91,11 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Nabídky očkování</h5>
+                {% if first_office.neregistrovani %}
+                    <div class="alert alert-info" role="alert">
+                        Očkujeme i neregistrované pacienty.
+                    </div>
+                {% endif %}
                 {{ volne_vakciny(free_vaccines, detail_mode=True) }}
             </div>
         </div>

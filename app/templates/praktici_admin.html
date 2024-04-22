@@ -41,20 +41,40 @@ Praktici - administrace |
     <div class="col-12">
         <h4>Editace: {{ user.nazev_cely }}</h4>
     </div>
+
     <div class="col-12">
         <form action="{{ url_for('view.praktici_admin_edit') }}" name="free-vaccines" method="post">
+            <h5>Kontakt</h5>
+            <div class="row">
+                <div class="col-auto">
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <th>Telefon</th>
+                            <td><input type="text" name="telefon" value="{{ user.telefon }}"/></td>
+                        </tr>
+                        <tr>
+                            <th>E-mail</th>
+                            <td><input type="text" name="email" value="{{ user.email }}"/></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h5>Nabídky</h5>
+            <div class="custom-control custom-switch mb-2" style="display: inline-block">
+                <input id="neregistrovani" type="checkbox" name="neregistrovani" value="1" class="custom-control-input" {{ "checked" if user.neregistrovani else "" }}/>
+                <label class="custom-control-label" for="neregistrovani" >očkujeme i neregistrované pacienty</label>
+            </div>
+
             <div class="table-responsive mb-3">
                 <table id="centers-table" class="table table-bordered table-striped table-sm mb-0">
                     <thead class="thead-dark">
                     <tr>
+                        <th scope="col" class="text-center">Nemoc</th>
                         <th scope="col" class="text-center">Vakcína</th>
-                        <th scope="col" class="text-center">Dávek</th>
+                        <th scope="col" class="text-center">Nabízíme</th>
                         <th scope="col" class="text-center">Dospělí</th>
                         <th scope="col" class="text-center">Děti</th>
-                        <th scope="col" class="text-center">Adresa</th>
-                        <th scope="col" class="text-center">Telefon</th>
-                        <th scope="col" class="text-center">Email</th>
-                        <th scope="col" class="text-center">Expirace</th>
                         <th scope="col" class="text-center">Poznámka</th>
                     </tr>
                     </thead>
@@ -62,32 +82,24 @@ Praktici - administrace |
                     {% for vaccine in user_vaccines %}
                     <tr>
                         <td>
-                            <input type="hidden" name="typ_vakciny[]" value="{{ vaccine.typ_vakciny }}"/>
-                            {{ vaccine.typ_vakciny }}
+                            <input type="hidden" name="nemoc[]" value="{{ vaccine.nemoc }}"/>
+                            {{ vaccine.nemoc }}
                         </td>
                         <td>
-                            <input type="number" name="pocet_davek[]" value="{{ vaccine.pocet_davek }}" size="4"/>
+                            <input type="hidden" name="typ_vakciny[]" value="{{ vaccine.vyrobce }}"/>
+                            {{ vaccine.vyrobce }}
                         </td>
                         <td class="text-center">
-                            <input type="checkbox" name="dospeli[]" value="{{ loop.index }}" {{ "checked" if vaccine.dospeli else "" }}/>
+                            <input type="checkbox" name="aktivni[]" value="{{ loop.index }}" {{ "checked" if vaccine.aktivni else "" }}/>
                         </td>
                         <td class="text-center">
-                            <input type="checkbox" name="deti[]" value="{{ loop.index }}" {{ "checked" if vaccine.deti else "" }}/>
+                            <input type="checkbox" name="dospeli[]" value="{{ loop.index }}" {{ "checked" if (vaccine.dospeli is none and vaccine.druh_zarizeni_kod != 321) or vaccine.dospeli else "" }}/>
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox" name="deti[]" value="{{ loop.index }}" {{ "checked" if (vaccine.deti is none and vaccine.druh_zarizeni_kod == 321) or vaccine.deti else "" }}/>
                         </td>
                         <td>
-                            <input type="text" name="adresa[]" value="{{ vaccine.adresa }}" size="25"/>
-                        </td>
-                        <td>
-                            <input type="tel" name="kontakt_tel[]" value="{{ vaccine.kontakt_tel }}" size="13"/>
-                        </td>
-                        <td>
-                            <input type="email" name="kontakt_email[]" value="{{ vaccine.kontakt_email }}" size="20"/>
-                        </td>
-                        <td>
-                            <input type="date" name="expirace[]" value="{{ vaccine.expirace }}"/>
-                        </td>
-                        <td>
-                            <input type="text" name="poznamka[]" value="{{ vaccine.poznamka }}"/>
+                            <input type="text" name="poznamka[]" value="{{ '' if vaccine.poznamka is none else vaccine.poznamka }}" style="width: 100%"/>
                         </td>
                     </tr>
                     {% endfor %}
@@ -98,6 +110,7 @@ Praktici - administrace |
             <a class="btn btn-warning" href="{{ url_for('view.praktici_admin_logout') }}">Odhlásit se</a>
         </form>
     </div>
+
     {% else %}
     <div class="col-12">
         <h4>Editace: přihlášení</h4>
@@ -164,7 +177,7 @@ Praktici - administrace |
 <div class="row">
     <div class="col">
         <h4>Přehled nabídek</h4>
-        {{ volne_vakciny(all_vaccines, free_vaccines_vaccine_options, kraj_options=kraj_options, admin_mode=True) }}
+        {{ volne_vakciny(all_vaccines, free_vaccines_illness_options, kraj_options=kraj_options, admin_mode=True) }}
     </div>
 </div>
 {% endblock %}

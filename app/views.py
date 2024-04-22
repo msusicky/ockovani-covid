@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from flask import render_template, session
-from sqlalchemy import func, text, column
+from sqlalchemy import func, text, column, and_, or_
+from sqlalchemy.sql.functions import coalesce
 from werkzeug.exceptions import abort
 
 from app import db, bp, filters, queries
@@ -48,7 +49,7 @@ def okres_detail(okres_name):
 
     free_vaccines = queries.find_free_vaccines_available(okres_id=okres.id)
 
-    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_illness_options = queries.find_free_vaccines_illness_options()
 
     metriky = db.session.query(OkresMetriky) \
         .filter(OkresMetriky.okres_id == okres.id, OkresMetriky.datum == get_import_date()) \
@@ -59,7 +60,7 @@ def okres_detail(okres_name):
     return render_template('okres.html', last_update=_last_import_modified(), now=_now(), okres=okres, mista=mista,
                            third_doses_centers=third_doses_centers, centers_vaccine_options=centers_vaccine_options,
                            doctors=doctors, doctors_vaccine_options=doctors_vaccine_options,
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           free_vaccines=free_vaccines, free_vaccines_illness_options=free_vaccines_illness_options,
                            metriky=metriky, registrations=registrations)
 
 
@@ -81,7 +82,7 @@ def kraj_detail(kraj_name):
 
     free_vaccines = queries.find_free_vaccines_available(kraj_id=kraj.id)
 
-    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_illness_options = queries.find_free_vaccines_illness_options()
 
     metriky = db.session.query(KrajMetriky) \
         .filter(KrajMetriky.kraj_id == kraj.id, KrajMetriky.datum == get_import_date()) \
@@ -98,7 +99,7 @@ def kraj_detail(kraj_name):
     return render_template('kraj.html', last_update=_last_import_modified(), now=_now(), kraj=kraj, mista=mista,
                            third_doses_centers=third_doses_centers, centers_vaccine_options=centers_vaccine_options,
                            doctors=doctors, doctors_vaccine_options=doctors_vaccine_options,
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           free_vaccines=free_vaccines, free_vaccines_illness_options=free_vaccines_illness_options,
                            metriky=metriky, vaccines=vaccines, registrations=registrations, vaccinated=vaccinated,
                            queue_graph_data=queue_graph_data)
 
@@ -187,12 +188,12 @@ def praktik_detail(nrpzs_kod):
 def nabidky():
     free_vaccines = queries.find_free_vaccines_available()
 
-    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_illness_options = queries.find_free_vaccines_illness_options()
 
     kraj_options = queries.find_kraj_options()
 
     return render_template('nabidky.html', last_update=_last_import_modified(), now=_now(),
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options,
+                           free_vaccines=free_vaccines, free_vaccines_illness_options=free_vaccines_illness_options,
                            kraj_options=kraj_options)
 
 
@@ -200,10 +201,10 @@ def nabidky():
 def nabidky_mapa():
     free_vaccines = queries.find_free_vaccines_available()
 
-    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_illness_options = queries.find_free_vaccines_illness_options()
 
     return render_template('nabidky_mapa.html', last_update=_last_import_modified(), now=_now(),
-                           free_vaccines=free_vaccines, free_vaccines_vaccine_options=free_vaccines_vaccine_options)
+                           free_vaccines=free_vaccines, free_vaccines_illness_options=free_vaccines_illness_options)
 
 
 @bp.route("/statistiky")
@@ -510,18 +511,24 @@ def report():
 @bp.route("/praktici_admin")
 def praktici_admin():
     if session.get('user_id') is not None and session.get('user_passwd') is not None:
-        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo,
-                                ZdravotnickeStredisko.nazev_cely) \
+        user = db.session.query(PrakticiLogin.zdravotnicke_zarizeni_kod, PrakticiLogin.heslo, PrakticiLogin.neregistrovani,
+                                coalesce(PrakticiLogin.telefon, ZdravotnickeStredisko.telefon).label('telefon'),
+                                coalesce(PrakticiLogin.email, ZdravotnickeStredisko.email).label('email'),
+                                ZdravotnickeStredisko.nazev_cely, ZdravotnickeStredisko.druh_zarizeni_kod) \
             .join(ZdravotnickeStredisko,
                   ZdravotnickeStredisko.zdravotnicke_zarizeni_kod == PrakticiLogin.zdravotnicke_zarizeni_kod) \
             .filter(PrakticiLogin.zdravotnicke_zarizeni_kod == session['user_id']) \
             .filter(PrakticiLogin.heslo == session['user_passwd']) \
             .one_or_none()
-        user_vaccines = db.session.query(PrakticiKapacity) \
-            .join(Vakcina, Vakcina.vyrobce == PrakticiKapacity.typ_vakciny) \
-            .filter(PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id']) \
+        user_vaccines = db.session.query(Vakcina.nemoc, Vakcina.vyrobce, PrakticiKapacity.aktivni,
+                                         PrakticiKapacity.dospeli, PrakticiKapacity.deti, PrakticiKapacity.poznamka) \
+            .outerjoin(PrakticiKapacity, and_(PrakticiKapacity.nemoc == Vakcina.nemoc,
+                                              PrakticiKapacity.typ_vakciny == Vakcina.vyrobce,
+                                              PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id'])) \
+            .filter(or_(PrakticiKapacity.zdravotnicke_zarizeni_kod == None,
+                        PrakticiKapacity.zdravotnicke_zarizeni_kod == session['user_id'])) \
             .filter(Vakcina.aktivni == True) \
-            .order_by(PrakticiKapacity.typ_vakciny) \
+            .order_by(Vakcina.nemoc, Vakcina.vyrobce) \
             .all()
     else:
         user = None
@@ -529,14 +536,13 @@ def praktici_admin():
 
     free_vaccines = queries.find_free_vaccines_available()
 
-    free_vaccines_vaccine_options = queries.find_free_vaccines_vaccine_options()
+    free_vaccines_illness_options = queries.find_free_vaccines_illness_options()
 
     kraj_options = queries.find_kraj_options()
 
     return render_template('praktici_admin.html', last_update=_last_import_modified(), now=_now(), user=user,
                            user_vaccines=user_vaccines, all_vaccines=free_vaccines,
-                           free_vaccines_vaccine_options=free_vaccines_vaccine_options,
-                           kraj_options=kraj_options)
+                           free_vaccines_illness_options=free_vaccines_illness_options, kraj_options=kraj_options)
 
 
 @bp.route("/404")

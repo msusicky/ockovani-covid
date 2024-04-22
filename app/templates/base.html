@@ -98,9 +98,13 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <div class="alert alert-danger" role="alert">
-                Čas poslední aktualizace: <strong>{{ last_update }}</strong>.
-                POZOR! - Momentálně obnovený pilotní provoz, na webu mohou být chyby.
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <p class="mb-0">
+                    Čas poslední aktualizace: <strong>{{ last_update }}</strong>.
+                    <a class="alert-link" href="{{ url_for('view.napoveda') }}#aktualizace">
+                        Jak často jsou data aktualizována?
+                    </a>
+                </p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -122,7 +126,7 @@
             </p>
             <p class="mb-1">
                 Vydavatel: ČVUT, Fakulta informačních technologií, Praha ve spolupráci s firmou Sec4good, s.r.o., Praha, 2023.<br />
-                Citace: Sušický M., Staněk J. <i>COVID-19 očkování</i> [online]. Praha: ČVUT, Fakulta informačních technologií, 2021 [cit. {{ now | format_date_en }}]. ISSN 2787-9925. Dostupné z https://ockovani.opendatalab.cz
+                Citace: Sušický M., Staněk J. <i>COVID-19 očkování</i> [online]. Praha: ČVUT, Fakulta informačních technologií, 2021 [cit. {{ now | format_date_en }}]. ISSN 2787-9925. Dostupné z <a href="https://ockovani.opendatalab.cz" target="_blank">https://ockovani.opendatalab.cz</a> Webové stránky vznikají ve spolupráci s <a href="https://mzd.gov.cz/" target="_blank">Ministerstvem zdravotnictví ČR.</a>
             </p>
             <p class="mb-0 font-italic">
                 Provozovatel neodpovídá za správnost a úplnost zpracovaných dat a informací, ani tato neověřuje a zříká
@@ -141,6 +145,10 @@
             &nbsp;
             <a href="https://www.sec4good.cz/" target="_blank">
                 <img src="{{ url_for('static',filename='img/sec4good_mungo_logo_tmave.png') }}" style="width: 185px;">
+            </a>
+            &nbsp;
+			<a href="https://mzd.gov.cz/" target="_blank">
+                <img src="{{ url_for('static',filename='img/Logo MZCR_pod sebou.jfif') }}" style="width: 185px;">
             </a>
         </div>
     </div>
