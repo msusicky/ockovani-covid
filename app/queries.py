@@ -182,6 +182,7 @@ def find_doctors_map():
 def find_doctors_vaccine_options():
     return db.session.query(Vakcina.vyrobce) \
         .filter(Vakcina.aktivni == True) \
+        .filter(Vakcina.nemoc == 'Covid-19') \
         .order_by(Vakcina.vyrobce) \
         .all()
 
