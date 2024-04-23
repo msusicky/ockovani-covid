@@ -50,11 +50,11 @@ Praktici - administrace |
                     <table class="table table-borderless table-sm">
                         <tr>
                             <th>Telefon</th>
-                            <td><input type="text" name="telefon" value="{{ user.telefon }}"/></td>
+                            <td><input type="text" name="telefon" value="{{ user.telefon if user.telefon else '' }}"/></td>
                         </tr>
                         <tr>
                             <th>E-mail</th>
-                            <td><input type="text" name="email" value="{{ user.email }}"/></td>
+                            <td><input type="text" name="email" value="{{ user.email if user.email else '' }}"/></td>
                         </tr>
                     </table>
                 </div>
