@@ -13,7 +13,7 @@ Mapa nabídek očkování |
 
 <div class="form-row mb-1">
     <div class="col mb-2">
-        <select id="free-vaccines-vaccine" class="custom-select">
+        <select id="free-vaccines-illness" class="custom-select">
             <option value="">Všechny nemoci</option>
             {% for option in free_vaccines_illness_options %}
             <option value="{{ option[0] }}">{{ option[0] }}</option>
@@ -25,9 +25,13 @@ Mapa nabídek očkování |
             <input id="free-vaccines-adults" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-adults">dospělí</label>
         </div>
-        <div class="custom-control custom-switch" style="display: inline-block">
+        <div class="custom-control custom-switch mr-2" style="display: inline-block">
             <input id="free-vaccines-children" type="checkbox" class="custom-control-input" checked>
             <label class="custom-control-label" for="free-vaccines-children">děti</label>
+        </div>
+        <div class="custom-control custom-switch" style="display: inline-block">
+            <input id="free-vaccines-nonregistered" type="checkbox" class="custom-control-input">
+            <label class="custom-control-label" for="free-vaccines-nonregistered">i pro neregistrované</label>
         </div>
     </div>
 </div>
@@ -58,14 +62,14 @@ Mapa nabídek očkování |
         icon.appendChild(image);
 
         var options = {
-            title: "{{ item.nazev_ordinace }}",
+            title: "{{ item.nazev_cely }}",
             url: icon
         }
         var marker = new SMap.Marker(c, null, options);
 
         var card = new SMap.Card();
         card.setSize(450, null);
-        card.getHeader().innerHTML = "<strong>{{ item.nazev_ordinace }}</strong>";
+        card.getHeader().innerHTML = "<strong>{{ item.nazev_cely }}</strong>";
         {% if item.nrpzs_kod %}
         card.getBody().innerHTML = '<a href="./praktik/{{ item.nrpzs_kod }}" class="btn btn-primary">Detail nabídky</a>';
         {% endif %}
@@ -76,7 +80,8 @@ Mapa nabídek očkování |
         marker.filter_data = {
             illness: '{{ item.nemoc }}',
             adults: {{ item.dospeli | lower }},
-            children: {{ item.deti | lower }}
+            children: {{ item.deti | lower }},
+            nonregistered: {{ item.neregistrovani | lower }}
         }
 
         coords.push(c);
@@ -95,6 +100,7 @@ Mapa nabídek očkování |
         const illnessValue = $("#free-vaccines-illness").val()
         const adultsValue = $("#free-vaccines-adults")[0].checked;
         const childrenValue = $("#free-vaccines-children")[0].checked;
+        const nonregisteredValue = $("#free-vaccines-nonregistered")[0].checked;
 
         layer.removeAll();
         var markers_filtered = [];
@@ -105,8 +111,11 @@ Mapa nabídek očkování |
             const illness = marker.filter_data.illness;
             const adults = marker.filter_data.adults;
             const children = marker.filter_data.children;
+            const nonregistered = marker.filter_data.nonregistered;
 
-            if ((!illnessValue || illness === illnessValue) && ((adultsValue && adults) || (childrenValue && children))) {
+            if ((!illnessValue || illness === illnessValue)
+                && ((adultsValue && adults) || (childrenValue && children))
+                && (!nonregisteredValue || nonregistered)) {
                 markers_filtered.push(marker);
             }
         }
@@ -128,6 +137,9 @@ Mapa nabídek očkování |
             if (!$("#free-vaccines-children")[0].checked) {
                 $("#free-vaccines-adults")[0].checked = true;
             }
+            filterMarkers();
+        });
+        $("#free-vaccines-nonregistered").change(function () {
             filterMarkers();
         });
         filterMarkers();
