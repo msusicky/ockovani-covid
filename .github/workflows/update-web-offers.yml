@@ -8,7 +8,6 @@ concurrency: production_env
 jobs:
   deploy:
     name: Update static pages - offers
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: production
     runs-on: ubuntu-22.04
     env:
