@@ -128,6 +128,8 @@ def praktici_admin_edit():
                 vaccine.nemoc = nemoc
                 vaccine.typ_vakciny = typ_vakciny
 
+            vaccine.pocet_davek = 0
+
             aktivni = [int(v) - 1 for v in request.form.getlist('aktivni[]')]
             vaccine.aktivni = i in aktivni
 
