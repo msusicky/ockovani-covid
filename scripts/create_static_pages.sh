@@ -14,6 +14,7 @@ if [ $wget_res -ne 0 ]; then
 fi
 
 find $WEB_DIR -name "*.html" -type f -delete
+
 cp -r ${WEB_TMP_DIR}/127.0.0.1:5000/* ${WEB_DIR}/
 rm -r $WEB_TMP_DIR
 
