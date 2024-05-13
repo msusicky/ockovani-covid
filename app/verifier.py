@@ -28,8 +28,8 @@ class Verifier:
         #     app.logger.error(f'Verify data - failed - registrations count is lower or equal than yesterday ({metrics.registrace_celkem_zmena_den}).')
         #     return False
 
-        if metrics.ockovani_pocet_davek_zmena_den is not None and metrics.ockovani_pocet_davek_zmena_den <= 0:
-            app.logger.error(f'Verify data - failed - vaccinated doses count is lower or equal than yesterday ({metrics.ockovani_pocet_davek_zmena_den}).')
+        if metrics.ockovani_pocet_davek_zmena_den is not None and metrics.ockovani_pocet_davek_zmena_den < 0:
+            app.logger.error(f'Verify data - failed - vaccinated doses count is lower than yesterday ({metrics.ockovani_pocet_davek_zmena_den}).')
             return False
 
         app.logger.info('Verify data - successful.')
