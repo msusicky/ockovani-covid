@@ -8,7 +8,7 @@
 59 4 5 * * bash /home/ockovani/prd/app/scripts/execute_action.sh 16635318
 
 # update GP page
-*/5 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 94783487
+*/10 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 94783487
 
 # post tweet - disabled
 # 35 7 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 6797956
