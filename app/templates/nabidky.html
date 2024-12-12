@@ -10,14 +10,19 @@ Nabídky očkování |
     <div class="col-12 col-sm-auto">
         <h3>Nabídky očkování</h3>
     </div>
+    <!--
     <div class="col-12 col-sm-auto ml-auto">
         <a class="btn btn-sm btn-primary btn-block mb-2" href="{{ url_for('view.nabidky_mapa') }}">
             <i class="fas fa-map-marked-alt"></i>
             Zobrazit na mapě
         </a>
-    </div>
+    </div>-->
 </div>
 
-{{ volne_vakciny(free_vaccines, free_vaccines_illness_options, kraj_options=kraj_options) }}
-
+<div class="alert alert-info text-justify alert-dismissible fade show" role="alert">
+    <p>
+        Seznam ordinací praktických lékařů a jejich kompletní nabídka očkování pro veřejnost je nově uveřejněna na stránkách https://ockoreport.uzis.cz/. V současné době nedochází k uveřejnění nových nabídek na této stránce.
+    </p>
+</div>
+    <!-- {{ volne_vakciny(free_vaccines, free_vaccines_illness_options, kraj_options=kraj_options) }} -->
 {% endblock %}
