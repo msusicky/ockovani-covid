@@ -1034,6 +1034,7 @@ class PrakticiLogin(db.Model):
     def __init__(self, id, passwd):
         self.zdravotnicke_zarizeni_kod = id
         self.heslo = passwd
+        self.neregistrovani = False
 
     def __repr__(self):
         return f"<PrakticiLogin(zdravotnicke_zarizeni_kod='{self.zdravotnicke_zarizeni_kod}')>"
