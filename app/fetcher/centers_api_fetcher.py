@@ -56,9 +56,7 @@ class CentersApiFetcher(Fetcher):
                 vekove_skupiny.append('5-15')
             if row['vaccionation_group_16']:
                 vekove_skupiny.append('16-17')
-            if row['vaccionation_group_18'] or row['vaccionation_group_30'] or row['vaccionation_group_40'] \
-                    or row['vaccionation_group_50'] or row['vaccionation_group_60'] or row['vaccionation_group_70'] \
-                    or row['vaccionation_group_80']:
+            if row['vaccionation_group_18']:
                 vekove_skupiny.append('18+')
 
             db.session.merge(OckovaciMisto(
@@ -84,13 +82,13 @@ class CentersApiFetcher(Fetcher):
                 poznamka=row['comment'],
                 verejna_poznamka=row['public_comment'],
                 vakciny=vakciny,
-                presun_2davky_nepovolen=row['v2_term_change_not_supported'],
-                presun_2davky_linka=row['v2_term_change_1221'],
-                presun_2davky_centrum=row['v2_term_change_vaccination_center'],
-                presun_2davky_telefon=row['v2_term_change_vaccination_center_phone'],
-                presun_2davky_email=row['v2_term_change_vaccination_center_email'],
-                presun_2davky_online=row['v2_term_change_online_request'],
-                presun_2davky_poznamka=row['v2_term_change_comment'],
+                presun_2davky_nepovolen=None,
+                presun_2davky_linka=None,
+                presun_2davky_centrum=None,
+                presun_2davky_telefon=None,
+                presun_2davky_email=None,
+                presun_2davky_online=None,
+                presun_2davky_poznamka=None,
                 davky=row['vaccine_round']
             ))
 
