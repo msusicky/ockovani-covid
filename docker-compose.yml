@@ -10,24 +10,8 @@ services:
       POSTGRES_PASSWORD: "ockovani"
       POSTGRES_USER: "ockovani"
       POSTGRES_DB: "ockovani"
-  app:
-    build:
-      context: .
-      dockerfile: dockerize/Dockerfile
-    links:
-      - db:db
-    depends_on:
-      - db
-    command: ["./dockerize/wait_for_db.sh", "db", "./dockerize/entrypoint.sh"]
-    environment:
-      POSTGRES_PASSWORD: "ockovani"
-      POSTGRES_USER: "ockovani"
-      POSTGRES_DB: "ockovani"
-      FLASK_ENV: "development"
-      FETCH_DATA: "$FETCH_DATA"
-      TZ: "Europe/Prague"
     ports:
-      - "5000:5000"
+      - "5432:5432"
 
 volumes:
   db_data: {}
