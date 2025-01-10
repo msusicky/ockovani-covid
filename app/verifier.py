@@ -24,7 +24,7 @@ class Verifier:
             app.logger.error(f'Metrics not found for today.')
             return False
 
-        # if metrics.registrace_celkem_zmena_den is not None and metrics.registrace_celkem_zmena_den <= -500: # should be 0, but it's failing too often
+        # if metrics.registrace_celkem_zmena_den is not None and metrics.registrace_celkem_zmena_den <= 0:
         #     app.logger.error(f'Verify data - failed - registrations count is lower or equal than yesterday ({metrics.registrace_celkem_zmena_den}).')
         #     return False
 
