@@ -6,9 +6,7 @@ on:
     types:
       - completed
 
-concurrency:
-  group: production_env
-  cancel-in-progress: true
+concurrency: production_env
 
 jobs:
   deploy:
