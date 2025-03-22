@@ -1,5 +1,5 @@
 # daily fetcher
-19 6 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481697
+0 9 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481697
 
 # hourly fetcher - disabled, centers probably don't update that often
 # 30 7-22 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 15481698
@@ -7,8 +7,8 @@
 # monthly fetcher
 59 4 5 * * bash /home/ockovani/prd/app/scripts/execute_action.sh 16635318
 
-# update GP page
-*/10 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 94783487
+# update GP page - disabled
+# */10 * * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 94783487
 
 # post tweet - disabled
 # 35 7 * * * bash /home/ockovani/prd/app/scripts/execute_action.sh 6797956
