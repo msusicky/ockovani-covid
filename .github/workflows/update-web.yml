@@ -46,5 +46,5 @@ jobs:
         with:
           inlineScript: |
             az vm deallocate --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
-            az vm resize --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME} --size Standard_B2s
+            az vm resize --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME} --size Standard_B1ms
             az vm start --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
