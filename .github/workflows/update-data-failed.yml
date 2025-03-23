@@ -1,0 +1,32 @@
+name: update-data-failed
+
+on:
+  workflow_run:
+    workflows: [update-data-daily]
+    types:
+      - completed
+
+concurrency: production_env
+
+jobs:
+  deploy:
+    name: Updata data failed - cleanup
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    environment: production
+    runs-on: ubuntu-22.04
+    env:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+      AZURE_VM_NAME: ${{ secrets.AZURE_VM_NAME }}
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure scale down VM
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az vm deallocate --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
+            az vm resize --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME} --size Standard_B1ms
+            az vm start --resource-group ${AZURE_RESOURCE_GROUP} --name ${AZURE_VM_NAME}
